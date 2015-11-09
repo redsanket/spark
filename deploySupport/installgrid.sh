@@ -132,17 +132,18 @@ function error_handler {
 trap 'error_handler ${LINENO}' ERR
 
 base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
+
+# Initialize the nodes variables from rolesdb roles
 if [ -f ${base}/cluster-list.sh ]
 then
+	echo ". ${base}/cluster-list.sh"
 	. ${base}/cluster-list.sh
 else
 	echo "failure: cluster-list.sh is not in same directory as $0. Exiting." 1>&2
 	exit 1
 fi
-
 st=$?
 [ "$st" -ne 0 ] && exit $st
-
 setGridParameters   "$1"
 
 if [ -z "$cluster" ] 
@@ -156,7 +157,7 @@ fi
 # use, that has had "pdsh....... hostname" run to verify that it is working.
 #
 ALLHOSTS=`cat hostlist.$1.txt`
-echo "hostlist = '$ALLHOSTS'" | fmt
+#echo "hostlist = '$ALLHOSTS'" | fmt
 ALLNAMENODES=`cat namenodes.$cluster.txt`
 ALLSECONDARYNAMENODES=`cat secondarynamenodes.$cluster.txt`
 ALLNAMENODESAndSecondaries=`cat allnamenodes.$cluster.txt`
@@ -169,19 +170,19 @@ HOSTLISTNOGW=`echo $HOSTLISTNOGW1 | tr ' ' ,`
 [ -e regionservernodes.$cluster.txt ] && export REGIONSERVERNODES=`cat regionservernodes.$cluster.txt`
 
 ALLSLAVES=`cat slaves.$1.txt`
-echo "slavelist = '$ALLSLAVES'" | fmt
+# echo "slavelist = '$ALLSLAVES'" | fmt
 
 if [ -z "$NAMENODE_Primary" ] 
 then
 	echo "failure: No namenodes indicated in list."
 	exit 1
-else
-        echo "namenode (primary): " $NAMENODE_Primary
-        echo "namenodes: " $ALLNAMENODES
+#else
+#        echo "namenode (primary): " $NAMENODE_Primary
+#        echo "namenodes: " $ALLNAMENODES
 fi
 
-    # cp slaves.$cluster.txt  /tmp/slaves.$cluster.txt
-    cp slaves.$1.txt  $scripttmp/slaves.$cluster.txt
+# cp slaves.$cluster.txt  /tmp/slaves.$cluster.txt
+cp slaves.$1.txt  $scripttmp/slaves.$cluster.txt
 
 export WCALL=hostlist.$1.txt
 
@@ -197,16 +198,16 @@ export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' 
 echo =====================================================
 echo ===  installing grid: $cluster
 echo =====================================================
-echo ===  gateway=$gateway
-echo ===  namenode=$NAMENODE_Primary
-echo ===  namenodes="$ALLNAMENODES"
-#[ -n "$yroots" ] && echo ===  gateways/yroots="$yroots"
-[ -n "$gateways" ] && echo ===  gateways/yroots="$gateways"
-[ -n "$hitnodes" ] && echo gateways/hit-yroots="$hitnodes"
-echo ===  jobtrackernode=$jobtrackernode
-echo ===  confpkg=$confpkg
-echo ===  HOSTLIST=$HOSTLIST all nodes
-echo ===  SLAVELIST=$SLAVELIST slave nodes
+echo "===  gateway='$gateway'"
+echo "===  namenode='$NAMENODE_Primary'"
+echo "===  namenodes='$ALLNAMENODES'"
+#[ -n "$yroots" ] && echo "===  gateways/yroots='$yroots'"
+[ -n "$gateways" ] && echo "===  gateways/yroots='$gateways'"
+[ -n "$hitnodes" ] && echo "gateways/hit-yroots='$hitnodes'"
+echo "===  jobtrackernode='$jobtrackernode'"
+echo "===  confpkg='$confpkg'"
+echo "===  HOSTLIST='$HOSTLIST' (all nodes)"
+echo "===  SLAVELIST='$SLAVELIST' (slave nodes)"
 echo =====================================================
 echo =====================================================
 scripttmp=/grid/0/tmp/scripts.deploy.$cluster

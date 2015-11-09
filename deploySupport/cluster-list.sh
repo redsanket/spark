@@ -189,9 +189,13 @@ setGridParameters() {
              export daqnode=`$base/dumpMembershipList.sh  $cluster.daq`
         roleExists $cluster.oozie && \
              export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
-        roleExists $cluster && \
-             # install tez on all cluster nodes and also the gateway node
-             export teznode=`$base/dumpMembershipList.sh  $cluster,$cluster.gateway`
+	if roleExists $cluster; then
+             teznode=`$base/dumpMembershipList.sh  $cluster`
+	     if [[ -n gateway ]]; then
+		 teznode+=" $gateway"
+	     fi
+	     export teznode=$teznode
+	fi
         roleExists $cluster.yroots && \
              export yroots=`$base/dumpMembershipList.sh  $cluster.yroots`
         roleExists $cluster.gateways && \
@@ -229,25 +233,23 @@ setGridParameters() {
        fi
 
        
-       echo namenode = \"$namenode\"
-       echo secondarynamenode = \"$secondarynamenode\"
-       echo jobtrackernode = $jobtrackernode
-       echo gateway = $gateway
-       [ -n "$oozienode" ] && echo oozienode = $oozienode
-       [ -n "$teznode" ] && echo teznode = $teznode
-       [ -n "$hdfsproxynode" ] && echo hdfsproxynode = $hdfsproxynode
-       [ -n "$hcatservernode" ] && echo hcatservernode = $hcatservernode
-       [ -n "$daqnode" ] && echo daqnode = $daqnode
+       echo "namenode='$namenode'"
+       echo "secondarynamenode='$secondarynamenode'"
+       echo "jobtrackernode='$jobtrackernode'"
+       echo "gateway='$gateway'"
+       [ -n "$oozienode" ] && echo "oozienode='$oozienode'"
+       [ -n "$teznode" ] && echo "teznode='$teznode'"
+       [ -n "$hdfsproxynode" ] && echo "hdfsproxynode='$hdfsproxynode'"
+       [ -n "$hcatservernode" ] && echo "hcatservernode='$hcatservernode'"
+       [ -n "$daqnode" ] && echo "daqnode='$daqnode'"
        
-       if [ -n "$yroots" ]
-       then
+       if [ -n "$yroots" ]; then
           export yroots="$yroots $hitnodes"
-          echo yroots = $yroots
        else
           export yroots="$hitnodes"
-          echo yroots = $yroots
-          echo "      (hitnodes = $hitnodes)"
        fi
+       [ -n "$yroots" ] && echo "yroots='$yroots'"
+       [ -n "$hitnodes" ] && echo "hitnodes='$hitnodes'"
       
         # step 2d: Now, set up variables that the deploy-script needs.
        export gridname=$cluster
@@ -279,7 +281,7 @@ setGridParameters() {
        mv hostlist.$cluster.txt.1 hostlist.$cluster.txt
        
        nmachines=`wc -l hostlist.$cluster.txt | cut -f1 -d' '`
-       echo "**** " ; echo "**** $nmachines in cluster" ; echo "**** "
+       echo "**** " ; echo "**** $nmachines node cluster" ; echo "**** "
        tmp="$namenode $secondarynamenode"
        re=`echo $tmp  | tr  ' '  '|'`
        if [ "$zookeepernodes" ]
@@ -295,10 +297,8 @@ setGridParameters() {
        [  -n  "$hcatservernode" ]  && re="$re|$hcatservernode"
        [  -n  "$daqnode" ]  && re="$re|$daqnode"
        [  -n  "$jobtrackernode" ]  && re="$re|$jobtrackernode"
-echo "debug"
-echo "debug   re='$re'"
-echo "debug"
-          egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
+       echo "re='$re'"
+       egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
 #
 
 #

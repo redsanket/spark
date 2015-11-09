@@ -39,27 +39,19 @@ if [[ $? != "0" ]];then
 fi
 
 # Fetch the hadoop version
-set -x
 export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2`
-set +x
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
 fi
 # short version: e.g 2.6
-set -x
 export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
-set +x
-
 if [[ "$HADOOPVERSION" > "2.6" ]]; then
     HADOOP_27="true"
 else
     HADOOP_27="false"
 fi
-set -x
 export HADOOP_27=$HADOOP_27
-set +x
-
 
 HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
 if [[ "$HADOOP_27" == "true" ]]; then
@@ -69,20 +61,23 @@ else
 fi
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
-if [ -n "$HADOOP_RELEASE_TAG" ]
-then
-    export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
-    for i in $HADOOP_CORE_PKGS
-    do
-        export HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
-        export HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
+if [ -n "$HADOOP_RELEASE_TAG" ]; then
+    for i in $HADOOP_CORE_PKGS; do
+        HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+        HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
     done
-    for i in $HADOOP_MVN_PKGS
-    do
-        export HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
-        export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
+    HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING|sed 's/ *//'`
+    export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
+
+    for i in $HADOOP_MVN_PKGS; do
+        HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+        HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
     done
+    HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING|sed 's/ *//'`
+    export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
+
     export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
+    export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
     export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
 else
     if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
@@ -126,7 +121,6 @@ fi
 if [ ! -z "$TEZ_DIST_TAG" ]
 then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -c11-28`
-    echo "readback tez version as:$TEZVERSION"
 fi
 
 if [ ! -z "$AUTO_CREATE_RELEASE_TAG" ]
@@ -150,12 +144,14 @@ echo ===
 echo ===
 echo ===
 echo ===
-echo ===  New Dist Tag: $NEW_DIST_TAG
-echo ===  Dist Tag: $HADOOP_RELEASE_TAG
-echo ===  Hadoop Version: $FULLHADOOPVERSION
-echo ===  Requested to install $HADOOP_INSTALL_STRING
-echo ===  Requested configs: $HADOOP_CONFIG_INSTALL_STRING
-echo ===  Requested MVN pkgs: $HADOOP_MVN_INSTALL_STRING
+echo "===  Dist Tag='$HADOOP_RELEASE_TAG'"
+echo "===  Hadoop Version (full)='$FULLHADOOPVERSION'"
+echo "===  Hadoop Version (short)='$HADOOPVERSION'"
+echo "===  HADOOP_27='$HADOOP_27'"
+[ -n $TEZVERSION ] && echo "===  Tez Version='$TEZVERSION'"
+echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
+echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
+echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
 echo ===
 echo ===
 echo ===
