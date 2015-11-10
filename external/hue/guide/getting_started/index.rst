@@ -1315,11 +1315,11 @@ by a user or key term, also look at the cluster and ResourceManager logs.
    :ref:`Troubleshooting <gs-troubleshooting>`. 
 
 
-    .. note:: Once you are done with the tutorial and 
-              experimenting with the data,
-              please drop the databases and tables you created
-              during the tutorial to free up grid resources
-              for others.
+.. note:: Once you are done with the tutorial and 
+          experimenting with the data,
+          please drop the databases and tables you created
+          during the tutorial to free up grid resources
+          for others.
 
 .. See the :ref:`How Tos <gs-troubleshooting>` chapter to learn more.
   
