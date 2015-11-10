@@ -1020,12 +1020,12 @@ what we've done thus far.
       **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
    #. Click the **Save** icon.
 
-   .. image:: images/hdfs_fs_action-add_dirs.jpg
-      :height: 586 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Specifying Delete and Create Directories.
-      :align: left 	
+      .. image:: images/hdfs_fs_action-add_dirs.jpg
+         :height: 586 px
+         :width: 950 px
+         :scale: 90%
+         :alt: Specifying Delete and Create Directories.
+         :align: left 	
 
    We're deleting and recreating the path for our results. 
 
@@ -1101,12 +1101,12 @@ what we've done thus far.
    #. For the **Shell command** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
    #. Click **Add**.
  
-   .. image:: images/create_shell_action.jpg
-      :height: 139 px
-      :width: 449 px
-      :scale: 98%
-      :alt: Creating a Shell Script Action
-      :align: left   
+      .. image:: images/create_shell_action.jpg
+         :height: 139 px
+         :width: 449 px
+         :scale: 98%
+         :alt: Creating a Shell Script Action
+         :align: left   
 
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
 #. Create the Pig action by doing the following:
@@ -1117,11 +1117,11 @@ what we've done thus far.
       in the **Script** text field.
    #. Click **Add**.
 
-   .. image:: images/create_pig_action.jpg
-      :height: 138 px
-      :width: 449 px
-      :scale: 98%
-      :alt: Creating a Pig Action
+      .. image:: images/create_pig_action.jpg
+         :height: 138 px
+         :width: 449 px
+         :scale: 98%
+         :alt: Creating a Pig Action
 
 #. From the **remove_null_camera_locations** Pig action, click the **Properties** icon to
    open the **Properties** tab.
@@ -1144,8 +1144,6 @@ what we've done thus far.
              only needed for Hive.
 
 #. Click **Save**.
-
-
 #. Finally, we want the job to notify us when we're done. So, go ahead and create an **Email** action
    by dragging the **Email** icon to the gray empty dotted box under the **remove_null_camera_locations** action. 
 #. In the dialog box, do the following:
@@ -1161,11 +1159,11 @@ what we've done thus far.
 
    #. Click **Add**.
 
-   .. image:: images/email_action.jpg
-      :height: 225 px
-      :width: 450 px
-      :scale: 100%
-      :alt: Creating an Email Action
+      .. image:: images/email_action.jpg
+         :height: 225 px
+         :width: 450 px
+         :scale: 100%
+         :alt: Creating an Email Action
 
 #. Click **Save**.
 #. From the right-hand side of the **Oozie Editor** navigation bar, click |arrowhead| to submit your Oozie job.
