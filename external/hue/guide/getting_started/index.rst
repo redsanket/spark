@@ -1011,7 +1011,7 @@ what we've done thus far.
       :alt: Create Fs Action 
       :align: left 	
 
-#. In the pop-up dialog that opens, click **Add**.
+#. In the dialog box that opens, click **Add**.
 #. Specify the paths to delete and create by doing the following:
   
    #. Click the dialog title **HDFS Fs** to open a text box. Enter the string **hue_tutorial_refresh** and click the **√** symbol.
@@ -1039,12 +1039,12 @@ what we've done thus far.
    #. In the **Destination** text field, enter **/user/{your_user_name}/hue_tutorial/**.
    #. Click **Add**.
 
-   .. image:: images/copy_flickr_data.jpg
-      :height: 144px
-      :width: 359 px
-      :scale: 100%
-      :alt: Create DistCp action.
-      :align: left 	
+      .. image:: images/copy_flickr_data.jpg
+         :height: 144px
+         :width: 359 px
+         :scale: 100%
+         :alt: Create DistCp action.
+         :align: left 	
 
    For the rest of the steps in this section, we'll be omitting screenshots unless the interface changes for a step.
    We feel you have figured out the basic mechanics of creating actions.
@@ -1095,7 +1095,7 @@ what we've done thus far.
 #. To create a **Shell** task that creates a CSV file from the Hive table the last
    task creates, from the **ACTIONS** panel, drag the **Shell** icon to the next empty dotted box under the **camera_location_query** action. 
 
-#. In the pop-up dialog box, do the following:
+#. In the dialog box, do the following:
 
    #. Click the **Shell** link and enter the title **create_camera_location_csv**.
    #. For the **Shell command** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
@@ -1111,7 +1111,7 @@ what we've done thus far.
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
 #. Create the Pig action by doing the following:
 
-   #. In the pop-up dialog box, click the link **Pig Script** and enter **remove_null_camera_locations** as the 
+   #. In the dialog box, click the link **Pig Script** and enter **remove_null_camera_locations** as the 
       name of the Pig action.
    #. Enter the path **/user/{your_user_name}/hue_scripts/remove_null_locations.pig** 
       in the **Script** text field.
@@ -1148,7 +1148,7 @@ what we've done thus far.
 
 #. Finally, we want the job to notify us when we're done. So, go ahead and create an **Email** action
    by dragging the **Email** icon to the gray empty dotted box under the **remove_null_camera_locations** action. 
-#. In the pop-up dialog box, do the following:
+#. In the dialog box, do the following:
 
    #. Click the **Email** link and enter the text **hue_tutorial_notification** in the text field, and click **√**. 
    #. In the **To addresses** text field, enter your email address.
