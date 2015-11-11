@@ -235,7 +235,7 @@ done
 [ -z "$EXCLUDE_HIT_TESTS" ] && export EXCLUDE_HIT_TESTS=none
 [ -z "$RUN_HIT_TESTS" ] && export RUN_HIT_TESTS=false
 [ -z "$INSTALL_TEZ" ] && export INSTALL_TEZ=false
-[ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=false
+[ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$PIGVERSION" ] && export PIGVERSION=none
 [ -z "$OOZIEVERSION" ] && export OOZIEVERSION=none
