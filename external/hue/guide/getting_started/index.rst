@@ -1035,13 +1035,13 @@ what we've done thus far.
 #. In the dialog window, do the following: 
  
    #. Click the dialog title **Distcp**, enter the text **copy_flickr_data** in the text box, and then click **√**.
-   #. In the **Source** text field, enter **/user/rbernota/Flickr100cc/flickr100m_dataset.bz2**.
+   #. In the **Source** text field, enter **/user/rbernota/HueTalk/Flickr100cc/flickr100m_dataset.bz2**.
    #. In the **Destination** text field, enter **/user/{your_user_name}/hue_tutorial/**.
    #. Click **Add**.
 
       .. image:: images/copy_flickr_data.jpg
-         :height: 144px
-         :width: 359 px
+         :height: 179px
+         :width: 451 px
          :scale: 100%
          :alt: Create DistCp action.
          :align: left 	
