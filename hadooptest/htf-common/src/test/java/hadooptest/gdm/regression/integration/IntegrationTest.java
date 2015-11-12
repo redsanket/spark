@@ -57,9 +57,9 @@ public class IntegrationTest  extends TestSession {
 	private static final String TARGET_START_TYPE_MIXED = "Mixed";
 	private static final String TARGET_START_TYPE_DATAONLY = "DataOnly";
 	private static final int SUCCESS = 200;
-	private static final String SOURCE_NAME= "elrond";
+	private static final String SOURCE_NAME= "qe6blue";
 	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
-	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_DAILY/";
+	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_Daily/";
 	private static final String DATABASE_NAME = "gdm";
 	private static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
 
@@ -235,11 +235,13 @@ public class IntegrationTest  extends TestSession {
 	private void createDataSet() {
 		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/ABFHcatDataSet.xml");
 		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
-		String feedName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Parameters" , "value");
+		
+		// removed the dependency on base dataset.
+		//String feedName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Parameters" , "value");
 		dataSetXml = dataSetXml.replaceAll("TARGET1_NAME", this.destinationCluster );
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
-		dataSetXml = dataSetXml.replaceAll("FEED_NAME", feedName );
-		dataSetXml = dataSetXml.replaceAll("FEED_STATS", feedName + "_stats" );
+		dataSetXml = dataSetXml.replaceAll("FEED_NAME", "temp" );
+		dataSetXml = dataSetXml.replaceAll("FEED_STATS", "temp" + "_stats" );
 		dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster );
 		dataSetXml = dataSetXml.replace("HCAT_TYPE", this.HCAT_TYPE);
 		dataSetXml = dataSetXml.replace("ABF-DATA-PATH", this.ABF_DATA_PATH + "%{date}");
