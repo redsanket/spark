@@ -28,6 +28,7 @@ public class IntegrateHive {
 	private String hcatVersion;
 	private String initialCommand;
 	private String dataPath;
+	private String pigVersion;
 	private boolean tableDropped = false;
 	private boolean tableCreated = false;
 	private boolean dataLoadedToHive = false;
@@ -40,8 +41,12 @@ public class IntegrateHive {
 	public static final String PIG_HOME = "export PIG_HOME=/home/y/share/pig";
 	private final static String PATH_COMMAND = "export PATH=$PATH:";
 
-	public IntegrateHive() {
-		this.hiveHostName =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hiveHostName").trim();
+	public IntegrateHive() {		
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".hive)\"";
+		String hName = this.executeCommand(command).trim();
+		TestSession.logger.info("Hive hostname -  " + hName);
+		this.hiveHostName = hName;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 		Calendar calendar = Calendar.getInstance();
 		Date d = new Date();
@@ -55,6 +60,14 @@ public class IntegrateHive {
 
 	public String getCurrentFeedName() {
 		return this.currentFeedName;
+	}
+	
+	public  void setPigVersion(String pigVersion) {
+		this.pigVersion = pigVersion;
+	}
+	
+	public String getPigVersion() {
+		return this.pigVersion;
 	}
 	
 	public boolean getHiveHealthCheckup() {
@@ -111,7 +124,7 @@ public class IntegrateHive {
 		if (hiveDropTableScript.exists() && hiveCreateTableScript.exists()) {
 			
 			
-			TestSession.logger.info("hbasePigScriptLocation  = " + this.getHiveScriptLocation());
+			TestSession.logger.info("hive PigScriptLocation  = " + this.getHiveScriptLocation());
 			String mkdirCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  "  + this.hiveHostName + " mkdir  " + this.getHiveScriptLocation();
 			String mkdirOuput = this.executeCommand(mkdirCommand);
 			String scpCommand = "scp   -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + absolutePath +"/resources/stack_integration/hive/*.*" + "  " +  this.hiveHostName + ":" + this.getHiveScriptLocation();
@@ -232,6 +245,39 @@ public class IntegrateHive {
 		}
 	}
 	
+	
+	public void modifyFetchDataUsingHCatalogFile() throws IOException {
+		String absolutePath = new File("").getAbsolutePath();
+		File copySourceFilePath = new File(absolutePath + "/resources/stack_integration/hive/FetchHiveDataUsingHCatalog_temp.pig");
+		File filePath = new File(absolutePath + "/resources/stack_integration/hive");
+		if (copySourceFilePath.exists()) {
+			String fileContent = new String(readAllBytes(get(filePath + "/FetchHiveDataUsingHCatalog_temp.pig")));
+			fileContent = fileContent.replace("PIG_VERSION", this.getPigVersion().trim());
+			TestSession.logger.info("fileContent  = " + fileContent);
+			
+			String newPigScriptFilePath = filePath + "/FetchHiveDataUsingHCatalog.pig";
+			File file = new File(newPigScriptFilePath);
+			if (file.exists()) {
+				TestSession.logger.info(newPigScriptFilePath + "  already exists.");
+				if (file.delete() == true) {
+					TestSession.logger.info(newPigScriptFilePath + " file deleted successfully **** ");
+					java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
+					TestSession.logger.info("Successfully " + newPigScriptFilePath + " created. *************");
+				} else {
+					TestSession.logger.info("Failed to delete " + newPigScriptFilePath);	
+				}
+			}else {
+				TestSession.logger.info(newPigScriptFilePath + " does not exists");
+				java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
+				File f = new File(newPigScriptFilePath);
+				if (f.exists() == true) {
+					TestSession.logger.info(newPigScriptFilePath + "  created successfully......................");
+				}
+			}
+		} else {
+			fail(copySourceFilePath.toString() + "  file does not exists. Hence Hive Component cannot be tested.");
+		}
+	}
 
 	public void modifyLoadDataIntoHiveScript() throws IOException {
 		String  absolutePath = new File("").getAbsolutePath();
@@ -284,7 +330,7 @@ public class IntegrateHive {
 	}
 	
 	public void fetchDataUsingHCat() {
-		String command =  this.initialCommand  + this.PIG_HOME + ";"  + PATH_COMMAND + "; pig -useHCatalog  -Dpig.additional.jars=/home/y/libexec/hive/lib/*.jar:/home/y/share/sharelib/lib/hive-0.13.2.3.1510070046/*.jar:/home/y/libexec/hive/lib/*.jar:/home/y/libexec/hive/auxlib/jdo-api*.jar   -x mapreduce " +
+		String command =  this.initialCommand  + this.PIG_HOME + ";"  + PATH_COMMAND + "; pig -useHCatalog  -Dpig.additional.jars=/home/y/libexec/hive/lib/*.jar:/home/y/share/sharelib/lib/hive-"+ this.getHiveVersion() +"/*.jar:/home/y/libexec/hive/lib/*.jar:/home/y/libexec/hive/auxlib/jdo-api*.jar   -x mapreduce " +
 				this.getHiveScriptLocation() + "/FetchHiveDataUsingHCatalog.pig" + "\" " ;
 		TestSession.logger.info("command   = " + command);
 		String  absolutePath = new File("").getAbsolutePath();
