@@ -284,7 +284,6 @@ public class TestBasicDRPC extends TestSessionStorm {
             assertEquals("-1", parts[2]);
             assertEquals("__system", parts[3]);
             assertTrue(parts[5].contains("enqueued"));
-            assertTrue(parts[5].contains("pending"));
             assertTrue(parts[5].contains("dequeuedMessages"));
           }
           if ("__send-iconnection".equals(parts[4])) {
