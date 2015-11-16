@@ -97,7 +97,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     esac
 
     if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
-        echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=EXAMPLE-local-capacity-scheduler.xml \\
+        echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=/home/gs/gridre/yroot.${cluster}/conf/hadoop/EXAMPLE-local-capacity-scheduler.xml \\
     fi
     if [ "$HBASE_SHORTCIRCUIT" = true ] || [ "$HBASEVERSION" != "none" ]; then
         echo "  " -set $confpkg.TODO_DFS_CLIENT_READ_SHORTCIRCUIT=true \\
