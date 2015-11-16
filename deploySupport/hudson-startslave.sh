@@ -222,7 +222,7 @@ do
     fi
 done
 [ -z "$INSTALL_GW_IN_YROOT" ] && export INSTALL_GW_IN_YROOT=false
-[ -z "$USE_DEFAULT_QUEUE_CONFIG" ] && export USE_DEFAULT_QUEUE_CONFIG=false
+[ -z "$USE_DEFAULT_QUEUE_CONFIG" ] && export USE_DEFAULT_QUEUE_CONFIG=true
 [ -z "$ENABLE_HA" ] && export ENABLE_HA=false
 
 [ -z "$STARTNAMENODE" ] && export STARTNAMENODE=true
