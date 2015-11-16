@@ -298,6 +298,18 @@ my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hado
 # especially on OpenStack.
 execute("mkdir /grid/0/tmp/htf_mvn_repo");
 my $dependencies_opt = "-Dmaven.repo.local=/grid/0/tmp/htf_mvn_repo";
+
+# This relies on the hadoop options adding the correct dependencies below
+if ($sparkversion) {
+    $dependencies_opt .= " -Dspark.hadoop.version=$sparkhadoopversion -Dspark.version=$sparkversion -Dspark.version.full=$sparkversionfull";
+}
+elsif ($spark14) {
+    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.4.0.0 -Dspark.version.full=1.4.0.0_2.6.0.16.1506060127_1506241920";
+}
+elsif ($spark15) {
+    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.5.1.0 -Dspark.version.full=1.5.1.0_2.6.0.16.1506060127_1509251420";
+}
+
 if ($storm) {
 	# When Storm is used, this profile must be called before profile-ci
 	# or any other profile.  If another profile is used first, the
@@ -321,15 +333,6 @@ elsif ($storm090) {
 	# that Storm API calls and configuration will be using the
 	# deployed Storm jars. -->
     $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
-}
-elsif ($sparkversion) {
-    $dependencies_opt .= " -Dspark.hadoop.version=$sparkhadoopversion -Dspark.version=$sparkversion -Dspark.version.full=$sparkversionfull -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
-}
-elsif ($spark14) {
-    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.4.0.0 -Dspark.version.full=1.4.0.0_2.6.0.16.1506060127_1506241920 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
-}
-elsif ($spark15) {
-    $dependencies_opt .= " -Dspark.hadoop.version=2.6.0.16.1506060127 -Dspark.version=1.5.1.0 -Dspark.version.full=1.5.1.0_2.6.0.16.1506060127_1509251420 -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
