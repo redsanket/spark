@@ -229,7 +229,7 @@ public class IntegrateHive {
 					java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
 					TestSession.logger.info("Successfully " + newPigScriptFilePath + " created. *************");
 				} else {
-					TestSession.logger.info("Failed to delete " + newPigScriptFilePath);	
+					TestSession.logger.error("Failed to delete " + newPigScriptFilePath);	
 				}
 			} else {
 				TestSession.logger.info(newPigScriptFilePath + " does not exists");
@@ -264,7 +264,7 @@ public class IntegrateHive {
 					java.nio.file.Files.write(java.nio.file.Paths.get(newPigScriptFilePath), fileContent.getBytes());
 					TestSession.logger.info("Successfully " + newPigScriptFilePath + " created. *************");
 				} else {
-					TestSession.logger.info("Failed to delete " + newPigScriptFilePath);	
+					TestSession.logger.error("Failed to delete " + newPigScriptFilePath);	
 				}
 			}else {
 				TestSession.logger.info(newPigScriptFilePath + " does not exists");
@@ -296,7 +296,7 @@ public class IntegrateHive {
 					java.nio.file.Files.write(java.nio.file.Paths.get(newFilePath), fileContent.getBytes());
 					TestSession.logger.info("Successfully " + newFilePath + " created. *************");
 				} else {
-					TestSession.logger.info("Failed to delete " + newFilePath);	
+					TestSession.logger.error("Failed to delete " + newFilePath);	
 				}
 			} else {
 				TestSession.logger.info(newFilePath + " does not exists");
