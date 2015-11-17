@@ -97,7 +97,7 @@ public class IntegrateTez  {
 	public boolean getTezHealthCheck() {
 		boolean flag = false;
 		//String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
-		String command = "ssh " + this.tezHostname + " ls -t " + TEZ_HOME + "tez-api-*";
+		String command = "ssh " + this.tezHostname + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
 		String logOutput = this.executeCommand(command, "Tez_State");
 		List<String> logOutputList = Arrays.asList(logOutput.split("\n"));
 		for ( String log : logOutputList) {
