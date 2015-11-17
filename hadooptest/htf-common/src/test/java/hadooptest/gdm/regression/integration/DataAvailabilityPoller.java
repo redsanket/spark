@@ -1,12 +1,12 @@
 package hadooptest.gdm.regression.integration;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static java.lang.System.out;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,25 +24,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Test;
 
 import com.google.common.base.Splitter;
-import hadooptest.cluster.gdm.ConsoleHandle;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 /**
  * Class that polls for the data on the grid and starts the oozie job and checks for the status of the oozie job.
@@ -75,6 +70,7 @@ public class DataAvailabilityPoller {
 	private NameNodeTheadDemon nameNodeTheadDemonObject;
 	private NameNodeDFSMemoryDemon nameNodeDFSMemoryDemonObject;
 	private DataBaseOperations dbOperations;
+	private List<String> stackComponent ;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String FEED_INSTANCE = "20130309";
 	private final static String FEED_NAME = "bidded_clicks";
@@ -157,9 +153,12 @@ public class DataAvailabilityPoller {
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
 
+		String sComponents =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+		this.stackComponent = Arrays.asList(sComponents.split(","));
+
 		// start namenode thread demon
-	/*  commented intensionally : TODO need to get the scope for this.
-	 * 	this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
+		/*  commented intensionally : TODO need to get the scope for this.
+		 * 	this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
 		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();*/
 
 		// start namenode dfs memory demon
@@ -180,7 +179,7 @@ public class DataAvailabilityPoller {
 				this.hbaseHealthStatus = false;
 				this.tezHealthStatus = false;
 				this.pigHealthStatus = false;
-				
+
 				TestSession.logger.info("------- hr has started..! -------------");
 
 				Calendar currentTimeStampCal = Calendar.getInstance();
@@ -226,77 +225,82 @@ public class DataAvailabilityPoller {
 				String dt = dateFormat.format(date);
 				DateFormat dateFormat1 = new SimpleDateFormat("yyyy/MM/dd");
 				String updateTime = dateFormat1.format(date);
-				String hbaseMasterResult = this.getHBaseHealthCheck().trim();
-				int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
-				TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
-				String hbaseVersion = null;
-				// if either hbase master or hbase regional server are down, mark hbase as down
-				// TODO : Need to find a way to say that which service is down on the front end
-				
-				if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
-					//String result = hbaseMasterResult + "~0.0";
-					hbaseMasterResult = hbaseMasterResult + "~0.0"; 
-					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , result);
-				} else {
-					this.hbaseHealthStatus = true;
-					hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
-					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult);
-				}
-				
-				TestSession.logger.info("******************************  inserting record into health table *************************************************");
 
-				// get installed stack components versions
-				String hadoopVersion = this.getHadoopVersion();
-				this.pigHealthStatus = this.checkPigHealthCheckup();
+				String hbaseVersion = "";
 				String pigStatus = "";
+				String tezStatus = "";
+				String hiveStatus = "";
+				String hcatStatus = "";
+				String hbaseMasterResult = "";
+				String tezVersion = "";
+				String oozieVersion = "";
+
+
+				/*if (sComponent.toUpperCase().equals("HBASE")) {
+						hbaseMasterResult = this.getHBaseHealthCheck().trim();
+						int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
+						TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
+
+						// if either hbase master or hbase regional server are down, mark hbase as down
+						// TODO : Need to find a way to say that which service is down on the front end
+
+						if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
+							hbaseMasterResult = hbaseMasterResult + "~0.0"; 
+						} else {
+							this.hbaseHealthStatus = true;
+							hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
+						}
+					}*/ 
+				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
 					pigStatus = "active~" + this.getPigVersion();
 				} else if (this.pigHealthStatus == true) {
 					pigStatus = "down~0.0";
 				}
-				
-				String oozieVersion = this.getOozieVersion();
-				
-				// tez health checkup
+
 				IntegrateTez integrateTez = new IntegrateTez();
 				this.tezHealthStatus = integrateTez.getTezHealthCheck();
-				String tezVersion = integrateTez.getTezVersion();
-				String tezStatus = "";
+				tezVersion = integrateTez.getTezVersion();
+
 				if (integrateTez.getTezHealthCheck() == false) {
 					tezStatus = "down~0.0";
-					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult , "down~0.0");
 				} else if (integrateTez.getTezHealthCheck() ==  true) {
 					tezStatus = "active~" + tezVersion;
-					//this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , hbaseMasterResult , "active~" + tezVersion);
 				}
-				
-				
-				//con1.close();
-				
-				// hive version
+
 				IntegrateHive integrateHiveObj = new IntegrateHive();
 				this.hiveHealthStatus = integrateHiveObj.getHiveHealthCheckup();
-				String hiveVersion = integrateHiveObj.getHiveVersion();
-				String hiveStatus = "";
+				String currentHiveVersion = integrateHiveObj.getHiveVersion();
 				if (this.hiveHealthStatus == true) {
-					hiveStatus = "active~" + hiveVersion;
+					hiveStatus = "active~" + currentHiveVersion;
 				} else if (this.hiveHealthStatus == true) {
 					hiveStatus = "down~0.0";
 				}
-				
+				//} else if (sComponent.toUpperCase().equals("OOZIE")) {
+
+				// TODO : need to write code to check if oozie component is down
+				//	oozieVersion = this.getOozieVersion();
+				//} else  if (sComponent.toUpperCase().equals("HCAT")) {
 				boolean hcatHealthStatus = integrateHiveObj.isHCatDeployed();
 				String hcatVersion = integrateHiveObj.getHCatVersion();
-				String hcatStatus = "";
+
 				if (hcatHealthStatus == true) {
 					hcatStatus = "active~" + hcatVersion;
 				} else {
 					hcatStatus = "down~0.0";
 				}
-				
+				//}
+				//}
+
+				TestSession.logger.info("******************************  inserting record into health table *************************************************");
+
+				// get installed stack components versions
+				String hadoopVersion = this.getHadoopVersion();
+
 				// insert version into health_checkup table.
 				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus);
 				con1.close();
-				
+
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 
@@ -328,7 +332,7 @@ public class DataAvailabilityPoller {
 					this.searchDataAvailablity.setState("POLLING");
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , "POLLING" , "currentStep" , "dataAvailable" , this.currentFeedName);
 				}
-			}
+			} 
 
 			if (slaStartTime >= slaEnd  && isDataAvailable == false) {
 				TestSession.logger.info("*************************************************************************** ");
@@ -336,7 +340,7 @@ public class DataAvailabilityPoller {
 				this.dbOperations.updateRecord(this.con , "dataAvailable" ,IntegrationJobSteps.MISSED_SLA , "currentStep" , "dataAvailable" , "result" , "FAIL" ,this.currentFeedName);
 				TestSession.logger.info("*************************************************************************** ");
 			}
-			
+
 			TestSession.logger.info("Current state = " + this.searchDataAvailablity.getState());
 			TestSession.logger.info("pollStart = " + pollStart  + " pollEnd =   " + pollEnd);
 			if (pollStart >= pollEnd) {
@@ -372,7 +376,7 @@ public class DataAvailabilityPoller {
 
 					// update db saying that data is AVAILABLE
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , "AVAILABLE" , "currentStep" , "dataAvailable", this.currentFeedName);
-					
+
 					// Test HBase
 					if (this.hbaseHealthStatus == true) {
 						IntegrateHBase integrateHBaseObject = new IntegrateHBase();
@@ -383,7 +387,7 @@ public class DataAvailabilityPoller {
 							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
 							integrateHBaseObject.modifyHBasePigFile();
 							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
-							
+
 							// create HBase table
 							integrateHBaseObject.createHBaseIntegrationTable();
 							if (integrateHBaseObject.isHBaseTableCreated() == true ) {
@@ -393,12 +397,12 @@ public class DataAvailabilityPoller {
 							} else if (integrateHBaseObject.isHBaseTableCreated() == false ) {
 								TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
 								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
-								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
 								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedBasePath());
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
 							}
 						}
 					}
-					
+
 					IntegrateTez integrateTez = new IntegrateTez();
 					IntegrateTez integrateTez1 = new IntegrateTez(this.currentFeedName , this.getCurrentFeedBasePath());
 					if (this.tezHealthStatus == true) {
@@ -411,13 +415,16 @@ public class DataAvailabilityPoller {
 						// update tez result, if health checkup fails
 						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
 					}
-					
+
 					if (this.hiveHealthStatus == true) {
 						IntegrateHive integrateHiveObj = new IntegrateHive();
+						integrateHiveObj.getHiveHealthCheckup();
 						integrateHiveObj.setDataPath(this.getCurrentFeedBasePath());
 						integrateHiveObj.setCurrentFeedName(this.currentFeedName);
+						integrateHiveObj.setPigVersion(this.getPigVersion());
 						integrateHiveObj.modifyPigFile();
 						integrateHiveObj.modifyLoadDataIntoHiveScript();
+						integrateHiveObj.modifyFetchDataUsingHCatalogFile();
 						integrateHiveObj.copyHiveFileToHiveServer();
 						integrateHiveObj.dropExistingHiveTable();
 						integrateHiveObj.createHiveTable();
@@ -425,8 +432,7 @@ public class DataAvailabilityPoller {
 						integrateHiveObj.loadDataIntoHive();
 						integrateHiveObj.fetchDataUsingHCat();
 					}
-					
-					
+
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
 					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
 					String outputResult = this.executeCommand(command);
@@ -438,7 +444,7 @@ public class DataAvailabilityPoller {
 
 					// set state to START_OOZIE_JOB
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
-					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
+					/*				if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 
 						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
 						TestSession.logger.info("oozieCommand  = " + oozieCommand);
@@ -453,7 +459,7 @@ public class DataAvailabilityPoller {
 						String oozieWorkFlowName = "stackint_oozie_RawInput_" + this.getCurrentFrequencyValue();
 						TestSession.logger.info("*************************************************************************************************************************************************");
 						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
-					}
+					}*/
 				}
 			}
 
@@ -1026,7 +1032,11 @@ public class DataAvailabilityPoller {
 	public String getHadoopVersion() {
 		String hadoopVersion = "Failed to get hadoop version";
 		boolean flag = false;
-		String integrationNameNodeHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.nameNodeHostName");
+
+		//String integrationNameNodeHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.nameNodeHostName");
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
+		ConsoleHandle consoleHandle = new ConsoleHandle();
+		String integrationNameNodeHostName = consoleHandle.getClusterNameNodeName(clusterName);
 		String getHadoopVersionCommand = "ssh " + integrationNameNodeHostName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
 		String outputResult = this.executeCommand(getHadoopVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
@@ -1051,9 +1061,13 @@ public class DataAvailabilityPoller {
 	public boolean checkPigHealthCheckup() {
 		String pigVersion = "Failed to get pig version";
 		boolean flag = false;
-		String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
-		String integrationPigHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pigHostName");
-		String getPigVersionCommand = "ssh " + gateWayHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;pig -version\"";
+
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".gateway)\"";
+		String gateWayHostName = this.executeCommand(command).trim();
+		TestSession.logger.info("gateWayHostName -  " + gateWayHostName);
+
+		String getPigVersionCommand = "ssh " + gateWayHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/gs/pig/latest/;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
 		String outputResult = this.executeCommand(getPigVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
@@ -1071,11 +1085,11 @@ public class DataAvailabilityPoller {
 		}
 		return flag;
 	}
-	
+
 	public void setPigVersion(String pigVersion) {
 		this.currentPigVersion = pigVersion;
 	}
-	
+
 	public String getPigVersion() {
 		return this.currentPigVersion;
 	}

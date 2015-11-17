@@ -26,7 +26,9 @@ public class IntegrateTez  {
 	private String tezVersion;
 	private String dataPath;
 	private String currentFeedName;
+	private String tezScriptLocation;
 	private boolean tezTested;
+	private String tezHostname;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	public static final String INTEGRATION_JAR="/tmp/integration_test_files/lib/*.jar";
 	public static final String PIG_HOME = "/home/y/share/pig";
@@ -34,8 +36,14 @@ public class IntegrateTez  {
 	public static final String TEZ_CONF_DIR ="/home/gs/conf/tez/current";
 	public static final String TEZ_HEALTH_CHECKUP = "tez_health";
 	public static final String TEZ_RESULT = "tez_result";
+	public static final String HADOOP_HOME="/home/gs/hadoop/current";
 	
 	public IntegrateTez() {
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".gateway)\"";
+		String tezHName = this.executeCommand(command).trim();
+		TestSession.logger.info("Tez hostname -  " + tezHName);
+		this.tezHostname = tezHName;
 	}
 	
 	public IntegrateTez(String currentFeedName , String dataPath) {
@@ -81,15 +89,15 @@ public class IntegrateTez  {
 	}
 
 	public String getPathCommand() {
-		String pathCommand = "export PATH=$PATH:" + PIG_HOME + ":" + TEZ_HOME + "/bin" + ":" + INTEGRATION_JAR + ":" + TEZ_HOME + ":" +  TEZ_CONF_DIR;
+		String pathCommand = "export PATH=$PATH:" + HADOOP_HOME + ":" +PIG_HOME + ":" + TEZ_HOME + "/bin" + ":" + INTEGRATION_JAR + ":" + TEZ_HOME + ":" +  TEZ_CONF_DIR;
 		TestSession.logger.info("export path value - " + pathCommand);
 		return pathCommand.trim();
 	}
 
 	public boolean getTezHealthCheck() {
 		boolean flag = false;
-		String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
-		String command = "ssh " + gateWayHostName + " ls -t " + TEZ_HOME + "tez-api-*";
+		//String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
+		String command = "ssh " + this.tezHostname + " ls -t " + TEZ_HOME + "tez-api-*";
 		String logOutput = this.executeCommand(command, "Tez_State");
 		List<String> logOutputList = Arrays.asList(logOutput.split("\n"));
 		for ( String log : logOutputList) {
@@ -114,8 +122,8 @@ public class IntegrateTez  {
 	
 	public void executeTez() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		boolean result = false;
-		String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
-		String command = "ssh " + gateWayHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";pig -x tez " + this.getTezScriptPath() + "/TezTestCase.pig\"";
+		//String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
+		String command = "ssh " + this.tezHostname + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";pig -x tez " + this.getTezScriptPath() + "/TezTestCase.pig\"";
 		TestSession.logger.info("command = " + command);
 		String output = this.executeCommand(command , "tez");
 		List<String> insertOutputList = Arrays.asList(output.split("\n"));
@@ -165,12 +173,12 @@ public class IntegrateTez  {
 			TestSession.logger.info("tezFilePath  = " + this.getTezScriptPath());
 
 			// copy the pig script to hbase master
-			String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
+			//String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
 
 			// make directory in hbase master to copy the hbase pig script
-			String mkdirCommand = "ssh " + gateWayHostName + " mkdir  " + this.getTezScriptPath();
+			String mkdirCommand = "ssh " + this.tezHostname + " mkdir  " + this.getTezScriptPath();
 			String mkdirCommandResult = this.executeCommand(mkdirCommand , "dummyValue");
-			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/TezTestCase.pig" + "  " +  gateWayHostName + ":" + this.getTezScriptPath();
+			String scpCommand = "scp " + absolutePath +"/resources/stack_integration/TezTestCase.pig" + "  " +  this.tezHostname + ":" + this.getTezScriptPath();
 			this.executeCommand(scpCommand , "dummyValue");
 		} else {
 			fail("Either " + tezFilePath.toString()  + "  file is missing.");
@@ -263,5 +271,29 @@ public class IntegrateTez  {
 		} else {
 			TestSession.logger.info(filePath + " file does not exists.");
 		}
-	}	
+	}
+	
+	/**
+	 * Execute a given command and return the output of the command.
+	 * @param command
+	 * @return
+	 */
+	public String executeCommand(String command) {
+		String output = null;
+		TestSession.logger.info("command - " + command);
+		ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
+		if ((result == null) || (result.getLeft() != 0)) {
+			if (result != null) { 
+				// save script output to log
+				TestSession.logger.info("Command exit value: " + result.getLeft());
+				TestSession.logger.info(result.getRight());
+			}
+			throw new RuntimeException("Exception" );
+		} else {
+			output = result.getRight();
+
+			TestSession.logger.info("log = " + output);
+		}
+		return output;
+	}
 }
