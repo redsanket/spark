@@ -258,10 +258,10 @@ you copied to your home directory.
    
 #. To create a database, in the **Query Editor** 
    text area, enter the query below, replace
-   ``{user_name}`` with your own, and
+   ``{your_user_name}`` with your own, and
    click **Execute**::
 
-       create database flickr_{user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/rbernota/HueTalk/Flickr100cc/';
+       create database flickr_{your_user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
        
 
    .. image:: images/hive_editor.jpg
@@ -275,13 +275,6 @@ you copied to your home directory.
    the query has been executed, the **Results**
    pane will automatically open. The message will only 
    say, however, that "The operation has no results."
-
-   .. image:: images/db_log_no_results.jpg
-      :height: 266 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Database Created
-      :align: left 
 
 #. Confirm that your database was created by clicking 
    the **Database** drop-down menu and scrolling down 
