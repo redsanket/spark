@@ -57,7 +57,7 @@ public class IntegrationTest  extends TestSession {
 	private static final String TARGET_START_TYPE_MIXED = "Mixed";
 	private static final String TARGET_START_TYPE_DATAONLY = "DataOnly";
 	private static final int SUCCESS = 200;
-	private static final String SOURCE_NAME= "qe6blue";
+	private static final String SOURCE_NAME= "qe9blue";
 	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
 	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_Daily/";
 	private static final String DATABASE_NAME = "gdm";
