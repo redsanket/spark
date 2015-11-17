@@ -153,8 +153,8 @@ public class DataAvailabilityPoller {
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
 
-		String sComponents =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
-		this.stackComponent = Arrays.asList(sComponents.split(","));
+	/*	String sComponents =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+		this.stackComponent = Arrays.asList(sComponents.split(","));*/
 
 		// start namenode thread demon
 		/*  commented intensionally : TODO need to get the scope for this.
