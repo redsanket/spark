@@ -227,7 +227,7 @@ public class TestDataSetHadoopJobEndNotification extends TestSession {
 				facetApplicationLogFile = LOG_FILE.replaceAll("FACET_NAME", facetName);
 				String temp =  workFlowHelperObj.getFacetHostName(tempHostName , facetName);
 				hostName = Arrays.asList(temp.split(":")).get(1).replaceAll("//", "");
-				String command = "ssh " + hostName  + "  cat  " +  facetApplicationLogFile  + "  | grep \"Got job end notification from hadoop:\" | grep  "  + this.dataSetName; 
+				String command = "ssh " + hostName  + "  \"cat  " +  facetApplicationLogFile  + " | grep \"\\\"Got job end notification from hadoop\"\\\""  + "  | grep " + dataSetName + "\"";
 				String output = workFlowHelperObj.executeCommand(command);
 				assertTrue("Expected job end notification from hadoop for " + this.dataSetName + " but got " + output , output.indexOf(this.dataSetName) > 0);
 			} else  {
