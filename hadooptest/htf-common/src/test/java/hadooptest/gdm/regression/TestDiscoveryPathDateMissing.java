@@ -23,7 +23,7 @@ public class TestDiscoveryPathDateMissing extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String dataSetName;
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange";
 	private String targetGrid1;
 	private String targetGrid2;
 	private List<String> grids = new ArrayList<String>();
