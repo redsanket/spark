@@ -34,14 +34,14 @@
 		<RecordDelimiter />
 		<FieldDelimiter />
 		<InputFormat>Text</InputFormat>
-		<OutputFormat>Sequence</OutputFormat>
+		<OutputFormat>Text</OutputFormat>
 		<SkipCommentsInData>false</SkipCommentsInData>
-		<SortKey>mrkt_sid</SortKey>
-		<PartitionKey />
-		<DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
-		<AddFields>datestamp=$datestamp</AddFields>
-		<RemoveFields />
-		<SelectRecords />
+		<SortKey/>
+		<PartitionKey/>
+		<DataPathMask/>
+		<AddFields/>
+		<RemoveFields/>
+		<SelectRecords/>
 	</DataDefinition>
 	<WorkflowStrategy>
 		<LoadStrategy>Default</LoadStrategy>
