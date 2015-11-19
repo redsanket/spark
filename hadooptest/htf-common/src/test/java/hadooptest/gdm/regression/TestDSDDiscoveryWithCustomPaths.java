@@ -29,7 +29,7 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String url;
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange";
 	private String datasetActivationTime;
 	private String dataSetName;
 	private String sourceName;
@@ -61,7 +61,7 @@ public class TestDSDDiscoveryWithCustomPaths  extends TestSession {
 		
 		// Get all the grid with the current deployment and select first two grid as targets for datasest.  
 		grids = this.consoleHandle.getAllInstalledGridName();
-		if (grids.size() > 2) {
+		if (grids.size() >= 2) {
 			this.targetGrid1 = grids.get(0);
 			this.targetGrid2 = grids.get(1);
 
