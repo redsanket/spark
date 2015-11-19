@@ -1128,7 +1128,7 @@ public class WorkFlowHelper {
 	public String getFacetHostName(String consoleHostName , String facetName) {
 		String facetHostName = null;
 		String hostName = Arrays.asList(consoleHostName.split(":")).get(1).replaceAll("//" , "").trim();
-		final String command = "ssh " + hostName.trim() + " " + "yinst set | grep " + facetName + "_end_point" ;
+		final String command = "ssh " + hostName.trim() + " " + "\"yinst set | grep " + facetName + "_end_point\"" ;
 		TestSession.logger.info("command " + command);
 		String output = this.executeCommand(command);
 		facetHostName = Arrays.asList(output.split(" ")).get(1).trim();
