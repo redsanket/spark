@@ -34,7 +34,7 @@ public class TestDiscoveryPathSpecifiedAfterDate extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String dataSetName;
-	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange";
 	private String targetGrid1;
 	private String targetGrid2;
 	private String datasetActivationTime;
@@ -45,11 +45,11 @@ public class TestDiscoveryPathSpecifiedAfterDate extends TestSession {
 	private static final int FAILURE = 500;
 	private static final int SUCCESS = 200;
 	private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
-	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_DAILY/";
+	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_Daily/";
 	private static final String GROUP_NAME = "jaggrp";
 	private static final String DATA_OWNER = "jagpip";
 	private static final String HCAT_TYPE = "DataOnly";
-	private static final String SOURCE_CLUSTER = "elrond";
+	private static final String SOURCE_CLUSTER = "qe9blue";
 	private static final String CUSTOM_PATH = "/data/daqdev/abf-discovery/data/";
 
 	@BeforeClass
