@@ -307,7 +307,8 @@ public class DataAvailabilityPoller {
 				// need to remove 
 				//String tezVersion = "0.0";
 				
-				String testType =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.testType");
+				String testType =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.testType").trim();
+				TestSession.logger.info("testType  = " + testType);
 				
 				// add start state to the user stating that job has started for the current frequency.
 				this.dbOperations.insertRecord(this.currentFeedName, testType, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigStatus , oozieVersion , hbaseVersion 
