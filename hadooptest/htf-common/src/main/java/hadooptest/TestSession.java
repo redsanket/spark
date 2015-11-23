@@ -379,12 +379,15 @@ public abstract class TestSession extends TestSessionCore {
                 // hadoop config file to determine if HA is used.
                 if (compType.equals("namenode")) {
                     TestSession.logger.info("Check for HA namenode:");
+                    // default FS from core-site.html may or may not include
+                    // the port number. We need to parse it out
                     output = TestSession.exec.runProcBuilder(new String[] {
                             "/usr/bin/ssh", compNode,
                             "grep -A 2 defaultFS " +
                             "/home/gs/conf/current/core-site.xml | " +
                             "tr '>' '\n' | tr '<' '\n' | grep com | " +
-                            "sed 's|hdfs://||'" });
+                            "sed 's|hdfs://||' | " +
+                            "sed 's|:.*||'" });
                     if (!output[0].equals("0")) {
                         TestSession.logger.info(
                                 "Got unexpected non-zero exit code: " + output[0]);
@@ -392,6 +395,7 @@ public abstract class TestSession extends TestSessionCore {
                         TestSession.logger.info("stderr" + output[2]);
                     } else {
                         compNode = output[1].trim();
+                        // Construct the component URL
                         compURL = "http://" + compNode + ":" + compPort;
                         TestSession.logger.info(compType + " for cluster " +
                                 clusterName + " is: '" + compNode + "'");
