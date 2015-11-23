@@ -47,11 +47,11 @@ do
 
    if [ "$REMOVEEXISTINGDATA" = true ]
    then
-	fname=hdfs://\${i}:8020/user/hadoopqa/passwd.`date +%y%m%d%H%M`.\${i}.txt
+	fname=hdfs://\${i}/user/hadoopqa/passwd.`date +%y%m%d%H%M`.\${i}.txt
         echo "==== bin/hadoop fs -put... test that namenode \${i} is up."
 	$debug \$HADOOP_COMMON_HOME/bin/hadoop fs -put /etc/passwd \$fname
    else
-	fname=hdfs://\${i}:8020/user
+	fname=hdfs://\${i}/user
    fi
    echo "==== bin/hadoop fs -ls... test that namenode node for \${i} are up."
    $debug \$HADOOP_COMMON_HOME/bin/hadoop fs -ls -R \$fname
