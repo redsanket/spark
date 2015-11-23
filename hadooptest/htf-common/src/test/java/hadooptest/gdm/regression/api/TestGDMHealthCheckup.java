@@ -45,8 +45,7 @@ public class TestGDMHealthCheckup extends TestSession {
 		// check whether we have two hcat cluster one for acquisition and replication
 		if (hcatSupportedGrid.size() == 0 ) {
 			TestSession.logger.info("There is not hive installed on any cluster.");
-		}
-		if (hcatSupportedGrid.size() >= 1) {
+		} else if (hcatSupportedGrid.size() >= 1) {
 			this.targetGrid1 = hcatSupportedGrid.get(0).trim();
 			TestSession.logger.info("Using grids " + this.targetGrid1 );
 			
@@ -57,21 +56,28 @@ public class TestGDMHealthCheckup extends TestSession {
 
 	@Test
 	public void testHealthCheckUp() {
-		testAcquisitionHealthCheckup();
-		testReplicationHealthCheckup();
-		testRetentionHealthCheckup();
+		
+		if (hcatSupportedGrid.size() >= 1) {
+			testAcquisitionHealthCheckup();
+			testReplicationHealthCheckup();
+			testRetentionHealthCheckup();
 
-		// enable hcat for the given datasource
-		enableHCatOnDataSource(this.targetGrid1);
+			// enable hcat for the given datasource
+			enableHCatOnDataSource(this.targetGrid1);
 
-		testHCatEnabledOnAcquisitionFacet();
-		testHCatEnabledOnReplicationFacet();
+			testHCatEnabledOnAcquisitionFacet();
+			testHCatEnabledOnReplicationFacet();
 
-		// disable hcat for a given datasource
-		disableHCatOnDataSource(this.targetGrid1);
+			// disable hcat for a given datasource
+			disableHCatOnDataSource(this.targetGrid1);
 
-		testHCatDisabledOnAcquisitionFacet();
-		testHCatDisabledOnReplicationFacet();
+			testHCatDisabledOnAcquisitionFacet();
+			testHCatDisabledOnReplicationFacet();
+		} else {
+			TestSession.logger.info("There is no hive installed on any cluster, please install hive and run the testcase.");
+		}
+		
+		
 	}
 
 	/**
