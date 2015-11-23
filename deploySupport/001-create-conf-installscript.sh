@@ -83,12 +83,17 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 
     # The following is kept here to make old config work
 
+    # GRIDCI-549 - defaultFS URL should not define the port number explicitly as
+    # the value may change in the hadoop configuration. If it is not specified,
+    # haddop fs will use the appropriate port number that's configured
+    # internally. Also, depending on the protocol hdfs or webhdfs, the port
+    # number may be different.
     case "$HADOOPVERSION" in
     2.[0-3])
-        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn:8020 \\
+        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
         ;;
     2.[4-9])
-        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn:8020/ \\
+        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
             ;;
     *)
         echo "Invalid Hadoop version $HADOOPVERSION"

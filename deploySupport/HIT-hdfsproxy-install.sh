@@ -83,7 +83,7 @@ if [ "$st" -ne 0 ] ; then
 fi
 
 # yinst setting for pkg ygrid_hdfsproxy and ygrid_hdfsproxy_hit
-ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set ygrid_hdfsproxy.namenode_address="hdfs://$HIT_NN:8020" -yroot $YR
+ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set ygrid_hdfsproxy.namenode_address="hdfs://$HIT_NN" -yroot $YR
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set ygrid_hdfsproxy.namenode_principal="hdfs/_HOST@DEV.YGRID.YAHOO.COM" -yroot $YR
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set ygrid_hdfsproxy.superuser_kerberos_keytab="/etc/grid-keytabs/$SN_HDFS_PROXY.hdfsproxy.dev.service.keytab" -yroot $YR
 ssh -ttt  $HIT_HDFS_PROXY HOSTNAME=$HIT_HDFS_PROXY     SUDO_USER=hadoopqa sudo /usr/local/bin/yinst set ygrid_hdfsproxy.superuser_kerberos_principal="dfsproxy/@DEV.YGRID.YAHOO.COM"  -yroot $YR
