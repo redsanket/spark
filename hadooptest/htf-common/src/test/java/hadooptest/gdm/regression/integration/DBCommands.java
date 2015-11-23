@@ -2,7 +2,7 @@ package hadooptest.gdm.regression.integration;
 
 
 public interface DBCommands {
-	String DB_NAME = "integration_test";
+	String DB_NAME = "integration_test1";
 	String TABLE_NAME = "integration_test";
 	String NAME_NODE_THREAD_INFO_TABLE = "name_node_thread_info";
 	String NAME_NODE_DFS_MEMORY_INFO_TABLE = "name_node_memory_info";
@@ -10,6 +10,7 @@ public interface DBCommands {
 	String CREATE_DB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
 	String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME 
 			+ " ( dataSetName VARCHAR(150) , " 
+			+ "testType VARCHAR(50) DEFAULT 'DAILY' , "
 			+ "currentFrequency VARCHAR(50) , "
 			+ "jobStarted VARCHAR(50)  DEFAULT 'UNKNOWN' , "
 			+ "startTime VARCHAR(50)  DEFAULT 'START_TIME' , "
@@ -43,10 +44,8 @@ public interface DBCommands {
 			+ "hcatVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
-	
-	// TODO need to add tez & hbase version
-	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion, hbaseVersion, tezVersion, hiveVersion, hcatVersion)  " 
-			+ "  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, testType ,currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion, hbaseVersion, tezVersion, hiveVersion, hcatVersion)  " 
+			+ "  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
 	
 	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE
 			+ " ( " 
