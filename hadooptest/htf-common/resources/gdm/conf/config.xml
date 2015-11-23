@@ -102,6 +102,7 @@
 		<clusterName>$(CLUSTER_NAME)</clusterName>
 		<duration>$(DURATION)</duration> <!-- duration in days -->
 		<frequency>$(FREQUENCY)</frequency>
+		<testType>$(RELEASE)</testType>
 		<dataSetPattern>$(PATTERN)</dataSetPattern> <!-- hourly -->
 		<oozieHostName>$(OOZIE_HOST_NAME)</oozieHostName>
 		<hcatHostName>$(HCAT_HOST_NAME)</hcatHostName>
