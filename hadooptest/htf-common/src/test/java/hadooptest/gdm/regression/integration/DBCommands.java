@@ -2,7 +2,7 @@ package hadooptest.gdm.regression.integration;
 
 
 public interface DBCommands {
-	String DB_NAME = "integration_test1";
+	String DB_NAME = "integration_test";
 	String TABLE_NAME = "integration_test";
 	String NAME_NODE_THREAD_INFO_TABLE = "name_node_thread_info";
 	String NAME_NODE_DFS_MEMORY_INFO_TABLE = "name_node_memory_info";
