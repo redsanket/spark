@@ -124,23 +124,24 @@ public class DataBaseOperations {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 */	
-	public void insertRecord(String dataSetName, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion ,
+	public void insertRecord(String dataSetName, String testType, String  currentFrequency, String jobStarted ,  String  startTime, String currentStep , String hadoopVersion , String pigVersion ,
 			String oozieVersion , String hbaseVersion , String tezVersion , String hiveVersion , String hcatVersion) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Connection con = this.getConnection();
 		if (con != null) {
 			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_ROW);
 			preparedStatement.setString(1, dataSetName);
-			preparedStatement.setString(2, currentFrequency);
-			preparedStatement.setString(3, jobStarted);
-			preparedStatement.setString(4, startTime);
-			preparedStatement.setString(5, currentStep);
-			preparedStatement.setString(6, hadoopVersion);
-			preparedStatement.setString(7, pigVersion);
-			preparedStatement.setString(8, oozieVersion);
-			preparedStatement.setString(9, hbaseVersion);
-			preparedStatement.setString(10, tezVersion);
-			preparedStatement.setString(11, hiveVersion);
-			preparedStatement.setString(12, hcatVersion);
+			preparedStatement.setString(2, testType);
+			preparedStatement.setString(3, currentFrequency);
+			preparedStatement.setString(4, jobStarted);
+			preparedStatement.setString(5, startTime);
+			preparedStatement.setString(6, currentStep);
+			preparedStatement.setString(7, hadoopVersion);
+			preparedStatement.setString(8, pigVersion);
+			preparedStatement.setString(9, oozieVersion);
+			preparedStatement.setString(10, hbaseVersion);
+			preparedStatement.setString(11, tezVersion);
+			preparedStatement.setString(12, hiveVersion);
+			preparedStatement.setString(13, hcatVersion);
 			boolean isRecordInserted = preparedStatement.execute();
 			assertTrue("Failed to insert record for " + dataSetName , isRecordInserted != true);
 
