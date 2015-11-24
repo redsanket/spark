@@ -36,7 +36,7 @@ public class TestCreateSizeLimitAlert extends TestSession {
 	private String dataSetName;
 	private String dsActivationTime; 
 	private WorkFlowHelper workFlowHelperObj = null;
-	private static String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
+	private static String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange";
 	private static final int SUCCESS = 200;
 	private static String ALERT_API = "/console/api/alerts?"; 
 
@@ -84,13 +84,16 @@ public class TestCreateSizeLimitAlert extends TestSession {
 
 		StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
 		int indexOf = dataSetBuilder.indexOf("</DiscoveryInterface>") + "</DiscoveryInterface>".length();
-		dataSetBuilder.insert(indexOf, "<SmallestExpectedInstanceSize>100</SmallestExpectedInstanceSize>\n<LargestExpectedInstanceSize>1000</LargestExpectedInstanceSize>");
+		dataSetBuilder.insert(indexOf, "\n<SmallestExpectedInstanceSize>100</SmallestExpectedInstanceSize>\n<LargestExpectedInstanceSize>1000</LargestExpectedInstanceSize>");
 
 		String dataSetXml = dataSetBuilder.toString();
 		TestSession.logger.info("dataSetXml  = " + dataSetXml);
 
 		// replace basedatasetName with the new datasetname
 		dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
+		dataSetXml = dataSetXml.replaceAll("<SmallestExpectedInstanceSize/>", "");
+		dataSetXml = dataSetXml.replaceAll("<LargestExpectedInstanceSize/>", "");
+		
 		TestSession.logger.info("after changing the dataset name    = " + dataSetXml);
 
 		// Create a new dataset
