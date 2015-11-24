@@ -6,6 +6,8 @@
 
 LOCAL_PROXY=$1
 REMOTE_PROXY=$2
+ADM_HOST=$3
+ADM_HOST=${ADM_HOST:='adm102.blue.ygrid.yahoo.com'}
 
 if [ "$#" -lt 1 ]; then
     echo "USAGE: At least 1 parameter is required:"
@@ -21,9 +23,9 @@ TIME=`date +%s`
 for PROXY in $LOCAL_PROXY $REMOTE_PROXY; do 
   echo "----> Baseline proxy log for PROXY $PROXY:"
   set -x
-  ssh $PROXY "yinst stop ats"
-  ssh $PROXY "if [[ -d $LOG ]]; then mv $LOG $LOG.$TIME; gzip $LOG.$TIME; fi"
-  ssh $PROXY "yinst start ats"
+  ssh $ADM_HOST "ssh $PROXY 'yinst stop ats'"
+  ssh $ADM_HOST "ssh $PROXY \"if [[ -d $LOG ]]; then mv $LOG $LOG.$TIME; gzip $LOG.$TIME; fi\""
+  ssh $ADM_HOST "ssh $PROXY 'yinst start ats'"
   RC=$?
   EC=$((EC+$RC))
   set +x
