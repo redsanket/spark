@@ -100,8 +100,10 @@ my ($command, $json_output);
 my ($json_ref, $job_ref, $job_name, $job_shortname, $job_id, $job_state, $num_mappers, $num_files);
 
 # Setup prerequisite ypan packages
-$command = "yinst i -y ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Try-Tiny";
-execute($command);
+BEGIN {
+    print("Setup yinst ypan packages\n");
+    system("yinst i -yes ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Try-Tiny");
+}
 
 use Data::Dumper;
 use JSON qw( decode_json );
