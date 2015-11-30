@@ -36,12 +36,6 @@ use FindBin qw($Bin $Script);
 use Test::More;
 use File::Copy;
 use File::Basename;
-use JSON qw( decode_json );
-use Data::Dumper;
-use XML::XML2JSON; 
-use JSON qw( decode_json );
-use Text::Trim;
-use Math::Round;
 
 sub usage {
     my ($err_msg) = @_;
@@ -91,10 +85,17 @@ usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
+# Setup prerequisite ypan packages
 $cmd = "yinst i -y ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Text-Trim ypan/perl-XML-XML2JSON";
 execute($cmd);
 $cmd = "yinst set ysar.gather_freq=1";
 execute($cmd);
+
+use Data::Dumper;
+use JSON qw( decode_json );
+use Math::Round;
+use Text::Trim;
+use XML::XML2JSON;
 
 chomp(my $hostname=`hostname`);
 
