@@ -10,10 +10,6 @@ use Test::More;
 use File::Copy;
 use File::Find::Rule;
 use File::Basename;
-use JSON qw( decode_json );
-use Try::Tiny;
-use Math::Round;
-use Data::Dumper;
 
 my %options=();
 
@@ -102,6 +98,15 @@ my $rm_port="19888";
 
 my ($command, $json_output);
 my ($json_ref, $job_ref, $job_name, $job_shortname, $job_id, $job_state, $num_mappers, $num_files);
+
+# Setup prerequisite ypan packages
+$command = "yinst i -y ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Try-Tiny";
+execute($command);
+
+use Data::Dumper;
+use JSON qw( decode_json );
+use Math::Round;
+use Try::Tiny;
 
 # http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html
 # If the Begin parameter is not specfied, it defaults to 0, and if the End parameter is not specified, it defaults to infinity.
