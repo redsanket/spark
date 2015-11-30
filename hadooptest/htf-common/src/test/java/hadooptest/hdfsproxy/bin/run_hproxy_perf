@@ -86,10 +86,11 @@ usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
 # Setup prerequisite ypan packages
-$cmd = "yinst i -y ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Text-Trim ypan/perl-XML-XML2JSON";
-execute($cmd);
-$cmd = "yinst set ysar.gather_freq=1";
-execute($cmd);
+BEGIN {
+    print("Setup yinst ypan packages\n");
+    system("yinst i -yes ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Text-Trim ypan/perl-XML-XML2JSON");
+    system("yinst set ysar.gather_freq=1");
+}
 
 use Data::Dumper;
 use JSON qw( decode_json );
@@ -108,7 +109,7 @@ if ((!defined($hproxy)) || ($hproxy eq "default")) {
 
 note("Running on host '$hostname', using hdfsproxy '$hproxy' ");
 
-trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
+# trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
 
 execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
 execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
