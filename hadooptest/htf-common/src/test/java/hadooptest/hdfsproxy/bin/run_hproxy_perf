@@ -52,6 +52,7 @@ sub usage {
 
 # PARAM
 my %options=();
+my $cmd;
 my $cluster='sam';
 
 my $hproxy;
@@ -90,6 +91,11 @@ usage() if $options{help};
 usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
+$cmd = "yinst i -y ysar ypan/perl-Data-Dumper ypan/perl-JSON ypan/perl-Math-Round ypan/perl-Text-Trim ypan/perl-XML-XML2JSON";
+execute($cmd);
+$cmd = "yinst set ysar.gather_freq=1";
+execute($cmd);
+
 chomp(my $hostname=`hostname`);
 
 # If hproxy is not defined or has the value 'default', then fetch the proxy host
@@ -109,7 +115,6 @@ execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/co
 # execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 
-my $cmd;
 note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
 
