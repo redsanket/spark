@@ -292,8 +292,10 @@ setGridParameters() {
        fi
        tmp="$gateway"
        re="$re|"`echo $tmp  | tr  ' '  '|'`
-       [  -n  "$oozienode" ]  && re="$re|$oozienode"
-       [  -n  "$hdfsproxynode" ]  && re="$re|$hdfsproxynode"
+       # gridci-555 don't exclude oozie and hdfsproxy nodes from slaves list,
+       # we want to run datanode and nodemanagers on these
+       #  [  -n  "$oozienode" ]  && re="$re|$oozienode"
+       #  [  -n  "$hdfsproxynode" ]  && re="$re|$hdfsproxynode"
        [  -n  "$hcatservernode" ]  && re="$re|$hcatservernode"
        [  -n  "$daqnode" ]  && re="$re|$daqnode"
        [  -n  "$jobtrackernode" ]  && re="$re|$jobtrackernode"
