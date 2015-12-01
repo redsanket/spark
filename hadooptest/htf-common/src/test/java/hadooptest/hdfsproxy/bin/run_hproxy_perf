@@ -121,6 +121,7 @@ note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
 
 trim(my $start_time=`date +%s`);
+note("start_time='$start_time'");
 
 #################################################################################
 # 1. Get the hosts for the cluster under test
@@ -181,6 +182,7 @@ my $remote_test_script="run_hproxy_perf_single_host";
 my $remote_test_script2="run_hproxy_perf_single_thread";
 my $host_index=1;
 my $host_id;
+my $rc;
 
 use POSIX ":sys_wait_h";
 my @pids;
@@ -192,9 +194,9 @@ for my $host (@hosts) {
     if ($pid == 0) {
         # forked child process has pid of 0
         logger("----> Forked Child Process #$host_index to $host_id: Started");
-        run_threads_on_single_host($host_index, $host);
-        logger("----> Forked Child Process #$host_index to $host_id: Finished");
-        exit(0);
+        $rc = run_threads_on_single_host($host_index, $host);
+        logger("----> Forked Child Process #$host_index to $host_id: Finished: rc='$rc'");
+        exit($rc);
     } else {
         # parent process has non zero pid
         logger("--> Forked Child Process #$host_index PID=$pid to $host_id:");
@@ -347,6 +349,7 @@ sub execute {
     my ($command) = @_;
     note($command);
     system ($command);
+    return $?;
 }
 
 sub logger {
@@ -402,7 +405,7 @@ sub run_threads_on_single_host {
     $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
-    $cmd = "ssh -t $host yinst i -y ypan/perl-JSON ypan/perl-XML-XML2JSON ypan/perl-Text-Trim";
+    $cmd = "ssh -t $host yinst i -yes ypan/perl-Text-Trim";
     execute($cmd);
 
     # $cmd = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
@@ -420,5 +423,6 @@ sub run_threads_on_single_host {
     $cmd .= " -host_index $host_index";
     $cmd .= " -num_hosts $num_hosts";
     $cmd .= " -iterate $num_iterate";
-    execute($cmd);
+    my $rc = execute($cmd);
+    return $rc;
 }
