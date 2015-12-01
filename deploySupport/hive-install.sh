@@ -91,3 +91,22 @@ yinst set pig.PIG_HOME=/home/y/share/pig
 
 yinst restart hcat_server
 
+#
+# create hive warehouse path for gdm db
+#
+export PATH=$PATH:/home/gs/current/bin
+
+if [[ "$HADOOP_27" == "true" ]]; then
+      JAVA_HOME="$GSHOME/java8/jdk64/current"
+  else
+      JAVA_HOME="$GSHOME/java/jdk"
+fi
+
+cmd="export HADOOP_HOME=$GSHOME/hadoop/current ; \
+     export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
+     export HADOOP_CONF_DIR=/home/gs/conf/current ; \
+     export JAVA_HOME=$JAVA_HOME ; \
+     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse/gdm.db/user1; \
+     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 777 /user/hive/warehouse/gdm.db/user1;"
+fanoutGW "$cmd"
+
