@@ -421,7 +421,7 @@ sub run_threads_on_single_host {
     $cmd="scp $Bin/$remote_test_script $Bin/$remote_test_script2 $tmpdir/ca.crt $host:$tmpdir";
     execute($cmd);
 
-    $cmd = "ssh -t $host yinst i -yes ypan/perl-Text-Trim";
+    $cmd = "ssh -t $host yinst i -yes ypan/perl-JSON ypan/perl-Text-Trim";
     execute($cmd);
 
     # $cmd = "ssh $host \"kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM\"";
