@@ -57,6 +57,7 @@ my $payload_unit = "G";
 my $threads_per_host=16;
 my $file_size="64";
 my $file_unit="M";
+my $rc;
 
 my $username = getpwuid( $< );
 my $tmpdir = "/tmp/hdfsproxy_perf_$username";
@@ -120,8 +121,21 @@ execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
 
-trim(my $start_time=`date +%s`);
-note("start_time='$start_time'");
+#################################################################################
+# Clean up target dir/files
+#################################################################################
+note("Delete any pre-existing target files:");
+$cmd = "kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
+execute($cmd);
+my $target_dir="fs/tmp";
+my $file_prefix="file-".$file_size.$file_unit;
+my $target_files = "$target_dir/$file_prefix"."*";
+
+$cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
+$cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
+$cmd .= "fs -rm /tmp/$file_prefix*";
+$rc = execute($cmd);
+note("Delete any pre-existing target files: status '$rc'");
 
 #################################################################################
 # 1. Get the hosts for the cluster under test
@@ -178,11 +192,13 @@ if ($num_iterate < 1) {
 #################################################################################
 # 2. Run load / performance tests on each hosts as a forked process
 #################################################################################
+trim(my $start_time=`date +%s`);
+note("start_time='$start_time'");
+
 my $remote_test_script="run_hproxy_perf_single_host";
 my $remote_test_script2="run_hproxy_perf_single_thread";
 my $host_index=1;
 my $host_id;
-my $rc;
 
 use POSIX ":sys_wait_h";
 my @pids;
