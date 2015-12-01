@@ -9,7 +9,6 @@
 # ./deploySupport/ru_generatejob_cli --cluster sam --release hadoop_2_2_1_2_rc0
 
 # Requires:
-# yinst i ypan/perl-XML-XML2JSON
 # yinst i ypan/perl-Text-Trim
 
 use strict;
@@ -18,10 +17,7 @@ use FindBin qw($Bin $Script);
 use Test::More;
 use File::Copy;
 use File::Basename;
-use JSON qw( decode_json );
 use Data::Dumper;
-use XML::XML2JSON; 
-use JSON qw( decode_json );
 use Text::Trim;
 
 sub usage {
