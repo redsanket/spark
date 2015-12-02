@@ -5,17 +5,19 @@
 # The hive installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: hive node to install on
+# inputs: cluster being installed 
 # outputs: 0 on success
 
 if [ $# -ne 1 ]; then
-  echo "ERROR: need the node to install hive onto"
+  echo "ERROR: need the cluster name"
   exit 1
 fi
 
-HIVENODE=$1
-#HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`
+CLUSTER=$1
+HIVENODE=`hostname`
 HIVENODE_SHORT=`echo $HIVENODE | cut -d'.' -f1`
+echo "INFO: Cluster being installed: $CLUSTER"
+echo "INFO: Hive node being installed: $HIVENODE"
 
 #
 # install the backing mysql db
@@ -94,19 +96,7 @@ yinst restart hcat_server
 #
 # create hive warehouse path for gdm db
 #
-export PATH=$PATH:/home/gs/current/bin
-
-if [[ "$HADOOP_27" == "true" ]]; then
-      JAVA_HOME="$GSHOME/java8/jdk64/current"
-  else
-      JAVA_HOME="$GSHOME/java/jdk"
-fi
-
-cmd="export HADOOP_HOME=$GSHOME/hadoop/current ; \
-     export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
-     export HADOOP_CONF_DIR=/home/gs/conf/current ; \
-     export JAVA_HOME=$JAVA_HOME ; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse/gdm.db/user1; \
-     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 777 /user/hive/warehouse/gdm.db/user1;"
-fanoutGW "$cmd"
+echo "Creating path \"/user/hive/warehouse/gdm.db/user1\""
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse/gdm.db/user1
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 777 /user/hive/warehouse/gdm.db/user1
 

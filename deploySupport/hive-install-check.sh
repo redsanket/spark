@@ -14,16 +14,23 @@
 # package is executed as root. This install does not need root and can 
 # be delivered directly to the component node from the RE node.
 #
-# inputs: node to install hive on
+# inputs: cluster to install hive on
 # returns: 0 on success
 
 if [ $# -ne 1 ]; then
-  echo "ERROR: need the node to install hive onto"
+  echo "ERROR: need the cluster to install hive onto"
   exit 1
 fi
 
-HIVENODE=$1
-echo "INFO: Installing Hive component on node $HIVENODE"
+CLUSTER=$1
+
+HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
+if [ -z "$HIVENODE" ]; then
+  echo "ERROR: No Hive node defined, HIVENODE is empty! Is the Rolesdb role correctly set?"
+  exit 1
+fi
+echo "INFO: Going to call Hive installer for node $HIVENODE..."
+
 
 # setup ssh cmd with parameters
 SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
@@ -67,7 +74,7 @@ INSTALL_SCRIPT=hive-install.sh
 $SCP $INSTALL_SCRIPT  $HIVENODE:/tmp/
   
 set -x
-$SSH $HIVENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $HIVENODE"
+$SSH $HIVENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER"
 RC=$?
 set +x
 
