@@ -200,6 +200,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void setupProxyHost() throws Exception {
         if (DfsTestsBaseClass.crosscoloPerf) {
             String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+            String hadoopConfigPkg = System.getProperty("HADOOP_CONFIG_PKG", "HadoopConfiggeneric10node12diskblue");
             if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                     !httpProxyHost.equals("default")) {
 
@@ -219,7 +220,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     "set",
                     "-root",
                     "/home/gs/gridre/yroot." + this.localCluster,
-                    "HadoopConfiggeneric10node12diskblue." +
+                    hadoopConfigPkg + "." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
                             "'<xi:include href=" +
                             "\"/tmp/webhdfs-proxy.xml\"" +
@@ -501,6 +502,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
     public void resetProxyHost() throws Exception {
         if (DfsTestsBaseClass.crosscoloPerf) {
             String httpProxyHost = System.getProperty("HTTP_PROXY_HOST", "");
+            String hadoopConfigPkg = System.getProperty("HADOOP_CONFIG_PKG", "HadoopConfiggeneric10node12diskblue");
             if (httpProxyHost != null && !httpProxyHost.isEmpty() &&
                 !httpProxyHost.equals("default")) {
                 // yinst set -root /home/gs/gridre/yroot.densed HadoopConfiggeneric10node12diskblue.TODO_INCLUDE_PROXY_CONFIG='<xi:include href="webhdfs-proxy.xml"><xi:fallback></xi:fallback></xi:include>'
@@ -510,7 +512,7 @@ public class TestDistcpCliPerf extends DfsTestsBaseClass {
                     "-root",
                     "/home/gs/gridre/yroot." +
                             this.localCluster,
-                    "HadoopConfiggeneric10node12diskblue." +
+                    hadoopConfigPkg + "." +
                             "TODO_INCLUDE_PROXY_CONFIG=" +
                             "'<xi:include href=" +
                             "\"webhdfs-proxy.xml\"" +
