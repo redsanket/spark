@@ -54,19 +54,15 @@ if [[ $? != "0" ]];then
     exit 1;
 fi
 
-# Fetch the hadoop version
-cmd="dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2"
-echo "$cmd"
-export FULLHADOOPVERSION=`eval "$cmd"`
+# Parse the hadoop version
+export FULLHADOOPVERSION=`echo $DIST_TAG_LIST | tr ' ' '\n' | grep hadoopcoretree | cut -d'-' -f2`
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
 fi
 
-# short version: e.g 2.6
-cmd="/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d."
-echo "$cmd"
-export HADOOPVERSION=`eval "$cmd"`
+# Parse the hadoop short version: e.g 2.6
+export HADOOPVERSION=`echo $FULLHADOOPVERSION|cut -d. -f1,2`
 if [[ "$HADOOPVERSION" > "2.6" ]]; then
     HADOOP_27="true"
 else
