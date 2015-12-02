@@ -179,6 +179,10 @@ rm -f *.tgz > /dev/null 2>&1
 # Remove spaces in cluster name
 CLUSTER=`echo $CLUSTER|tr -d ' '`
 
+# Make sure rocl is installed on all nodes
+PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+                    pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl'
+
 #		default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=adm102.blue.ygrid.yahoo.com
 [ -z "$CLUSTER" ] && export CLUSTER=none
