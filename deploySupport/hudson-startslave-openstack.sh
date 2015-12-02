@@ -32,20 +32,28 @@ cd deploySupport
 [ -z "$LOCAL_CONFIG_PKG_NAME" ] && export LOCAL_CONFIG_PKG_NAME=$localconfpkg
 
 # Check if dist_tag is valid. If not, exit.
-DIST_TAG_LIST=`dist_tag list $HADOOP_RELEASE_TAG`
+# dist could be slow, so echo it so the user is aware of it.
+cmd="dist_tag list $HADOOP_RELEASE_TAG"
+echo "$cmd"
+DIST_TAG_LIST=`$cmd`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
     exit 1;
 fi
 
 # Fetch the hadoop version
-export FULLHADOOPVERSION=`dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2`
+cmd="dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2"
+echo "$cmd"
+export FULLHADOOPVERSION=`$cmd`
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
 fi
+
 # short version: e.g 2.6
-export HADOOPVERSION=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d.`
+cmd="/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d."
+echo "$cmd"
+export HADOOPVERSION=`$cmd`
 if [[ "$HADOOPVERSION" > "2.6" ]]; then
     HADOOP_27="true"
 else
