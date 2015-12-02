@@ -214,7 +214,7 @@ fanoutHcatServer() {
 fanoutTez() {
    echo 'fanoutTez: start on ' `date +%H:%M:%S`
    if [ -z "$teznode" ]; then
-      echo ERROR: Not define grid_re.clusters.$cluster.tez
+      echo "ERROR: teznode not defined"
       return 1
    fi
    TEZ_NODE_LIST=`echo $teznode | tr ' ' ,`
