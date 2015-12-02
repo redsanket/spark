@@ -190,7 +190,7 @@ setGridParameters() {
         roleExists $cluster.oozie && \
              export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
 	if roleExists $cluster; then
-            teznode=`/home/y/bin/rocl -r grid_re.clusters.qe6blue.gateway,grid_re.clusters.qe6blue  -m -G |sort -u`
+            teznode=`/home/y/bin/rocl -r grid_re.clusters.$cluster.gateway,grid_re.clusters.$cluster -m -G |sort -u`
 	    export teznode=$teznode
 	fi
         roleExists $cluster.yroots && \
