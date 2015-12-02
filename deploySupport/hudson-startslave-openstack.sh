@@ -35,7 +35,7 @@ cd deploySupport
 # dist could be slow, so echo it so the user is aware of it.
 cmd="dist_tag list $HADOOP_RELEASE_TAG"
 echo "$cmd"
-DIST_TAG_LIST=`$cmd`
+DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
     exit 1;
@@ -44,7 +44,7 @@ fi
 # Fetch the hadoop version
 cmd="dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -d'-' -f2"
 echo "$cmd"
-export FULLHADOOPVERSION=`$cmd`
+export FULLHADOOPVERSION=`eval "$cmd"`
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
@@ -53,7 +53,7 @@ fi
 # short version: e.g 2.6
 cmd="/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG hadoopcoretree | cut -f2,3 -d'-' | cut -f1,2 -d."
 echo "$cmd"
-export HADOOPVERSION=`$cmd`
+export HADOOPVERSION=`eval "$cmd"`
 if [[ "$HADOOPVERSION" > "2.6" ]]; then
     HADOOP_27="true"
 else
