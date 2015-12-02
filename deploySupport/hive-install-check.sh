@@ -23,7 +23,12 @@ if [ $# -ne 1 ]; then
 fi
 
 CLUSTER=$1
-HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`
+
+HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`;
+if [ -z "$HIVENODE" ]; then
+  echo "ERROR: No Hive node defined, HIVENODE is empty! Is the Rolesdb role correctly set?"
+  echo exit 1
+fi
 echo "INFO: Going to call Hive installer for node $HIVENODE..."
 
 

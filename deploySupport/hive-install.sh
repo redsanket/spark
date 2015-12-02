@@ -14,7 +14,7 @@ if [ $# -ne 1 ]; then
 fi
 
 CLUSTER=$1
-HIVENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`
+HIVENODE=`hostname`
 HIVENODE_SHORT=`echo $HIVENODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Hive node being installed: $HIVENODE"
