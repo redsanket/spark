@@ -364,7 +364,7 @@ if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
   fi
   echo "INFO: Installing Hive component on node $HIVENODE"
 
-  ./hive-install-check.sh $HIVENODE
+  ./hive-install-check.sh $CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Hive component installer failed!"
   fi
