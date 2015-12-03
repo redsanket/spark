@@ -10,6 +10,7 @@ HDFS_TEST_DIR=$3
 LOCAL_PROXY=$4
 REMOTE_PROXY=$5
 
+ADM_HOST=${ADM_HOST:="adm102.blue.ygrid.yahoo.com"}
 HDFS_TEST_DIR=${HDFS_TEST_DIR:="/HTF/testdata/dfs/"}
 PROXY_PORT=4443
 
@@ -72,8 +73,9 @@ else
 
   echo "--> Check for references to the TARGET CLUSTER NN '$TARGET_NN' in the REMOTE PROXY log:"
   set -x
-  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name extended2*"
-  ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name extended2* | xargs grep -q \"GET http://$TARGET_NN:50070/webhdfs/v1"$HDFS_TEST_DIR"file_\""
+  # Need to hop over the adm host due to cross colo ACL restriction.
+  ssh $ADM_HOST ssh $REMOTE_PROXY "find $LOG_DIR -mtime -0.125 -name extended2*"
+  ssh $ADM_HOST "ssh $REMOTE_PROXY \"find $LOG_DIR -mtime -0.125 -name extended2* | xargs grep -q 'GET http://$TARGET_NN:50070/webhdfs/v1${HDFS_TEST_DIR}file_'\""
   RC=$?
   EC=$((EC+$RC))
   set +x
