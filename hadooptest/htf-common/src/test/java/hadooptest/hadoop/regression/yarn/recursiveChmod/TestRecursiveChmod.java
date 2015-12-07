@@ -74,7 +74,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -reducer " + "\"reducer.sh\"");
 		sb.append(" -output " + outPath);
 		sb.append(" -cacheArchive " + "\""
-				+ TestSession.cluster.getConf().get("fs.defaultFS") + "user/"
+				+ TestSession.cluster.getConf().get("fs.defaultFS") + "/user/"
 				+ HadooptestConstants.UserNames.HADOOPQA
 				+ "/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
@@ -170,7 +170,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 		sb.append(" -output " + outPath);
 		sb.append(" -cacheArchive " + "\""
 				+ TestSession.cluster.getConf().get("fs.defaultFS")
-				+ "tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
 		sb.append(" -jobconf \"mapreduce.map.tasks=1\"");
 		sb.append(" -jobconf \"mapreduce.reduce.tasks=1\"");
@@ -255,7 +255,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 				+ "/RecursiveChmod" + TESTCASE_ID + ".out";
 		sb.append("-archives " + "\""
 				+ TestSession.cluster.getConf().get("fs.defaultFS")
-				+ "user/hadoopqa/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/user/hadoopqa/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
 		sb.append(" -input " + "\"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/input.txt\"");
@@ -350,7 +350,7 @@ public class TestRecursiveChmod extends YarnTestsBaseClass {
 				+ "/RecursiveChmod" + TESTCASE_ID + ".out";
 		sb.append("-archives " + "\""
 				+ TestSession.cluster.getConf().get("fs.defaultFS")
-				+ "tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
+				+ "/tmp/RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/test.jar#testlink\"");
 		sb.append(" -input " + "\"RecursiveChmod/RecursiveChmod-" + TESTCASE_ID
 				+ "/input.txt\"");
