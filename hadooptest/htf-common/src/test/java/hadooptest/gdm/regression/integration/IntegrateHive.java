@@ -29,6 +29,7 @@ public class IntegrateHive {
 	private String initialCommand;
 	private String dataPath;
 	private String pigVersion;
+	private ConsoleHandle consoleHandle;
 	private boolean tableDropped = false;
 	private boolean tableCreated = false;
 	private boolean dataLoadedToHive = false;
@@ -52,6 +53,7 @@ public class IntegrateHive {
 		Date d = new Date();
 		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
 		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
+		this.consoleHandle = new ConsoleHandle();
 	}
 
 	public void setCurrentFeedName(String feedName) {
@@ -216,9 +218,9 @@ public class IntegrateHive {
 		File filePath = new File(absolutePath + "/resources/stack_integration/hive");
 		TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ filePath  = " + filePath);
 		if (copySourceDataFilePath.exists()) {
-			ConsoleHandle consoleHandle = new ConsoleHandle();
+
 			String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
-			String nameNode_Name = consoleHandle.getClusterNameNodeName(clusterName);
+			String nameNode_Name = this.consoleHandle.getClusterNameNodeName(clusterName);
 			String fileContent = new String(readAllBytes(get(filePath + "/CopyDataFromSourceToHiveCluster_temp.pig")));
 			fileContent = fileContent.replace("SCRIPT_PATH", this.getHiveScriptLocation());
 			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
@@ -288,7 +290,9 @@ public class IntegrateHive {
 		String  absolutePath = new File("").getAbsolutePath();
 		File loadDataToHiveScriptPath = new File(absolutePath + "/resources/stack_integration/hive/LoadDataToHive_temp.hql");
 		if (loadDataToHiveScriptPath.exists()) {
+			String nameNode_Name = this.consoleHandle.getClusterNameNodeName(clusterName);
 			String fileContent = new String(readAllBytes(get(loadDataToHiveScriptPath.toString())));
+			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
 			fileContent = fileContent.replaceAll("FILEPATH", this.getDataPath());
 			
 			TestSession.logger.info( loadDataToHiveScriptPath.toString() + "  fileContent = " + fileContent);
