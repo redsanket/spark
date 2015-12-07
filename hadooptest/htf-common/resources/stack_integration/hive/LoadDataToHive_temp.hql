@@ -1,1 +1,1 @@
-load data inpath 'FILEPATH/hiveData/' overwrite into table gdm.user1;
+load data inpath 'NAME_NODE_NAME/FILEPATH/hiveData/' overwrite into table gdm.user1;
