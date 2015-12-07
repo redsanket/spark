@@ -71,11 +71,12 @@ public interface DBCommands {
 				+ " Hcat_State VARCHAR(100) DEFAULT 'UNKNOWN' ,"
 				+ " Hbase_State VARCHAR(100) DEFAULT 'UNKNOWN', "
 				+ " Tez_State VARCHAR(100) DEFAULT 'UNKNOWN' , "
+				+ " Gdm_State VARCHAR(100) DEFAULT 'UNKNOWN' , "
 				+ " Last_updated VARCHAR(100) DEFAULT 'UNKNOWN' "
 			+ " ) ";
 	
-	String INSERT_HEALTH_CHECKUP_INFO_ROW = "INSERT INTO " + HEALTH_CHECKUP_UP_TABLE + " ( date , Cluster_State , Pig_State,Hbase_State , tez_State, Hive_State , Hcat_State) "
-			+ "  values ( ?, ?, ?, ?, ?, ?,?) ";
+	String INSERT_HEALTH_CHECKUP_INFO_ROW = "INSERT INTO " + HEALTH_CHECKUP_UP_TABLE + " ( date , Cluster_State , Pig_State,Hbase_State , tez_State, Hive_State , Hcat_State, Gdm_State) "
+			+ "  values ( ?, ?, ?, ?, ?, ?,?, ?) ";
 	
 	String INSERT_NAME_NODE_THREAD_INFO_ROW = "INSERT INTO " + NAME_NODE_THREAD_INFO_TABLE + "  ( NameNode_Name , HadoopVersion , TimeStamp , ThreadsNew , ThreadsRunnable , ThreadsBlocked ,  ThreadsWaiting , ThreadsTimedWaiting , ThreadsTerminated ) " 
 			+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?) ";

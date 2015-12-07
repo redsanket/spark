@@ -295,7 +295,7 @@ public class DataAvailabilityPoller {
 				String hadoopVersion = this.getHadoopVersion();
 
 				// insert version into health_checkup table.
-				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus);
+				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus,gdmVersion);
 				con1.close();
 
 				// job started.
