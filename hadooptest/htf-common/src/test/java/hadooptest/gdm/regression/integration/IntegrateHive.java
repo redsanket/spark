@@ -182,6 +182,11 @@ public class IntegrateHive {
 		return this.tableDropped;
 	}
 	
+	public void cleanUp() {
+		String rmWorkingdirCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  "  + this.hiveHostName + " rm -rf  " + this.getHiveScriptLocation();
+		String scpCommandOutput1 = this.executeCommand(rmWorkingdirCommand);
+	}
+	
 	public void createHiveTable() {
 		String executeCreateTableCommand = this.initialCommand + " hive -f " + this.getHiveScriptLocation() + "/HiveCreateTable.hql" + "\" " ;
 		TestSession.logger.info("executeDropTableCommand  = " + executeCreateTableCommand);

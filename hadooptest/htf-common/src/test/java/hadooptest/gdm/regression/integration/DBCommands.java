@@ -42,10 +42,11 @@ public interface DBCommands {
 			+ "tezVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "hiveVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "hcatVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
+			+ "gdmVersion VARCHAR(100)  DEFAULT 'UNKNOWN' , "
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 	
-	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, testType ,currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion, hbaseVersion, tezVersion, hiveVersion, hcatVersion)  " 
-			+ "  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+	String INSERT_ROW = "INSERT INTO " + TABLE_NAME + " (dataSetName, testType ,currentFrequency, jobStarted, startTime, currentStep , hadoopVersion , pigVersion, oozieVersion, hbaseVersion, tezVersion, hiveVersion, hcatVersion, gdmVersion)  " 
+			+ "  values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
 	
 	String CREATE_NAME_NODE_THREAD_INFO_TABLE = "CREATE TABLE IF NOT EXISTS " + NAME_NODE_THREAD_INFO_TABLE
 			+ " ( " 

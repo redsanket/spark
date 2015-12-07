@@ -28,6 +28,7 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import com.google.common.base.Splitter;
+import com.jayway.restassured.path.json.JsonPath;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
@@ -234,8 +235,8 @@ public class DataAvailabilityPoller {
 				String hbaseMasterResult = "";
 				String tezVersion = "";
 				String oozieVersion = "";
-
-
+				String gdmVersion = "";
+				
 				/*if (sComponent.toUpperCase().equals("HBASE")) {
 						hbaseMasterResult = this.getHBaseHealthCheck().trim();
 						int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
@@ -251,6 +252,8 @@ public class DataAvailabilityPoller {
 							hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
 						}
 					}*/ 
+				gdmVersion = this.checkGDMHealthCheckup();
+				
 				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
 					pigStatus = "active~" + this.getPigVersion();
@@ -276,11 +279,7 @@ public class DataAvailabilityPoller {
 				} else if (this.hiveHealthStatus == true) {
 					hiveStatus = "down~0.0";
 				}
-				//} else if (sComponent.toUpperCase().equals("OOZIE")) {
-
-				// TODO : need to write code to check if oozie component is down
-				//	oozieVersion = this.getOozieVersion();
-				//} else  if (sComponent.toUpperCase().equals("HCAT")) {
+				
 				boolean hcatHealthStatus = integrateHiveObj.isHCatDeployed();
 				String hcatVersion = integrateHiveObj.getHCatVersion();
 
@@ -289,9 +288,7 @@ public class DataAvailabilityPoller {
 				} else {
 					hcatStatus = "down~0.0";
 				}
-				//}
-				//}
-
+			
 				TestSession.logger.info("******************************  inserting record into health table *************************************************");
 
 				// get installed stack components versions
@@ -304,15 +301,12 @@ public class DataAvailabilityPoller {
 				// job started.
 				this.searchDataAvailablity.setState(IntegrationJobSteps.JOB_STARTED);
 
-				// need to remove 
-				//String tezVersion = "0.0";
-				
 				String testType =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.testType").trim();
 				TestSession.logger.info("testType  = " + testType);
 				
 				// add start state to the user stating that job has started for the current frequency.
 				this.dbOperations.insertRecord(this.currentFeedName, testType, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigStatus , oozieVersion , hbaseVersion 
-						, tezVersion, hiveStatus  ,hcatStatus);
+						, tezVersion, hiveStatus  ,hcatStatus, gdmVersion);
 				initialCal = null;
 				salStartCal = null;
 
@@ -434,6 +428,7 @@ public class DataAvailabilityPoller {
 						integrateHiveObj.copyDataFromSourceToHiveServer();
 						integrateHiveObj.loadDataIntoHive();
 						integrateHiveObj.fetchDataUsingHCat();
+						integrateHiveObj.cleanUp();
 					}
 
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
@@ -1155,5 +1150,29 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info("!!!!!!!!!!!!!!!!!!!!!!v getTimeDifference = " + r);
 		}
 		return result;
+	}
+	
+	public String checkGDMHealthCheckup() {
+		String gdmVersion = "0.0";
+		ConsoleHandle consoleHandle = new ConsoleHandle();
+		String cookie  = consoleHandle.httpHandle.getBouncerCookie();
+		String	consoleHealthCheckUpTestURL = consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=gq1&facet=console";
+		TestSession.logger.info("consoleHealthCheckUpTestURL = " +consoleHealthCheckUpTestURL );
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(consoleHealthCheckUpTestURL);
+		assertTrue("Failed to get the response for " + consoleHealthCheckUpTestURL , (response != null) );
+		String resString = response.asString();
+		TestSession.logger.info("response = " + resString);
+		JsonPath jsonPath = new JsonPath(resString);
+		Map<String , String>applicationSummary = new HashMap<String, String>();
+		List<String> keys = jsonPath.get("ApplicationSummary.Parameter");
+		List<String> values = jsonPath.get("ApplicationSummary.Value");
+		for(int i = 0;i<keys.size() ; i++){
+			applicationSummary.put(keys.get(i), values.get(i));
+		}
+		boolean isHcatEnabled = applicationSummary.containsKey("build.version");
+		if (isHcatEnabled == true) {
+			gdmVersion = applicationSummary.get("build.version");
+		}
+		return gdmVersion;
 	}
 }
