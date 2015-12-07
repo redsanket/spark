@@ -290,6 +290,7 @@ public class IntegrateHive {
 		String  absolutePath = new File("").getAbsolutePath();
 		File loadDataToHiveScriptPath = new File(absolutePath + "/resources/stack_integration/hive/LoadDataToHive_temp.hql");
 		if (loadDataToHiveScriptPath.exists()) {
+			String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 			String nameNode_Name = this.consoleHandle.getClusterNameNodeName(clusterName);
 			String fileContent = new String(readAllBytes(get(loadDataToHiveScriptPath.toString())));
 			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");

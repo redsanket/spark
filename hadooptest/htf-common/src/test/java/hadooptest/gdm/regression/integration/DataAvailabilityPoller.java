@@ -1153,7 +1153,7 @@ public class DataAvailabilityPoller {
 	}
 	
 	public String checkGDMHealthCheckup() {
-		String gdmVersion = "0.0";
+		String gdmVersion = "down~0.0";
 		ConsoleHandle consoleHandle = new ConsoleHandle();
 		String cookie  = consoleHandle.httpHandle.getBouncerCookie();
 		String	consoleHealthCheckUpTestURL = consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=gq1&facet=console";
@@ -1171,7 +1171,7 @@ public class DataAvailabilityPoller {
 		}
 		boolean isHcatEnabled = applicationSummary.containsKey("build.version");
 		if (isHcatEnabled == true) {
-			gdmVersion = applicationSummary.get("build.version");
+			gdmVersion = "active~"+applicationSummary.get("build.version");
 		}
 		return gdmVersion;
 	}
