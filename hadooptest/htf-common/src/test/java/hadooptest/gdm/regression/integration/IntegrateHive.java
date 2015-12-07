@@ -38,7 +38,6 @@ public class IntegrateHive {
 	private final static String HADOOP_CONF_DIR="export HADOOP_CONF_DIR=/home/gs/conf/current";
 	private final static String KNITI = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String HIVE_VERSION_COMMAND = "hive --version";
-	private final static String REMOVE_EXISTING_FOLDERS = "";
 	public static final String PIG_HOME = "export PIG_HOME=/home/y/share/pig";
 	private final static String PATH_COMMAND = "export PATH=$PATH:";
 
