@@ -25,8 +25,8 @@ The goal of this guide is to help Yahoos use Starling, on the Yahoo grid, and th
 On-Boarding
 ===========
 
-Starling can only be accessed from the `Axonite Blue cluster <http://twiki.corp.yahoo.com/view/GridDocumentation/AxoniteBlueClusterInfo>`_. Thus, you will need to request access to Axonite Blue through `Grid Support Shop <http://yo/supportshop>`_. 
-
+Starling can only be accessed from the `Axonite Blue cluster <http://twiki.corp.yahoo.com/view/GridDocumentation/AxoniteBlueClusterInfo>`_. Thus, you will need to request access to 
+Axonite Blue through `Grid Support Shop <http://yo/supportshop>`_. 
 
 From `Grid Services Request Forms <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_, select
 the **User Account** tab and request access to Axonite Blue by checking the **axonite.blue** checkbox from
