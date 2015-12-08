@@ -74,7 +74,7 @@ the database you'll be creating will have the naming syntax
 collisions and for the convenience of referencing later.
 
 
-Hue UI components and text you are to enter in dialog windows will be indicated 
+Hue UI components and text you are to enter in dialogs will be indicated 
 in bold. Code, however, for scripts that you'll be using will be in monospaced font.
 
 For icons, we will refer to them by name rather than 
@@ -577,7 +577,7 @@ you created one.
       :align: left 
 
 
-#. In the **Save Query Results** dialog window, enter the path **/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv**
+#. In the **Save Query Results** dialog, enter the path **/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv**
    in the **In an HDFS file** text field and click **Save**. (We're going to use this file later
    when we look at the **Pig Editor**.)
 #. Use the **File Browser** to verify the file has been saved.
@@ -622,7 +622,7 @@ Using Pig
       :alt: Pig Editor: Save
       :align: left 
 
-#. In the **Save script** dialog window, enter 
+#. In the **Save script** dialog, enter 
    the text **Flickr Camera Location Script**
    in the text field and click **Save**.
 
@@ -698,7 +698,7 @@ and Oozie Workflows later.
       :alt: Creating New Directory
       :align: left 	
    
-#. In the **Create Directory** dialog window, enter **hue_scripts** 
+#. In the **Create Directory** dialog, enter **hue_scripts** 
    in the **Directory Name** text field for the directory name
    and click **Create**.
   
@@ -984,7 +984,7 @@ what we've done thus far.
       :alt: Create Oozie Workflow
       :align: left 	
 
-#. Click **My Workflow** to open a dialog window, enter **hue_tutorial_workflow** in the text field,
+#. Click **My Workflow** to open a dialog, enter **hue_tutorial_workflow** in the text field,
    and click the **√** symbol.
 
    .. image:: images/name_workflow.jpg
@@ -1025,7 +1025,7 @@ what we've done thus far.
 #. Drag the **DistCp** object to the gray dotted box below **hue_tutorial_refresh**. We're going to 
    use `DistCp <http://hadoop.apache.org/docs/r1.2.1/distcp2.html>`_ to copy the Flickr dataset 
    to our home directories in an Oozie task.
-#. In the dialog window, do the following: 
+#. In the dialog, do the following: 
  
    #. Click the dialog title **Distcp**, enter the text **copy_flickr_data** in the text box, and then click **√**.
    #. In the **Source** text field, enter **/user/rbernota/HueTalk/Flickr100cc/flickr100m_dataset.bz2**.
@@ -1043,7 +1043,7 @@ what we've done thus far.
    We feel you have figured out the basic mechanics of creating actions.
 
 #. Drag the **Hive Script** object to the gray dotted box below **copy_flickr_data**.
-#. In the dialog window, do the following: 
+#. In the dialog, do the following: 
 
    #. Click the dialog title **Hive Script** to open a text box. Enter the text **del_db_tables** and click the **√** symbol.
    #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/del_db_tables.hql**.
@@ -1088,7 +1088,7 @@ what we've done thus far.
 #. To create a **Shell** task that creates a CSV file from the Hive table the last
    task creates, from the **ACTIONS** panel, drag the **Shell** icon to the next empty dotted box under the **camera_location_query** action. 
 
-#. In the dialog box, do the following:
+#. In the dialog, do the following:
 
    #. Click the **Shell** link and enter the title **create_camera_location_csv**.
    #. For the **Shell command** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
@@ -1100,7 +1100,8 @@ what we've done thus far.
          :scale: 98%
          :alt: Creating a Shell Script Action
          :align: left   
-
+#. From the **Shell** action you just created, click |files| to open a text field. 
+#. In the **Files +** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
 #. Create the Pig action by doing the following:
 
@@ -1382,3 +1383,4 @@ in the **Files** field.
 .. Value:  (pig_current, hcat_current - if you're going through HCat)
 
 .. |arrowhead| image:: images/arrow_head.jpg
+.. |files| image:: images/files.jpg
