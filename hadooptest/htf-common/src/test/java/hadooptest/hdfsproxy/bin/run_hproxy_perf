@@ -122,6 +122,22 @@ note("cluster='$cluster'");
 note("hdfsproxy server='$hproxy'");
 
 #################################################################################
+# Check if the namenode_address setting on the hdfsproxy host need to be set
+# to the current cluster namenode under test.
+#################################################################################
+echo "Check if the namenode_address is properly set on the hdfsproxy host '$proxy_host':"
+NN=`yinst range -ir "(@grid_re.clusters.$cluster.namenode)"`
+expected_namenode_address="hdfs://$NN:8020"
+current_namenode_address=`ssh $proxy_host yinst set ygrid_hdfsproxy.namenode_address | cut -d' ' -f2`
+if [[ "$current_namenode_address" != "$expected_namenode_address" ]]; then
+    set -x
+    ssh $proxy_host "yinst set ygrid_hdfsproxy.namenode_address=hdfs://$NN:8020"
+    ssh $proxy_host "yinst stop ygrid_hdfsproxy"
+    ssh $proxy_host "yinst start ygrid_hdfsproxy"
+    set +x
+fi
+
+#################################################################################
 # Clean up target dir/files
 #################################################################################
 note("Delete any pre-existing target files:");
@@ -255,9 +271,6 @@ do {
 # $cmd  = "kinit -kt ~hitusr_1/hitusr_1.dev.headless.keytab hitusr_1\@DEV.YGRID.YAHOO.COM";
 $cmd = "kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
 execute($cmd);
-my $target_dir="fs/tmp";
-my $file_prefix="file-".$file_size.$file_unit;
-my $target_files = "$target_dir/$file_prefix"."*";
 
 $cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
 $cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
@@ -355,6 +368,19 @@ my $filename = "hdfsproxy_perf_plot.txt";
 # execute("echo \"inkbps,outkbps\" > $report_dir/$filename");
 # execute("echo \"$inkbps,$outkbps\" >> $report_dir/$filename");
 execute("ls -l $report_dir/$filename");
+
+#################################################################################
+# Clean up target dir/files
+#################################################################################
+note("Delete target files:");
+$cmd = "kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
+execute($cmd);
+
+$cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
+$cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
+$cmd .= "fs -rm /tmp/$file_prefix*";
+$rc = execute($cmd);
+note("Delete all target files: status '$rc'");
 
 
 #################################################################################
