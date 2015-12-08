@@ -14,12 +14,12 @@ Location of Hue UI
 To use the Hue Web UI, you will need to know which cluster you are using. 
 The URL to each Hue instance has the following syntax: ``https://{cluster_name}-hue.{color}.ygrid.yahoo.com:{port}``
 
-For example, to access the Hue UI on Cobalt Blue, you would go to
-``https://cobaltblue-hue.blue.ygrid.yahoo.com:9999/``.
+For example, to access the Hue UI on Axonite Red, you would go to
+``https://axonitered-hue.red.ygrid.yahoo.com:9999/``.
 
 We also have ``yo`` links to each cluster instance. The syntax is
 ``http://yo/hue.{cluster_initials}``. Thus, the ``yo`` link to
-the Cobalt Blue cluster would be ``http://yo/hue.cb``. See 
+the Axonite Red cluster would be ``http://yo/hue.ar``. See 
 :ref:`Hue Instances <reference-hue_instances>` for the list
 of clusters, URLs, and ``yo`` links.
 
@@ -94,7 +94,7 @@ are cached for future reference. You can also re-run saved and archived queries.
 
 .. note:: The **Hive Editor** does not have support for emailing results yet. Also,
           Beeswax, the application behind the **Hive Editor**, is only 
-          available on Hive 0.13 (AR, MR, AB, CB, MB, NB).
+          available on Hive 0.13 (AR, MR, AB, MB, NB).
 
 We'll look at each component, which is accessed through a tab, in the next
 sections.
@@ -483,7 +483,7 @@ You can also do the following:
 - list available databases and tables
 - browse table data (limited set) and metadata (can be slow: optimization on its way)
 
-.. note:: Metastore Manager is only available on clusters with Hive 0.13 (AR, MR, AB, CB, MB, NB).
+.. note:: Metastore Manager is only available on clusters with Hive 0.13 (AR, MR, AB, MB, NB).
 
 .. image:: images/hue_metastore_manager.jpg
    :height: 912px
@@ -1078,4 +1078,3 @@ and stderr for each supervised process
 
 Admins only : Hue requires a SQL database to store small amounts of data, including 
 user account information as well as history of job submissions and Hive queries
-

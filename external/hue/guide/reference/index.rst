@@ -11,7 +11,6 @@ Hue Instances
    :header: "Cluster", "Colo", "Hue Instance URL", "Yo Link"
    :widths: 15, 15, 35, 20
 
-   "Cobalt", "Blue (GQ1)", "https://cobaltblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.cb" 
    "Dilithium", "Blue (GQ1)", "https://dilithiumblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.db" 
    "Mithril", "Blue (GQ1)", "https://mithrilblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.mb" 
    "Nitro", "Blue (GQ1)", "https://nitroblue-hue.blue.ygrid.yahoo.com:9999", "http://yo/hue.nb" 
