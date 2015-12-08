@@ -1101,7 +1101,7 @@ what we've done thus far.
          :alt: Creating a Shell Script Action
          :align: left   
 #. From the **Shell** action you just created, click |files| to open a text field. 
-#. In the **Files +** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
+#. In the **FILES +** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
 #. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
 #. Create the Pig action by doing the following:
 
