@@ -123,7 +123,7 @@ As an *admin* user, you have the ability to do the following:
 - manage Hue configuration 
 - run applications as a super user 
 - grant/revoke permissions for user or a group of users
-- impersonate as a “super proxy” for and “doAs” user
+- impersonate as a "super proxy" for and "doAs" user
 - use one Hue ticket/principal (no user ticket) to authenticate against Hadoop
 
 

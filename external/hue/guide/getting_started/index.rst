@@ -1081,7 +1081,7 @@ what we've done thus far.
    script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
    Use the name **camera_location_query** for the Hive action.
 
-   .. important:: Remember to add **hive.querylog.location** and **hivelogs** as job propertes as well as
+   .. important:: Remember to add **hive.querylog.location** and **hivelogs** as job properties as well as
                   to enter **/user/rbernota/HueTalk/hive-site.xml** in the **Hive XML** field.
 
 

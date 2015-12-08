@@ -531,7 +531,7 @@ Notes
 
 Logs may not be complete
 
-SLA dashboard isn’t working yet
+SLA dashboard isn't working yet
 
 Filters only operates on latest 100 displayed entries
 
