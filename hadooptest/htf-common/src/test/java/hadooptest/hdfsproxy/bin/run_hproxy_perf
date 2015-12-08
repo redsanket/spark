@@ -125,17 +125,15 @@ note("hdfsproxy server='$hproxy'");
 # Check if the namenode_address setting on the hdfsproxy host need to be set
 # to the current cluster namenode under test.
 #################################################################################
-echo "Check if the namenode_address is properly set on the hdfsproxy host '$hproxy':"
-NN=`yinst range -ir "(@grid_re.clusters.$cluster.namenode)"`
-expected_namenode_address="hdfs://$NN:8020"
-current_namenode_address=`ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address | cut -d' ' -f2`
-if [[ "$current_namenode_address" != "$expected_namenode_address" ]]; then
-    set -x
-    ssh $hproxy "yinst set ygrid_hdfsproxy.namenode_address=hdfs://$NN:8020"
-    ssh $hproxy "yinst stop ygrid_hdfsproxy"
-    ssh $hproxy "yinst start ygrid_hdfsproxy"
-    set +x
-fi
+note("Check if the namenode_address is properly set on the hdfsproxy host '$hproxy':");
+my $namenode = `yinst range -ir "(@grid_re.clusters.$cluster.namenode)"`;
+my $expected_namenode_address = "hdfs://$namenode:8020";
+my $current_namenode_address = `ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address | cut -d' ' -f2`;
+if ( $current_namenode_address ne $expected_namenode_address ) {
+    execute("ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address=hdfs://$namenode:8020");
+    execute("ssh $hproxy yinst stop ygrid_hdfsproxy");
+    execute("ssh $hproxy yinst start ygrid_hdfsproxy");
+}
 
 #################################################################################
 # Clean up target dir/files
