@@ -40,7 +40,7 @@ uses as shown in the diagram below.
 Deployment
 ----------
 
-The diagram below shows how Hue acts as a mediary between
+The diagram below shows how Hue acts as a intermediary between
 users from the browser to the grid on the back end.
 Yahoo's Hue instances use Bouncer for authorization
 and store user information in a MySQL database.
