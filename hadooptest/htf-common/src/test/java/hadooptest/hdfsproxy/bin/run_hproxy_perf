@@ -126,9 +126,9 @@ note("hdfsproxy server='$hproxy'");
 # to the current cluster namenode under test.
 #################################################################################
 note("Check if the namenode_address is properly set on the hdfsproxy host '$hproxy':");
-my $namenode = `yinst range -ir "(@grid_re.clusters.$cluster.namenode)"`;
+trim(my $namenode = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode)"`);
 my $expected_namenode_address = "hdfs://$namenode:8020";
-my $current_namenode_address = `ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address | cut -d' ' -f2`;
+trim(my $current_namenode_address = `ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address | cut -d' ' -f2`);
 if ( $current_namenode_address ne $expected_namenode_address ) {
     execute("ssh $hproxy yinst set ygrid_hdfsproxy.namenode_address=hdfs://$namenode:8020");
     execute("ssh $hproxy yinst stop ygrid_hdfsproxy");
