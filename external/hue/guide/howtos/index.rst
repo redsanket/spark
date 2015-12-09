@@ -22,7 +22,7 @@ Prerequisites
 -------------
 
 - Complete the `Getting Started <../getting_started/>`_.
-- Access to the `benzene database on Cobalt <https://supportshop.cloud.corp.yahoo.com:4443/data-discovery/search/benzen/cluster/CB/database/benzene/table/daily_data>`_.
+- Access to the `benzene database on Axonite Red <https://supportshop.cloud.corp.yahoo.com:4443/data-discovery/search/benzene/cluster/AR/database/benzene/table/daily_data>`_.
 
   If you **don't** see the green button **View in Hue**, you'll need to request
   access to ``benzene`` by doing the following:
@@ -35,7 +35,7 @@ Prerequisites
 1. Create a Hive Query With Parameterized Inputs
 ------------------------------------------------
 
-Using the `Cobalt Blue Hue UI <http://yo/hue.cb>`_, create an HiveQL script with the following:: 
+Using the `Axonite Red Hue UI <http://yo/hue.ar>`_, create an HiveQL script with the following:: 
 
     set hive.exec.compress.output=false;
 
