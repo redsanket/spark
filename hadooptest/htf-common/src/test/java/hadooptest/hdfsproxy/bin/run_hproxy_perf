@@ -147,7 +147,7 @@ my $target_files = "$target_dir/$file_prefix"."*";
 
 $cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
 $cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
-$cmd .= "fs -rm /tmp/$file_prefix*";
+$cmd .= "fs -rm -skipTrash /tmp/$file_prefix*";
 $rc = execute($cmd);
 note("Delete any pre-existing target files: status '$rc'");
 
@@ -376,7 +376,7 @@ execute($cmd);
 
 $cmd  = "/home/gs/gridre/yroot.$cluster/share/hadoop/bin/hadoop ";
 $cmd .= "--config /home/gs/gridre/yroot.$cluster/conf/hadoop/ ";
-$cmd .= "fs -rm /tmp/$file_prefix*";
+$cmd .= "fs -rm -skipTrash /tmp/$file_prefix*";
 $rc = execute($cmd);
 note("Delete all target files: status '$rc'");
 
