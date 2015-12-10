@@ -9,7 +9,6 @@ Hue User Guide
 
    overview/index
    getting_started/index
-   ui/index
    howtos/index 
    architecture/index
    reference/index
