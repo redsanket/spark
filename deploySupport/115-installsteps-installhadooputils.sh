@@ -1,6 +1,6 @@
 echo "Installing ygrid_hadoop_utils ..."
 
-LOCALCONFDIR=/usr/local/conf/hadoop
+LOCALCONFDIR=/usr/local/conf/bouncer
 
 cmd="[[ -d ${LOCALCONFDIR} ]] || mkdir -p ${LOCALCONFDIR}"
 fanout $cmd
