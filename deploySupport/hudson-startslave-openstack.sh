@@ -3,15 +3,16 @@
 export scriptnames=openstacklargedisk
 export confpkg=HadoopConfigopenstacklargedisk
 export localconfpkg=hadooplocalconfigsopenstacklarge
+export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 
 echo =========================================
 echo Beginning of Openstack deployment job.
 echo hostname = `hostname`
+echo "PATH='$PATH'"
 echo date = `TZ=PDT8PDT date `
 echo date = `TZ= date`
 echo =========================================
 
-export PATH=$PATH:/usr/bin:/usr/local/bin:/bin:/home/y/bin:/sroot:/sbin
 export DATESTRING=`date +%y%m%d%H%M`
 
 # Setup and cleanup artifacts directory
