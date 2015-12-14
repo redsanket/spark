@@ -22,16 +22,17 @@ case "$CLUSTER" in
 esac
 export confpkg=HadoopConfig${scriptnames}blue
 export localconfpkg=hadooplocalconfigsopenstacklarge
+export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 
 echo =========================================
 echo Beginning of Hudson-driven deployment job.
 echo hostname = `hostname`
+echo "PATH='$PATH'"
 echo date = `TZ=PDT8PDT date `
 echo date = `TZ= date`
 echo =========================================
 echo
 
-export PATH=$PATH:/usr/bin:/usr/local/bin:/bin:/home/y/bin:/sroot:/sbin
 export DATESTRING=`date +%y%m%d%H%M`
 
 
