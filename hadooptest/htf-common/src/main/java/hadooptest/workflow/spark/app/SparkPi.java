@@ -196,6 +196,7 @@ public class SparkPi extends App {
             newEnv.put("SPARK_JAR", sparkJar);
         }
         newEnv.put("JAVA_HOME", TestSession.conf.getProperty("JAVA_HOME"));
+        newEnv.put("SPARK_HOME",  TestSession.conf.getProperty("SPARK_HOME"));
         
         TestSession.logger.info("SPARK_JAR=" + sparkJar);
         TestSession.logger.info("JAVA_HOME=" + TestSession.conf.getProperty("JAVA_HOME"));

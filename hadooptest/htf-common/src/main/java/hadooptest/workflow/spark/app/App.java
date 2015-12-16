@@ -256,7 +256,7 @@ public abstract class App extends Thread {
             HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
             Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
                 EMPTY_ENV_HASH_MAP);
-            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
+            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
             environmentVariablesWrappingTheCommand.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
 
             yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
@@ -317,7 +317,7 @@ public abstract class App extends Thread {
             HashMap<String, String> EMPTY_ENV_HASH_MAP = new HashMap<String, String>();
             Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
                 EMPTY_ENV_HASH_MAP);
-            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
+            environmentVariablesWrappingTheCommand.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
             environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
 
             yarnProc = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
