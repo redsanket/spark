@@ -52,9 +52,6 @@ public class SparkRunSparkSubmit extends App {
     /** whether to pass --name to cmd */
     private Boolean shouldPassName = false;
 
-    /** whether to use jdk64 */
-    private Boolean shouldUseJdk64 = false;
-
     /** application name */
     private String appName = "sparkTest";
 
@@ -210,15 +207,6 @@ public class SparkRunSparkSubmit extends App {
     }
 
     /**
-     * Set whether to use 64 bit jdk (defaults to use 32 bit)
-     * 
-     * @param val - Boolean indicating if should use 64 bit jdk
-     */
-    public void setShouldUseJdk64(Boolean useit) {
-        this.shouldUseJdk64 = useit;
-    }
-
-    /**
      * Set the queue name to use
      * 
      * @param name -String name of the queue
@@ -299,12 +287,7 @@ public class SparkRunSparkSubmit extends App {
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
         newEnv.put("SPARK_HOME",  TestSession.conf.getProperty("SPARK_HOME"));
-
-        if (this.shouldUseJdk64) {
-            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
-        } else {
-            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
-        }
+        newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
 
         TestSession.logger.info("JAVA_HOME=" + newEnv.get("JAVA_HOME"));
         newEnv.put("HADOOP_CONF_DIR", TestSession.cluster.getConf().getHadoopConfDir());
@@ -480,12 +463,10 @@ public class SparkRunSparkSubmit extends App {
             cmd.add(confString);
         }
 
-        if (this.shouldUseJdk64) {
-            cmd.add("--conf");
-            cmd.add("spark.executorEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
-            cmd.add("--conf");
-            cmd.add("spark.yarn.appMasterEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
-        }
+        cmd.add("--conf");
+        cmd.add("spark.executorEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
+        cmd.add("--conf");
+        cmd.add("spark.yarn.appMasterEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
 
         cmd.addAll(Arrays.asList( new String[] { 
             "--num-executors", Integer.toString(this.numWorkers),

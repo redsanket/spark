@@ -49,9 +49,6 @@ public class SparkRunClass extends App {
     /** whether to pass --name to cmd */
     private Boolean shouldPassName = false;
 
-    /** whether to use jdk64 */
-    private Boolean shouldUseJdk64 = false;
-
     /** application name */
     private String appName = "sparkTest";
 
@@ -200,15 +197,6 @@ public class SparkRunClass extends App {
     }
 
     /**
-     * Set whether to use 64 bit jdk (defaults to use 32 bit)
-     * 
-     * @param val - Boolean indicating if should use 64 bit jdk
-     */
-    public void setShouldUseJdk64(Boolean useit) {
-        this.shouldUseJdk64 = useit;
-    }
-
-    /**
      * Set a list of files to go into the distributed cache
      * 
      * @param files - String of comma separate files
@@ -255,12 +243,8 @@ public class SparkRunClass extends App {
         if (setSparkJar) {
             newEnv.put("SPARK_JAR", sparkJar);
         }
-        if (this.shouldUseJdk64) {
-            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
-            newEnv.put("SPARK_YARN_USER_ENV", "JAVA_HOME=" + HadooptestConstants.Location.JDK64);
-        } else {
-            newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK32);
-        }
+        newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
+        newEnv.put("SPARK_YARN_USER_ENV", "JAVA_HOME=" + HadooptestConstants.Location.JDK64);
 
         if (!log4jFile.isEmpty()) {
             newEnv.put("SPARK_LOG4J_CONF", log4jFile);
