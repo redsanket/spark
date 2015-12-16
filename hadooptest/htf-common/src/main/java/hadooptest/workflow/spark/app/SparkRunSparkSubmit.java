@@ -298,6 +298,7 @@ public class SparkRunSparkSubmit extends App {
 
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
+        newEnv.put("SPARK_HOME",  TestSession.conf.getProperty("SPARK_HOME"));
 
         if (this.shouldUseJdk64) {
             newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);

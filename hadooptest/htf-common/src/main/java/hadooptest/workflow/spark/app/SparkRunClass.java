@@ -243,8 +243,8 @@ public class SparkRunClass extends App {
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
         String sparkJar = TestSession.conf.getProperty("SPARK_JAR");
-        //String sparkExamplesJar = TestSession.conf.getProperty("SPARK_EXAMPLES_JAR");
         String sparkJavaOpts = TestSession.conf.getProperty("SPARK_JAVA_OPTS");
+        newEnv.put("SPARK_HOME",  TestSession.conf.getProperty("SPARK_HOME"));
 
         if ((sparkJar == null) || (sparkJar.isEmpty()) ||
            (this.jarName == null) || (this.jarName.isEmpty()) ||
