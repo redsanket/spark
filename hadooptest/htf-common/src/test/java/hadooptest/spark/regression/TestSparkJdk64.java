@@ -79,7 +79,6 @@ public class TestSparkJdk64 extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile};
         appUserDefault.setArgs(argsArray);
-        appUserDefault.setShouldUseJdk64(true);
 
         appUserDefault.start();
 
@@ -108,7 +107,6 @@ public class TestSparkJdk64 extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile};
         appUserDefault.setArgs(argsArray);
-        appUserDefault.setShouldUseJdk64(true);
 
         appUserDefault.start();
 
@@ -139,7 +137,6 @@ public class TestSparkJdk64 extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile};
         appUserDefault.setArgs(argsArray);
-        appUserDefault.setShouldUseJdk64(true);
 
         appUserDefault.start();
 
