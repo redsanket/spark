@@ -1,0 +1,19 @@
+{
+    "plugins": ["addcssjs", "expandable-chapters", "anchors", "edit-link", "layout", "scrollablecode"],
+    "pluginsConfig": {
+       "addcssjs": {
+            "css": ["css/footer.css"]
+        },
+        "layout": {
+            "footerPath" : "layouts/footer.html"
+        },
+        "expandable-chapters":{},
+        "edit-link": {
+                "base": "https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/",
+                "label": {
+                    "en": "Edit This Page",
+                    "de": "Seite bearbeiten"
+                }
+         }
+    }
+}

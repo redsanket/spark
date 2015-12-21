@@ -1,0 +1,40 @@
+{
+  "name": "pig_user_guide",
+  "version": "1.0.0",
+  "description": "Yahoo's Pig User Guide.",
+  "main": "README.adoc",
+  "dependencies": {
+    "gitbook": "*",
+    "gitbook-plugin-addcssjs": "^0.0.1",
+    "gitbook-plugin-edit-link": "^1.4.1",
+    "gitbook-plugin-anchors": "^0.4.0",
+    "gitbook-plugin-expandable-chapters": "^0.1.6",
+    "gitbook-plugin-gtoc": "^0.2.0",
+    "gitbook-plugin-js-sequence-diagram": "^0.0.8",
+    "gitbook-plugin-scrollablecode": "^0.1.0",
+    "gitbook-plugin-layout": "^0.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "gitbook serve &",
+    "install": "gitbook install",
+    "build": "gitbook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.corp.yahoo.com/hadoop/docs"
+  },
+  "keywords": [
+    "pig",
+    "hadoop",
+    "gitbook",
+    "guide",
+    "documentation",
+    "oozie",
+    "hive",
+    "hbase",
+    "asciidoc"
+  ],
+  "author": "Joe Catera",
+  "license": "ISC"
+}

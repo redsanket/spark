@@ -1,0 +1,162 @@
+[[qs-pig_hive, Using Pig With Hive Through HCatalog]]
+== Using Pig With Hive Through HCatalog
+
+We took a look at how you can use Pig to load Hive data in 
+https://yahoo.jiveon.com/docs/DOC-46646#jive_content_id_Loading_Data_From_HCatalog[Loading Data From HCatalog].
+In this section, we're going to go into more detail, creating a Hive table and 
+populating it with data, loading that data into Pig, and then manipulating the data. 
+
+Before we start, it's important to first understand that HCatalog is a management 
+layer that makes Hive metadata available to different Hadoop clients such as Pig 
+and MapReduce. Without HCatalog, Pig has no way to access Hive data.
+
+We're going to use our `senators.csv` file again, but this time with Hive and Pig.
+
+[[pig_hive-create_table, Creating the Hive Table]]
+=== Creating the Hive Table
+
+. Start the Hive shell: `$ hive`
+. Create the Hive database that will store the tables with our data using your home 
+  directory (replace `<username>` with your username) to store the Hive data:
+  ....
+  hive> CREATE DATABASE $USER_senators LOCATION '/user/$USER/us_senators';
+  ....
+
+. Select the database you created: `hive> USE $USER_senators`
+. Create the Hive external table senator_information: 
+
+   hive> create external table if not exists senator_information(
+   id int,
+   title string,
+   party string,
+   firstname string, 
+   lastname string, 
+   gender string,
+   birthday string,
+   startdate string,
+   enddate string,
+   state string,
+   website string) 
+   ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+   stored as textfile
+   location '/user/$USER/us_senators/information';
+
+. Load the CSV data into the table: 
+  [source,hive]
+  ----
+  hive> LOAD DATA INPATH '/user/$USER/us_senators.csv' OVERWRITE INTO TABLE senator_information;
+  ----
+. Use the `DESCRIBE` operator to example the Hive data structure: 
+  [source,hive]
+  ----
+  hive> describe senator_information;
+  ----
+
+   TBD - need output
+. Based on the table structure, let's select a few fields and ask for ten rows: 
+
+   hive> select title, party, lastname from senator_information LIMIT 10;
+  
+  ....
+  Senator	Republican	Blunt
+  Senator	Republican	Boozman
+  Senator	Republican	Burr
+  Senator	Republican	Isakson
+  Senator	Republican	Kirk
+  Senator	Republican	Moran
+  Senator	Republican	Portman
+  Senator	Republican	Toomey
+  Senator	Republican	Vitter
+  Senator	Democrat	Boxer
+  ....
+
+. Let's quit Hive for now: `hive> quit;`
+
+
+[[pig_hive-load_data, Load Data From Hive]]
+=== Load Data From Hive
+
+In this section, we're going to use Pig to load data from the Hive table we 
+created and then use Pig to process the data.
+
+. To use HCatalog within Grunt, you need to pass the option `-useHCatalog` to the pig program: `$ pig -useHCatalog;`
+. As we did earlier, use the `HCatLoader()` function to load the data from the `senator_information` table. 
+
++
+----
+grunt> senators = LOAD '$USER_senators.senator_information' using org.apache.hive.hcatalog.pig.HCatLoader();
+----
++
+
+. Let's take a look at the raw data represented as Pig tuples:
+
++  
+....
+grunt> dump senators; 
+
+(43595,Senator,Republican,Tom,Cotton,male,1977-05-13,2015-01-06,2021-01-03,AR,http://www.cotton.senate.gov)
+(43628,Senator,Republican,Steve,Daines,male,1962-08-20,2015-01-06,2021-01-03,MT,http://www.daines.senate.gov)
+(43661,Senator,Democrat,Cory,Booker,male,1969-04-27,2015-01-06,2021-01-03,NJ,http://www.booker.senate.gov)
+(43726,Senator,Republican,Dan,Sullivan,male,1964-11-13,2015-01-06,2021-01-03,AK,http://www.sullivan.senate.gov)
+(43727,Senator,Republican,David,Perdue,male,1949-12-10,2015-01-06,2021-01-03,GA,http://www.perdue.senate.gov)
+....
++
+
+. We can use Pig to group senators by gender and then find out the oldest member 
+  of the Senate for each gender:
+
++
+[source,pig]
+-----
+grunt> senators_by_gender = group senators by gender; // <!--1-->
+grunt> senators_oldest_by_gender = foreach senators_by_gender generate group, MIN(senators.birthday); <!--2-->
+-----
+<1> Group senators by gender.
+<2> Find the oldest member.
++
+
+. Display the results:
+
++
+----
+grunt> dump senators_oldest_by_gender;
+
+(male,1933-09-17)
+(female,1933-06-22)
+----
++
+
+
+. We can do something a little more complicated with the data. The following Pig 
+statements will sort the Senators from the oldest to youngest:
+
++
+[source,pig]
+----
+grunt> senator_with_age = foreach senators generate firstname, lastname, gender, party, state, YearsBetween(CurrentTime(),ToDate(birthday)) as age; # <1>
+grunt> senator_with_age = foreach senator_with_age generate gender, party, state, age, lastname, CONCAT(firstname,' ', lastname) as name; # <2>
+grunt> senators_oldest_to_youngest = ORDER senator_with_age BY age DESC, lastname ASC; # <3>
+grunt> senators_oldest_to_youngest = foreach senators_oldest_to_youngest generate name, age, gender, party, state; # <4>
+----
+<1> Iterate through senators and generate tuple with the information we want.
+<2> Concatenate the first and last name.
+<3> Order the results by descending age (oldest to youngest) and then by ascending last name (A-Z).
+<4> Generate the results with the fields in a logical order.
++
+
+. Display the results: 
+
++
+----
+grunt> dump senators_oldest_to_youngest;
+
+(Dianne Feinstein,82,female,Democrat,CA)
+(Charles Grassley,81,male,Republican,IA)
+(Orrin Hatch,81,male,Republican,UT)
+(Richard Shelby,81,male,Republican,AL)
+(James Inhofe,80,male,Republican,OK)
+(John McCain,79,male,Republican,AZ)
+...
+----
++
+

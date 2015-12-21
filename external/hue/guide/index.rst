@@ -55,10 +55,23 @@ the ``yo`` link ``http://yo/hue.tt``.
 Getting Help
 ============
 
-General Questions / Support
----------------------------
+Questions / Support
+-------------------
 
-- yahoo-hue-users@yahoo-inc.com 
+About Hue
+*********
+
+yahoo-hue-users@yahoo-inc.com 
+
+Hive 
+****
+
+yahoo-hive-users@yahoo-inc.com
+
+Audience Data
+*************
+
+`Audience Data (yo/AD) Jive Group <https://yahoo.jiveon.com/groups/audience-data/overview>`_
 
 Filing Jira Tickets
 -------------------

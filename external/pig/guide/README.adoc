@@ -1,0 +1,21 @@
+[abstract]
+= Pig User Guide
+
+:source-highlighter: coderay
+:toc:
+:author: Joseph Catera
+:email: jcatera@yahoo-inc.com
+:revnumber: 1.0
+:revdate: 10/30/15
+:status: (Rough Draft)
+:sectanchors:
+
+Version: {revnumber} +
+Last Updated: {localdatetime} +
+Document Status: {status}
+
+This documentation is intended for developers using Pig on the Yahoo Grid.
+Our goal is to help Yahoos use Pig on the gateways and set up your own
+launcher boxes for Pig. For general documentation, see the
+http://pig.apache.org/docs/r0.14.0/[Apache Pig documentation].
+
