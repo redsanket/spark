@@ -59,6 +59,8 @@ General Questions / Support
 ---------------------------
 
 - yahoo-hue-users@yahoo-inc.com 
+- yahoo-hive-users@yahoo-inc.com
+- `Audience Data (yo/AD) Jive Group <https://yahoo.jiveon.com/groups/audience-data/overview>`_
 
 Filing Jira Tickets
 -------------------
