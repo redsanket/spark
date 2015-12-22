@@ -17,6 +17,8 @@
 # (4) You will need to comment or uncomment to make it run only the sections you want.
 #
 #
+echo `hostname`": PATH=$PATH"
+
 confpkg=HadoopConfigopenstacklargedisk
 confpkginstalloptions=
 export yinst=/usr/local/bin/yinst
