@@ -17,6 +17,7 @@
 # (4) You will need to comment or uncomment to make it run only the sections you want.
 #
 #
+export PATH="/home/y/bin64:/home/y/bin:$PATH"
 echo `hostname`": PATH=$PATH"
 
 confpkg=HadoopConfigopenstacklargedisk
