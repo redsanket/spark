@@ -37,6 +37,7 @@ export STARTNAMENODE=true
 export SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 export SCP="scp $SSH_OPT"
 export SSH="ssh $SSH_OPT"
+export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
 
 [ -z "$STARTYARN" ] && export STARTYARN=$hadoopgridrollout__STARTYARN
 [ -z "$CONFIGUREJOBTRACKER" ] && export CONFIGUREJOBTRACKER=$hadoopgridrollout__CONFIGUREJOBTRACKER
