@@ -7,9 +7,9 @@ then
 
 	# Step 1a: kill job tracker script.
 	echo "Step 1a: kill job tracker script, if running."
-	echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop resourcemanager | ssh $jobtrackernode su - $MAPREDUSER
-        echo ${yrootHadoopMapred}/sbin/mr-jobhistory-daemon.sh --config $yroothome/conf/hadoop  stop historyserver | ssh $jobtrackernode su - $MAPREDUSER
-        echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop timelineserver | ssh $jobtrackernode su - $MAPREDUSER
+	echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop resourcemanager | $SSH $jobtrackernode su - $MAPREDUSER
+        echo ${yrootHadoopMapred}/sbin/mr-jobhistory-daemon.sh --config $yroothome/conf/hadoop  stop historyserver | $SSH $jobtrackernode su - $MAPREDUSER
+        echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop timelineserver | $SSH $jobtrackernode su - $MAPREDUSER
 
   # removing su - $HDFSUSER as we might have started the jt as mapred/mapredqa users 
 	echo "Step 1b: kill namenode, if running."
