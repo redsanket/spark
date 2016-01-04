@@ -14,7 +14,7 @@ On-Boarding
 ===========
 
 In addition to an `On-Boarding <./onboarding/>`_ chapter, we also have a `quick start <./quickstart/>`_
-and `tutorials </tutorials>`_ to help you get started.
+and `tutorials <./tutorials>`_ to help you get started.
 
 Getting Help
 ============
