@@ -20,7 +20,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 
-public class IntegrateTez  {
+public class IntegrateTez  /*implements Runnable*/ {
 
 	private String tezScriptPath;
 	private String tezVersion;
@@ -46,9 +46,37 @@ public class IntegrateTez  {
 		this.tezHostname = tezHName;
 	}
 	
+/*	@Override
+	public void run() {
+		//this.setCurrentFeedName(this.currentFeedName);
+		//integrateTez.setDataPath(this.getCurrentFeedBasePath());
+		TestSession.logger.info("************************************** started tez ***********************************************************");
+		try {
+			this.modifyTezFile();
+			this.copyTezScriptToHBaseMasterHost();
+			this.executeTez();
+		} catch (IOException e ) {
+			e.printStackTrace();
+		}catch (InstantiationException e ) {
+			e.printStackTrace();
+		}catch (IllegalAccessException e ) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e ) {
+			e.printStackTrace();
+		} catch (SQLException e ) {
+			e.printStackTrace();
+		}
+	}*/
+	
 	public IntegrateTez(String currentFeedName , String dataPath) {
 		this.currentFeedName = currentFeedName;
 		this.dataPath = dataPath;
+		
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".gateway)\"";
+		String tezHName = this.executeCommand(command).trim();
+		TestSession.logger.info("Tez hostname -  " + tezHName);
+		this.tezHostname = tezHName;
 	}
 	
 	private void setTezScriptPath(String tezScriptPath) {
@@ -96,7 +124,6 @@ public class IntegrateTez  {
 
 	public boolean getTezHealthCheck() {
 		boolean flag = false;
-		//String gateWayHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.gateWayName").trim();
 		String command = "ssh " + this.tezHostname + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
 		String logOutput = this.executeCommand(command, "Tez_State");
 		List<String> logOutputList = Arrays.asList(logOutput.split("\n"));
@@ -152,14 +179,14 @@ public class IntegrateTez  {
 		} else if (result == false) {
 			insertRecordResult = "FAIL~" +  mrJobURL + "~" + startTime.trim() + "~" + endTime.trim();
 		}
-		this.updateHBaseResultIntoDB( "tez" , insertRecordResult , this.getCurrentFeedName());
+		this.updateTezResultIntoDB( "tez" , insertRecordResult , this.getCurrentFeedName());
 		this.setTezTested(true);
 	}
 	
 	/**
 	 * copy hbase pig scripts to hbase host.
 	 */
-	public void copyTezScriptToHBaseMasterHost() {
+	public void copyTezScriptToTezHost() {
 		String  absolutePath = new File("").getAbsolutePath();
 		File tezFilePath = new File(absolutePath + "/resources/stack_integration/TezTestCase.pig");
 		
@@ -205,7 +232,7 @@ public class IntegrateTez  {
 			//	this.updateHBaseResultIntoDB(hbaseOperationType, "FAIL~JOB_DID_NOT_STARTED~START_TIME~END_TIME", this.getCurrentFeedName());
 				;
 			} else if (tezType.equals(TEZ_RESULT)) {
-				this.updateHBaseResultIntoDB("tez", "FAIL~JOB_DID_NOT_STARTED~START_TIME~END_TIME", this.getCurrentFeedName());
+				this.updateTezResultIntoDB("tez", "FAIL~JOB_DID_NOT_STARTED~START_TIME~END_TIME", this.getCurrentFeedName());
 			}
 			throw new RuntimeException("Exception" );
 		} else {
@@ -221,7 +248,7 @@ public class IntegrateTez  {
 	 * @param result
 	 * @param feedName
 	 */
-	public void updateHBaseResultIntoDB(String colunmName, String result , String feedName) {
+	public void updateTezResultIntoDB(String colunmName, String result , String feedName) {
 		DataBaseOperations dbOperations = new DataBaseOperations();
 		try {
 			Connection con = dbOperations.getConnection();

@@ -66,6 +66,7 @@ public class DataAvailabilityPoller {
 	private boolean tezHealthStatus = false;
 	private boolean hiveHealthStatus = false;
 	private boolean pigHealthStatus = false;
+	private int componentCount = 0;
 	private Connection con;
 	public SearchDataAvailablity searchDataAvailablity;
 	private NameNodeTheadDemon nameNodeTheadDemonObject;
@@ -237,6 +238,7 @@ public class DataAvailabilityPoller {
 				String oozieVersion = "";
 				String gdmVersion = "";
 				
+				
 				/*if (sComponent.toUpperCase().equals("HBASE")) {
 						hbaseMasterResult = this.getHBaseHealthCheck().trim();
 						int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
@@ -257,6 +259,7 @@ public class DataAvailabilityPoller {
 				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
 					pigStatus = "active~" + this.getPigVersion();
+					//componentCount++; // since pig is used to execute the other component this line is purposefully commented out
 				} else if (this.pigHealthStatus == true) {
 					pigStatus = "down~0.0";
 				}
@@ -269,6 +272,7 @@ public class DataAvailabilityPoller {
 					tezStatus = "down~0.0";
 				} else if (integrateTez.getTezHealthCheck() ==  true) {
 					tezStatus = "active~" + tezVersion;
+					componentCount++;
 				}
 
 				IntegrateHive integrateHiveObj = new IntegrateHive();
@@ -276,6 +280,7 @@ public class DataAvailabilityPoller {
 				String currentHiveVersion = integrateHiveObj.getHiveVersion();
 				if (this.hiveHealthStatus == true) {
 					hiveStatus = "active~" + currentHiveVersion;
+					componentCount++;
 				} else if (this.hiveHealthStatus == true) {
 					hiveStatus = "down~0.0";
 				}
@@ -285,8 +290,23 @@ public class DataAvailabilityPoller {
 
 				if (hcatHealthStatus == true) {
 					hcatStatus = "active~" + hcatVersion;
+					//componentCount++; // since hcat is executed as part of hive this line is purposefully commented out
 				} else {
 					hcatStatus = "down~0.0";
+				}
+				
+				hbaseMasterResult = this.getHBaseHealthCheck().trim();
+				int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
+				TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
+
+				// if either hbase master or hbase regional server are down, mark hbase as down
+				// TODO : Need to find a way to say that which service is down on the front end
+
+				if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
+					hbaseMasterResult = hbaseMasterResult + "~0.0"; 
+				} else {
+					this.hbaseHealthStatus = true;
+					hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
 				}
 			
 				TestSession.logger.info("******************************  inserting record into health table *************************************************");
@@ -373,48 +393,35 @@ public class DataAvailabilityPoller {
 
 					// update db saying that data is AVAILABLE
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , "AVAILABLE" , "currentStep" , "dataAvailable", this.currentFeedName);
-
-					// Test HBase
-					if (this.hbaseHealthStatus == true) {
-						IntegrateHBase integrateHBaseObject = new IntegrateHBase();
-						//integrateHBaseObject1 = new IntegrateHBase(this.currentFeedName , this.getCurrentFeedBasePath() , this.getHBaseInsertRecordPigScriptFilePath());
-						if (integrateHBaseObject.isRecordInsertedIntoHBase() == false && integrateHBaseObject.isRecordScannedFromHBase() == false) {
-							integrateHBaseObject.setCurrentFeedName(this.currentFeedName);
-							integrateHBaseObject.setDataPath(this.getCurrentFeedBasePath());
-							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
-							integrateHBaseObject.modifyHBasePigFile();
-							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
-
-							// create HBase table
-							integrateHBaseObject.createHBaseIntegrationTable();
-							if (integrateHBaseObject.isHBaseTableCreated() == true ) {
-								integrateHBaseObject.executeInsertingRecordsIntoHBase();
-								integrateHBaseObject.executeReadRecordsFromHBaseToPig();
-								integrateHBaseObject.deleteHBaseIntegrationTable();
-							} else if (integrateHBaseObject.isHBaseTableCreated() == false ) {
-								TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
-								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
-								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedBasePath());
-								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
-							}
-						}
-					}
-
+					
+					final int THREAD_COUNT =  componentCount;
+					Thread myThreadArray[] = new Thread[THREAD_COUNT];
+					
 					IntegrateTez integrateTez = new IntegrateTez();
-					IntegrateTez integrateTez1 = new IntegrateTez(this.currentFeedName , this.getCurrentFeedBasePath());
+					//IntegrateTez integrateTez = new IntegrateTez(this.currentFeedName , this.getCurrentFeedBasePath());
 					if (this.tezHealthStatus == true) {
 						integrateTez.setCurrentFeedName(this.currentFeedName);
 						integrateTez.setDataPath(this.getCurrentFeedBasePath());
 						integrateTez.modifyTezFile();
-						integrateTez.copyTezScriptToHBaseMasterHost();
+						integrateTez.copyTezScriptToTezHost();
 						integrateTez.executeTez();
 					} else {
 						// update tez result, if health checkup fails
-						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+						integrateTez.updateTezResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
 					}
-
+					
+					
+/*					if (this.tezHealthStatus == true) {
+						myThreadArray[0] = new Thread(integrateTez);			
+					}else {
+//						// update tez result, if health checkup fails
+						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+					}*/
+					
 					if (this.hiveHealthStatus == true) {
 						IntegrateHive integrateHiveObj = new IntegrateHive();
+						//IntegrateHive integrateHiveObj = new IntegrateHive(this.currentFeedName  , this.getCurrentFeedBasePath());
+					//	myThreadArray[1] = new Thread(integrateHiveObj);
 						integrateHiveObj.getHiveHealthCheckup();
 						integrateHiveObj.setDataPath(this.getCurrentFeedBasePath());
 						integrateHiveObj.setCurrentFeedName(this.currentFeedName);
@@ -430,6 +437,47 @@ public class DataAvailabilityPoller {
 						integrateHiveObj.fetchDataUsingHCat();
 						integrateHiveObj.cleanUp();
 					}
+					
+					// Test HBase
+					if (this.hbaseHealthStatus == true) {
+						IntegrateHBase integrateHBaseObject = new IntegrateHBase();
+						//integrateHBaseObject1 = new IntegrateHBase(this.currentFeedName , this.getCurrentFeedBasePath() , this.getHBaseInsertRecordPigScriptFilePath());
+						if (integrateHBaseObject.isRecordInsertedIntoHBase() == false && integrateHBaseObject.isRecordScannedFromHBase() == false) {
+							integrateHBaseObject.setCurrentFeedName(this.currentFeedName);
+							integrateHBaseObject.setDataPath(this.getCurrentFeedBasePath());
+							integrateHBaseObject.setScriptPath(this.getHBaseInsertRecordPigScriptFilePath());
+							integrateHBaseObject.modifyHBasePigFile();
+							integrateHBaseObject.copyHBasePigScriptToHBaseMasterHost();
+
+							// delete table if exists
+							integrateHBaseObject.deleteHBaseIntegrationTable();
+							
+							// create HBase table
+							integrateHBaseObject.createHBaseIntegrationTable();
+							if (integrateHBaseObject.isHBaseTableCreated() == true ) {
+								integrateHBaseObject.executeInsertingRecordsIntoHBase();
+								integrateHBaseObject.executeReadRecordsFromHBaseToPig();
+							} else if (integrateHBaseObject.isHBaseTableCreated() == false ) {
+								TestSession.logger.error("Failed to create HBase table, no other tests will be executed on hbase.");
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseInsert" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseDeleteTable" , "FAIL" , this.getCurrentFeedBasePath());
+								integrateHBaseObject.updateHBaseResultIntoDB( "hbaseScan" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
+							}
+						}
+					}
+					
+					
+					/*for ( int i= 0; i< myThreadArray.length;i++) {
+						TestSession.logger.info("*************************************************************************************************");
+						TestSession.logger.info("*****************************************started " + i  + " thread ********************************************************");
+						myThreadArray[i].start();
+						TestSession.logger.info("*************************************************************************************************");
+						
+					}
+					
+					for ( int i= 0;i<myThreadArray.length;i++) {
+						myThreadArray[i].join();
+					}*/
 
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
 					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";

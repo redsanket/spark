@@ -45,7 +45,7 @@ public class IntegrateHBase   {
 
 	public IntegrateHBase() { }
 	
-	public IntegrateHBase(String currentFeedName, String dataPath, String scriptPath) { 
+	public IntegrateHBase(String currentFeedName, String dataPath, String scriptPath) {
 		this.currentFeedName = currentFeedName;
 		this.dataPath = dataPath;
 		this.scriptPath = scriptPath;
@@ -59,7 +59,7 @@ public class IntegrateHBase   {
 	}
 
 	public String getPathCommand() {
-		String pathCommand = "export PATH=$PATH:" + PIG_HOME + ":" + HBASE_HOME + "/bin" + ":" + INTEGRATION_JAR;
+		String pathCommand = "export HBASE_PREFIX=/home/y/libexec/hbase;export PATH=$PATH:" + PIG_HOME + ":" + HBASE_HOME + "/bin" + ":" + INTEGRATION_JAR;
 		TestSession.logger.info("export path value - " + pathCommand);
 		return pathCommand.trim();
 	}
@@ -112,8 +112,8 @@ public class IntegrateHBase   {
 		List<String> insertOutputList = Arrays.asList(output.split("\n"));
 		String insertResult = insertOutputList.get(insertOutputList.size() - 1);
 		TestSession.logger.info("Result - " + insertResult );
-		assertTrue("Expected Success! , but got " + insertResult , insertResult.indexOf("Success!") > -1);
-		result = true;
+		//assertTrue("Expected Success! , but got " + insertResult , insertResult.indexOf("Success!") > -1);
+		//result = true;
 		String mrJobURL = null;
 		int count = 0;
 		String startTime = null , endTime = null;
@@ -128,6 +128,14 @@ public class IntegrateHBase   {
 				List<String> tempList = Arrays.asList(tempTime.split("\t"));
 				startTime = tempList.get(3);
 				endTime = tempList.get(4);
+			}
+			
+			if (item.indexOf("Output(s):") > -1) {
+				TestSession.logger.info("item = " + item);
+				String state = insertOutputList.get(count);
+				TestSession.logger.info("state = " + state);
+				assertTrue("Expected  Successfully, but got " +  state , state.indexOf("Successfully") > -1 );
+				result = true;
 			}
 			count++;
 		}
@@ -209,8 +217,8 @@ public class IntegrateHBase   {
 		List<String> scanOuputList = Arrays.asList(output.split("\n"));
 		String scanResult = scanOuputList.get(scanOuputList.size() - 2);
 		TestSession.logger.info("Result - " + scanResult );
-		assertTrue("Expected Success! , but got " + scanResult , scanResult.indexOf("(4)") > -1);
-		result = true;
+//		assertTrue("Expected Success! , but got " + scanResult , scanResult.indexOf("(4)") > -1);
+	//	result = true;
 		String mrJobURL = null;
 		int count = 0;
 		String startTime = null , endTime = null;
@@ -225,6 +233,13 @@ public class IntegrateHBase   {
 				List<String> tempList = Arrays.asList(tempTime.split("\t"));
 				startTime = tempList.get(3);
 				endTime = tempList.get(4);
+			}
+			if (item.indexOf("Output(s):") > -1) {
+				TestSession.logger.info("item = " + item);
+				String state = scanOuputList.get(count);
+				TestSession.logger.info("state = " + state);
+				assertTrue("Expected  Successfully, but got " +  state , state.indexOf("Successfully") > -1 );
+				result = true;
 			}
 			count++;
 		}
@@ -336,7 +351,7 @@ public class IntegrateHBase   {
 		TestSession.logger.info("command - " + command);
 		ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
 		if ((result == null) || (result.getLeft() != 0)) {
-			if (result != null) { 
+			if (result != null) {
 				// save script output to log
 				TestSession.logger.info("Command exit value: " + result.getLeft());
 				TestSession.logger.info(result.getRight());
