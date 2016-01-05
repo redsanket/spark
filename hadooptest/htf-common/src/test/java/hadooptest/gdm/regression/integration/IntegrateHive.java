@@ -20,7 +20,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 
-public class IntegrateHive {
+public class IntegrateHive  /*implements Runnable*/ {
 	private String hiveHostName;
 	private String hiveHealthCheckupStatus;
 	private String hiveVersion;
@@ -56,6 +56,46 @@ public class IntegrateHive {
 		this.consoleHandle = new ConsoleHandle();
 	}
 
+	public IntegrateHive(String currentFeedName , String dataPath ) { 
+		this.currentFeedName = currentFeedName;
+		this.dataPath = dataPath;
+		
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".hive)\"";
+		String hName = this.executeCommand(command).trim();
+		TestSession.logger.info("Hive hostname -  " + hName);
+		this.hiveHostName = hName;
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+		Calendar calendar = Calendar.getInstance();
+		Date d = new Date();
+		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
+		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
+		this.consoleHandle = new ConsoleHandle();
+	}
+	
+/*	@Override
+	public void run() {
+		this.getHiveHealthCheckup();
+		//integrateHiveObj.setDataPath(this.getCurrentFeedBasePath());
+		//integrateHiveObj.setCurrentFeedName(this.currentFeedName);
+		TestSession.logger.info("******************************************** started hive and hcat *****************************************************");
+		try {
+			this.setPigVersion(this.getPigVersion());
+			this.modifyPigFile();
+			this.modifyLoadDataIntoHiveScript();
+			this.modifyFetchDataUsingHCatalogFile();
+			this.copyHiveFileToHiveServer();
+			this.dropExistingHiveTable();
+			this.createHiveTable();
+			this.copyDataFromSourceToHiveServer();
+			this.loadDataIntoHive();
+			this.fetchDataUsingHCat();
+			this.cleanUp();
+		} catch (IOException e ) {
+			e.printStackTrace();
+		}
+	}*/
+	
 	public void setCurrentFeedName(String feedName) {
 		this.currentFeedName = feedName;
 	}
@@ -253,7 +293,7 @@ public class IntegrateHive {
 	}
 	
 	
-	public void modifyFetchDataUsingHCatalogFile() throws IOException {
+	public synchronized void modifyFetchDataUsingHCatalogFile() throws IOException {
 		String absolutePath = new File("").getAbsolutePath();
 		File copySourceFilePath = new File(absolutePath + "/resources/stack_integration/hive/FetchHiveDataUsingHCatalog_temp.pig");
 		File filePath = new File(absolutePath + "/resources/stack_integration/hive");
@@ -286,7 +326,7 @@ public class IntegrateHive {
 		}
 	}
 
-	public void modifyLoadDataIntoHiveScript() throws IOException {
+	public synchronized void modifyLoadDataIntoHiveScript() throws IOException {
 		String  absolutePath = new File("").getAbsolutePath();
 		File loadDataToHiveScriptPath = new File(absolutePath + "/resources/stack_integration/hive/LoadDataToHive_temp.hql");
 		if (loadDataToHiveScriptPath.exists()) {
@@ -321,7 +361,7 @@ public class IntegrateHive {
 		}
 	}
 	
-	public void loadDataIntoHive() {
+	public synchronized void loadDataIntoHive() {
 		String executeLoadDataIntoHiveCommand = this.initialCommand + " hive -f " + this.getHiveScriptLocation() + "/LoadDataToHive.hql" + "\" " ;
 		String output = this.executeCommand(executeLoadDataIntoHiveCommand);
 		List<String> dropTableOutputList = Arrays.asList(output.split("\n"));
@@ -339,7 +379,7 @@ public class IntegrateHive {
 		}
 	}
 	
-	public void fetchDataUsingHCat() {
+	public synchronized void fetchDataUsingHCat() {
 		String command =  this.initialCommand  + this.PIG_HOME + ";"  + PATH_COMMAND + "; pig -useHCatalog  -Dpig.additional.jars=/home/y/libexec/hive/lib/*.jar:/home/y/share/sharelib/lib/hive-"+ this.getHiveVersion() +"/*.jar:/home/y/libexec/hive/lib/*.jar:/home/y/libexec/hive/auxlib/jdo-api*.jar   -x mapreduce " +
 				this.getHiveScriptLocation() + "/FetchHiveDataUsingHCatalog.pig" + "\" " ;
 		TestSession.logger.info("command   = " + command);
