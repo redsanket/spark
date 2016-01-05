@@ -364,7 +364,7 @@ public class TestNativeLibs32and64 extends TestSession {
             // build up our task log path from the taskid we were given
             String appid = taskid.substring(5,23);
             // 2.6 added the possiblity of an epoch field in container name, need to account for it
-            String logfiles = "/grid/*/tmp/yarn-logs/application_"+appid+"/container*_"+appid+"_01_000001/*";
+            String logfiles = "/home/gs/var/log/mapredqa/userlogs/application_"+appid+"/container*_"+appid+"_01_000001/*";
             TestSession.logger.info("NM log path is: " + logfiles);
             
             // Load up the patterns we want to look for in the task's logs
