@@ -6,6 +6,7 @@
 #
 # inputs: cluster being installed 
 # outputs: 0 on success
+set -x
 
 if [ $# -ne 1 ]; then
   echo "ERROR: need the cluster name"
@@ -22,7 +23,7 @@ echo "INFO: Oozie node being installed: $OOZIENODE"
 NAMENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)"|head -1`;
 
 # get component versions for oozie's yinst sets
-HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.openqe53blue |grep hadoopcoretree | cut -d'-' -f2`
+HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.$CLUSTER |grep hadoopcoretree | cut -d'-' -f2`
 PIG_VERSION=`yinst ls |grep pig | cut -d'-' -f2`
 HIVE_VERSION=`yinst ls |grep hive- | cut -d'-' -f2`
 HCAT_VERSION=`yinst ls |grep hcat_server | cut -d'-' -f2`

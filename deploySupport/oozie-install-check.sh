@@ -15,6 +15,7 @@
 #
 # inputs: cluster to install oozie on
 # returns: 0 on success
+set -x
 
 if [ $# -ne 1 ]; then
   echo "ERROR: need the cluster to install oozie onto"
