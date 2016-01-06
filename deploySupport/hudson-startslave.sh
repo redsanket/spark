@@ -75,7 +75,7 @@ HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
 if [[ "$HADOOP_27" == "true" ]]; then
     export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk yspark_yarn_shuffle"
 else
-    export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS gridjdk64 gridjdk"
+    export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk gridjdk"
 fi
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 

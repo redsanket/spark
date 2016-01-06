@@ -19,11 +19,7 @@ if [ "$STARTYARN" = true ]
 then
     banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
 
-    if [[ "$HADOOP_27" == "true" ]]; then
-        JAVA_HOME="$GSHOME/java8/jdk64/current"
-    else
-        JAVA_HOME="$GSHOME/java/jdk64/current"
-    fi
+    JAVA_HOME="$GSHOME/java8/jdk64/current"
 
 debug=
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
