@@ -251,7 +251,7 @@ done
 
 # stack component install settings
 [ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
-
+[ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
 
 
 ## HIT test pkg
@@ -372,6 +372,23 @@ if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
 
 else
   echo "INFO: Not installing Hive component"
+fi
+
+#################################################################################
+# CHECK IF NEED TO RUN THE OOZIE INSTALL SCRIPT ON THE OOZIE NODE
+#################################################################################
+# gridci-561 install yoozie server
+# this relies on oozie service keytab being generated and pushed out in the cluster 
+# configure portion of cluster building (cluster-build/configure_cluster)
+
+if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
+  ./oozie-install-check.sh $CLUSTER
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Oozie component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Oozie component"
 fi
 
   
