@@ -272,6 +272,10 @@ done
 [ -z "$HIVEIGORTAG" ] && export HIVEIGORTAG=none
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
+# stack component install settings
+[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
+[ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
+
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none
@@ -337,6 +341,43 @@ scp $ADMIN_HOST:/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING/manifest.txt 
 
 cp  manifest.txt ${WORKSPACE}/
 cat manifest.txt
+
+
+#################################################################################
+# CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
+#################################################################################
+# gridci-481 install hive server and client
+# this relies on hive service keytab being generated and pushed out in the cluster configure portion
+# of cluster building (cluster-build/configure_cluster)
+
+if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
+
+  ./hive-install-check.sh $CLUSTER
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Hive component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Hive component"
+fi
+
+#################################################################################
+# CHECK IF NEED TO RUN THE OOZIE INSTALL SCRIPT ON THE OOZIE NODE
+#################################################################################
+# gridci-561 install yoozie server
+# this relies on oozie service keytab being generated and pushed out in the cluster 
+# configure portion of cluster building (cluster-build/configure_cluster)
+
+if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
+  ./oozie-install-check.sh $CLUSTER
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Oozie component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Oozie component"
+fi
+
 
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
