@@ -68,6 +68,11 @@ kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
 #
 # install oozie packages
 #
+# Note: we need to explicitly use hadoopgplcomplession version listed
+# below to ensure we pull the right pkg, else more recent versions 
+# exist which will get installed, and we don't want that (legacy from
+# 0.23 hadoop)
+#
 BRANCH=test
 yinst i yoozie -br $BRANCH
 yinst i ygrid_sharelib -br $BRANCH
