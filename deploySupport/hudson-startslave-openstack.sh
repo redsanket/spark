@@ -293,6 +293,23 @@ function fetch_artifacts() {
     printf "%-12s %s %s %s\n" "$CLUSTER" "RM" "-" "<a href=$URL>$URL</a>"  >> $webui_file;
     echo "</Pre>" >> $webui_file;
 
+    # if hive was selected, add the hive node's thrift URI
+    if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
+      hivenode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"|head -1`;
+      URL="thrift://$hivenode:9080/"
+      echo "WEBUI: $cluster Hive $URL"
+      printf "%-12s %s %s %s\n" "$CLUSTER" "Hive" "-" "<a href=$URL>$URL</a>" >> $webui_file;
+    fi
+
+    # if oozie was selected, add the oozie node's GUI URI
+    if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
+      oozienode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"|head -1`;
+      URL="http://$oozienode:4080/oozie"
+      echo "WEBUI: $cluster Oozie $URL"
+      printf "%-12s %s %s %s\n" "$CLUSTER" "Oozie" "-" "<a href=$URL>$URL</a>" >> $webui_file;
+    fi
+
+
     set +x
 }
 

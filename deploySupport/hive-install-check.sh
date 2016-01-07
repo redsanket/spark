@@ -73,10 +73,8 @@ INSTALL_SCRIPT=hive-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $HIVENODE:/tmp/
   
-set -x
 $SSH $HIVENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER"
 RC=$?
-set +x
 
 if [ $RC -ne 0 ]; then
   echo "ERROR: Hive installer failed!"
