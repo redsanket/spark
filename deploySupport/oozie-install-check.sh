@@ -15,7 +15,6 @@
 #
 # inputs: cluster to install oozie on
 # returns: 0 on success
-set -x
 
 if [ $# -ne 1 ]; then
   echo "ERROR: need the cluster to install oozie onto"
@@ -48,10 +47,8 @@ HIVE_INSTALL_SCRIPT=hive-install.sh
 # copy the installer to the target node and run it
 $SCP $HIVE_INSTALL_SCRIPT  $OOZIENODE:/tmp/
 
-set -x
 $SSH $OOZIENODE "cd /tmp/ && /tmp/$HIVE_INSTALL_SCRIPT $CLUSTER"
 RC=$?
-set +x
 
 if [ $RC -ne 0 ]; then
   echo "ERROR: Hive install to Oozie node failed!"
@@ -71,10 +68,8 @@ INSTALL_SCRIPT=oozie-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $OOZIENODE:/tmp/
   
-set -x
 $SSH $OOZIENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER"
 RC=$?
-set +x
 
 if [ $RC -ne 0 ]; then
   echo "ERROR: Oozie installer failed!"

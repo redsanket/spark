@@ -6,7 +6,6 @@
 #
 # inputs: cluster being installed 
 # outputs: 0 on success
-set -x
 
 if [ $# -ne 1 ]; then
   echo "ERROR: need the cluster name"
