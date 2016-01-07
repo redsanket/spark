@@ -3,11 +3,7 @@
 action=$1
 cluster=$2
 
-if [[ "$HADOOP_27" == "true" ]]; then
-    export JAVA_HOME=$GSHOME/java8/jdk64/current
-else
-    export JAVA_HOME=$GSHOME/java/jdk64/current
-fi
+export JAVA_HOME=$GSHOME/java8/jdk64/current
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs

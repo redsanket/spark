@@ -27,12 +27,7 @@ then
 
     fanoutNN "rm /tmp/namenode-part-*-script.sh"
 
-    if [[ "$HADOOP_27" == "true" ]]; then
-        JAVA_HOME="$GSHOME/java8/jdk64/current"
-    else
-        JAVA_HOME="$GSHOME/java/jdk64/current"
-    fi
-
+    JAVA_HOME="$GSHOME/java8/jdk64/current"
     (
     echo "export CLUSTERID=$CLUSTERID"
     echo "export GSHOME=$GSHOME"

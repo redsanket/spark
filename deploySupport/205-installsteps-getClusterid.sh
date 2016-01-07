@@ -27,11 +27,7 @@ then
         exit 1
     fi
     nn=$NAMENODE_Primary
-    if [[ "$HADOOP_27" == "true" ]]; then
-        JAVA_HOME="$GSHOME/java8/jdk64/current"
-    else
-        JAVA_HOME="$GSHOME/java/jdk64/current"
-    fi
+    JAVA_HOME="$GSHOME/java8/jdk64/current"
     (
         set -x
         echo "cd ${yroothome}"
