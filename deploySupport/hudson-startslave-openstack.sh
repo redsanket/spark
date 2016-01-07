@@ -291,7 +291,6 @@ function fetch_artifacts() {
     URL="http://$rm:8088/cluster"
     echo "WEBUI: $cluster RM $URL"
     printf "%-12s %s %s %s\n" "$CLUSTER" "RM" "-" "<a href=$URL>$URL</a>"  >> $webui_file;
-    echo "</Pre>" >> $webui_file;
 
     # if hive was selected, add the hive node's thrift URI
     if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
@@ -309,6 +308,7 @@ function fetch_artifacts() {
       printf "%-12s %s %s %s\n" "$CLUSTER" "Oozie" "-" "<a href=$URL>$URL</a>" >> $webui_file;
     fi
 
+    echo "</Pre>" >> $webui_file;
 
     set +x
 }
