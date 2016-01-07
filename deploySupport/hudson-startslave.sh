@@ -271,6 +271,10 @@ done
 [ -z "$HIVEIGORTAG" ] && export HIVEIGORTAG=none
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
+# stack component install settings
+[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
+[ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
+
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none

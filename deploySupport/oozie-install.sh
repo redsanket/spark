@@ -29,18 +29,50 @@ HIVE_VERSION=`yinst ls |grep hive- | cut -d'-' -f2`
 HCAT_VERSION=`yinst ls |grep hcat_server | cut -d'-' -f2`
 TEZ_VERSION=`ls /home/gs/tez/current/tez-common-*|cut -d'-' -f3|cut -d'.' -f1-5`
 
+# check that the oozie node's local-superuser-conf.xml is correctly
+# setup with doAs users, if not then oozie operations will fail. 
+EC=0
+for USER in oozie hcat; do
+  # check for the given user's hosts entry
+  grep "hadoop.proxyuser.$USER.hosts" /home/gs/conf/local/local-superuser-conf.xml
+  RC=$?
+  if [ $RC -ne 0 ]; then 
+    echo "ERROR: local-superuser-conf.xml is missing \"hadoop.proxyuser.$USER.hosts\""
+  fi
+  EC=$((EC+RC))
+
+  # check for the given user's groups entry
+  grep "hadoop.proxyuser.$USER.groups" /home/gs/conf/local/local-superuser-conf.xml
+  RC=$?
+  if [ $RC -ne 0 ]; then 
+    echo "ERROR: local-superuser-conf.xml is missing \"hadoop.proxyuser.$USER.groups\""
+  fi
+  EC=$((EC+RC))
+done
+
+  # if any entries had errors, complain and bail out
+  if [ $EC -ne 0 ]; then
+    echo "ERROR: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is missing doAs users!"
+    echo "       See the section \"Local Node Conf File\" in the Build/Configure Jenkins job's README.md at:"
+    echo "       https://git.corp.yahoo.com/HadoopQE/qeopenstackdist/blob/master/README.md"
+    exit 1
+  else
+    echo "INFO: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is correct"
+  fi
+
 
 # kinit as hadoopqa, the hadoopqa keytab should already be there from the Configure job
 #kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
-kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
+kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
 
 #
 # install oozie packages
 #
-yinst i yoozie -br test
-yinst i ygrid_sharelib -br test
+BRANCH=test
+yinst i yoozie -br $BRANCH
+yinst i ygrid_sharelib -br $BRANCH
 yinst i hadoopgplcompression-1.0.2.2.1209201519
-yinst i yoozie_client -br test
+yinst i yoozie_client -br $BRANCH
 
 
 #

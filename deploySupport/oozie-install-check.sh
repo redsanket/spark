@@ -26,7 +26,8 @@ CLUSTER=$1
 
 OOZIENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"`;
 if [ -z "$OOZIENODE" ]; then
-  echo "ERROR: No Oozie node defined, OOZIENODE is empty! Is the Rolesdb role correctly set?"
+  echo "ERROR: No Oozie node defined, OOZIENODE for role grid_re.clusters.$CLUSTER.oozie is empty!"
+  echo "Is the Rolesdb role correctly set?"
   exit 1
 fi
 echo "INFO: Going to call Oozie installer for node $OOZIENODE..."
@@ -37,35 +38,6 @@ SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 SSH="ssh $SSH_OPT"
 SCP="scp $SSH_OPT"
 
-
-# check that the oozie node's local-superuser-conf.xml is correctly
-# setup with doAs users, if not then oozie operations will fail
-# check if hadoopqa properties are set
-EC=0
-$SSH $OOZIENODE grep "hadoop.proxyuser.oozie.hosts" /home/gs/conf/local/local-superuser-conf.xml
-RC=$?
-EC=$((EC+RC))
-
-$SSH $OOZIENODE grep "hadoop.proxyuser.oozie.groups" /home/gs/conf/local/local-superuser-conf.xml
-RC=$?
-EC=$((EC+RC))
-
-$SSH $OOZIENODE grep "hadoop.proxyuser.hcat.hosts" /home/gs/conf/local/local-superuser-conf.xml
-RC=$?
-EC=$((EC+RC))
-
-$SSH $OOZIENODE grep "hadoop.proxyuser.hcat.groups" /home/gs/conf/local/local-superuser-conf.xml
-RC=$?
-EC=$((EC+RC))
-
-if [ $EC -ne 0 ]; then
-  echo "ERROR: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is missing doAs users!"
-  echo "       See the section \"Local Node Conf File\" in the Build/Configure Jenkins job's README.md at:" 
-  echo "       https://git.corp.yahoo.com/HadoopQE/qeopenstackdist/blob/master/README.md"
-  exit 1
-else
-  echo "INFO: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is correct"
-fi
 
 ##
 # install hive and pig on the oozie node
