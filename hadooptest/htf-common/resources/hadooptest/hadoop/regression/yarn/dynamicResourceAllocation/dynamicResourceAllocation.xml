@@ -1,0 +1,29 @@
+<configuration>
+
+    <property>
+        <name>yarn.scheduler.capacity.root.queues</name>
+        <value>default</value>
+    </property>
+
+    <property>
+        <name>yarn.scheduler.capacity.root.capacity</name>
+        <value>100</value>
+    </property>
+
+    <property>
+        <name>yarn.scheduler.capacity.root.default.capacity</name>
+        <value>100</value>
+    </property>
+
+
+    <property>
+        <name>yarn.scheduler.capacity.root.acl_submit_job</name>
+        <value>*</value>
+    </property>
+
+    <property>
+        <name>yarn.scheduler.capacity.root.default.acl_submit_job</name>
+        <value>*</value>
+    </property>
+
+</configuration>

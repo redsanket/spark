@@ -28,7 +28,7 @@ public class SparkWordCount {
         JavaSparkContext ctx = new JavaSparkContext(sparkConf);
 
         List<Integer> data = new LinkedList<Integer>();
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < Integer.parseInt(args[0]); ++i) {
             data.add(i);
         }
 
@@ -40,8 +40,9 @@ public class SparkWordCount {
         JavaPairRDD<Integer, Integer> ones = distData.mapToPair(new PairFunction<Integer, Integer, Integer>() {
             @Override
             public Tuple2<Integer, Integer> call(Integer s) throws InterruptedException {
-                Double sleeptime = (1000.0/250.0) * 10.0;
-                Thread.sleep(sleeptime.intValue());
+                //Double sleeptime = (1000.0/250.0) * 10.0;
+                //Thread.sleep(sleeptime.intValue());
+                Thread.sleep(30 * 1000);
                 return new Tuple2<Integer, Integer>(s, 1);
             }
         });
