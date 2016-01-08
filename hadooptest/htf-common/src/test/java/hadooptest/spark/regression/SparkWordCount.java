@@ -40,7 +40,7 @@ public class SparkWordCount {
         JavaPairRDD<Integer, Integer> ones = distData.mapToPair(new PairFunction<Integer, Integer, Integer>() {
             @Override
             public Tuple2<Integer, Integer> call(Integer s) throws InterruptedException {
-                Double sleeptime = (1000.0 / 250.0) * 10.0;
+                Double sleeptime = (1000.0/250.0) * 10.0;
                 Thread.sleep(sleeptime.intValue());
                 return new Tuple2<Integer, Integer>(s, 1);
             }
@@ -51,7 +51,8 @@ public class SparkWordCount {
             System.out.println(tuple._1() + ": " + tuple._2());
         }
 
-        Thread.sleep(60 * 1000);
+        // Sleep to keep the application open to test dynamic resource allocation to see if idle executors get relinquished
+        Thread.sleep(60 *1000);
         ctx.stop();
     }
 }

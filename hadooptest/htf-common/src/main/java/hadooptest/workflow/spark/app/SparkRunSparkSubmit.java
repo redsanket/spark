@@ -585,9 +585,6 @@ public class SparkRunSparkSubmit extends App {
     public static String getWithBouncer(String user, String pw, String url, int expectedCode) throws Exception {
         HTTPHandle client = new HTTPHandle();
         client.logonToBouncer(user, pw);
-        TestSession.logger.info("Cookie = " + client.YBYCookie);
-        String myCookie = client.YBYCookie;
-
         TestSession.logger.info("URL to get is: " + url);
         HttpMethod getMethod = client.makeGET(url, new String(""), null);
         Response response = new Response(getMethod, false);
