@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * Created by jerrypeng on 1/5/16.
  */
-public class SparkWordCount {
+public class DynamicResourceAllocationTestTopology {
     private static final Pattern SPACE = Pattern.compile(" ");
 
     public static void main(String[] args) throws Exception {
@@ -40,8 +40,6 @@ public class SparkWordCount {
         JavaPairRDD<Integer, Integer> ones = distData.mapToPair(new PairFunction<Integer, Integer, Integer>() {
             @Override
             public Tuple2<Integer, Integer> call(Integer s) throws InterruptedException {
-                //Double sleeptime = (1000.0/250.0) * 10.0;
-                //Thread.sleep(sleeptime.intValue());
                 Thread.sleep(30 * 1000);
                 return new Tuple2<Integer, Integer>(s, 1);
             }
@@ -53,7 +51,7 @@ public class SparkWordCount {
         }
 
         // Sleep to keep the application open to test dynamic resource allocation to see if idle executors get relinquished
-        Thread.sleep(60 *1000);
+        Thread.sleep(60 * 1000);
         ctx.stop();
     }
 }

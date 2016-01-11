@@ -542,7 +542,10 @@ public class SparkRunSparkSubmit extends App {
      */
     public boolean checkNumExecutors(String appId, int numExecutors, String userId, String password) {
         try {
-            TestSession.logger.info("Checking executors for App: " + appId + " with name " + this.getAppName() + " with Status: " + this.getYarnState().toString() + " Exepcted # of executors" + numExecutors);
+            TestSession.logger.info("Checking executors for App: " + appId
+                    + " with name " + this.getAppName()
+                    + " with Status: " + this.getYarnState().toString()
+                    + " Exepcted # of executors" + numExecutors);
             Integer actualNumExecutors = getNumberOfExecutors(appId, userId, password);
             TestSession.logger.info("Number of executors - Expected: " + numExecutors + " Actual: " + actualNumExecutors);
             return actualNumExecutors == numExecutors;
@@ -560,7 +563,7 @@ public class SparkRunSparkSubmit extends App {
     }
 
     /**
-     * Get a list of executors running on an app
+     * Get a list of executors running on an app using the spark web service API
      */
     public List getExecutors(String appId, String userId, String password) throws Exception {
 
@@ -589,7 +592,8 @@ public class SparkRunSparkSubmit extends App {
         HttpMethod getMethod = client.makeGET(url, new String(""), null);
         Response response = new Response(getMethod, false);
         if (expectedCode != response.getStatusCode()) {
-            TestSession.logger.warn("!*** Status code for " + url + " does not match the expected value. Expected code: " + expectedCode + " actual code: " + response.getStatusCode());
+            TestSession.logger.warn("!*** Status code for " + url + " does not match the expected value. Expected code: "
+                    + expectedCode + " actual code: " + response.getStatusCode());
         }
 
         String output = response.getResponseBodyAsString();

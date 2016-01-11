@@ -50,48 +50,12 @@ public class TestDynamicResourceAllocation {
                 .copyFileToConfDir(replacementConfigFile,
                         CAPACITY_SCHEDULER_XML);
 
-        // Backup config and replace file, for Namenode
-        fullyDistributedCluster.getConf(
-                HadooptestConstants.NodeTypes.RESOURCE_MANAGER).backupConfDir();
-        fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
-                .copyFileToConfDir(replacementConfigFile,
-                        CAPACITY_SCHEDULER_XML);
-        // Bounce nodes
-        fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.STOP,
-                HadooptestConstants.NodeTypes.NAMENODE);
-        fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.START,
-                HadooptestConstants.NodeTypes.NAMENODE);
-
-        Assert.assertTrue("Did not leave safe mode within timeout.",
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
-
         fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.STOP,
                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
         fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.START,
                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
         Thread.sleep(60000);
-
-        Assert.assertTrue("Did not leave safe mode within timeout.",
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
-
-        // Leave safe-mode
-        DfsCliCommands dfsCliCommands = new DfsCliCommands();
-        DfsCliCommands.GenericCliResponseBO genericCliResponse;
-        genericCliResponse = dfsCliCommands.dfsadmin(
-                DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-                DfsTestsBaseClass.Report.NO, "get",
-                DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-                0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-                DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-                DfsTestsBaseClass.PrintTopology.NO, null);
-        genericCliResponse = dfsCliCommands.dfsadmin(
-                DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-                DfsTestsBaseClass.Report.NO, "leave",
-                DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-                0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-                DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-                DfsTestsBaseClass.PrintTopology.NO, null);
     }
 
     @AfterClass
@@ -103,18 +67,6 @@ public class TestDynamicResourceAllocation {
         fullyDistributedCluster.getConf(
                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
                 .resetHadoopConfDir();
-        fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.NAMENODE)
-                .resetHadoopConfDir();
-        // Bounce nodes
-        fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.STOP,
-                HadooptestConstants.NodeTypes.NAMENODE);
-        fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.START,
-                HadooptestConstants.NodeTypes.NAMENODE,
-                TestSession.cluster.getNodeNames(HadoopCluster.NAMENODE),
-                TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
-
-        Assert.assertTrue("Did not leave safe mode within timeout.",
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
 
         fullyDistributedCluster.hadoopDaemon(HadoopCluster.Action.STOP,
                 HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -125,27 +77,6 @@ public class TestDynamicResourceAllocation {
                 TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
         Thread.sleep(20000);
-
-        Assert.assertTrue("Did not leave safe mode within timeout.",
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
-
-        // Leave safe-mode
-        DfsCliCommands dfsCliCommands = new DfsCliCommands();
-        DfsCliCommands.GenericCliResponseBO genericCliResponse;
-        genericCliResponse = dfsCliCommands.dfsadmin(
-                DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-                DfsTestsBaseClass.Report.NO, "get",
-                DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-                0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-                DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-                DfsTestsBaseClass.PrintTopology.NO, null);
-        genericCliResponse = dfsCliCommands.dfsadmin(
-                DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-                DfsTestsBaseClass.Report.NO, "leave",
-                DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-                0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-                DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-                DfsTestsBaseClass.PrintTopology.NO, null);
     }
 
     public static void setupTestDir() throws Exception {
@@ -164,7 +95,7 @@ public class TestDynamicResourceAllocation {
     private void setupConfs(SparkRunSparkSubmit appUserDefault) {
         appUserDefault.setWorkerMemory("128m");
         appUserDefault.setWorkerCores(1);
-        appUserDefault.setClassName("hadooptest.spark.regression.SparkWordCount");
+        appUserDefault.setClassName("hadooptest.spark.regression.DynamicResourceAllocationTestTopology");
         appUserDefault.setAppName("TestDynamicAllocation");
         appUserDefault.setJarName(localJar);
         appUserDefault.addConf("spark.dynamicAllocation.enabled", "true");
@@ -227,11 +158,13 @@ public class TestDynamicResourceAllocation {
     @Test
     public void TestDynamicAllocationMaxExecutors() {
         TestSession.logger.info("Running TestDynamicAllocationMaxExecutors...");
+        //The maximum number of executors able to be acquired
+        final Integer MAX_EXECUTORS = 2;
 
         try {
             SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
             setupConfs(appUserDefault);
-            appUserDefault.addConf("spark.dynamicAllocation.maxExecutors", "2");
+            appUserDefault.addConf("spark.dynamicAllocation.maxExecutors", MAX_EXECUTORS.toString());
             appUserDefault.setAppName("TestDynamicAllocationMaxExecutors");
 
             appUserDefault.start();
@@ -244,8 +177,8 @@ public class TestDynamicResourceAllocation {
                     "TestDynamicAllocationMaxExecutors", appUserDefault.getAppName());
 
             //wait to get executors. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 2 + 1, "hitusr_1", "New2@password", 100)) {
-                fail("wait to get " + (NUM_EXECUTORS + 1) + " executors timeout");
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MAX_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+                fail("wait to get " + (MAX_EXECUTORS + 1) + " executors timeout");
             }
 
             //wait for all tasks to complete
@@ -273,11 +206,13 @@ public class TestDynamicResourceAllocation {
     @Test
     public void TestDynamicAllocationMinExecutors() {
         TestSession.logger.info("Running TestDynamicAllocationMinExecutors...");
+        //The minimum number of executors to allocate to application
+        final Integer MIN_EXECUTORS = 2;
 
         try {
             SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
             setupConfs(appUserDefault);
-            appUserDefault.addConf("spark.dynamicAllocation.minExecutors", "2");
+            appUserDefault.addConf("spark.dynamicAllocation.minExecutors", MIN_EXECUTORS.toString());
             appUserDefault.setAppName("TestDynamicAllocationMinExecutors");
 
             appUserDefault.start();
@@ -300,8 +235,8 @@ public class TestDynamicResourceAllocation {
             }
 
             //wait for it to scale down. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 2 + 1, "hitusr_1", "New2@password", 100)) {
-                fail("wait to get " + (2 + 1) + " executors timeout");
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MIN_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+                fail("wait to get " + (MIN_EXECUTORS + 1) + " executors timeout");
             }
 
             TestSession.logger.info("Waiting for application to run to completion...");
