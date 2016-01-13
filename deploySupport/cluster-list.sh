@@ -268,19 +268,13 @@ setGridParameters() {
        (
 			cat  allnamenodes.$cluster.txt
 			echo $jobtrackernode 
-			[ -n "$zookeepernodes" ] && for z in $zookeepernodes
-				do
-					echo $z
-				done
+			[ -n "$zookeepernodes" ] && echo $zookeepernodes | tr ' ' '\n' 
 			echo $gateway 
 			echo $hdfsproxynode 
 			echo $hcatservernode 
 			echo $daqnode 
                         # hadooppf-8086, oozienode can have multiple members for component deploy
-                        [ -n "$oozienode" ] && for o in $oozienode
-                                do
-                                        echo $o
-                                done
+			[ -n "$oozienode" ] && echo $oozienode | tr ' ' '\n' 
 			cat hostlist.$cluster.txt
        ) | sort | uniq >  hostlist.$cluster.txt.1
        mv hostlist.$cluster.txt.1 hostlist.$cluster.txt
