@@ -214,7 +214,7 @@ setGridParameters() {
         roleExists $cluster.hs2.masters && \
              export hs2_masters=`$base/dumpMembershipList.sh  $cluster.hs2_masters`
         roleExists $cluster.hs2.slaves && \
-             export hs2_masters=`$base/dumpMembershipList.sh  $cluster.hs2_slaves`
+             export hs2_slaves=`$base/dumpMembershipList.sh  $cluster.hs2_slaves`
         roleExists $cluster.client && \
              export hive_client=`$base/dumpMembershipList.sh  $cluster.client`
         roleExists $cluster.database && \
@@ -268,15 +268,13 @@ setGridParameters() {
        (
 			cat  allnamenodes.$cluster.txt
 			echo $jobtrackernode 
-			[ -n "$zookeepernodes" ] && for z in $zookeepernodes
-				do
-					echo $z
-				done
+			[ -n "$zookeepernodes" ] && echo $zookeepernodes | tr ' ' '\n' 
 			echo $gateway 
 			echo $hdfsproxynode 
 			echo $hcatservernode 
 			echo $daqnode 
-			echo $oozienode 
+                        # hadooppf-8086, oozienode can have multiple members for component deploy
+			[ -n "$oozienode" ] && echo $oozienode | tr ' ' '\n' 
 			cat hostlist.$cluster.txt
        ) | sort | uniq >  hostlist.$cluster.txt.1
        mv hostlist.$cluster.txt.1 hostlist.$cluster.txt
@@ -294,9 +292,32 @@ setGridParameters() {
        tmp="$gateway"
        re="$re|"`echo $tmp  | tr  ' '  '|'`
        # gridci-555 don't exclude oozie and hdfsproxy nodes from slaves list,
-       # we want to run datanode and nodemanagers on these
-       #  [  -n  "$oozienode" ]  && re="$re|$oozienode"
+       # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
+       # for oozie for two cases:
+       #   1. for Oozie component, if special oozie roles exist, exclude their members
+       #       by keying off the server role, this won't exist for a non-oozie cluster
+       #       (there are multiple roles, some with mutliple members)
+       #   2. for integration testing, if STACK_COMP_INSTALL_OOZIE is true, exclude
+       #      that member (there is only one) 
+       #
        #  [  -n  "$hdfsproxynode" ]  && re="$re|$hdfsproxynode"
+
+       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ -n "$hs2_nodes" ]; then
+         # if either integration test is installing oozie, or if the oozie component
+         # has created oozie special roles, then we exclude these nodes from running
+         # core processes, otherwise we include them. This check is needed because
+         # the core deploy will always populate these roles, regardless if oozie
+         # is installed later or not 
+         [  -n  "$oozienode" ]  && re="$re|$oozienode"
+         [  -n  "$hivenode" ]  && re="$re|$hivenode"
+       fi
+       [  -n  "$hs2_nodes" ]  && re="$re|$hs2_nodes"
+       [  -n  "$hs2_masters" ]  && re="$re|$hs2_masters"
+       [  -n  "$hs2_slaves" ]  && re="$re|$hs2_slaves"
+       [  -n  "$hcat_server" ]  && re="$re|$hcat_server"
+       [  -n  "$hive_client" ]  && re="$re|$hive_client"
+       [  -n  "$zookeepernodes" ]  && re="$re|$zookeepernodes"
+
        [  -n  "$hcatservernode" ]  && re="$re|$hcatservernode"
        [  -n  "$daqnode" ]  && re="$re|$daqnode"
        [  -n  "$jobtrackernode" ]  && re="$re|$jobtrackernode"
