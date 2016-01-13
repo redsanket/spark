@@ -311,7 +311,7 @@ setGridParameters() {
        if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ -n "$hs2_nodes" ]; then
          # if either integration test is installing oozie, or if the oozie component
          # has created oozie special roles, then we exclude these nodes from running
-         # code processes, otherwise we include them. This check is needed because
+         # core processes, otherwise we include them. This check is needed because
          # the core deploy will always populate these roles, regardless if oozie
          # is installed later or not 
          [  -n  "$oozienode" ]  && re="$re|$oozienode"
