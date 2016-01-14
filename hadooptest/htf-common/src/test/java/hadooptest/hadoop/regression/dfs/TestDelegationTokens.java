@@ -136,7 +136,7 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 				fileStoringDelegationTokenReceivedViaKinit.getPath(), "60s");
 
 		// Wait for longer than 60s, let the ticket expire
-		Thread.sleep(270000);
+		Thread.sleep(480000);
 		HashMap<String, String> testSpecificEnvVars = new HashMap<String, String>();
 		testSpecificEnvVars.put(KRB5CCNAME,
 				fileStoringDelegationTokenReceivedViaKinit.getPath());
