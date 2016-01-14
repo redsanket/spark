@@ -45,6 +45,7 @@ Videos/Screencasts
 - `Hadoop Tutorial: Apache Pig Editor in Hue 2.3 <http://www.youtube.com/watch?v=RBtJdTrrWPU>`_ 
 - `Hadoop Tutorial - Hue: Schedule Hive queries with Oozie coordinators <http://www.youtube.com/watch?v=jKB4tXTX-7s>`_
 - `Hadoop Streaming in Hue/Oozie, querying results in Hive <http://www.youtube.com/watch?v=qlMATo095_s>`_
+- `Hue - Audience Data Integration <http://video.corp.yahoo.com/video_detail.php?vid=9939>`_
 
 Presentations
 =============
