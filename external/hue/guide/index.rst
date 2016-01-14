@@ -21,14 +21,18 @@ About This Guide
 
 The goal of this guide is to help developers use a custom version of Hue for Yahoo. 
 
-Keep in the mind that Cloudera version of Hue has some different features, and that some similar features described in the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ behave differently in Yahoo's Hue UI.
+Keep in the mind that Cloudera version of Hue has some different features, and that 
+some similar features described in the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ 
+behave differently in Yahoo's Hue UI.
 
 .. _onboard:
 
 Accessing Hue
 =============
 
-Each Grid cluster has a dedicated Hue instance, which do not share information among themselves in any way. You have access to the Hue instance on any cluster, but you can only access and modify data that you have access permission.
+Each Grid cluster has a dedicated Hue instance, which do not share information among 
+themselves in any way. You have access to the Hue instance on any cluster, but you 
+can only access and modify data that you have access permission.
 
 .. _using_socks_proxy:
 
@@ -81,4 +85,3 @@ Filing Jira Tickets
 #. If your issue has already been filed, watch the issue to track its progress.
 #. To report new issues, complete the `Hue Defect <https://jira.corp.yahoo.com/servicedesk/customer/portal/112/create/1913>`_ form. 
 #. For new features, fill out the `Hue Feature Request <https://jira.corp.yahoo.com/servicedesk/customer/portal/112/create/1914>`_ form.
-
