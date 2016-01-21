@@ -281,36 +281,18 @@ setGridParameters() {
        
        nmachines=`wc -l hostlist.$cluster.txt | cut -f1 -d' '`
        echo "**** " ; echo "**** $nmachines node cluster" ; echo "**** "
-       tmp="$namenode $secondarynamenode"
-       re=`echo $tmp  | tr  ' '  '|'`
-       if [ "$zookeepernodes" ]
-       then
-           tmp="$zookeepernodes"
-           retmp=`echo $tmp  | tr  ' '  '|'`
-           re="$re|$retmp"
-       fi
-       tmp="$gateway"
-       re="$re|"`echo $tmp  | tr  ' '  '|'`
-       # gridci-555 don't exclude oozie and hdfsproxy nodes from slaves list,
+
        # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
        # for oozie for two cases will happen, IntTest install or component install,
        # in both cases we exclude the oozie node(s), can have multiple members
        # for component install, need to convert spaces to | for correct exclusion
-       [  -n  "$oozienode" ]  && re="$re|`echo $oozienode | tr ' ' '|'`"
+       for node in $jobtrackernode $namenode $secondarynamenode $zookeepernodes $gateway \
+                   $oozienode $hdfsproxynode $hs2_nodes $hs2_masters $hs2_slaves \
+                   $hcat_server $hive_client $hcatservernode $hcatservernode 
+       do
+         re="$re|`echo $node|tr ' ' '|'`"
+       done 
 
-       #  [  -n  "$hdfsproxynode" ]  && re="$re|$hdfsproxynode"
-
-       [  -n  "$hs2_nodes" ]  && re="$re|$hs2_nodes"
-       [  -n  "$hs2_masters" ]  && re="$re|$hs2_masters"
-       [  -n  "$hs2_slaves" ]  && re="$re|$hs2_slaves"
-       [  -n  "$hcat_server" ]  && re="$re|$hcat_server"
-       [  -n  "$hivenode" ]  && re="$re|$hivenode"
-       [  -n  "$hive_client" ]  && re="$re|$hive_client"
-       [  -n  "$zookeepernodes" ]  && re="$re|$zookeepernodes"
-
-       [  -n  "$hcatservernode" ]  && re="$re|$hcatservernode"
-       [  -n  "$daqnode" ]  && re="$re|$daqnode"
-       [  -n  "$jobtrackernode" ]  && re="$re|$jobtrackernode"
        echo "re='$re'"
        egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
 #
