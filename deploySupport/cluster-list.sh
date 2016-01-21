@@ -286,9 +286,10 @@ setGridParameters() {
        # for oozie for two cases will happen, IntTest install or component install,
        # in both cases we exclude the oozie node(s), can have multiple members
        # for component install, need to convert spaces to | for correct exclusion
+       re=""
        for node in $jobtrackernode $namenode $secondarynamenode $zookeepernodes $gateway \
                    $oozienode $hdfsproxynode $hs2_nodes $hs2_masters $hs2_slaves \
-                   $hcat_server $hive_client $hcatservernode $hcatservernode 
+                   $hcat_server $hive_client $daqnode $hcatservernode 
        do
          re="$re|`echo $node|tr ' ' '|'`"
        done 
