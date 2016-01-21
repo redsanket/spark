@@ -291,7 +291,12 @@ setGridParameters() {
                    $oozienode $hdfsproxynode $hs2_nodes $hs2_masters $hs2_slaves \
                    $hcat_server $hive_client $daqnode $hcatservernode 
        do
-         re="$re|`echo $node|tr ' ' '|'`"
+         # can't have leading '|' in the pattern
+         if [ -n "$re" ]; then
+           re="$re|`echo $node|tr ' ' '|'`"
+         else
+           re="`echo $node|tr ' ' '|'`"
+         fi
        done 
 
        echo "re='$re'"
