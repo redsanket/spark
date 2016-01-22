@@ -286,18 +286,19 @@ setGridParameters() {
        # for oozie for two cases will happen, IntTest install or component install,
        # in both cases we exclude the oozie node(s), can have multiple members
        # for component install, need to convert spaces to | for correct exclusion
+       nonslave_nodes="$daqnode $gateway $hcat_server $hcatservernode \
+                       $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
+                       $jobtrackernode $namenode $secondarynamenode \
+                       $zookeepernodes"
+       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ -n "$hs2_nodes" ]; then
+           nonslave_nodes+=" $oozienode"
+       fi
        re=""
-       for node in $jobtrackernode $namenode $secondarynamenode $zookeepernodes $gateway \
-                   $oozienode $hdfsproxynode $hs2_nodes $hs2_masters $hs2_slaves \
-                   $hcat_server $hive_client $daqnode $hcatservernode 
-       do
-         # can't have leading '|' in the pattern
-         if [ -n "$re" ]; then
-           re="$re|`echo $node|tr ' ' '|'`"
-         else
-           re="`echo $node|tr ' ' '|'`"
-         fi
+       for node in $nonslave_nodes; do
+           re="$re|$node"
        done 
+       # Remove the leading '|' in the pattern
+       re=`echo $re|cut -d'|' -f2-`
 
        echo "re='$re'"
        egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
