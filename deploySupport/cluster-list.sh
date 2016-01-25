@@ -290,7 +290,17 @@ setGridParameters() {
                        $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
                        $jobtrackernode $namenode $secondarynamenode \
                        $zookeepernodes"
-       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ -n "$hs2_nodes" ]; then
+       # 'if' check needs to deal with two cases for excluding oozienode, if integration
+       # component install is selected (STACK_COMP_INSTALL_OOZIE is true) or if oozie
+       # component is using the cluster (oozie role will have multiple members), then
+       # we exclude these nodes from installing core processes, otherwise use these nodes
+       # for core workers. Info, the oozie role will always have at least one member, in
+       # first case, there is one member which is needed by the Config job to gen kerb
+       # keytabs for oozie. In the second case, Oozie team needs to be able to set their
+       # own oozie members and there will be multiple members, so we can't just see if
+       # role is empty, we need to count members to know the downstream usage. 
+       OOZIE_ROLE_MEMBER_COUNT=`echo $oozienode | tr ' ' '\n' | wc -l`
+       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ $OOZIE_ROLE_MEMBER_COUNT -gt 1 ]; then
            nonslave_nodes+=" $oozienode"
        fi
        re=""
