@@ -65,6 +65,13 @@ done
 kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
 
 #
+# create sharelib base path for ygrid_sharelib package 
+#
+echo "Creating path \"/tmp/sharelib/v1/conf\""
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/sharelib/v1/conf 
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /tmp/sharelib
+
+#
 # install oozie packages
 #
 # Note: we need to explicitly use hadoopgplcomplession version listed
