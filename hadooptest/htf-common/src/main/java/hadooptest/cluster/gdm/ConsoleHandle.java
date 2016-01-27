@@ -26,6 +26,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -289,7 +290,7 @@ public final class ConsoleHandle
         data.add(new CustomNameValuePair("command", "unterminate"));
         data.add(new CustomNameValuePair("resourceNames", "[{\"ResourceName\":\"" + dataSetName + "\"}]"));
 
-        postMethod = this.httpHandle.makePOST(resource, null, data);
+        postMethod = this.httpHandle.makePOST(resource, data);
         TestSession.logger.info("** Activating DataSet " + dataSetName);
         this.response = new Response(postMethod);
         TestSession.logger.info(this.response.toString());
@@ -306,7 +307,7 @@ public final class ConsoleHandle
         data.add(new CustomNameValuePair("command", "terminate"));
         data.add(new CustomNameValuePair("resourceNames", "[{\"ResourceName\":\"" + dataSetName + "\"}]"));
 
-        postMethod = this.httpHandle.makePOST(resource, null, data);
+        postMethod = this.httpHandle.makePOST(resource, data);
         TestSession.logger.info("** Dectivating DataSet " + dataSetName);
         this.response = new Response(postMethod);
         TestSession.logger.info(this.response.toString());
@@ -447,7 +448,7 @@ public final class ConsoleHandle
         TestSession.logger.info("cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
         TestSession.logger.info("** cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
 
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
 
         return this.response;
@@ -471,7 +472,7 @@ public final class ConsoleHandle
         
         TestSession.logger.info("cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
         TestSession.logger.info("** cloneDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
 
         return this.response;
@@ -493,6 +494,30 @@ public final class ConsoleHandle
 
         return this.response;
     }
+    
+    /**
+     * Returns true if files exist on the specified grid path, false otherwise
+     *
+     * @param grid  a grid datastore name
+     * @param path   the path to check
+     * @return true if files exist for the path, false otherwise
+     */
+    public boolean filesExist(String grid, String path) {
+        ArrayList params = new ArrayList();
+        params.add(new CustomNameValuePair("dataSource", grid));
+        params.add(new CustomNameValuePair("path", path));
+        HttpMethod getMethod = this.httpHandle.makeGET(this.consoleURL, "/console/api/admin/hadoopls", params);
+        Response response = new Response(getMethod);
+        if (response.getStatusCode() != SUCCESS) {
+            Assert.fail("filesExist check for file " + path + " on datastore " + grid + " failed with status " + response.getStatusCode());
+        }
+        String responseString = response.getResponseBodyAsString();
+        if (StringUtils.isBlank(responseString)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     /**
      * Replaces the contents of an existing dataSet
@@ -508,8 +533,21 @@ public final class ConsoleHandle
         postBody.append(xmlFileContent);
 
         TestSession.logger.info("modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-        //TestSession.logger.info("** modifyDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
+        this.response = new Response(postMethod, false);
+        return this.response;
+    }
+    
+    /**
+     * Does a POST to a console url and returns the response
+     *
+     * @param urlPath  sub-url after the console endpoint
+     * @param paramArrayList   parameters to post
+     * @return the console response
+     */
+    public Response postToConsole(String urlPath, ArrayList<CustomNameValuePair> paramArrayList) {      
+        String url = "/console" + urlPath;
+        HttpMethod postMethod = this.httpHandle.makePOST(url, paramArrayList);        
         this.response = new Response(postMethod, false);
         return this.response;
     }
@@ -817,7 +855,7 @@ public final class ConsoleHandle
         postBody.append(xmlFileContent);
         TestSession.logger.info("createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
         TestSession.logger.info("** createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
         return this.response;
     }
@@ -1004,7 +1042,7 @@ public final class ConsoleHandle
         StringBuilder postBody = new StringBuilder();
         postBody.append("xmlFileContent=");
         postBody.append(xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
         if (response.getStatusCode() == 200) {
             return true;
@@ -1105,7 +1143,7 @@ public final class ConsoleHandle
         postBody.append("xmlFileContent=");
         postBody.append(xmlFileContent);
         TestSession.logger.info("createDataSet(dataSetName=" + newDataSetName + ", xmlFileContent=" + xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
         return this.response;
     }
@@ -1132,7 +1170,7 @@ public final class ConsoleHandle
         postBody.append(xml);
 
         // post the modified datasource file. 
-        HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource" + "?action=Edit&operation=1", null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource" + "?action=Edit&operation=1", postBody.toString());
         this.response = new Response(postMethod, false);
         assertTrue("Cloned failed and got  http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
     }
@@ -1329,16 +1367,20 @@ public final class ConsoleHandle
         assertTrue("Failed to get the response for " + failureURL , (response != null || response.toString() != "") );
 
         JsonPath jsonPath = res.getBody().jsonPath();
-        String executionID = jsonPath.getString("failedWorkflows[0].ExecutionID");
-        TestSession.logger.info("ExecutionID = " + executionID);
-        String facetName = jsonPath.getString("failedWorkflows[0].FacetName");
-        TestSession.logger.info("FacetName = " + facetName);
-        String coloName = jsonPath.getString("failedWorkflows[0].FacetColo");
-        TestSession.logger.info("ColoName = " + coloName);
-
-        // get the failure information.
-        Response response = this.getWorkflowStepExecution(executionID, facetName, coloName);
-        TestSession.logger.info("Failed Response = " + jsonUtil.formatString(response.toString()));
+        try {
+            String executionID = jsonPath.getString("failedWorkflows[0].ExecutionID");
+            TestSession.logger.info("ExecutionID = " + executionID);
+            String facetName = jsonPath.getString("failedWorkflows[0].FacetName");
+            TestSession.logger.info("FacetName = " + facetName);
+            String coloName = jsonPath.getString("failedWorkflows[0].FacetColo");
+            TestSession.logger.info("ColoName = " + coloName);
+    
+            // get the failure information.
+            Response response = this.getWorkflowStepExecution(executionID, facetName, coloName);
+            TestSession.logger.info("Failed Response = " + jsonUtil.formatString(response.toString()));
+        } catch (Exception e) {
+            TestSession.logger.error("Unable to get failure information", e);
+        }
     }
 
     /**
@@ -1478,7 +1520,7 @@ public final class ConsoleHandle
         postBody.append(xml);
 
         // post the modified datasource file.
-        HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource?action=Edit&operation=1", null, postBody.toString());
+        HttpMethod postMethod = this.httpHandle.makePOST("/console/rest/config/datasource?action=Edit&operation=1", postBody.toString());
         this.response = new Response(postMethod, false);
         assertTrue("Cloned failed and got http response " + response.getStatusCode() , response.getStatusCode() == 200);
         this.sleep(30000);

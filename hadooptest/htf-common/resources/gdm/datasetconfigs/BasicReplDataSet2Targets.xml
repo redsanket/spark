@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="gdm-dataset-test-gdm56"
+    name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <UGI group="users" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
+    <SmallestExpectedInstanceSize/>
+    <LargestExpectedInstanceSize/>
+    <Paths>
+        <Path location="REPLICATION_DATA_PATH" type="data"/>
+    </Paths>
+    <Parameters>
+    </Parameters>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="SOURCE" switchovertype="Standard">
+            <HCatSourceRetention>FALSE</HCatSourceRetention>
+        </Source>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="TARGET_1" status="active">
+            <DateRange>
+                <EndDate type="END_TYPE" value="END_DATE_1"/>
+                <StartDate type="START_TYPE" value="START_DATE_1"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Paths>
+                <Path
+                    location="CUSTOM_PATH_DATA_1" type="data"/>
+            </Paths>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="TARGET_2" status="active">
+            <DateRange>
+                <EndDate type="END_TYPE" value="END_DATE_2"/>
+                <StartDate type="START_TYPE" value="START_DATE_2"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Paths>
+                <Path
+                    location="CUSTOM_PATH_DATA_2" type="data"/>
+            </Paths>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatSchemaFile>schema.dat</HCatSchemaFile>
+        <HCatSchemaFormat>ULT</HCatSchemaFormat>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+        <HCatTableName>NEW_DATA_SET_NAME</HCatTableName>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+</DataSet>
