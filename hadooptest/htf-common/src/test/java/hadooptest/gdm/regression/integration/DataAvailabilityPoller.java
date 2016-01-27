@@ -229,6 +229,7 @@ public class DataAvailabilityPoller {
 				String updateTime = dateFormat1.format(date);
 
 				String hbaseVersion = "";
+				String oozieStatus = "";
 				String pigStatus = "";
 				String tezStatus = "";
 				String hiveStatus = "";
@@ -255,6 +256,13 @@ public class DataAvailabilityPoller {
 						}
 					}*/ 
 				gdmVersion = this.checkGDMHealthCheckup();
+
+                                oozieVersion = getOozieVersion();
+                                if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
+                                    oozieStatus = "active~" + oozieVersion;
+                                else
+                                    oozieStatus = "down~0.0";
+                                }
 				
 				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
@@ -315,7 +323,7 @@ public class DataAvailabilityPoller {
 				String hadoopVersion = this.getHadoopVersion();
 
 				// insert version into health_checkup table.
-				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus,gdmVersion);
+				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , oozieStatus, pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus,gdmVersion);
 				con1.close();
 
 				// job started.
