@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -99,68 +100,36 @@ public class WorkFlowHelper {
         this.cookie = httpHandle.getBouncerCookie();    
     }
     
-
     /**
-     * Method that checks whether workflow is completed and returns PASS else checks whether workflow failed and returns FAIL 
-     * for any given facet.
-     * @param response
-     * @param facetName
-     * @return
-     */
-    public int isFacetWorkflowPassOrFail(Response  response , String facetName) {
-        boolean workFlowSuccessFlag = false , workFlowFailed  = false;
-        workFlowSuccessFlag = this.consoleHandle.isWorkflowCompleted(response, facetName);
-        if (!workFlowSuccessFlag) {
-            workFlowFailed = this.consoleHandle.isWorkflowFailed(response, facetName);
-            if (workFlowFailed) {
-                return FAIL;
-            }
-        }
-        return PASS;
-    }
-
-    /**
-     * Method check that checks for workflow pass or fail status for a given 
+     * Returns true if a workflow passed, false otherwise
      * @param dataSetName
      * @param facetName
-     * @param datasetActivationTime
-     * @return
+     * @param instanceDate
+     * @return Returns true if a workflow passed, false otherwise
      */
-    public boolean checkFacetWorkFlow(String dataSetName , String facetName , String datasetActivationTime ) {
-        boolean result = false;
-        TestSession.logger.info("Verifying " + facetName +" workflow for " + dataSetName);
-        this.consoleHandle.sleep(30000);
-        this.response = this.consoleHandle.checkDataSet(dataSetName);
-        assertTrue("Failed to checkDataSet dataset " + dataSetName , response.getStatusCode() == SUCCESS);
-
-        long currentTotalWaitingTime = ( waitTimeBeforeWorkflowPollingInMs - waitTimeBetweenWorkflowPollingInMs );
-        TestSession.logger.info("Sleeping for " + currentTotalWaitingTime + " ms before checking workflow status");
-        this.consoleHandle.sleep(currentTotalWaitingTime);
-
-        int workFlowResult = -1;
-        while (currentTotalWaitingTime < timeoutInMs) {
-            TestSession.logger.info("Sleeping for " + waitTimeBetweenWorkflowPollingInMs + " ms before checking workflow status");
-
-            this.consoleHandle.sleep(waitTimeBetweenWorkflowPollingInMs);
-            currentTotalWaitingTime = currentTotalWaitingTime + waitTimeBetweenWorkflowPollingInMs;
-            this.response = this.consoleHandle.getCompletedJobsForDataSet(datasetActivationTime, GdmUtils.getCalendarAsString(), dataSetName);
-            workFlowResult = isFacetWorkflowPassOrFail(this.response , facetName);
-            if (workFlowResult == FAIL) {
-                result = false;
-                printMessage(facetName, dataSetName, datasetActivationTime, this.cookie );
-                fail(dataSetName + " failed.");
-                break;
-            } else if (workFlowResult == PASS) {
-                result = true;
-                TestSession.logger.info(facetName +" workflow for " + dataSetName + "  passed ..!");
-                break;
+    public boolean workflowPassed(String dataSetName, String facetName, String instanceDate) {
+        long totSleepTimeMs = 0L;
+        long sleepTime = 30 * 1000;
+        String completedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/completed?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+        String failedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/failed?datasetname=" + dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+        while (totSleepTimeMs < 10 * 60 * 1000) {
+            com.jayway.restassured.response.Response workFlowResponse = given().cookie(this.cookie).get(completedWorkFlowURL);
+            String workFlowResult = checkWorkFlowStatus(workFlowResponse , "completedWorkflows" , instanceDate);
+            if (workFlowResult.equals("completed") ) {
+                return true;
             }
+            
+            workFlowResponse = given().cookie(this.cookie).get(failedWorkFlowURL);
+            workFlowResult = checkWorkFlowStatus(workFlowResponse , "failedWorkflows" , instanceDate);
+            if (workFlowResult.equals("failed") ) {
+                return false;
+            }
+            
+            this.consoleHandle.sleep(sleepTime);
+            totSleepTimeMs += sleepTime;
         }
-        if ((currentTotalWaitingTime >= timeoutInMs) && workFlowResult == -1 ) {
-            fail(dataSetName + " workflow has timed out.");
-        }
-        this.consoleHandle.sleep(30000);
-        return result;
+        fail("Workflow " + instanceDate + " timed out (not completed or failed)");
+        return false;
     }
     
     
@@ -394,7 +363,6 @@ public class WorkFlowHelper {
 
         // if user want to check for specified instance of the workflow.
         if (argsSize > 0) {
-            System.out.println("****************** checking for instance **********");
             currentWorkFlowStatus = getStatus(jsonArray , args[args.length - 1]);
         } else  if (argsSize == 0) {
 
@@ -409,6 +377,7 @@ public class WorkFlowHelper {
 
     private String getStatus(JSONArray jsonArray , String...args) {
         String instanceDate = args[0];
+        System.out.println("****************** checking for instance " + instanceDate + " **********");
         String currentWorkFlowStatus = "";
         if (jsonArray.size() > 0) {
             Iterator iterator = jsonArray.iterator();
@@ -433,8 +402,19 @@ public class WorkFlowHelper {
                         break;
                     }
                 } else if (exitStatus.equals("SHUTDOWN") || exitStatus.equals("FAILED")) {
-                    currentWorkFlowStatus = "failed";
-                    break;
+                    if (!instanceDate.equals("-1")) {
+                        String workFlowName = runningJsonObject.getString("WorkflowName");
+                        String actualInstance = workFlowName.substring(workFlowName.lastIndexOf("/") + 1);
+                        System.out.println("************************** actualInstance = " + actualInstance);
+                        if (actualInstance.equals(instanceDate)) {
+                            System.out.println("Instance file is found - " + actualInstance);
+                            currentWorkFlowStatus = "failed";
+                            break;
+                        } 
+                    } else if (instanceDate.equals("-1")) {
+                        currentWorkFlowStatus = "failed";
+                        break;
+                    }
                 }
             }
         }
