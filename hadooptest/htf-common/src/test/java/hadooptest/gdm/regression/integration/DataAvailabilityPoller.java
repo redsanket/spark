@@ -260,7 +260,8 @@ public class DataAvailabilityPoller {
                                 oozieVersion = getOozieVersion();
                                 if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
                                     oozieStatus = "active~" + oozieVersion;
-                                else
+                                }
+                                else {
                                     oozieStatus = "down~0.0";
                                 }
 				
