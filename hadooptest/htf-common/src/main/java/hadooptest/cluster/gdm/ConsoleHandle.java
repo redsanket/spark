@@ -509,7 +509,7 @@ public final class ConsoleHandle
         HttpMethod getMethod = this.httpHandle.makeGET(this.consoleURL, "/console/api/admin/hadoopls", params);
         Response response = new Response(getMethod);
         if (response.getStatusCode() != SUCCESS) {
-            Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+            Assert.fail("filesExist check for file " + path + " on datastore " + grid + " failed with status " + response.getStatusCode());
         }
         String responseString = response.getResponseBodyAsString();
         if (StringUtils.isBlank(responseString)) {

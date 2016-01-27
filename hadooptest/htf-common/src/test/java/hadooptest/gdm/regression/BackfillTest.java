@@ -96,7 +96,7 @@ public class BackfillTest extends TestSession {
         Assert.assertTrue(this.consoleHandle.filesExist(this.target2, "/data/daqdev/data/" + this.dataSetName + "/target2/" + INSTANCE2));
         Assert.assertFalse(this.consoleHandle.filesExist(this.target2, "/data/daqdev/data/" + this.dataSetName + "/target2/" + INSTANCE3));
         
-        // modify datset to switch date range to start at instance2
+        // modify dataset to switch date range to start at instance2
         modifyDatasetWithTwoTargets(INSTANCE2);
         
         // create backfill dataset for instance1 on target2
