@@ -227,17 +227,18 @@ public class DataBaseOperations {
 	 * @param clusterState cluster name
 	 * @throws SQLException
 	 */
-	public void insertHealthCheckInfoRecord(Connection con , String date , String clusterState , String pigState, String hbaseState , String tezState , String hiveState , String hcatState , String gdmState) throws SQLException {
+	public void insertHealthCheckInfoRecord(Connection con , String date , String clusterState , String oozieState , String pigState, String hbaseState , String tezState , String hiveState , String hcatState , String gdmState) throws SQLException {
 		if (con != null) {
 			PreparedStatement preparedStatement = con.prepareCall(DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW);
 			preparedStatement.setString(1, date);
 			preparedStatement.setString(2, clusterState);
-			preparedStatement.setString(3, pigState);
-			preparedStatement.setString(4, hbaseState);
-			preparedStatement.setString(5, tezState);
-			preparedStatement.setString(6, hiveState);
-			preparedStatement.setString(7, hcatState);
-			preparedStatement.setString(8, gdmState);
+			preparedStatement.setString(3, oozieState);
+			preparedStatement.setString(4, pigState);
+			preparedStatement.setString(5, hbaseState);
+			preparedStatement.setString(6, tezState);
+			preparedStatement.setString(7, hiveState);
+			preparedStatement.setString(8, hcatState);
+			preparedStatement.setString(9, gdmState);
 			boolean isRecoredInserted = preparedStatement.execute();
 			TestSession.logger.info("isRecoredInserted  = " + isRecoredInserted);
 			assertTrue("Failed to insert record "  + DBCommands.INSERT_HEALTH_CHECKUP_INFO_ROW  , isRecoredInserted != true);
