@@ -1160,11 +1160,14 @@ public class DataAvailabilityPoller {
 		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + kINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
 		String outputResult = this.executeCommand(getOozieVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
+
+                // the version cmd returns an error string about CA Cert store not exist with a ':', screws up the version 
+                // collection, need to increment the field we are looking for
 		java.util.List<String>outputList = Arrays.asList(outputResult.split(":"));
 		for ( String str : outputList) {
 			TestSession.logger.info(str);
 		}
-		List<String> tempList = Arrays.asList(outputList.get(1).trim());
+		List<String> tempList = Arrays.asList(outputList.get(2).trim());
 		String oozieVersion = tempList.get(tempList.size() - 1);
 		TestSession.logger.info("Oozie Version - " + oozieVersion);
 		return oozieVersion;
