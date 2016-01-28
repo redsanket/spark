@@ -258,8 +258,10 @@ public class DataAvailabilityPoller {
 				gdmVersion = this.checkGDMHealthCheckup();
 
                                 oozieVersion = getOozieVersion();
+				TestSession.logger.debug("oozieVersion returned: " + oozieVersion);
                                 if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
                                     oozieStatus = "active~" + oozieVersion;
+				    TestSession.logger.debug("oozieStatus is: " + oozieStatus);
                                 }
                                 else {
                                     oozieStatus = "down~0.0";
