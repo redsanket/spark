@@ -97,8 +97,8 @@ public abstract class TestSession extends TestSessionCore {
 
         // Log the tasks report summary for jobs that ran as part of this test 
         JobClient jobClient = TestSession.cluster.getJobClient();
-        int numAcceptableNonCompleteMapTasks = 20;
-        int numAcceptableNonCompleteReduceTasks = 20;
+        int numAcceptableNonCompleteMapTasks = 200;
+        int numAcceptableNonCompleteReduceTasks = 200;
         jobClient.validateTaskReportSummary(
                 jobClient.logTaskReportSummary(
                         TestSession.TASKS_REPORT_LOG, 
