@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="gdm-dataset-test-gdm56"
+    name="DATASET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <UGI group="users" permission="755"/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
+    SOURCE_PATHS
+    <Sources>
+        <Source latency="720" name="SOURCE_GRID" switchovertype="Standard">
+        </Source>
+    </Sources>
+    <Targets>
+        <Target latency="1440" name="TARGET_GRID" status="active">
+            <DateRange>
+                <EndDate type="offset" value="0"/>
+                <StartDate type="fixed" value="20000101"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            TARGET_PATHS
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 2" type="retention"/>
+            </Policies>
+            <ReplicationExcludePaths>EXCLUDE</ReplicationExcludePaths>
+            <ReplicationStrategy>REPL_STRATEGY</ReplicationStrategy>
+            <Resource capacity="1" name="bandwidth"/>
+        </Target>
+    </Targets>
+</DataSet>

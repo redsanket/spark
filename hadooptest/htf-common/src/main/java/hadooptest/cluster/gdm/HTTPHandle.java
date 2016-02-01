@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import java.io.UnsupportedEncodingException;
@@ -55,7 +56,6 @@ public class HTTPHandle
         try {
             String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
             this.conf = new XMLConfiguration(configPath);
-            TestSession.logger.debug("Found conf/config.xml configuration file.");
             SSO_SERVER = this.conf.getString("sso_server.resource", "https://gh.bouncer.login.yahoo.com/login/");
             String environmentType = this.conf.getString("hostconfig.console.test_environment_type");
             if (environmentType.equals("oneNode")) {
