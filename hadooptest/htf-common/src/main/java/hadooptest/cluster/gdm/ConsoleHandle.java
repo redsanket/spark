@@ -124,8 +124,6 @@ public final class ConsoleHandle
             }
             this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
             TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
-
-            TestSession.logger.debug("Found conf/config.xml configuration file.");
             TestSession.logger.debug("Console Base URL: " + this.consoleURL);
             
             this.source1 = this.conf.getString("sources.source1");
@@ -1910,6 +1908,7 @@ public final class ConsoleHandle
     /**
      * set retention policy for a given dataset
      * @param dataSetName - name of the dataset
+     * @param retentionValue
      */
     public void setRetentionPolicyToAllDataSets(String dataSetName , String retentionValue) {
         String testURL = this.getConsoleURL() + "/console/rest/config/dataset/getRetentionPolicies";
