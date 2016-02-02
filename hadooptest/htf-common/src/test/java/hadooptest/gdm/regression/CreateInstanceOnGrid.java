@@ -111,8 +111,8 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
 
         // check whether remote path exists on the grid
         boolean basePathExists = remoteFS.exists(path);
-        if(basePathExists == false) {
-            TestSession.logger.info( this.basePath + "  does not exists, creating one.");
+        if (basePathExists == false) {
+            TestSession.logger.info( this.basePath + "  does not exist, creating one.");
             FsPermission fsPermission = new FsPermission(FsAction.ALL , FsAction.ALL , FsAction.ALL);
             boolean basePathCreated = remoteFS.mkdirs(path,  fsPermission);
             if (basePathCreated == true) {

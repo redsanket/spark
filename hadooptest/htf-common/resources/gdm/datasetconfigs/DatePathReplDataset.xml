@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DataSet catalog="gdm-catalog" description="gdm-dataset-test-gdm56"
+<DataSet catalog="gdm-catalog" description="template dataset for DatePathTest"
     name="DATASET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
     <Active>TRUE</Active>
