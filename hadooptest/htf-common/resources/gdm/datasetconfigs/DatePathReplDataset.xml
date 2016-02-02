@@ -13,6 +13,9 @@
     <DiscoveryFrequency>10</DiscoveryFrequency>
     <DiscoveryInterface>HDFS</DiscoveryInterface>
     SOURCE_PATHS
+    <Parameters>
+        PARAMS
+    </Parameters>
     <Sources>
         <Source latency="720" name="SOURCE_GRID" switchovertype="Standard">
         </Source>

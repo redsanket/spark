@@ -29,6 +29,7 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
     private String nameNodeName;
     private ConsoleHandle consoleHandle;
     private Configuration configuration;
+    private String instanceFileName = "instanceFile.gz";
     private static final String schema = HadooptestConstants.Schema.HDFS;
     private static final String PROCOTOL = "hdfs://";
     private static final String KEYTAB_DIR = "keytabDir";
@@ -56,7 +57,14 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
         this.consoleHandle = new ConsoleHandle();
         this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
     }
-
+    
+    /**
+     * Sets the instance file name to be created.
+     * @param instanceFileName
+     */
+    public void setInstanceFileName(String instanceFileName) {
+        this.instanceFileName = instanceFileName;
+    }
 
     /**
      * Returns the remote cluster configuration object.
@@ -134,7 +142,7 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
             TestSession.logger.info( instancePath.toString() + " is ceated " + isInstanceCreated );
             assertTrue("Failed to create instance directory - " + this.basePath + "/" + this.dataPath + "/" + this.instanceId , isInstanceCreated == true);
 
-            String destFile = this.basePath +  "/" + this.dataPath + "/" + this.instanceId + "/" + "instanceFile" + ".gz";
+            String destFile = this.basePath +  "/" + this.dataPath + "/" + this.instanceId + "/" + this.instanceFileName;
             TestSession.logger.info("destFile  = " + destFile);
 
             Path destFilePath = new Path(destFile);

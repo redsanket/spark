@@ -269,6 +269,7 @@ public class DatePathTest extends TestSession {
         String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/DatePathReplDataset.xml");
         String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(dataSetName, dataSetConfigFile);
         dataSetXml = dataSetXml.replaceAll("DATASET_NAME", dataSetName);
+        dataSetXml = dataSetXml.replaceAll("PARAMS", "");
         dataSetXml = dataSetXml.replaceAll("SOURCE_GRID", this.sourceGrid);
         dataSetXml = dataSetXml.replaceAll("TARGET_GRID", this.targetGrid);
         dataSetXml = dataSetXml.replaceAll("SOURCE_PATHS", this.getSourcePathsTag(dataSetName, pathType));
