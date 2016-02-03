@@ -1124,7 +1124,7 @@ public class DataAvailabilityPoller {
 		String gateWayHostName = this.executeCommand(command).trim();
 		TestSession.logger.info("gateWayHostName -  " + gateWayHostName);
 
-		String getPigVersionCommand = "ssh " + gateWayHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/gs/pig/latest/;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
+		String getPigVersionCommand = "ssh " + gateWayHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
 		String outputResult = this.executeCommand(getPigVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
