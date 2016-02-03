@@ -1113,7 +1113,7 @@ public class WorkFlowHelper {
         
         TestSession.logger.info("output: " + output);
         
-        // can get error output on command:
+        // can get error output on command, we need to grab the output starting with ygrid_gdm_console_server
         //
         // Failed to add the host to the list of known hosts (/home/hadoopqa/.ssh/known_hosts).
         // ygrid_gdm_console_server.gq1_replication_end_point: https://opengdm2blue-n4.blue.ygrid.yahoo.com:4443/replication
