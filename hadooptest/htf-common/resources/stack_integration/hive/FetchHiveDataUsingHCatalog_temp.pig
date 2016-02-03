@@ -1,4 +1,3 @@
-register '/home/y/share/pig-PIG_VERSION/mvn/piggybank-h2.jar';
 register '/home/y/libexec/hive/lib/hive-exec.jar';
 register '/home/y/libexec/hive/lib/hive-common.jar'
 input1 = load 'gdm.user1' USING org.apache.hive.hcatalog.pig.HCatLoader() as (calendar_day:chararray,connection_speed:chararray,region:chararray,valid:chararray,content_type:chararray,event_type:chararray,hostname:chararray,ip:chararray);
