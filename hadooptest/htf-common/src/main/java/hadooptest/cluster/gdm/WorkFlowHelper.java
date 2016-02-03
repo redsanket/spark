@@ -460,12 +460,11 @@ public class WorkFlowHelper {
 
     /**
      * Search the specified string in the facet application.log file.
-     * @param datasetName - dataset name string for which the string has to be search.
      * @param facetName - facet name to select the <facet>.application file
      * @param stringToSearch  - actual string to be searched.
      * @throws IOException
      */
-    public void checkStringInLog(String datasetName, String facetName , String stringToSearch) throws IOException {
+    public void checkStringInLog(String facetName, String stringToSearch) throws IOException {
         Pattern pattern = Pattern.compile(stringToSearch);
 
         // read the log file.
@@ -1111,6 +1110,19 @@ public class WorkFlowHelper {
         final String command = "ssh " + hostName.trim() + " " + "\"yinst set | grep " + facetName + "_end_point\"" ;
         TestSession.logger.info("command " + command);
         String output = this.executeCommand(command);
+        
+        TestSession.logger.info("output: " + output);
+        
+        // can get error output on command, we need to grab the output starting with ygrid_gdm_console_server
+        //
+        // Failed to add the host to the list of known hosts (/home/hadoopqa/.ssh/known_hosts).
+        // ygrid_gdm_console_server.gq1_replication_end_point: https://opengdm2blue-n4.blue.ygrid.yahoo.com:4443/replication
+        int index = output.indexOf("ygrid_gdm_console_server");
+        if (index > 0) {
+            output = output.substring(index);
+            TestSession.logger.info("new output: " + output);
+        }
+
         facetHostName = Arrays.asList(output.split(" ")).get(1).trim();
         TestSession.logger.info("facet hostname = " + facetHostName);
         return facetHostName;
