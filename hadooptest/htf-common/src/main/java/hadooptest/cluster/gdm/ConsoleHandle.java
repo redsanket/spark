@@ -306,7 +306,7 @@ public final class ConsoleHandle
         data.add(new CustomNameValuePair("resourceNames", "[{\"ResourceName\":\"" + dataSetName + "\"}]"));
 
         postMethod = this.httpHandle.makePOST(resource, data);
-        TestSession.logger.info("** Dectivating DataSet " + dataSetName);
+        TestSession.logger.info("** Deactivating DataSet " + dataSetName);
         this.response = new Response(postMethod);
         TestSession.logger.info(this.response.toString());
 
@@ -1122,6 +1122,42 @@ public final class ConsoleHandle
             throw new Exception(url + " returned status code " + response.getStatusCode());
         }
         return grids;
+    }
+    
+    /**
+     * @return list of active warehouse datastores
+     * @throws Exception
+     */
+    public List<String> getWarehouseDatastores() throws Exception {
+        List<String> datastores = new ArrayList<String>();
+        String url = this.consoleURL + "/console/api/datasources/view";
+        String cookie = this.httpHandle.getBouncerCookie();
+        com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
+        if (response.getStatusCode() == 200) {
+            String dataSourceListing = response.andReturn().asString();
+            TestSession.logger.info("Received datasources listing: " + dataSourceListing);
+            
+            JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
+            JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
+            if (dataSourceResult != null) {
+                Iterator iterator = dataSourceResult.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject dataSource = (JSONObject)iterator.next();
+                    if (dataSource.getString("Type").equalsIgnoreCase("warehouse")) {
+                        // ignore inactive grids
+                        if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                            String name = dataSource.getString("DataSourceName");
+                            datastores.add(name);
+                        }
+                    }
+                }
+            } else {
+                throw new Exception("unable to find DataSourceResult");
+            }
+        } else {
+            throw new Exception(url + " returned status code " + response.getStatusCode());
+        }
+        return datastores;
     }
 
     /**
