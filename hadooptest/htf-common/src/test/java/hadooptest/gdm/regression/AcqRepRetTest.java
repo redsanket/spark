@@ -84,19 +84,19 @@ public class AcqRepRetTest {
     
     private void validateRetentionWorkflow() {
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "retention", INSTANCE1));
+        Assert.assertTrue("1 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "retention", INSTANCE1));
     }
     
     private void validateReplicationWorkflows() {
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
+        Assert.assertTrue("2 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
+        Assert.assertTrue("3 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
     }
     
     private void validateAcquisitionWorkflows() {
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "acquisition", INSTANCE1));
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "acquisition", INSTANCE2));
+        Assert.assertTrue("4 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "acquisition", INSTANCE1));
+        Assert.assertTrue("5 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "acquisition", INSTANCE2));
     }
     
     private void createDataset() {
@@ -109,7 +109,7 @@ public class AcqRepRetTest {
             
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
-            Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+            Assert.fail("6 Response status code is " + response.getStatusCode() + ", expected 200.");
         }
     }
     
@@ -121,7 +121,7 @@ public class AcqRepRetTest {
     @After
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
-        Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+        Assert.assertEquals("7 ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
     }
 }
 
