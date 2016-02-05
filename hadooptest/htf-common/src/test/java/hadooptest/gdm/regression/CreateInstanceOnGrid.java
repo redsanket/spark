@@ -53,7 +53,6 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
         fileOwnerUserDetails.put(USER_WHO_DOESNT_HAVE_PERMISSIONS, HadooptestConstants.UserNames.HADOOPQA);
 
         this.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,fileOwnerUserDetails);
-        TestSession.logger.info("CHECK:" + this.supportingData);
         this.consoleHandle = new ConsoleHandle();
         this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
     }
@@ -133,10 +132,6 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
         }  if (basePathExists == true) {
             createTestDirectory(remoteFS , path);
 
-            TestSession.logger.info("Following are the instances");
-            //  for ( String instance : this.instanceList ) {
-            TestSession.logger.info(this.instanceId);
-
             Path instancePath = new Path( this.basePath +  "/" + this.dataPath + "/" + this.instanceId );
             boolean isInstanceCreated =  remoteFS.mkdirs(instancePath);
             TestSession.logger.info( instancePath.toString() + " is ceated " + isInstanceCreated );
@@ -158,7 +153,6 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
             fsDataOutPutStream.close(); 
             TestSession.logger.info( destFile  + " succcessfully created.");
             returnValue = "success";
-            //}
         }
         return returnValue;
     }
