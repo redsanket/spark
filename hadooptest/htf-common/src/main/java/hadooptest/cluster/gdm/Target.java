@@ -49,6 +49,17 @@ public class Target {
         return this;
     }
     
+    /**
+     * Adds TargetLatency to the target
+     * 
+     * @param latency
+     * @return the modified Target
+     */
+    public Target latency(String latency) {
+        this.targetJsonObject.put("TargetLatency", latency);
+        return this;
+    }
+    
     public Target numMaps(String targetNumMaps) {
         this.targetJsonObject.put("NumMaps", targetNumMaps);
         return this;

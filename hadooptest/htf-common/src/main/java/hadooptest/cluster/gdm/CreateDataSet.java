@@ -2,6 +2,7 @@
 package hadooptest.cluster.gdm;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import hadooptest.TestSession;
 import net.sf.json.JSONArray;
@@ -328,15 +329,29 @@ public class CreateDataSet {
     
     /**
      * Submits the dataset creation request to the console
+     * 
+     * @return  the json response
      */
-    public void submit() {
+    public String submit() {
+        return this.submit(this.toString());
+    }
+    
+    /**
+     * Submits a dataset creation or modification request to the console
+     * 
+     * @param  dataSetRequest   the request to submit
+     * @return  the json response
+     */
+    public String submit(String dataSetRequest) {
         String url = consoleHandle.getConsoleURL() + "/console/rest/config/dataset/v1";
         HTTPHandle httpHandle = new HTTPHandle();
         String cookie = httpHandle.getBouncerCookie();
-        String dataSetRequest = this.toString();
         TestSession.logger.info("Dataset request: " + dataSetRequest);
         Response response = RestAssured.given().cookie(cookie).param("format", "json").param("datasetRequest" , dataSetRequest).post(url);
         Assert.assertEquals("Unexpected status code", 201, response.getStatusCode());
+        String result = response.jsonPath().prettyPrint();
+        TestSession.logger.info("result: " + result);
+        return result;
     }
 
 

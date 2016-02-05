@@ -1,6 +1,7 @@
 // Copyright 2016, Yahoo Inc.
 package hadooptest.gdm.regression;
 
+import com.jayway.restassured.path.json.JsonPath;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
@@ -13,6 +14,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,6 +32,8 @@ public class DataSetJSONTest {
     private String targetGrid;
     private String instanceToDelete = getPastInstanceDate(RETENTION_INSTANCE_DAYS + 1);
     private String instanceToKeep = getPastInstanceDate(RETENTION_INSTANCE_DAYS - 1);
+    private String lastDataSetCreationRequest;
+    private String lastDataSetRequestResponse;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -63,6 +68,43 @@ public class DataSetJSONTest {
             validateRetentionWorkflow(retentionPolicy);
             validateTargetFiles(retentionPolicy);
         }
+        
+        // change the last dataset's retention policy using JSON API
+        modifyCreationTimeRetentionPolicy();
+        
+        // now validate that a retention workflow runs for the last dataset
+        validateRetentionWorkflow(2);
+        validateTargetFiles(2);
+    }
+    
+    private void modifyCreationTimeRetentionPolicy() {
+        // now modify the last dataset request to change the retention policy to Number of instances.  This tests the modification API
+        String dataSetModificationRequest = this.lastDataSetCreationRequest;
+        // change from a dataset create to a dataset modify
+        dataSetModificationRequest = dataSetModificationRequest.replaceAll("NewDataFeedRequest", "ModifyDataFeedRequest");
+        // make the target be modified
+        dataSetModificationRequest = dataSetModificationRequest.replaceAll("Targets", "ModifiedTargets");
+        // change the target retention policy
+        dataSetModificationRequest = dataSetModificationRequest.replaceAll("CreationTimeOfInstance", "NumberOfInstances");
+        
+        // need to grab the timestamp from the dataset creation submission
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject)JSONSerializer.toJSON(this.lastDataSetRequestResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail("Failed to convert response to JSON: " + this.lastDataSetRequestResponse + "\n");
+        }
+        String timestamp = jsonObject.getJSONObject("DataSet").getString("Timestamp");
+        if (timestamp == null) {
+            Assert.fail("Failed to find Timestamp in " + this.lastDataSetRequestResponse);
+        }
+        
+        // insert the timestamp before the Description
+        dataSetModificationRequest = dataSetModificationRequest.replaceAll("\"Description", "\"Timestamp\":\"" + timestamp + "\",\"Description");
+        
+        CreateDataSet datasetCreator = new CreateDataSet();
+        datasetCreator.submit(dataSetModificationRequest);
     }
     
     private String getDataSetName(int retentionPolicy) {
@@ -89,6 +131,7 @@ public class DataSetJSONTest {
         sourcePath.addSourcePath("/projects/DataSetJSONTest/" + dataSetName + "/%{date}");
         
         Target target = new Target();
+        target.latency("1000");
         if (retentionPolicy == 0) {
             target.targetName(this.targetGrid).retentionNumber("7");
             target.targetName(this.targetGrid).retentionPolicy("DateOfInstance");
@@ -116,7 +159,10 @@ public class DataSetJSONTest {
         .addSourcePath(sourcePath)
         .addTarget(target)
         .retentionEnabled(true);
-        datasetCreator.submit();
+        this.lastDataSetCreationRequest = datasetCreator.toString();
+        
+        // submit the dataset
+        this.lastDataSetRequestResponse = datasetCreator.submit();        
     }
     
     private void createTargetInstanceFiles(int retentionPolicy) throws Exception {
