@@ -501,7 +501,7 @@ public class DataAvailabilityPoller {
 
 					// set state to START_OOZIE_JOB
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
-					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
+/*					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 
 						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
 						TestSession.logger.info("oozieCommand  = " + oozieCommand);
@@ -517,6 +517,7 @@ public class DataAvailabilityPoller {
 						TestSession.logger.info("*************************************************************************************************************************************************");
 						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
 					}
+*/
 				}
 			}
 
