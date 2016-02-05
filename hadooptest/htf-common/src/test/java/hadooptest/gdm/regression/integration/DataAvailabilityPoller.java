@@ -1119,12 +1119,14 @@ public class DataAvailabilityPoller {
 		String pigVersion = "Failed to get pig version";
 		boolean flag = false;
 
+                // gridci-646 change pig path, also need to check version where pig is deployed now, which
+                // is the hive and oozie nodes
 		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
-		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".gateway)\"";
-		String gateWayHostName = this.executeCommand(command).trim();
-		TestSession.logger.info("gateWayHostName -  " + gateWayHostName);
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".oozie)\"";
+		String pigHostName = this.executeCommand(command).trim();
+		TestSession.logger.info("pigHostName -  " + pigHostName);
 
-		String getPigVersionCommand = "ssh " + gateWayHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
+		String getPigVersionCommand = "ssh " + pigHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
 		String outputResult = this.executeCommand(getPigVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
