@@ -82,8 +82,8 @@ mkhdfslink() {
 if [ $CMD == "start" ]; then
     namenode=`hostname`
 
-    set -x
     echo "${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade"
+    set -x
     ${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade
     # gridci-623, if layout version is different this will fail, nn will die on
     # incompatible versions and connection attempts will timeout (eventually)
