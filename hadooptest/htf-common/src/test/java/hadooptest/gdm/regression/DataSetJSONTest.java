@@ -1,7 +1,6 @@
 // Copyright 2016, Yahoo Inc.
 package hadooptest.gdm.regression;
 
-import com.jayway.restassured.path.json.JsonPath;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;

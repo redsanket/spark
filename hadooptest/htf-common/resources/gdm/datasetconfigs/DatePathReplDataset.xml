@@ -3,7 +3,7 @@
     name="DATASET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
     <Active>TRUE</Active>
-    <RetentionEnabled>TRUE</RetentionEnabled>
+    <RetentionEnabled>RETENTION_ENABLED</RetentionEnabled>
     <Priority>HIGHEST</Priority>
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
@@ -24,7 +24,7 @@
         <Target latency="1440" name="TARGET_GRID" status="active">
             <DateRange>
                 <EndDate type="offset" value="0"/>
-                <StartDate type="fixed" value="20000101"/>
+                <StartDate type="fixed" value="START_DATE"/>
             </DateRange>
             <HCatTargetType>DataOnly</HCatTargetType>
             TARGET_PATHS
