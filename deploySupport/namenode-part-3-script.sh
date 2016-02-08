@@ -81,8 +81,31 @@ mkhdfslink() {
 # echo "Part 3: beginning."
 if [ $CMD == "start" ]; then
 
+    set -x
     echo "${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade"
     ${HADOOP_HDFS_HOME}/bin/hdfs dfsadmin -finalizeUpgrade
+    # gridci-623, if layout version is different this will fail, nn will die on
+    # incompatible versions and connection attempts will timeout (eventually)
+    # Check if layout is the reason, warn the user 
+    RC=$?
+    if [ $RC -ne 0 ]; then
+      # check if nn log shows layout errors
+      NN=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)"|head -1`
+      NNLOG="/home/gs/var/log/hdfsqa/hadoop-hdfsqa-namenode-$NN.log"
+      PATTERN="'org.apache.hadoop.hdfs.server.common.IncorrectVersionException|File system image contains an old layout version'" 
+      PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+      ssh $PDSH_SSH_ARGS_APPEND  $NN "egrep $PATTERN $NNLOG" 
+      RC=$?
+      if [ $RC -eq 0 ]; then
+        echo "ERROR: hdfs layout versions have changed, data cannot be preserved"
+        echo "Please rerun the deploy with REMOVEEXISTINGDATA checked" 
+      # something else killed the nn
+      else
+        echo "ERROR: namenode failed to restart, please check logs at: "
+        echo "$NN:$NNLOG" 
+      fi
+    fi
+    set +x
     
     namenode=`hostname`
     hadoopversion=`${yroothome}/share/hadoop/bin/hadoop version | sed -n 1p | sed -e 's/Hadoop //' `
