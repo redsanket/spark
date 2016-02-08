@@ -271,6 +271,8 @@ public class TestJvmParam478 extends YarnTestsBaseClass {
 	 */
 	@Test
 	public void test4() throws Exception {
+	    FullyDistributedCluster fullyDistributedCluster = (FullyDistributedCluster) TestSession.getCluster();
+	    fullyDistributedCluster.getConf(HadooptestConstants.NodeTypes.GATEWAY).resetHadoopConfDir();
 		HashMap<String, String> gwSettingsMap = new HashMap<String, String>();
 		gwSettingsMap.put("mapred.child.ulimit", "invalid");
 		gwSettingsMap.put("mapreduce.map.ulimit", "invalid");
