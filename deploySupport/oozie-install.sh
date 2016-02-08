@@ -90,15 +90,11 @@ yinst i yoozie_client -br $BRANCH
 # apply oozie settings
 #
 yinst set yjava_jetty.PATH="/bin:/sbin:/usr/bin:/usr/sbin:/home/y/bin:/home/y/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/home/y/share/yjava_jdk/java/bin:/home/gs/hadoop/current/bin"
-yinst set yjava_jetty.autostart=off
-yinst set yjava_jetty.enable_stathandler=true
+yinst set yjava_jetty.autostart=off yjava_jetty.enable_stathandler=true
 yinst set yjava_jetty.garbage_collection="-XX:NewRatio=8 -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -XX:+PrintGCApplicationStoppedTime -Xloggc:/home/y/libexec/yjava_jetty/logs/gc.log"
 yinst set yjava_jetty.java_opts="-Doozie.config.dir=/home/y/conf/yoozie -Doozie.home.dir=/home/y/var/yoozie -Duser.timezone=UTC -Djava.security.egd=file:///dev/urandom -XX:PermSize=256m -XX:MaxPermSize=256m -Dlog4j.debug"
-yinst set yjava_jetty.max_heap_size_mb=8192
-yinst set yjava_jetty.min_heap_size_mb=8192
-yinst set yjava_jetty.port=4080
-yinst set yjava_jetty.ports="-port 4080"
-yinst set yjava_jetty.user_name=oozie
+yinst set yjava_jetty.max_heap_size_mb=8192 yjava_jetty.min_heap_size_mb=8192
+yinst set yjava_jetty.port=4080 yjava_jetty.ports="-port 4080" yjava_jetty.user_name=oozie
 yinst set yjava_jetty.webapps=/home/y/libexec/yjava_jetty/webapps
 yinst set yjava_jetty.http_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript"
 # log
@@ -109,9 +105,7 @@ yinst set yjava_jetty.logback_file_appender_conversion_pattern="%d{yyyy-MM-dd HH
 yinst set yjava_jetty.logback_file_appender_rollover_format="/home/y/logs/yjava_jetty/server.log.%d{yyyy-MM-dd}"
 yinst set yjava_jetty.logback_file_appender_rollover_history=30
 
-yinst set yjava_jdk.HTTP_KEEPALIVE=true
-yinst set yjava_jdk.HTTP_MAXCONNECTIONS=5
-yinst set yjava_jdk.JAVA_HOME=/home/y/share/yjava_jdk/java
+yinst set yjava_jdk.HTTP_KEEPALIVE=true yjava_jdk.HTTP_MAXCONNECTIONS=5 yjava_jdk.JAVA_HOME=/home/y/share/yjava_jdk/java
 yinst set yjava_jdk.NETWORKADDRESS_CACHE_NEGATIVE_TTL=10
 yinst set yjava_jdk.NETWORKADDRESS_CACHE_TTL=120
 yinst set yjava_jdk.platform=x86_64-rhel4-gcc3
@@ -141,17 +135,13 @@ yinst set yoozie.conf_oozie_authentication_kerberos_principal=HTTP/$OOZIENODE@DE
 yinst set yoozie.conf_oozie_service_HadoopAccessorService_nameNode_whitelist=
 yinst set yoozie.conf_oozie_service_HadoopAccessorService_jobTracker_whitelist=
 
-yinst set yoozie.JDBC_PASSWORD=
-yinst set yoozie.JDBC_USER=
+yinst set yoozie.JDBC_PASSWORD= yoozie.JDBC_USER=
 yinst set yoozie.conf_oozie_service_JPAService_jdbc_driver=org.hsqldb.jdbcDriver
 yinst set yoozie.conf_oozie_service_JPAService_jdbc_url=jdbc:hsqldb:mem:oozie-db\;create=true
 yinst set yoozie.conf_oozie_service_JPAService_create_db_schema=true
 yinst set yoozie.conf_oozie_authentication_signature_secret=oozie
 
-yinst set yoozie.CLUSTER_NAME=$CLUSTER
-yinst set yoozie.DEFAULT_FS=hdfs://$NAMENODE
-yinst set yoozie.OOZIE_USER=oozie
-yinst set yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
+yinst set yoozie.CLUSTER_NAME=$CLUSTER yoozie.DEFAULT_FS=hdfs://$NAMENODE yoozie.OOZIE_USER=oozie yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
 
 yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie
 yinst set yoozie.conf_oozie_service_HadoopAccessorService_keytab_file=/etc/grid-keytabs/oozie.$OOZIENODE_SHORT.service.keytab
@@ -169,6 +159,11 @@ yinst set yoozie.conf_oozie_action_launcher_yarn_timeline-service_enabled=true
 yinst set yoozie.conf_oozie_services_ext="org.apache.oozie.service.PartitionDependencyManagerService,org.apache.oozie.service.JMSAccessorService,org.apache.oozie.service.HCatAccessorService,org.apache.oozie.service.JMSTopicService,org.apache.oozie.service.EventHandlerService,org.apache.oozie.sla.service.SLAService,org.apache.oozie.service.AbandonedCoordCheckerService"
 
 yinst set yoozie.conf_oozie_zookeeper_secure=false
+
+##
+# needed to allow oozie UI to bouncer auth correctly now
+##
+yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
 
 ##
 ### sharelib 
