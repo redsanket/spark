@@ -1172,6 +1172,9 @@ public final class ConsoleHandle
 
         xmlFileContent = xmlFileContent.replaceAll(oldDataSetName, newDataSetName);
         xmlFileContent = xmlFileContent.replace("HadoopConfig" + newDataSetName, "HadoopConfig" + oldDataSetName);
+        xmlFileContent = xmlFileContent.replace("<ClusterDistTag>" + newDataSetName + "_current</ClusterDistTag>",
+                                "<ClusterDistTag>" + oldDataSetName + "_current</ClusterDistTag>");
+        xmlFileContent = xmlFileContent.replace("<ClusterTag>"+ newDataSetName +"</ClusterTag>", "<ClusterTag>"+ oldDataSetName +"</ClusterTag>");
         TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
 
         StringBuilder postBody = new StringBuilder();
