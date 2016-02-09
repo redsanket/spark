@@ -27,6 +27,7 @@ PIG_VERSION=`yinst ls |grep pig | cut -d'-' -f2`
 HIVE_VERSION=`yinst ls |grep hive- | cut -d'-' -f2`
 HCAT_VERSION=`yinst ls |grep hcat_server | cut -d'-' -f2`
 TEZ_VERSION=`ls /home/gs/tez/current/tez-common-*|cut -d'-' -f3|cut -d'.' -f1-5`
+HBASE_VERSION=`yinst ls |grep hbase | cut -d'-' -f2`
 
 # check that the oozie node's local-superuser-conf.xml is correctly
 # setup with doAs users, if not then oozie operations will fail. 
@@ -185,6 +186,7 @@ yinst set ygrid_sharelib.pkg_pig=pig-$PIG_VERSION
 yinst set ygrid_sharelib.pkg_hive=hive-$HIVE_VERSION
 yinst set ygrid_sharelib.pkg_hcat=hcat_common-$HCAT_VERSION
 yinst set ygrid_sharelib.pkg_ytez=ytez-$TEZ_VERSION
+yinst set ygrid_sharelib.pkg_hbase=hbase-$HBASE_VERSION
 ##
 ## sharelib tags: distcp, streaming, hcat_current, hive_current, pig_current, hbase_current, tez_current
 ##
@@ -198,6 +200,9 @@ yinst set ygrid_sharelib.oozie_tag_hive_current=hdfs:///tmp/ygrid_sharelib_dir/h
 yinst set ygrid_sharelib.oozie_tag_pig_current=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib
 ##
 yinst set ygrid_sharelib.oozie_tag_tez_current=hdfs:///tmp/ygrid_sharelib_dir/ytez/ytez-$TEZ_VERSION/libexec/tez
+##
+yinst set ygrid_sharelib.oozie_tag_hbase_current=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib
+yinst set ygrid_sharelib.oozie_tag_hbase_latest=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib
 
 ##
 ### if sharelib will not be used, then turn off ShareLib,
