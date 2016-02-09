@@ -134,7 +134,7 @@ public class TestAlertAPI extends TestSession {
 			TestSession.logger.info("testURL  = " + testURL);
 		}
 		Response response = given().cookie(this.cookie).get(testURL);
-		if ( response != null ) {
+		if ( response != null && response.toString() != null ) {
 			
 			String responseString = response.getBody().asString();
 			TestSession.logger.info("Response = " + responseString );
@@ -177,7 +177,7 @@ public class TestAlertAPI extends TestSession {
 			}
 		} else {
 			// TODO : this else block will be removed once the response returning null is fixed.
-			TestSession.logger.info("Dn't get any response for " + testURL  + "  query.");
+			TestSession.logger.info("Didn't get any response for " + testURL  + "  query.");
 		}
 	}
 }
