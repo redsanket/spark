@@ -134,7 +134,7 @@ public class TestAlertAPI extends TestSession {
 			TestSession.logger.info("testURL  = " + testURL);
 		}
 		Response response = given().cookie(this.cookie).get(testURL);
-		if ( response != null && response.toString() != null ) {
+		if ( response != null && response.getBody().asString() != null ) {
 			
 			String responseString = response.getBody().asString();
 			TestSession.logger.info("Response = " + responseString );
