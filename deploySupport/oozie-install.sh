@@ -120,7 +120,9 @@ yinst set yjava_jetty.enable_centralized_logging=false \
   yjava_jetty.logback_file_appender_rollover_format="/home/y/logs/yjava_jetty/server.log.%d{yyyy-MM-dd}" \
   yjava_jetty.logback_file_appender_rollover_history=30
 
-yinst set yjava_jdk.HTTP_KEEPALIVE=true yjava_jdk.HTTP_MAXCONNECTIONS=5 yjava_jdk.JAVA_HOME=/home/y/share/yjava_jdk/java \
+yinst set yjava_jdk.HTTP_KEEPALIVE=true \
+  yjava_jdk.HTTP_MAXCONNECTIONS=5 \
+  yjava_jdk.JAVA_HOME=/home/y/share/yjava_jdk/java \
   yjava_jdk.NETWORKADDRESS_CACHE_NEGATIVE_TTL=10 \
   yjava_jdk.NETWORKADDRESS_CACHE_TTL=120 \
   yjava_jdk.platform=x86_64-rhel4-gcc3
@@ -156,7 +158,8 @@ yinst set yoozie.JDBC_PASSWORD= yoozie.JDBC_USER= \
   yoozie.conf_oozie_service_JPAService_create_db_schema=true \
   yoozie.conf_oozie_authentication_signature_secret=oozie
 
-yinst set yoozie.CLUSTER_NAME=$CLUSTER yoozie.DEFAULT_FS=hdfs://$NAMENODE \
+yinst set yoozie.CLUSTER_NAME=$CLUSTER \
+   yoozie.DEFAULT_FS=hdfs://$NAMENODE \
   yoozie.OOZIE_USER=oozie \
   yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
 
