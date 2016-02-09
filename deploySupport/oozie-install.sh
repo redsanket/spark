@@ -90,6 +90,7 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # exist which will get installed, and we don't want that (legacy from
 # 0.23 hadoop)
 #
+yinst i ygrid_cacert
 BRANCH=test
 yinst i yoozie -br $BRANCH
 yinst i ygrid_sharelib -br $BRANCH
