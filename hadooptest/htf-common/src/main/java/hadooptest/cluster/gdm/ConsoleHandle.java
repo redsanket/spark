@@ -1171,6 +1171,7 @@ public final class ConsoleHandle
         String resource = this.conf.getString("hostconfig.console.datasource.clone.resource") + "?action=Create&operation=1";
 
         xmlFileContent = xmlFileContent.replaceAll(oldDataSetName, newDataSetName);
+        xmlFileContent = xmlFileContent.replace("HadoopConfig" + newDataSetName, "HadoopConfig" + oldDataSetName);
         TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
 
         StringBuilder postBody = new StringBuilder();
