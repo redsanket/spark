@@ -36,7 +36,6 @@ public class TestAlertAPI extends TestSession {
 	private ConsoleHandle consoleHandle;
 	private HTTPHandle httpHandle ;
 	private static String ALERT_API = "/console/api/alerts?"; 
-	private List<String>dataSetNameList = new ArrayList<String>();
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -55,7 +54,6 @@ public class TestAlertAPI extends TestSession {
 		testAlertWithWarningServerityAndTypeAvailabilityForAcquisitionFacet();
 		testAlertWithWarningServerityAndTypeSlaForAcquisitionFacet();
 		testAlertWithWarningServerityAndTypeSystemWarningForAcquisitionFacet();
-		testAlertWithWarningServerityByDataSetName();
 	}
 
 	/**
@@ -90,21 +88,6 @@ public class TestAlertAPI extends TestSession {
 		String facetType = "acquisition";
 		String alertType = "system-warning";
 		this.executeAlertQuery(facetType , alertType ,severityType );
-	}
-
-	/**
-	 * TestCase : Verify whether alertEvent response contains the Warning severity , type name is availability and by dataset namefor acquisition facet
-	 * Query parameters : severity = Warning , facet = acquisition , startDate = current date - 2 , endDate = current date , type = sla , datasetName
-	 */
-	public void testAlertWithWarningServerityByDataSetName() {
-
-		String severityType = "Warning";
-		String facetType = "acquisition";
-		String alertType = "availability";
-
-		assertTrue("Expected there is atleast one dataset, but got " +  this.dataSetNameList.size() , this.dataSetNameList.size() > 0 );
-		String dataSetName = this.dataSetNameList.get(0);
-		this.executeAlertQuery(facetType , alertType ,severityType , dataSetName);
 	}
 
 	/**
