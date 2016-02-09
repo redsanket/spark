@@ -233,8 +233,8 @@ yinst set ygrid_sharelib.oozie_tag_hbase_current=hdfs:///tmp/ygrid_sharelib_dir/
 ##
 ### if sharelib will not be used, then turn off ShareLib,
 ##
-yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=false \
-  yoozie.conf_oozie_use_system_libpath=false
+yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=true \
+  yoozie.conf_oozie_use_system_libpath=true
 
 ##
 ### hive client settings
