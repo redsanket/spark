@@ -135,7 +135,7 @@ public class TestAlertAPI extends TestSession {
 		}
 		Response response = given().cookie(this.cookie).get(testURL);
                 String responseString;
-		if ( response != null && (responseString=response.getBody().asString()) != null ) {
+		if ( response != null && !((responseString=response.getBody().asString()).equals("null")) ) {
 			
 			TestSession.logger.info("Response = " + responseString );
 			// convert responseString to json
