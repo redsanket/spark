@@ -132,9 +132,38 @@ public class WorkFlowHelper {
         return false;
     }
     
+    /**
+     * Returns true if a workflow exists for a given instance of a given dataset on a given facet in any state, false otherwise
+     * @param dataSetName
+     * @param facetName
+     * @param instanceDate
+     * @return Returns true if a workflow exists, false otherwise
+     */
+    public boolean workflowExists(String dataSetName, String facetName, String instanceDate) {
+        String completedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/completed?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+        String failedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/failed?datasetname=" + dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+        String runningWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/running?datasetname=" + dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + facetName;
+        com.jayway.restassured.response.Response workFlowResponse = given().cookie(this.cookie).get(completedWorkFlowURL);
+        String workFlowResult = checkWorkFlowStatus(workFlowResponse , "completedWorkflows" , instanceDate);
+        if (workFlowResult.equals("completed") ) {
+            return true;
+        }
+        workFlowResponse = given().cookie(this.cookie).get(failedWorkFlowURL);
+        workFlowResult = checkWorkFlowStatus(workFlowResponse , "failedWorkflows" , instanceDate);
+        if (workFlowResult.equals("failed") ) {
+            return true;
+        }
+        workFlowResponse = given().cookie(this.cookie).get(runningWorkFlowURL);
+        workFlowResult = checkWorkFlowStatus(workFlowResponse , "runningWorkflows" , instanceDate);
+        if (workFlowResult.equals("running") ) {
+            return true;
+        }
+        return false;
+    }
+    
     
     /**
-     * checks whether the dataset has come to the running state. If the 
+     * checks whether the dataset has come to the running state on a given facet.
      * @param dataSetName
      * @param facetName
      * @return returns true if dataset is in running state else returns false

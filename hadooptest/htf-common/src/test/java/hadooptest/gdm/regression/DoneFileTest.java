@@ -95,6 +95,8 @@ public class DoneFileTest {
         dataSetXml = dataSetXml.replaceAll("TARGET_PATHS", "");
         dataSetXml = dataSetXml.replaceAll("REPL_STRATEGY", "HFTPDistributedCopy");
         dataSetXml = dataSetXml.replaceAll("EXCLUDE", "");
+        dataSetXml = dataSetXml.replaceAll("RETENTION_ENABLED", "TRUE");
+        dataSetXml = dataSetXml.replaceAll("START_DATE", "20000101");
         
         // test success.file.path and success.file.name
         if (pathType == 0) {

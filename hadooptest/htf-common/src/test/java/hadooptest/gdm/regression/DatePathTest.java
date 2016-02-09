@@ -244,7 +244,7 @@ public class DatePathTest extends TestSession {
     }
     
     private void createTopLevelDirOnTarget() throws Exception {
-        CreateInstanceOnGrid createInstanceOnGridObj = new CreateInstanceOnGrid(this.targetGrid , "/projects", "foo", "bogus" + startTime);
+        CreateInstanceOnGrid createInstanceOnGridObj = new CreateInstanceOnGrid(this.targetGrid, "/projects", "foo", "bogus" + startTime);
         createInstanceOnGridObj.execute();
     }
     
@@ -274,6 +274,8 @@ public class DatePathTest extends TestSession {
         dataSetXml = dataSetXml.replaceAll("TARGET_GRID", this.targetGrid);
         dataSetXml = dataSetXml.replaceAll("SOURCE_PATHS", this.getSourcePathsTag(dataSetName, pathType));
         dataSetXml = dataSetXml.replaceAll("TARGET_PATHS", this.getTargetPathsTag(dataSetName, pathType, pathOverride));
+        dataSetXml = dataSetXml.replaceAll("RETENTION_ENABLED", "TRUE");
+        dataSetXml = dataSetXml.replaceAll("START_DATE", "20000101");
         if (replStrategy == 0) {
             dataSetXml = dataSetXml.replaceAll("REPL_STRATEGY", "HFTPDistributedCopy");
         } else if (replStrategy == 1) {
