@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AlternativeDateTest {
+    private static final int MIN_GRIDS = 2;
     private static final String INSTANCE1 = "201601172359";
     private static final String INSTANCE2 = "201602031248";
     private ConsoleHandle consoleHandle = new ConsoleHandle();
@@ -32,7 +33,7 @@ public class AlternativeDateTest {
     @Before
     public void setUp() throws Exception {
         List<String> grids = this.consoleHandle.getUniqueGrids();
-        if (grids.size() < 2) {
+        if (grids.size() < MIN_GRIDS) {
             Assert.fail("Only " + grids.size() + " of 2 required grids exist");
         }
         this.sourceGrid = grids.get(0);
@@ -84,8 +85,8 @@ public class AlternativeDateTest {
     
     private void validateReplicationWorkflows() {
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
-        Assert.assertTrue("Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
+        Assert.assertTrue("Expected workflow " + INSTANCE1 + " to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
+        Assert.assertTrue("Expected workflow " + INSTANCE2 + " to pass", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
         
         for (String instance : this.invalidInstances) {
             Assert.assertFalse("Expected no workflow for instance " + instance, workFlowHelper.workflowExists(this.dataSetName, "replication", instance));

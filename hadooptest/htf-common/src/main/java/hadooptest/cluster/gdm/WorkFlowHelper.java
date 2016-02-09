@@ -133,7 +133,7 @@ public class WorkFlowHelper {
     }
     
     /**
-     * Returns true if a workflow exists in any state, false otherwise
+     * Returns true if a workflow exists for a given instance of a given dataset on a given facet in any state, false otherwise
      * @param dataSetName
      * @param facetName
      * @param instanceDate
@@ -163,7 +163,7 @@ public class WorkFlowHelper {
     
     
     /**
-     * checks whether the dataset has come to the running state.
+     * checks whether the dataset has come to the running state on a given facet.
      * @param dataSetName
      * @param facetName
      * @return returns true if dataset is in running state else returns false
