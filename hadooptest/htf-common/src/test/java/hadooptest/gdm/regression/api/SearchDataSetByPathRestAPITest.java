@@ -112,7 +112,18 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 */
 	public void testSearchDataSetByCompleteDataSetPath() {
 		String dataSetName = dataSetsResultList.get(0).trim();
-		String dataSetPath = "/data/daqdev/data/" + dataSetName;
+		// get path for this dataset
+		String getDataSetByNameURL = "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
+		response = given().cookie(cookie).get(getDataSetByNameURL);
+                String responseString = response.getBody().asString();
+                JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
+                jsonObject = jsonObject.getJSONObject("DataSet");
+		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
+		String dataSetPath = (String)jsonArray.get(0);
+		int cutIndex = dataSetPath.indexOf(dataSetName);
+		dataSetPath = dataSetPath.substring(0,cutIndex);
+                dataSetPath += dataSetName;
+                
 		String testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
 		TestSession.logger.info("testURL = " + testURL);
 		response = given().cookie(cookie).get(testURL);
