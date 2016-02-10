@@ -23,6 +23,7 @@ import hadooptest.SerialTests;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import net.sf.json.JSONArray;
 
 /**
  * Release : 5.6.0
