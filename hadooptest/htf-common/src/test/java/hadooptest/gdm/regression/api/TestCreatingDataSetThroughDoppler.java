@@ -22,9 +22,7 @@ import net.sf.json.JSONSerializer;
 public class TestCreatingDataSetThroughDoppler extends TestSession {
 
     private ConsoleHandle consoleHandle;
-    private String dataSetName;
     private String cookie;
-    public static final int SUCCESS = 200;
     private HTTPHandle httpHandle = null;
     private List<String> grids;
     private SourcePath source;
@@ -48,14 +46,11 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         this.sourceGridName = this.grids.get(0);
         this.targetGridName = this.grids.get(1);
         
-        this.dataSetName = "Test_CreateNewDataSetThroughJsonInput_"  + System.currentTimeMillis();
         this.source = new SourcePath();
-        source.addSourcePath("/data/daqdev/data").addSourcePath("/data/daqdev/count").addSourcePath("/data/daqdev/schema");
-        System.out.println(source.toString());
+        source.addSourcePath("/data/daqdev/data/%{date}").addSourcePath("/data/daqdev/count/%{date}").addSourcePath("/data/daqdev/schema/%{date}");
         this.target1 = new Target();
-        // FIXME
-        //this.target1.targetName(this.targetGridName).addPath("/data/daqdev/data").addPath("/data/daqdev/count").addPath("/data/daqdev/schema").retentionDays("92").numMaps("3");
-        System.out.println(target1.toString());
+        this.target1.targetName(this.targetGridName).addPath("/data/daqdev/data/%{date}").addPath("/data/daqdev/count/%{date}").addPath("/data/daqdev/schema/%{date}")
+        .retentionNumber("92").retentionPolicy("DateOfInstance").numMaps("3");
     }
     
     /**
@@ -65,7 +60,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testDescriptionFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testDescriptionFieldMissing")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
         .uGIGroup("aporeport")
@@ -87,8 +82,11 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      */
     @Test
     public void testDataSetPathInstanceDateFormatMissing() throws Exception {
+    	SourcePath source = new SourcePath();
+        source.addSourcePath("/data/daqdev/data/").addSourcePath("/data/daqdev/count/%{date}").addSourcePath("/data/daqdev/schema/%{date}");
+        
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testDataSetPathInstanceDateFormatMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -102,7 +100,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -112,7 +110,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testProjectNameFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testProjectNameFieldMissing")
         .description("Testing dataset creation")
         .sourceCluster(this.sourceGridName)
         .uGIGroup("aporeport")
@@ -125,7 +123,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     
@@ -136,7 +134,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testSourceClusterNameFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testSourceClusterNameFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .uGIGroup("aporeport")
@@ -149,7 +147,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -159,7 +157,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testUGIGroupFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testSourceClusterNameFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -172,7 +170,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -182,7 +180,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testUGIOwnerFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testUGIOwnerFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -195,7 +193,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;  
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;  
     }
     
     /**
@@ -205,7 +203,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testUGIPermissionFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testUGIPermissionFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -218,77 +216,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
-    }
-    
-    
-    /**
-     * TestCase : Verify whether dataset is not created when consumer contact is missing.
-     * @throws Exception
-     */
-    @Test
-    public void testConsumerContactFieldMissing() throws Exception {
-        CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
-        .description("Testing dataset creation")
-        .projectName("apollo")
-        .sourceCluster(this.sourceGridName)
-        .uGIGroup("aporeport")
-        .uGIOwner("apollog")
-        .uGIPermission("750")
-        .ownerContact("apollo-se@yahoo-inc.com")
-        .publisherContact("apollo-se@yahoo-inc.com")
-        .comments("Testing dataset creation")
-        .doneFilePath("/data/daqdev/data/done")
-        .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
-    }
-    
-    /**
-     * TestCase : Verify whether dataset is not created when contact owner field is missing.
-     * @throws Exception
-     */
-    @Test
-    public void testOwnerContacFieldMissing() throws Exception {
-        CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
-        .description("Testing dataset creation")
-        .projectName("apollo")
-        .sourceCluster(this.sourceGridName)
-        .uGIGroup("aporeport")
-        .uGIOwner("apollog")
-        .uGIPermission("750")
-        .consumerContact("apollo-se@yahoo-inc.com")
-        .publisherContact("apollo-se@yahoo-inc.com")
-        .comments("Testing dataset creation")
-        .doneFilePath("/data/daqdev/data/done")
-        .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
-    }
-    
-    /**
-     * TestCase : Verify whether dataset is not created when publisher contact field is missing.
-     * @throws Exception
-     */
-    @Test
-    public void testPublisherContactFieldMissing() throws Exception {
-        CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
-        .description("Testing dataset creation")
-        .projectName("apollo")
-        .sourceCluster(this.sourceGridName)
-        .uGIGroup("aporeport")
-        .uGIOwner("apollog")
-        .uGIPermission("750")
-        .consumerContact("apollo-se@yahoo-inc.com")
-        .ownerContact("apollo-se@yahoo-inc.com")
-        .comments("Testing dataset creation")
-        .doneFilePath("/data/daqdev/data/done")
-        .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -298,7 +226,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testCommentFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testCommentFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -311,30 +239,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
-    }
-    
-    /**
-     * TestCase : Verify whether dataset is not created when doneFilePath field is missing.
-     * @throws Exception
-     */
-    @Test
-    public void testDoneFilPathFieldMissing() throws Exception {
-        CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
-        .description("Testing dataset creation")
-        .projectName("apollo")
-        .sourceCluster(this.sourceGridName)
-        .uGIGroup("aporeport")
-        .uGIOwner("apollog")
-        .uGIPermission("750")
-        .consumerContact("apollo-se@yahoo-inc.com")
-        .ownerContact("apollo-se@yahoo-inc.com")
-        .publisherContact("apollo-se@yahoo-inc.com")
-        .comments("Testing dataset creation")
-        .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -344,7 +249,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     @Test
     public void testFrequencyFieldMissing() throws Exception {
         CreateDataSet createDataSetObject = new CreateDataSet();
-        createDataSetObject.dataSetName(dataSetName)
+        createDataSetObject.dataSetName("testFrequencyFieldMissing")
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -357,7 +262,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .addSourcePath(source).addTarget(this.target1);
-        this.executeMethod(createDataSetObject.toString(), 500 ) ;
+        this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
     /**
@@ -366,15 +271,15 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      */
     @Test
     public void testCreatingDataSet() throws Exception {
-        this.dataSetName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
+        String dataSetName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
         SourcePath sourcePath = new SourcePath();
         sourcePath.addSourcePath("/data/SOURCE_ABF/data/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/schema/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/count/ABF_DAILY/%{date}");
         Target target = new Target();
-        // FIXME
-        //target.targetName(this.targetGridName).addPath("/data/daqdev/data/${DataSetName}/%{date}").addPath("/data/daqdev/schema/${DataSetName}/%{date}").addPath("/data/daqdev/count/${DataSetName}/%{date}").retentionDays("92").numMaps("3");;
+        target.targetName(this.targetGridName).addPath("/data/daqdev/data/${DataSetName}/%{date}").addPath("/data/daqdev/schema/${DataSetName}/%{date}").addPath("/data/daqdev/count/${DataSetName}/%{date}")
+        .retentionNumber("92").retentionPolicy("DateOfInstance").numMaps("3");;
         CreateDataSet createDSetObject = new CreateDataSet();
         
-        createDSetObject.dataSetName(this.dataSetName)
+        createDSetObject.dataSetName(dataSetName)
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -389,13 +294,13 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .frequency("daily")
         .addSourcePath(sourcePath).addTarget(target);
         TestSession.logger.info("createDSetObject = " + createDSetObject.toString());
-        this.executeMethod(createDSetObject.toString(), 200 );
+        this.executeMethod(createDSetObject.toString(), 201 );
         
         this.consoleHandle.sleep(30000);
         List<String> dataSetList = this.consoleHandle.getAllDataSetName();
-        assertTrue("Expected dataset to be created with dataset name = " + this.dataSetName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(this.dataSetName) == true);
+        assertTrue("Expected dataset to be created with dataset name = " + dataSetName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(dataSetName) == true);
         
-        String getDataSetURL = this.consoleHandle.getConsoleURL() + "/console/query/config/dataset/v1/" + this.dataSetName + "?format=json";
+        String getDataSetURL = this.consoleHandle.getConsoleURL() + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
         com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(getDataSetURL);
         assertTrue("Expected that http status code is success, but got " + response.getStatusCode() , response.getStatusCode() == 200);
         
@@ -413,12 +318,12 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      * @param dataSetRequestJsonValue
      */
     private void executeMethod(String dataSetRequestJsonValue , final int HTTP_CODE) {
+    	TestSession.logger.info("dataset request: " + dataSetRequestJsonValue);
         String url = this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/v1";
-        TestSession.logger.info("url = " + url);
         com.jayway.restassured.response.Response response = given().cookie(this.cookie).param("format", "json").param("datasetRequest" ,dataSetRequestJsonValue ).post(url);
-        TestSession.logger.info("response code = " + response.getStatusCode() );
         String res = response.getBody().asString();
         System.out.println(res);
+        this.consoleHandle.sleep(5000);
         assertTrue("Expected HTTP  code " + HTTP_CODE  + "  but got " + response.getStatusCode() , response.getStatusCode() == HTTP_CODE);      
     }
 
