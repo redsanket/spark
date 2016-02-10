@@ -21,6 +21,9 @@ import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.report.GDMGenerateReport;
 import hadooptest.SerialTests;
 
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+
 /**
  * Release : 5.6.0
  * Feature : "Allow searching for datasets by data path"
@@ -120,7 +123,8 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
                 jsonObject = jsonObject.getJSONObject("DataSet");
 		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
 		String dataSetPath = (String)jsonArray.get(0);
-		int cutIndex = dataSetPath.indexOf(dataSetName);
+		// removing the suffix of path that contains date
+                int cutIndex = dataSetPath.indexOf("%{date}");
 		dataSetPath = dataSetPath.substring(0,cutIndex);
                 dataSetPath += dataSetName;
                 
