@@ -221,7 +221,7 @@ yinst set ygrid_sharelib.oozie_tag_hive_current=hdfs:///tmp/ygrid_sharelib_dir/h
 ##
 yinst set ygrid_sharelib.oozie_tag_pig_current=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
   ygrid_sharelib.oozie_tag_pig_latest=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
-  ygrid_sharelib.oozie_tag_pig_10=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib
+  ygrid_sharelib.oozie_tag_pig_10=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
   ygrid_sharelib.oozie_tag_pig_11=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib
 ##
 yinst set ygrid_sharelib.oozie_tag_tez_current=hdfs:///tmp/ygrid_sharelib_dir/ytez/ytez-$TEZ_VERSION/libexec/tez
