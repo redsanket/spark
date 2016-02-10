@@ -124,10 +124,6 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
                 jsonObject = jsonObject.getJSONObject("DataSet");
 		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
 		String dataSetPath = (String)jsonArray.get(0);
-		// removing the suffix of path that contains date
-                int cutIndex = dataSetPath.indexOf("%{date}");
-		dataSetPath = dataSetPath.substring(0,cutIndex);
-                dataSetPath += dataSetName;
                 
 		String testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
 		TestSession.logger.info("testURL = " + testURL);
