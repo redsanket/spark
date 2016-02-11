@@ -68,6 +68,27 @@
             </Policies>
             <Resource capacity="10" name="bandwidth"/>
         </Target>
+        <Target latency="1440" name="TARGET2_NAME" status="active">
+            <!-- <DateRange end="20220131" start="20120125"/> -->
+         <DateRange>
+         	<StartDate type="fixed" value="20120125"/>
+         	<EndDate type="fixed" value="20220131"/>
+         </DateRange>
+            <HCatTargetType>HCAT_TYPE</HCatTargetType>
+            <Paths>
+                <Path
+                    location="/data/daqdev/abf/count/${DataSetName}/%{date}" type="count"/>
+                <Path
+                    location="/data/daqdev/abf/data/${DataSetName}/%{date}" type="data"/>
+                <Path
+                    location="/data/daqdev/abf/schema/${DataSetName}/%{date}" type="schema"/>
+            </Paths>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
     </Targets>
     <HCat>
      	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>

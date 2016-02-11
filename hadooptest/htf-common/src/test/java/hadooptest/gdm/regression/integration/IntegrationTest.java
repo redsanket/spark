@@ -44,7 +44,8 @@ public class IntegrationTest  extends TestSession {
 	private String datasetActivationTime;
 	private String enableHCAT;
 	private String sourceCluster;
-	private String destinationCluster;
+	private String destinationCluster1;
+	private String destinationCluster2;
 	private int duration;
 	private int noOfFeeds;
 	private int frequency;
@@ -62,6 +63,7 @@ public class IntegrationTest  extends TestSession {
 	private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_Daily/";
 	private static final String DATABASE_NAME = "gdm";
 	private static final String HADOOPQA_AS_HDFSQA_IDENTITY_FILE = "/homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa";
+	private List<String> targetClusterList = new ArrayList<String>();
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -84,43 +86,26 @@ public class IntegrationTest  extends TestSession {
 		}
 
 		// get the destination cluster
-		this.destinationCluster = GdmUtils.getConfiguration("testconfig.IntegrationTest.destinationCluster");
-		TestSession.logger.info("destinationCluster = " + destinationCluster);
-		if ( (this.destinationCluster != null) && ( ! this.installedGrids.contains(this.destinationCluster)) )  {
-			fail("Destination cluster is null or Specified a wrong destination cluster that is not configured.");
-		}
-
-		// get hcat enabled for the dataset
-		this.enableHCAT = GdmUtils.getConfiguration("testconfig.IntegrationTest.enable-hcat");
-		if (this.enableHCAT != null && this.enableHCAT.toUpperCase() == "TRUE") {
-
-			// check whether destination cluster is hcat enabled.
-			this.hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
-			if ( this.hcatSupportedGrid.contains(this.destinationCluster) == true ) {
-
-				// check whether destination cluster is hcat enabled.
-				boolean targetHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(this.destinationCluster);
-				if (!targetHCatSupported) {
-
-					// enable destination cluster.
-					this.consoleHandle.modifyDataSource(this.destinationCluster, "HCatSupported", "FALSE", "TRUE");
-				}
-
-				// since hcat is enabled, TARGET TYPE is MIXED
-				this.HCAT_TYPE = this.TARGET_START_TYPE_MIXED; 
-			} else {
-				TestSession.logger.info("Hive is not installed on " + this.destinationCluster + " , will replication only DATA.");
+		String targetClusterNames = GdmUtils.getConfiguration("testconfig.IntegrationTest.destinationCluster");
+		TestSession.logger.info("targetClusterNames = " + targetClusterNames);
+		this.targetClusterList = Arrays.asList(targetClusterNames.split(" "));
+		TestSession.logger.info("targetClusterList  = " + targetClusterList);
+		
+		for ( String clusterName : this.targetClusterList) {
+			if (!this.installedGrids.contains(clusterName)) {
+				fail("Destination cluster is null or Specified a wrong destination cluster that is not configured.");
+				System.exit(1);
 			}
-
-			// create instance of hcat helper class
-			this.hcatHelperObject = new HCatHelper();
-		} else if (this.enableHCAT != null && this.enableHCAT.toUpperCase() == "FALSE") {
-
-			// since hcat is disabled, will do data-only replication
-			this.HCAT_TYPE = this.TARGET_START_TYPE_DATAONLY;
 		}
-		TestSession.logger.info("HCAT_TYPE = " + HCAT_TYPE);
-
+		
+		
+		// TODO this is not the right solution, to modify the dataset xml file and add the target like below.
+		// i should have read the dataset xml file and add the new target node to the targets node. Will implement once new pipeline is working.
+		if (this.targetClusterList.size() >= 1) {
+			this.destinationCluster1 = this.targetClusterList.get(0);
+			this.destinationCluster2 = this.targetClusterList.get(1);
+		}
+		
 		String dur = GdmUtils.getConfiguration("testconfig.IntegrationTest.duration");
 		if ( dur != null ) {
 			this.duration = Integer.parseInt(dur);
@@ -188,7 +173,7 @@ public class IntegrationTest  extends TestSession {
 				
 				// create  a dataset
 				this.createDataSet();
-
+				
 				// activate the dataset
 				this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
 				this.consoleHandle.sleep(40000);
@@ -200,13 +185,19 @@ public class IntegrationTest  extends TestSession {
 				}
 				// TODO : Need to find the API to query HIVE and HCat for table creation and partition. We can use GDM REST API or Data discovery REST API
 
-				// create a done file
-				String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName ;
-				CreateDoneFile createDoneFile = new CreateDoneFile( this.destinationCluster , finalDataPath);
-				createDoneFile.execute();
+				for ( String clusterName : this.targetClusterList) {
+					
+					TestSession.logger.info("Creating done file in " + clusterName);
+					
+					// create a done file
+					String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName ;
+					CreateDoneFile createDoneFile = new CreateDoneFile( clusterName.trim() , finalDataPath);
+					createDoneFile.execute();
+					
+					// check whether DONE file is created.
+					assertTrue("Failed  to create done for " + finalDataPath , createDoneFile.isDoneFileCreated() == true );					
+				}
 				
-				// check whether DONE file is created.
-				assertTrue("Failed  to create done for " + finalDataPath , createDoneFile.isDoneFileCreated() == true );
 				
 				// deactivate the dataset
 				this.tearDown();
@@ -222,13 +213,6 @@ public class IntegrationTest  extends TestSession {
 		}
 	}
 	
-	private void prepareJobFile(String propertyFileName) {
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
-		long pipeLineInstance = Long.parseLong(sdf.format(cal.getTime()));
-		
-	}
-
 	/**
 	 * Create a dataset specification configuration file.
 	 */
@@ -237,8 +221,8 @@ public class IntegrationTest  extends TestSession {
 		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
 		
 		// removed the dependency on base dataset.
-		//String feedName = this.consoleHandle.getDataSetTagsAttributeValue(this.baseDataSetName , "Parameters" , "value");
-		dataSetXml = dataSetXml.replaceAll("TARGET1_NAME", this.destinationCluster );
+		dataSetXml = dataSetXml.replaceAll("TARGET1_NAME", this.destinationCluster1 );
+		dataSetXml = dataSetXml.replaceAll("TARGET2_NAME", this.destinationCluster2);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", "temp" );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", "temp" + "_stats" );
