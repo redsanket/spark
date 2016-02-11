@@ -193,9 +193,6 @@ public class IntegrationTest  extends TestSession {
 					String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName ;
 					CreateDoneFile createDoneFile = new CreateDoneFile( clusterName.trim() , finalDataPath);
 					createDoneFile.execute();
-					
-					// check whether DONE file is created.
-					assertTrue("Failed  to create done for " + finalDataPath , createDoneFile.isDoneFileCreated() == true );					
 				}
 				
 				
