@@ -21,6 +21,10 @@ import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.report.GDMGenerateReport;
 import hadooptest.SerialTests;
 
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JSONArray;
+
 /**
  * Release : 5.6.0
  * Feature : "Allow searching for datasets by data path"
@@ -112,7 +116,15 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 */
 	public void testSearchDataSetByCompleteDataSetPath() {
 		String dataSetName = dataSetsResultList.get(0).trim();
-		String dataSetPath = "/data/daqdev/data/" + dataSetName;
+		// get path for this dataset
+		String getDataSetByNameURL = "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
+		response = given().cookie(cookie).get(getDataSetByNameURL);
+                String responseString = response.getBody().asString();
+                JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
+                jsonObject = jsonObject.getJSONObject("DataSet");
+		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
+		String dataSetPath = (String)jsonArray.get(0);
+                
 		String testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
 		TestSession.logger.info("testURL = " + testURL);
 		response = given().cookie(cookie).get(testURL);
