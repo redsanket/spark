@@ -117,7 +117,7 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	public void testSearchDataSetByCompleteDataSetPath() {
 		String dataSetName = dataSetsResultList.get(0).trim();
 		// get path for this dataset
-		String getDataSetByNameURL = "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
+		String getDataSetByNameURL = this.url + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
 		response = given().cookie(cookie).get(getDataSetByNameURL);
                 String responseString = response.getBody().asString();
                 JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
