@@ -183,18 +183,16 @@ public class IntegrationTest  extends TestSession {
 				for (String date : dates ) {
 					this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , datasetActivationTime , date);
 				}
+				
 				// TODO : Need to find the API to query HIVE and HCat for table creation and partition. We can use GDM REST API or Data discovery REST API
-
 				for ( String clusterName : this.targetClusterList) {
-					
 					TestSession.logger.info("Creating done file in " + clusterName);
 					
-					// create a done file
-					String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName ;
+					// Check whether _SUCCESS file exists.
+					String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName  + "/20130309/_SUCCESS";
 					CreateDoneFile createDoneFile = new CreateDoneFile( clusterName.trim() , finalDataPath);
 					createDoneFile.execute();
 				}
-				
 				
 				// deactivate the dataset
 				this.tearDown();
