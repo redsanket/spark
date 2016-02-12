@@ -126,22 +126,18 @@ public class CreateDoneFile implements PrivilegedExceptionAction<String> {
 		String returnValue = "false";
 		TestSession.logger.info("configuration   =  " + this.configuration.toString());
 		FileSystem remoteFS = FileSystem.get(this.configuration);
+		TestSession.logger.info("dataPath = " + this.dataPath);
 		Path path = new Path(this.dataPath.trim());
 
 		// check whether remote path exists on the grid
 		boolean basePathExists = remoteFS.exists(path);
+		TestSession.logger.info("basePathExists  = " + basePathExists);
 		if(basePathExists == false) {
 			fail(this.dataPath.trim() + " does not exist on cluster " + clusterName);
 			returnValue = "failed";
 		}  
 		if (basePathExists == true) {
-			String destFile = this.dataPath + "/" + "DONE";
-			TestSession.logger.info("destFile  = " + destFile);
-
-			Path destFilePath = new Path(destFile);
-			boolean isDoneFileCreated = remoteFS.createNewFile(destFilePath);
-			assertTrue("Failed to  create done file " + destFile  , isDoneFileCreated == true);
-			TestSession.logger.info(destFile  + " created successfully..!");
+			TestSession.logger.info(this.dataPath.trim()  + " file exists on the cluster " + clusterName);
 			returnValue = "success";
 		}
 		return returnValue;
