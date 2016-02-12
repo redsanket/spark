@@ -199,7 +199,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			Calendar dataSetCal = Calendar.getInstance();
 			SimpleDateFormat feed_sdf = new SimpleDateFormat(this.dataPattern);
 			long dataSetHourlyTimeStamp =  Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
-			this.fullPath = this.basePath + "/" + "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
+			this.fullPath = this.basePath + "/" + "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00" + "/20130309/_SUCCESS";
 			TestSession.logger.info("---- pathPattern  = " + this.fullPath);
 			this.result = ugi.doAs(this);
 			TestSession.logger.info("Result = " + result);
@@ -303,15 +303,14 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			TestSession.logger.info(this.fullPath.trim() + " "  + basePathExists);
 			if (basePathExists == true) {
 				TestSession.logger.info("Path exists - " + this.fullPath);
-				String doneFile  =  this.fullPath + "/" + "DONE";
-				Path doneFilePath = new Path(doneFile);
+				Path doneFilePath = new Path(this.fullPath);
 				boolean doneFileExists = remoteFS.exists(doneFilePath);
 				if (doneFileExists == true) {
 					this.setState("AVAILABLE");
 					returnValue = "AVAILABLE";
 					this.setCurrentWorkingState("AVAILABLE");
 					this.setState("AVAILABLE");
-					TestSession.logger.info(doneFile + " exists, data is transfered.");
+					TestSession.logger.info(this.fullPath + " exists, data is transfered.");
 				} else if (doneFileExists == false) {
 					TestSession.logger.info("------- "+ path.toString() + " Data is available, but not yet completed. Still loading.");
 					this.setState("INCOMPLETE");
@@ -351,6 +350,9 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			// create lib folder
 			this.createWorkFlowFolder(this.oozieWFPath + "/lib");
 			this.copyLibFiles("/tmp/integration_test_files/lib/" , this.oozieWFPath + "/lib/");
+		
+			this.copySupportJarFilesToScrach("FETLProjector.jar" , this.oozieWFPath + "/lib/" );
+			this.copySupportJarFilesToScrach("FETLProjector.jar" , this.pipeLineInstance + "/lib/");
 
 			this.setCurrentWorkingState("WORKING_DIR:CREATED");
 			this.setCurrentWorkingState("SETUP:COMPLETED");
@@ -359,13 +361,12 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 			if (this.scratchPathCreated ==  true && this.pipeLineInstanceCreated == true) {
 				this.result = "START_OOZIE_JOB";
 				this.setCurrentWorkingState("OOZIE:START_JOB");
-				
 			}
 		}
 		this.result = returnValue;
 		return returnValue;
 	}
-
+	
 	/**
 	 * Copies supporting files like pig scripts and other files to HDFS so that oozie job can use it.
 	 * @param src
@@ -462,6 +463,32 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
 		} else {
 			System.out.println(integrationFilesPath.toString() + " does not exists...");
 		}		
+		return flag;
+	}
+	
+	// method to copy FETLProjector.jar  & BaseFeed.jar
+	public boolean copySupportJarFilesToScrach(String srcFile , String destFile) throws IOException {
+		System.out.println("************************************************************************************");
+		boolean flag = false;
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		String absolutePath = new File("").getAbsolutePath();
+		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration/lib/");
+		if (integrationFilesPath.exists()) {
+			Path destPath = new Path(destFile);
+			File fileList[] = integrationFilesPath.listFiles();
+			for ( File f : fileList) {
+				if (f.isFile()) {
+					Path scrFilePath = new Path(f.toString());
+					remoteFS.copyFromLocalFile(false , true, scrFilePath , destPath);
+					System.out.println( scrFilePath + "  files copied sucessfully to " + destPath);
+					flag = true;
+				}
+			}
+		} 
+		else {
+			TestSession.logger.info(integrationFilesPath.toString() + " does not exists...");
+		}
+		System.out.println("************************************************************************************");
 		return flag;
 	}
 
