@@ -17,7 +17,7 @@ public class HCatDataHandle {
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
         
     }
-    static String createTable(String clusterName){
+    static String createTable(String clusterName)throws Exception{
         command = new String [4];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
