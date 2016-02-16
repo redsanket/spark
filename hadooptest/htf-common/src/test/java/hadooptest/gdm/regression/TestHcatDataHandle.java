@@ -1,6 +1,8 @@
 package gdm.regression;
 
 import hadooptest.TestSession;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestHcatDataHandle extends TestSession{
     
