@@ -12,21 +12,20 @@ import hadooptest.TestSession;
 
 public class HCatDataHandle {
     private static String scriptsDirectory;
-    private static String command[];
     static{
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
         
     }
     static String createTable(String clusterName)throws Exception{
-        command = new String [6];
+        String[] command = new String [5];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         Date date = new Date();
         String tableSuffix = String.valueOf(date.getTime());
         String tableName = "HTFTest_" + tableSuffix;
-        command[4] = tableName;
-        command[5] = "create";
+        command[3] = tableName;
+        command[4] = "create";
         ProcessBuilder pb = new ProcessBuilder(command);
         Process p = pb.start();
         BufferedReader stderrReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getErrorStream())));
