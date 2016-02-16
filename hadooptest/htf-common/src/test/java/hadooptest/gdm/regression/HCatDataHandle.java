@@ -18,7 +18,7 @@ public class HCatDataHandle {
         
     }
     static String createTable(String clusterName)throws Exception{
-        command = new String [4];
+        command = new String [6];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
         command[2] = clusterName;
