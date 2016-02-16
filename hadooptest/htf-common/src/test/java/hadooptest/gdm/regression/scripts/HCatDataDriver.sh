@@ -8,9 +8,15 @@ case $command in
     echo "Creating this hcat table : " $tableName "on server : " $hcatServer  
     scriptFile="createHCatData.sh"
     scp ${currentDir}/part-0000 ${hcatServer}:/tmp/
+    scp ${currentDir}/${scriptFile} ${hcatServer}:/tmp/
+    ssh ${hcatServer} "/tmp/${scriptFile} $tableName"
     ;;
   table_exists)
-    echo  see if this table exists
+    scriptFile="doesTableExist.sh"
+    scp ${currentDir}/${scriptFile} ${hcatServer}:/tmp/
+    ssh ${hcatServer} "/tmp/${scriptFile} $tableName"
+    exitCode=`echo $?`
+    exit ${exitCode}
     ;;
   partition_exists)
     echo see if the partition exists
@@ -19,6 +25,4 @@ case $command in
     echo add parition
     ;;
 esac
-scp ${currentDir}/${scriptFile} ${hcatServer}:/tmp/
-ssh ${hcatServer} "/tmp/${scriptFile} $tableName"
 

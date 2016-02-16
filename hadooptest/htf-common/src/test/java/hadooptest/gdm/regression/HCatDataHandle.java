@@ -11,6 +11,8 @@ import java.util.TimeZone;
 import hadooptest.TestSession;
 
 public class HCatDataHandle {
+    private static final String CREATE_COMMAND = "create";
+    private static final String DOES_TABLE_EXIST_COMMAND = "table_exists";
     private static String scriptsDirectory;
     static{
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
@@ -25,7 +27,7 @@ public class HCatDataHandle {
         String tableSuffix = String.valueOf(date.getTime());
         String tableName = "HTFTest_" + tableSuffix;
         command[3] = tableName;
-        command[4] = "create";
+        command[4] = CREATE_COMMAND;
         ProcessBuilder pb = new ProcessBuilder(command);
         Process p = pb.start();
         BufferedReader stderrReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getErrorStream())));
@@ -50,5 +52,23 @@ public class HCatDataHandle {
         TestSession.logger.info("Exit status : " + exitStatus);
         TestSession.logger.info("Output from data creation scripts " + output);
         return tableName;
+    }
+    
+    static boolean doesTableExist(String clusterName, String tableName) throws Exception{
+        String[] command = new String[5];
+        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[1] = scriptsDirectory;
+        command[2] = clusterName;
+        command[3] = tableName;
+        command[4] = DOES_TABLE_EXIST_COMMAND;
+        ProcessBuilder pb = new ProcessBuilder(command);
+        Process p = pb.start();
+        p.waitFor();
+        int exitStatus = p.exitValue();
+        if(exitStatus == 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }

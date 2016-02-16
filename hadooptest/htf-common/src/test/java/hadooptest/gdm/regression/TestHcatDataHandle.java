@@ -14,7 +14,18 @@ public class TestHcatDataHandle extends TestSession{
     @Test
     public void runTest() throws Exception{
         TestSession.logger.info("mmukhi- this works");
-        HCatDataHandle.createTable("qe6blue");
+        String tableName = HCatDataHandle.createTable("qe6blue");
+        if(HCatDataHandle.doesTableExist("qe6blue", tableName)){
+            System.out.println(tableName + " exists on qe6blue");
+        }else{
+            System.out.println("Uh oh..");
+        }
+        tableName="abogustable";
+        if(!HCatDataHandle.doesTableExist("qe6blue", tableName)){
+            System.out.println(tableName + " doesn't exist on qe6blue");
+        }else{
+            System.out.println("Uh oh..");
+        }
     }
 
 }
