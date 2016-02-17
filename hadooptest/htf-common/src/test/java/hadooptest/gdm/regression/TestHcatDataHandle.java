@@ -22,25 +22,25 @@ public class TestHcatDataHandle extends TestSession{
         String tableName = "HTFTest_" + tableSuffix;
         String result = HCatDataHandle.createTable("qe6blue",tableName);
         if(result == null){
-            System.out.println("error creating table");
+            TestSession.logger.info("error creating table");
         }
         if(HCatDataHandle.doesTableExist("qe6blue", tableName)){
-            System.out.println(tableName + " exists on qe6blue");
+            TestSession.logger.info(tableName + " exists on qe6blue");
         }else{
-            System.out.println("Uh oh..");
+            TestSession.logger.info("Uh oh..");
         }
         tableName="abogustable";
         if(!HCatDataHandle.doesTableExist("qe6blue", tableName)){
-            System.out.println(tableName + " doesn't exist on qe6blue");
+            TestSession.logger.info(tableName + " doesn't exist on qe6blue");
         }else{
-            System.out.println("Uh oh..");
+            TestSession.logger.info("Uh oh..");
         }
         
-        boolean status = HCatDataHandle.addPartition("qe6blue", tableName, "201604010101");
+        boolean status = HCatDataHandle.addPartition("qe6blue", tableName, "20160401");
         if(status){
-            System.out.println("Partition added successfully");
+            TestSession.logger.info("Partition added successfully");
         }else{
-            
+            TestSession.logger.info("An error occured while adding partition");
         }
     }
 
