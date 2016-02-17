@@ -48,7 +48,7 @@ public class HCatDataHandle {
         stderrReader.close();
         stdoutReader.close();
         TestSession.logger.info("Exit status : " + exitStatus);
-        TestSession.logger.info("Output from data creation scripts " + output);
+        TestSession.logger.info("Output from data creation script " + output);
         return tableName;
     }
     
@@ -103,7 +103,7 @@ public class HCatDataHandle {
         stderrReader.close();
         stdoutReader.close();
         TestSession.logger.info("Exit status : " + exitStatus);
-        TestSession.logger.info("Output from data creation scripts " + output);
+        TestSession.logger.info("Output from partition adding script " + output);
         return successFlag;
     }
 }

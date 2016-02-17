@@ -29,14 +29,14 @@ public class TestHcatDataHandle extends TestSession{
         }else{
             TestSession.logger.info("Uh oh..");
         }
-        tableName="abogustable";
-        if(!HCatDataHandle.doesTableExist("qe6blue", tableName)){
-            TestSession.logger.info(tableName + " doesn't exist on qe6blue");
+        String bogusTableName="abogustable";
+        if(!HCatDataHandle.doesTableExist("qe6blue", bogusTableName)){
+            TestSession.logger.info(bogusTableName + " doesn't exist on qe6blue");
         }else{
             TestSession.logger.info("Uh oh..");
         }
         
-        boolean status = HCatDataHandle.addPartition("qe6blue", tableName, "20160401");
+        boolean status = HCatDataHandle.addPartition("qe6blue", tableName, "201604010101");
         if(status){
             TestSession.logger.info("Partition added successfully");
         }else{
