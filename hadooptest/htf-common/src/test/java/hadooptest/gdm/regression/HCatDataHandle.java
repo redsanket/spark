@@ -72,7 +72,7 @@ public class HCatDataHandle {
     }
     
     static boolean doesPartitionExist(String clusterName, String tableName, String partitionValue) throws Exception{
-        String[] command = new String[5];
+        String[] command = new String[6];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
         command[2] = clusterName;
