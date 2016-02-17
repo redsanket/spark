@@ -71,7 +71,7 @@ public class HCatDataHandle {
     }
     
     
-    static boolean addPartition(String clusterName, String tableName, String partitionValue){
+    static boolean addPartition(String clusterName, String tableName, String partitionValue) throws Exception{
         String[] command = new String[6];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
