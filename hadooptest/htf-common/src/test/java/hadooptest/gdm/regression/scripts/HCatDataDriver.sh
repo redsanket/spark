@@ -20,7 +20,13 @@ case $command in
     exit ${exitCode}
     ;;
   partition_exists)
-    echo see if the partition exists
+    scriptFile="doesPartitionExist.sh"
+    partitionValue=$5
+    scp ${currentDir}/${scriptFile} ${hcatServer}:/tmp/gdm_hcat_test
+    ssh ${hcatServer} "/tmp/gdm_hcat_test/${scriptFile} $tableName $partitionValue"
+    exitCode=`echo $?`
+    exit ${exitCode}
+
     ;;
   add_partition)
     partitionValue=$5

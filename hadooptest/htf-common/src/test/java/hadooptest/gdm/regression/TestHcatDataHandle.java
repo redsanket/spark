@@ -42,6 +42,20 @@ public class TestHcatDataHandle extends TestSession{
         }else{
             TestSession.logger.info("An error occured while adding partition");
         }
+        
+        status = HCatDataHandle.doesPartitionExist("qe6blue", tableName, "201604010101");
+        if(status){
+            TestSession.logger.info("partition exists");
+        }
+        else{
+            TestSession.logger.info("error...");
+        }
+        status = HCatDataHandle.doesPartitionExist("qe6blue", tableName, "20160401010");
+        if(status){
+            TestSession.logger.info("partition rightly doesnt exist");
+        }else{
+            TestSession.logger.info("error...");
+        }
     }
 
 }
