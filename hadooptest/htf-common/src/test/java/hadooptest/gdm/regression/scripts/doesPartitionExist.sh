@@ -13,7 +13,7 @@ export PATH=/home/gs/hadoop/current/bin:/home/y/bin:${PATH}
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
 result=`/home/y/bin/hive -e 'use gdm; show partitions '"${tableName}"';'`
-exists=`echo $result | grep -io "$partitionValue *"`
+exists=`echo $result | grep -io "$partitionValue *$"`
 if [ "$exists" = "" ]
 then
   exit 1
