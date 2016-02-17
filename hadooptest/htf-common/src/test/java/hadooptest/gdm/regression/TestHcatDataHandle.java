@@ -51,7 +51,7 @@ public class TestHcatDataHandle extends TestSession{
             TestSession.logger.info("error...");
         }
         status = HCatDataHandle.doesPartitionExist("qe6blue", tableName, "20160401010");
-        if(status){
+        if(!status){
             TestSession.logger.info("partition rightly doesnt exist");
         }else{
             TestSession.logger.info("error...");
