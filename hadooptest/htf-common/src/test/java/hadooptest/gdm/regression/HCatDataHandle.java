@@ -39,18 +39,19 @@ public class HCatDataHandle {
             {
                 output+=line + "\n";
             }
+            stderrReader.close();
+            stdoutReader.close();
+            TestSession.logger.info("Output from data creation script: " + output);
+            return tableName;
         }
         else{
             while((line = stderrReader.readLine())!=null){
                 output+=line + "\n";
-            }
-            tableName=null;
+            }     
+            stderrReader.close();
+            stdoutReader.close();
+            throw new Exception("Error while creating a new table: " + output);
         }
-        stderrReader.close();
-        stdoutReader.close();
-        TestSession.logger.info("Exit status : " + exitStatus);
-        TestSession.logger.info("Output from data creation script: " + output);
-        return tableName;
     }
     
     static boolean doesTableExist(String clusterName, String tableName) throws Exception{
@@ -112,17 +113,19 @@ public class HCatDataHandle {
             {
                 output+=line + "\n";
             }
+            stderrReader.close();
+            stdoutReader.close();
+            TestSession.logger.info("Output from partition adding script: " + output);
+            return successFlag;
         }
         else{
             while((line = stderrReader.readLine())!=null){
                 output+=line + "\n";
             }
-            successFlag = false;
+            stderrReader.close();
+            stdoutReader.close();
+            throw new Exception("Error while adding partitoin : " + output);
         }
-        stderrReader.close();
-        stdoutReader.close();
-        TestSession.logger.info("Exit status : " + exitStatus);
-        TestSession.logger.info("Output from partition adding script: " + output);
-        return successFlag;
+        
     }
 }
