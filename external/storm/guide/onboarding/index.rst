@@ -37,8 +37,8 @@ Creating a Storm Project
 .. http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
 .. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm  
 
-Create a New Topology
-=====================
+Create a New Project Environment
+================================
 
 The topology you are creating in this section is not the Storm topology defined as a *graph of computation*.
 Instead, you are requesting an instance in a cluster for running your Storm topology. For instance,
@@ -48,17 +48,31 @@ and plan on changing the nomenclature soon.
 
 #. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you 
    a member of or have selected as a favorite. Click the project name to open your project page.
-#. From your project page, click the **New topology** button under the label **Topologies**.
-#. From the **New Topology** page, enter the following information in the form:
+#. From your project page, click the **New Environment** button under the label **Environments**.
+#. From the **New Environment** page, enter the following information in the form:
 
-   - **Topology Name** - Enter a unique string. For the first tutorial, you'll be using logging
-     data from the Rainbow Data Highway,  so you might use a relevant topology name.
-   - **Topology Short Description** - Again, your description should be related to your project.
-     If you are creating a topology for one of the `Tutorials <../tutorials>`_, enter
-     a related description.
    - **Environment Type** - Select **Non-Production**.
    - **Cluster** - Select any of the non-production environments.
-#. Click **Submit New Topology Request**.
+   - **Users** - Add the user or users you will be using to run topologies. For Production environments, topologies
+     *must* be run by headless users, and headless users are still strongly encouraged on Non-Production
+     environments. Given the long running nature of Storm topologies, use of a headless user allows multiple
+     team members and SE to kill and relaunch topologies.
+
+     - **Isolation** - For each user, specify if the user will be isolated or not.  Isolated users run their
+       topologies on dedicated hosts that no other users can use. This is an inefficient way to use a Storm cluster
+       and should be avoided when possible.
+     - **Quotas** - For each user, specify a quota of RAM and vCores, or number of nodes, if isolated.
+       Storm will not allow isolated users to use more nodes than their isolated nodes quota.  However, RAM and
+       CPU quotas for non-isolated users are not strictly enforced at this time.
+
+       - For non-production environments, it is expected you may not yet know your needs.  If so, 24 vCores and
+         96 GB (~1 server) is a good place to start.  It's okay to use more than this as you experiment with
+         Storm and figure out your production needs.
+       - For production environments, it is expected your needs are more well understood.  Exceeding your quota may
+         negatively impact other Storm users and could result in production incidents.  You will be able to request
+         changes to your quotas in future requests.
+
+#. Click **Submit New Environment Request**.
 #. The Grid SEs will review your request before approving it. You also may need to answer questions.
    The entire process can take from three to five working days.
 
