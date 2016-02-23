@@ -394,7 +394,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
@@ -490,7 +490,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
@@ -584,7 +584,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
@@ -688,7 +688,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
@@ -775,7 +775,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
@@ -880,7 +880,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
-                        TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
+                        TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
