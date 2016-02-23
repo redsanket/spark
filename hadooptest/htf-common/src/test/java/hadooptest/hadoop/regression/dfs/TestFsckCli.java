@@ -392,11 +392,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : previousDatanodes) {
 			TestSession.logger.info("a datanode:" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
@@ -489,11 +488,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : reallocatedDatanodes) {
 			TestSession.logger.info("a datanode(2nd time):" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
@@ -584,11 +582,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : previousDatanodes) {
 			TestSession.logger.info("a datanode:" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
@@ -689,11 +686,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : reallocatedDatanodes) {
 			TestSession.logger.info("a datanode(2nd time):" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
@@ -777,11 +773,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : previousDatanodes) {
 			TestSession.logger.info("a datanode:" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
@@ -883,11 +878,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		for (String aDatanode : reallocatedDatanodes) {
 			TestSession.logger.info("a datanode(2nd time):" + aDatanode);
 			Configuration conf = TestSession.cluster.getConf();
-			String[] physicalLocations = conf
-					.getStrings("dfs.datanode.data.dir");
+			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + physicalLocations);
                         TestSession.logger.debug("Hardware correct dfs.datanode.data.dir temporarily");
-                        physicalLocations = "/grid/0/tmp/hadoop-hdfsqa/dfs/data";
+                        String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
 			for (String aPhysicalLoc : physicalLocations) {
 				command = "find " + aPhysicalLoc + "/current/" + blockPoolName
