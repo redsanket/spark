@@ -394,7 +394,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
@@ -491,7 +491,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
@@ -586,7 +586,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
@@ -691,7 +691,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
@@ -779,7 +779,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
@@ -885,7 +885,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			Configuration conf = TestSession.cluster.getConf();
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
-                          conf.getStrings("dfs.datanode.data.dir"));
+                          Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
