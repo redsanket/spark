@@ -17,8 +17,16 @@ public class HCatDataHandle {
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
         
     }
-    
-    static String createTable(String clusterName, String tableName)throws Exception{
+    /*
+     * Creates an hcat table under gdm database on the cluster specified and adds
+     * a partition to it. Also adds dummy data into this partition.
+     * The partition is of type yyyyMMdd
+     * 
+     * @param clusterName - name of the cluster where the table is to be created
+     * @param tableName -  name of the table to be created
+     * @throws Exception
+     */
+    static void createTable(String clusterName, String tableName)throws Exception{
         String[] command = new String [5];
         command[0] = scriptsDirectory + "HCatDataDriver.sh";
         command[1] = scriptsDirectory;
@@ -42,7 +50,6 @@ public class HCatDataHandle {
             stderrReader.close();
             stdoutReader.close();
             TestSession.logger.info("Output from data creation script: " + output);
-            return tableName;
         }
         else{
             while((line = stderrReader.readLine())!=null){
