@@ -395,6 +395,10 @@ public class TestFsckCli extends DfsTestsBaseClass {
 			//String[] physicalLocations = conf.getStrings("dfs.datanode.data.dir");
                         TestSession.logger.debug("The physicalLocations for dfs.datanode.data.dir we got are: " + 
                           Arrays.toString(conf.getStrings("dfs.datanode.data.dir")));
+                        TestSession.logger.debug("Try direct calling conf method for dfs.datanode.data.dir: " + 
+                          TestSession.cluster.getConf().get("dfs.datanode.data.dir"));
+                        TestSession.logger.debug("Check value of hadoop.tmp/dir " + 
+                          TestSession.cluster.getConf().get("hadoop.tmp.dir"));
                         TestSession.logger.debug("Hardwire correct dfs.datanode.data.dir temporarily");
                         String[] physicalLocations = {"/grid/0/tmp/hadoop-hdfsqa/dfs/data"};
 
