@@ -40,6 +40,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 
 public class TestNativeLibs32and64 extends TestSession {
 
@@ -182,8 +183,17 @@ public class TestNativeLibs32and64 extends TestSession {
         //
 	// individual test cases, mix of 32/64 JVM and Libs, plus the default case
         //
-	@Test public void testNativeLibsJVM32Libs32() throws Exception{ testNativeLibsPos("testNativeLibsVM32Libs32", PARAMS_JVM32_NATIVELIB32, PARAMS_DEBUG_ENABLE); }
-	@Test public void testNativeLibsJVM32Libs64() throws Exception{ testNativeLibsNeg("testNativeLibsVM32Libs64", PARAMS_JVM32_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+
+        // skip this test, 32bit JVMs no longer supported
+        @Ignore
+	@Test
+        public void testNativeLibsJVM32Libs32() throws Exception{ testNativeLibsPos("testNativeLibsVM32Libs32", PARAMS_JVM32_NATIVELIB32, PARAMS_DEBUG_ENABLE); }
+
+        // skip this test, 32bit JVMs no longer supported
+        @Ignore
+	@Test
+        public void testNativeLibsJVM32Libs64() throws Exception{ testNativeLibsNeg("testNativeLibsVM32Libs64", PARAMS_JVM32_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
+
 	@Test public void testNativeLibsJVM64Libs32() throws Exception{ testNativeLibsNeg("testNativeLibsVM64Libs32", PARAMS_JVM64_NATIVELIB32, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsJVM64Libs64() throws Exception{ testNativeLibsPos("testNativeLibsVM64Libs64", PARAMS_JVM64_NATIVELIB64, PARAMS_DEBUG_ENABLE); }
 	@Test public void testNativeLibsDefault()    throws Exception{ testNativeLibsDefault("testNativeLibsDefault", PARAMS_JVMDEFAULT_NATIVELIBDEFAULT, PARAMS_DEBUG_ENABLE); }
