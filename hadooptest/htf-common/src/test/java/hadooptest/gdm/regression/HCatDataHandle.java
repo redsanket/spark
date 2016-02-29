@@ -13,6 +13,7 @@ public class HCatDataHandle {
     private static final String ADD_PARTITION_COMMAND = "add_partition";
     private static final String DOES_PARTITION_EXIST_COMMAND = "partition_exists";
     private static final String CREATE_TABLE_ONLY_COMMAND = "create_table_only";
+    private static final String DRIVER_SCRIPT = "HCatDataDriver.sh";
     private static String scriptsDirectory;
     static{
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
@@ -29,7 +30,7 @@ public class HCatDataHandle {
      */
     static void createTable(String clusterName, String tableName)throws Exception{
         String[] command = new String [5];
-        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         
@@ -64,7 +65,7 @@ public class HCatDataHandle {
     
     static void createTableOnly(String clusterName, String tableName) throws Exception{
         String[] command = new String [5];
-        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         
@@ -99,7 +100,7 @@ public class HCatDataHandle {
     
     static boolean doesTableExist(String clusterName, String tableName) throws Exception{
         String[] command = new String[5];
-        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         command[3] = tableName;
@@ -117,7 +118,7 @@ public class HCatDataHandle {
     
     static boolean doesPartitionExist(String clusterName, String tableName, String partitionValue) throws Exception{
         String[] command = new String[6];
-        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         command[3] = tableName;
@@ -136,7 +137,7 @@ public class HCatDataHandle {
     
     static boolean addPartition(String clusterName, String tableName, String partitionValue) throws Exception{
         String[] command = new String[6];
-        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
         command[2] = clusterName;
         command[3] = tableName;
