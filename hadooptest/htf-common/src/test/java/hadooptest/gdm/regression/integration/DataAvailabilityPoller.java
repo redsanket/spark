@@ -257,15 +257,14 @@ public class DataAvailabilityPoller {
 					}*/ 
 				gdmVersion = this.checkGDMHealthCheckup();
 
-                                oozieVersion = getOozieVersion();
+				oozieVersion = getOozieVersion();
 				TestSession.logger.debug("oozieVersion returned: " + oozieVersion);
-                                if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
-                                    oozieStatus = "active~" + oozieVersion;
-				    TestSession.logger.debug("oozieStatus is: " + oozieStatus);
-                                }
-                                else {
-                                    oozieStatus = "down~0.0";
-                                }
+				if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
+					oozieStatus = "active~" + oozieVersion;
+					TestSession.logger.debug("oozieStatus is: " + oozieStatus);
+				} else {
+					oozieStatus = "down~0.0";
+				}
 				
 				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
@@ -1153,7 +1152,7 @@ public class DataAvailabilityPoller {
 	public String getPigVersion() {
 		return this.currentPigVersion;
 	}
-
+	
 	/**
 	 * Get the oozie version
 	 * @return
@@ -1163,16 +1162,23 @@ public class DataAvailabilityPoller {
 		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + kINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
 		String outputResult = this.executeCommand(getOozieVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
+		String oozieVersion = "0.0";
 
-                // the version cmd returns an error string about CA Cert store not exist with a ':', screws up the version 
-                // collection, need to increment the field we are looking for
-		java.util.List<String>outputList = Arrays.asList(outputResult.split(":"));
-		for ( String str : outputList) {
+		// the version cmd returns an error string about CA Cert store not exist with a ':', screws up the version 
+		// collection, need to increment the field we are looking for
+		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
+		for ( int i = 0; i < outputList.size() ; i++) {
+			String str = outputList.get(i);
 			TestSession.logger.info(str);
+			int indexOf = str.indexOf("Oozie client build version:");
+			TestSession.logger.info("indexOf = " + indexOf);
+			if (indexOf > -1) {
+				String temp = str.substring((str.indexOf(":") + 1), str.length()).trim();
+				oozieVersion = temp;
+				TestSession.logger.info("oozieVersion = " + oozieVersion);
+				break;
+			}
 		}
-		List<String> tempList = Arrays.asList(outputList.get(2).trim());
-		String oozieVersion = tempList.get(tempList.size() - 1);
-		TestSession.logger.info("Oozie Version - " + oozieVersion);
 		return oozieVersion;
 	}
 
