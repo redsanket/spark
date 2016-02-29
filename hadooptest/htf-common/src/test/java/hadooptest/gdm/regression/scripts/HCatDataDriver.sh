@@ -35,5 +35,11 @@ case $command in
     scp ${currentDir}/part-0000 ${hcatServer}:/tmp/gdm_hcat_test
     ssh ${hcatServer} "/tmp/gdm_hcat_test/${scriptFile} $tableName $partitionValue"
     ;;
+  create_table_only)
+    echo "Creating this hcat table : " $tableName "on server : " $hcatServer  
+    scriptFile="createTableOnly.sh"
+    scp ${currentDir}/${scriptFile} ${hcatServer}:/tmp/gdm_hcat_test
+    ssh ${hcatServer} "/tmp/gdm_hcat_test/${scriptFile} $tableName"
+    ;;
 esac
 

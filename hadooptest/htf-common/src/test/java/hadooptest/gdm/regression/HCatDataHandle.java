@@ -12,6 +12,7 @@ public class HCatDataHandle {
     private static final String DOES_TABLE_EXIST_COMMAND = "table_exists";
     private static final String ADD_PARTITION_COMMAND = "add_partition";
     private static final String DOES_PARTITION_EXIST_COMMAND = "partition_exists";
+    private static final String CREATE_TABLE_ONLY_COMMAND = "create_table_only";
     private static String scriptsDirectory;
     static{
         scriptsDirectory = System.getProperty("user.dir") + "/src/test/java/hadooptest/gdm/regression/scripts/";
@@ -34,6 +35,41 @@ public class HCatDataHandle {
         
         command[3] = tableName;
         command[4] = CREATE_COMMAND;
+        ProcessBuilder pb = new ProcessBuilder(command);
+        Process p = pb.start();
+        BufferedReader stderrReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getErrorStream())));
+        BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getInputStream())));
+        p.waitFor();
+        int exitStatus = p.exitValue();
+        String line;
+        String output="";
+        if(exitStatus == 0){
+            while((line = stdoutReader.readLine())!=null)
+            {
+                output+=line + "\n";
+            }
+            stderrReader.close();
+            stdoutReader.close();
+            TestSession.logger.info("Output from data creation script: " + output);
+        }
+        else{
+            while((line = stderrReader.readLine())!=null){
+                output+=line + "\n";
+            }     
+            stderrReader.close();
+            stdoutReader.close();
+            throw new Exception("Error while creating a new table: " + output);
+        }
+    }
+    
+    static void createTableOnly(String clusterName, String tableName) throws Exception{
+        String[] command = new String [5];
+        command[0] = scriptsDirectory + "HCatDataDriver.sh";
+        command[1] = scriptsDirectory;
+        command[2] = clusterName;
+        
+        command[3] = tableName;
+        command[4] = CREATE_TABLE_ONLY_COMMAND;
         ProcessBuilder pb = new ProcessBuilder(command);
         Process p = pb.start();
         BufferedReader stderrReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getErrorStream())));
