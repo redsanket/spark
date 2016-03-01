@@ -658,7 +658,7 @@ public class DataAvailabilityPoller {
 				fileContent = fileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", this.getPipeLineInstance() + "/" + this.getFeedResult() + "/"  );
 				fileContent = fileContent.replaceAll("HCAT_SERVER_NAME", this.getOozieHostName() );
 				fileContent = fileContent.replaceAll("JOB_TRACKER_HOST_NAME", jobTrackerHostName );
-				fileContent = fileContent.replaceAll("NAME_NODE_HOST_NAME", nameNodeHostName );
+				fileContent = fileContent.replaceAll("NAMENODE_HOST_NAME", nameNodeHostName );
 				
 				System.out.println("fileContent  = " + fileContent);
 

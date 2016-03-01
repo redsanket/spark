@@ -16,8 +16,8 @@ IN_TABLE=test_abf_PageValidNews
 HCAT_URI=thrift://HCAT_SERVER_NAME:9080/
 HCAT_PRINCIPAL=dfsload/HCAT_SERVER_NAME@DEV.YGRID.YAHOO.COM
 
-nameNode=hdfs://NAME_NODE_HOST_NAME:8020
-sourceNameNode=hdfs://NAME_NODE_HOST_NAME:8020
+nameNode=hdfs://NAMENODE_HOST_NAME:8020
+sourceNameNode=hdfs://NAMENODE_HOST_NAME:8020
 jobTracker=JOB_TRACKER_HOST_NAME:8032
 queueName=default
 
