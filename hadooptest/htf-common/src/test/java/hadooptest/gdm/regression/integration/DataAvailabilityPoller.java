@@ -87,20 +87,19 @@ public class DataAvailabilityPoller {
 	private void setCurrentFeedName(String feedName) {
 		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ;
 	}
-
-	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType , String oozieHostName , String hcatHostName , String pullOozieJobLength) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	
+	public DataAvailabilityPoller(int maxPollTime , String clusterName , String basePath  , String filePattern , String operationType, String pullOozieJobLength) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		this.maxPollTime = maxPollTime;
 		this.clusterName = clusterName;
 		this.directoryPath = basePath;
 		this.filePattern  = filePattern;
 		this.operationType = operationType;
-		this.oozieHostName = oozieHostName;
-		this.hcatHostName = hcatHostName;
 		this.pullOozieJobLength = Integer.parseInt(pullOozieJobLength);
 		this.createDB();
+		this.getHcatServerName();
 		this.searchDataAvailablity = new SearchDataAvailablity(this.clusterName , this.directoryPath , this.filePattern , this.operationType);
 	}
-
+	
 	public void createDB() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		this.dbOperations = new DataBaseOperations();
 		this.dbOperations.createDB();
@@ -154,18 +153,6 @@ public class DataAvailabilityPoller {
 
 		boolean isDataAvailable = false;
 		this.isOozieJobCompleted = false;
-
-	/*	String sComponents =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
-		this.stackComponent = Arrays.asList(sComponents.split(","));*/
-
-		// start namenode thread demon
-		/*  commented intensionally : TODO need to get the scope for this.
-		 * 	this.nameNodeTheadDemonObject = new NameNodeTheadDemon();
-		this.nameNodeTheadDemonObject.startNameNodeTheadDemon();*/
-
-		// start namenode dfs memory demon
-		/*this.nameNodeDFSMemoryDemonObject = new NameNodeDFSMemoryDemon();
-		this.nameNodeDFSMemoryDemonObject.startNameNodeDFSMemoryDemon();*/
 		while (toDay <= lastDay) {
 			Date d = new Date();
 			long initTime = Long.parseLong(sdf.format(d));
@@ -239,32 +226,16 @@ public class DataAvailabilityPoller {
 				String oozieVersion = "";
 				String gdmVersion = "";
 				
-				
-				/*if (sComponent.toUpperCase().equals("HBASE")) {
-						hbaseMasterResult = this.getHBaseHealthCheck().trim();
-						int regionalServerStatus = this.getHBaseRegionalServerHealthCheckup();
-						TestSession.logger.info("hbaseResult = " + hbaseMasterResult);
-
-						// if either hbase master or hbase regional server are down, mark hbase as down
-						// TODO : Need to find a way to say that which service is down on the front end
-
-						if (hbaseMasterResult.equals("down") || regionalServerStatus == 0) {
-							hbaseMasterResult = hbaseMasterResult + "~0.0"; 
-						} else {
-							this.hbaseHealthStatus = true;
-							hbaseVersion = Arrays.asList(hbaseMasterResult.split("~")).get(1).trim();
-						}
-					}*/ 
 				gdmVersion = this.checkGDMHealthCheckup();
-
-				oozieVersion = getOozieVersion();
+                oozieVersion = getOozieVersion();
 				TestSession.logger.debug("oozieVersion returned: " + oozieVersion);
-				if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
-					oozieStatus = "active~" + oozieVersion;
-					TestSession.logger.debug("oozieStatus is: " + oozieStatus);
-				} else {
-					oozieStatus = "down~0.0";
-				}
+                if ( !oozieVersion.isEmpty() && oozieVersion != null ) {
+                    oozieStatus = "active~" + oozieVersion;
+                    TestSession.logger.debug("oozieStatus is: " + oozieStatus);
+                }
+                else {
+                    oozieStatus = "down~0.0";
+                }
 				
 				this.pigHealthStatus = this.checkPigHealthCheckup();
 				if (this.pigHealthStatus == true) {
@@ -300,7 +271,6 @@ public class DataAvailabilityPoller {
 
 				if (hcatHealthStatus == true) {
 					hcatStatus = "active~" + hcatVersion;
-					//componentCount++; // since hcat is executed as part of hive this line is purposefully commented out
 				} else {
 					hcatStatus = "down~0.0";
 				}
@@ -325,7 +295,7 @@ public class DataAvailabilityPoller {
 				String hadoopVersion = this.getHadoopVersion();
 
 				// insert version into health_checkup table.
-				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , oozieStatus, pigStatus, hbaseMasterResult , tezStatus, hiveStatus , hcatStatus,gdmVersion);
+				this.dbOperations.insertHealthCheckInfoRecord(con1 , dt , nameNodeCurrentState + "~" + currentHadoopVersion , oozieStatus,pigStatus,hbaseMasterResult,tezStatus,hiveStatus,hcatStatus,gdmVersion);
 				con1.close();
 
 				// job started.
@@ -335,8 +305,8 @@ public class DataAvailabilityPoller {
 				TestSession.logger.info("testType  = " + testType);
 				
 				// add start state to the user stating that job has started for the current frequency.
-				this.dbOperations.insertRecord(this.currentFeedName, testType, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , pigStatus , oozieVersion , hbaseVersion 
-						, tezVersion, hiveStatus  ,hcatStatus, gdmVersion);
+				this.dbOperations.insertRecord(this.currentFeedName, testType, "hourly", JobState.STARTED,  String.valueOf(initTime), this.searchDataAvailablity.getState().toUpperCase().trim() , hadoopVersion , 
+						pigStatus, oozieVersion, hbaseVersion, tezVersion, hiveStatus, hcatStatus, gdmVersion);
 				initialCal = null;
 				salStartCal = null;
 
@@ -403,7 +373,6 @@ public class DataAvailabilityPoller {
 
 					// update db saying that data is AVAILABLE
 					this.dbOperations.updateRecord(this.con , "dataAvailable" , "AVAILABLE" , "currentStep" , "dataAvailable", this.currentFeedName);
-					
 					final int THREAD_COUNT =  componentCount;
 					Thread myThreadArray[] = new Thread[THREAD_COUNT];
 					
@@ -419,14 +388,6 @@ public class DataAvailabilityPoller {
 						// update tez result, if health checkup fails
 						integrateTez.updateTezResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
 					}
-					
-					
-/*					if (this.tezHealthStatus == true) {
-						myThreadArray[0] = new Thread(integrateTez);			
-					}else {
-//						// update tez result, if health checkup fails
-						integrateTez.updateHBaseResultIntoDB("tez" ,"FAIL~MR_JOB~START_TIME~END_TIME" , this.getCurrentFeedBasePath());
-					}*/
 					
 					if (this.hiveHealthStatus == true) {
 						IntegrateHive integrateHiveObj = new IntegrateHive();
@@ -461,7 +422,7 @@ public class DataAvailabilityPoller {
 
 							// delete table if exists
 							integrateHBaseObject.deleteHBaseIntegrationTable();
-							
+
 							// create HBase table
 							integrateHBaseObject.createHBaseIntegrationTable();
 							if (integrateHBaseObject.isHBaseTableCreated() == true ) {
@@ -475,22 +436,9 @@ public class DataAvailabilityPoller {
 							}
 						}
 					}
-					
-					
-					/*for ( int i= 0; i< myThreadArray.length;i++) {
-						TestSession.logger.info("*************************************************************************************************");
-						TestSession.logger.info("*****************************************started " + i  + " thread ********************************************************");
-						myThreadArray[i].start();
-						TestSession.logger.info("*************************************************************************************************");
-						
-					}
-					
-					for ( int i= 0;i<myThreadArray.length;i++) {
-						myThreadArray[i].join();
-					}*/
-
+	
 					TestSession.logger.info("dataCollectorHostName  = " + hcatHostName);
-					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + hcatHostName + ":/tmp/";
+					String command = "scp "  + "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties"  + "   " + this.getOozieHostName() + ":/tmp/";
 					String outputResult = this.executeCommand(command);
 					if (outputResult.contains(this.currentFrequencyHourlyTimeStamp + "-job.properties")) {
 						TestSession.logger.info(this.currentFrequencyHourlyTimeStamp + "-job.properties" + "  file copied successfully.");
@@ -500,14 +448,17 @@ public class DataAvailabilityPoller {
 
 					// set state to START_OOZIE_JOB
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
-/*					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
+					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 
 						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
 						TestSession.logger.info("oozieCommand  = " + oozieCommand);
 
-						this.oozieJobID = this.executeCommand(oozieCommand);
-						TestSession.logger.info("-- oozieJobID = " + this.oozieJobID );
-						assertTrue("" , this.oozieJobID.startsWith("job:"));
+						String tempOozieJobID = this.executeCommand(oozieCommand);
+						TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
+						int indexOfJobIdOutput = tempOozieJobID.indexOf("job:");
+						assertTrue("Failed to get the job id   - indexOfJobIdOutput = " + indexOfJobIdOutput , indexOfJobIdOutput > -1 );
+						this.oozieJobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
+						TestSession.logger.info("-- oozieJobID = " + oozieJobID );
 
 						// update db saying that oozie job is started.
 						this.dbOperations.updateRecord(this.con , "oozieJobStarted" , "STARTED" , "currentStep" , "oozieJobStarted" , this.currentFeedName);
@@ -516,7 +467,6 @@ public class DataAvailabilityPoller {
 						TestSession.logger.info("*************************************************************************************************************************************************");
 						this.oozieJobResult = this.pollOozieJob(this.oozieJobID , oozieWorkFlowName);
 					}
-*/
 				}
 			}
 
@@ -675,6 +625,22 @@ public class DataAvailabilityPoller {
 	 * @throws IOException
 	 */
 	private void createJobPropertiesFile(String propertyFilePath) throws IOException {
+		
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		
+		// get the jobtracker hostname
+		String commandJobTrackerName = "yinst range -ir \"(@grid_re.clusters." + clusterName + ".jobTracker)\"";
+		String jobTrackerHostName =  this.executeCommand(commandJobTrackerName).trim();
+		TestSession.logger.info("jobTrackerHostName  = " + jobTrackerHostName);
+		
+		// get the namenode host name
+		String nameNodeHostNameCommand =  "yinst range -ir \"(@grid_re.clusters." + clusterName + ".namenode)\"";
+		String nameNodeHostName =  this.executeCommand(nameNodeHostNameCommand).trim();
+		TestSession.logger.info("nameNodeHostName  = " + nameNodeHostName);
+		
+		TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ");
+		TestSession.logger.info("hcatHostName  = " + this.getHCatHostName().trim());
+		TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ");
 
 		String absolutePath = new File("").getAbsolutePath();
 		System.out.println("Absolute Path =  " + absolutePath);
@@ -690,6 +656,10 @@ public class DataAvailabilityPoller {
 				fileContent = fileContent.replaceAll("ADD_INSTANCE_DATE_TIME", this.getCurrentFrequencyValue());
 				fileContent = fileContent.replaceAll("ADD_INSTANCE_PATH", this.getOozieWfApplicationPath() );
 				fileContent = fileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", this.getPipeLineInstance() + "/" + this.getFeedResult() + "/"  );
+				fileContent = fileContent.replaceAll("HCAT_SERVER_NAME", this.getOozieHostName() );
+				fileContent = fileContent.replaceAll("JOB_TRACKER_HOST_NAME", jobTrackerHostName );
+				fileContent = fileContent.replaceAll("NAME_NODE_HOST_NAME", nameNodeHostName );
+				
 				System.out.println("fileContent  = " + fileContent);
 
 				// write the string into the file.
@@ -806,10 +776,14 @@ public class DataAvailabilityPoller {
 		String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +  "curl  -s --negotiate -u :  -H \\\"Content-Type: application/xml;charset=UTF-8\\\"  " 
 				+ "http://" + this.oozieHostName + ":4080/oozie/v2/job/" + jobIdValue   + "?timezone=GMT" + "\"";
 		TestSession.logger.info("command - " + oozieCommand);
-		String oozieResult = this.executeCommand(oozieCommand);
-		TestSession.logger.info("oozieResult = " + oozieResult); 
-		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(oozieResult.toString());
-		TestSession.logger.info("\n \n \n JSONObject jsonResponse   =  "  + obj.toString() );
+		String  tempOozieResult= this.executeCommand(oozieCommand);
+		TestSession.logger.info("tempOozieResult = " + tempOozieResult);
+		
+		// Remove any extra string before the json response
+		String  oozieResult = tempOozieResult.substring( (tempOozieResult.indexOf("{\"appName\":") ) , tempOozieResult.length());
+		TestSession.logger.info("oozieResult  = " + oozieResult);
+		JSONObject obj =  (JSONObject) JSONSerializer.toJSON(oozieResult.toString().trim());
+		TestSession.logger.info("\n \n \n JSONObject jsonResponse   =  "  + obj.toString());
 
 		String jobStartedTime = obj.getString("startTime");
 		String jobEndedTime = obj.getString("endTime");
@@ -1152,20 +1126,23 @@ public class DataAvailabilityPoller {
 	public String getPigVersion() {
 		return this.currentPigVersion;
 	}
-	
+
 	/**
 	 * Get the oozie version
 	 * @return
 	 */
 	public String getOozieVersion() {
-		String integrationOozieHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.oozieHostName");
+
+		// get the cluster name and get the stack components hostname dynamically.
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName + ".oozie)\"";
+		TestSession.logger.info("command = " + command);
+		String integrationOozieHostName  = this.executeCommand(command).trim();
 		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + kINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
 		String outputResult = this.executeCommand(getOozieVersionCommand);
+		this.setOozieHostName(integrationOozieHostName);
 		TestSession.logger.info("outputResult = " + outputResult);
 		String oozieVersion = "0.0";
-
-		// the version cmd returns an error string about CA Cert store not exist with a ':', screws up the version 
-		// collection, need to increment the field we are looking for
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
 		for ( int i = 0; i < outputList.size() ; i++) {
 			String str = outputList.get(i);
@@ -1175,6 +1152,9 @@ public class DataAvailabilityPoller {
 			if (indexOf > -1) {
 				String temp = str.substring((str.indexOf(":") + 1), str.length()).trim();
 				oozieVersion = temp;
+				if (oozieVersion == null) {
+					fail("Failed to get the oozie version " + oozieVersion);
+				}
 				TestSession.logger.info("oozieVersion = " + oozieVersion);
 				break;
 			}
@@ -1245,5 +1225,31 @@ public class DataAvailabilityPoller {
 			gdmVersion = "active~"+applicationSummary.get("build.version");
 		}
 		return gdmVersion;
+	}
+	
+	
+	public void setOozieHostName(String oozieHostName) {
+		this.oozieHostName = oozieHostName;
+	}
+	
+	public String getOozieHostName() {
+		return this.oozieHostName;
+	}
+	
+	public void setHCatHostName(String hcatServerName) { 
+		this.hcatHostName = hcatServerName;
+	}
+	
+	public String getHCatHostName() {
+		return this.hcatHostName;
+	}
+	
+	public String getHcatServerName() {
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		String command = "yinst range -ir \"(@grid_re.clusters." + clusterName + ".hive)\"";
+		String hcatServerName = this.executeCommand(command).trim();
+		TestSession.logger.info("hcatServerName = " + hcatServerName);;
+		this.setHCatHostName(hcatServerName);
+		return hcatServerName;
 	}
 }
