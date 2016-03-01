@@ -16,7 +16,8 @@ public interface DBCommands {
 			+ "startTime VARCHAR(50)  DEFAULT 'START_TIME' , "
 			+ "currentStep VARCHAR(25)  DEFAULT 'UNKNOWN' , "
 			+ "status VARCHAR(25)  DEFAULT 'UNKNOWN' , "
-			+ "endTime VARCHAR(50) DEFAULT 'END_TIME' , " 
+			+ "endTime VARCHAR(50) DEFAULT 'END_TIME' , "
+			+ "totalExecutionTime VARCHAR(1000) DEFAULT 'END_TIME' , "
 			+ "dataAvailable VARCHAR(50) DEFAULT 'UNKNOWN' , "  // this will cover DATA_AVAILABE , DATA_INCOMPLETE, MISSED_SLA
 			+ "oozieJobStarted VARCHAR(50) DEFAULT 'UNKNOWN' , " 
 			+ "cleanUpOutput VARCHAR(1000) DEFAULT 'UNKNOWN' , " 

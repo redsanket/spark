@@ -5,6 +5,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,24 +81,13 @@ public class TestWatchForDataDrop extends TestSession {
 			} 
 		}
 
-		String oozieServerName =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.oozieHostName");
-		if (oozieServerName != null) {
-			this.oozieHostName = oozieServerName;
-			TestSession.logger.info("oozie Host Name - " + oozieHostName);
-		}
-
-		String hcatServerName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hcatHostName");
-		if (hcatServerName != null ) {
-			this.hcatHostName = hcatServerName;
-			TestSession.logger.info("Hcat Host Name - " + hcatHostName);
-		}
-
 		String jobPullLength = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pullOozieJobLength");
 		if (jobPullLength != null) {
 			TestSession.logger.info("jobPullLength  = " + jobPullLength);
 			this.pullOozieJobLength = jobPullLength;
 		}
-		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling" , this.oozieHostName , this.hcatHostName , this.pullOozieJobLength);
+		
+		this.watcher = new DataAvailabilityPoller(this.duration , this.clusterName , this.BASEPATH , this.pathPattern , "polling" , this.pullOozieJobLength);
 	}
 
 	@Test

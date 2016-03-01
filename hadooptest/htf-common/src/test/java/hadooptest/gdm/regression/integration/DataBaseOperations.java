@@ -40,7 +40,6 @@ public class DataBaseOperations {
 	public void createDB() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		Class.forName(DRIVER).newInstance();
 		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" ,"root","");
-		//Connection con = DriverManager.getConnection("jdbc:mysql://dev-corp-rw.yds.corp.yahoodns.net/" ,"hadoopqa","");
 		if (con != null ) {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate(DBCommands.CREATE_DB); 
@@ -63,8 +62,6 @@ public class DataBaseOperations {
 	public Connection getConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		Class.forName(DRIVER).newInstance();
 		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.DB_NAME  ,"root","");
-		//Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + "integration_test"  ,"root","");
-		//Connection con = DriverManager.getConnection("jdbc:mysql://" + DB_HOST_NAME + "/" +  DB_NAME  ,DB_USER_NAME , DB_PASS_WORD);
 		if (con != null ) {
 			return con;
 		} else {
