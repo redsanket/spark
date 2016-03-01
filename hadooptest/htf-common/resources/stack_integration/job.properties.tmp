@@ -9,16 +9,16 @@ pig_script=pig_abf_input_PageValidNews.pig
 hive_script=hive_storage_abf.sql
 #hive_script_verify_data=hive_verify.sql
 hive_script_verify_data=hive_verify_abf.sql
-hcat_server=dense34.blue.ygrid.yahoo.com:3306
+hcat_server=HCAT_SERVER_NAME:3306
 IN_DB=testdb
 #IN_TABLE=test_table1
 IN_TABLE=test_abf_PageValidNews
-HCAT_URI=thrift://dense34.blue.ygrid.yahoo.com:9080/
-HCAT_PRINCIPAL=dfsload/dense34.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+HCAT_URI=thrift://HCAT_SERVER_NAME:9080/
+HCAT_PRINCIPAL=dfsload/HCAT_SERVER_NAME@DEV.YGRID.YAHOO.COM
 
-nameNode=hdfs://gsbl90101.blue.ygrid.yahoo.com:8020
-sourceNameNode=hdfs://gsbl90101.blue.ygrid.yahoo.com:8020
-jobTracker=dense39.blue.ygrid.yahoo.com:8032
+nameNode=hdfs://NAMENODE_HOST_NAME:8020
+sourceNameNode=hdfs://NAMENODE_HOST_NAME:8020
+jobTracker=JOB_TRACKER_HOST_NAME:8032
 queueName=default
 
 my_outputDir=ADD_INSTANCE_OUTPUT_PATH
