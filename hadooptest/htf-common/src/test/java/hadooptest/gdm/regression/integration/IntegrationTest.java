@@ -287,7 +287,7 @@ public class IntegrationTest  extends TestSession {
 			List<String> dataPathList = checkClusterHealthObject.getPathsList();
 			if (checkClusterHealthObject.isDataRequiredToClean() && safeMode == false) {
 				for ( String dataPath : dataPathList)
-				checkClusterHealthObject.deletePath(dataPath);
+					checkClusterHealthObject.deletePath(dataPath);
 			}
 		}
 	}
