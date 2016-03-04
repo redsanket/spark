@@ -170,7 +170,7 @@ public class IntegrationTest  extends TestSession {
 				
 				Calendar dataSetCal = Calendar.getInstance();
 				long dataSetHourlyTimeStamp =  Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
-				this.dataSetName = "Integration_Testing_DS_Test_" + dataSetHourlyTimeStamp + "00";
+				this.dataSetName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
 				System.out.println("dataSetName  = " + this.dataSetName);
 				
 				initialCal = null;
