@@ -13,7 +13,9 @@ import hadooptest.cluster.gdm.HCatHelper;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
+import hadooptest.gdm.regression.integration.clusterHealth.CheckClusterHealth;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,13 +100,15 @@ public class IntegrationTest  extends TestSession {
 			}
 		}
 		
-		
 		// TODO this is not the right solution, to modify the dataset xml file and add the target like below.
 		// i should have read the dataset xml file and add the new target node to the targets node. Will implement once new pipeline is working.
 		if (this.targetClusterList.size() >= 1) {
 			this.destinationCluster1 = this.targetClusterList.get(0);
 			this.destinationCluster2 = this.targetClusterList.get(1);
 		}
+		
+		// check for cluster health checkup.
+		this.checkClusterHealth();
 		
 		String dur = GdmUtils.getConfiguration("testconfig.IntegrationTest.duration");
 		if ( dur != null ) {
@@ -271,6 +275,21 @@ public class IntegrationTest  extends TestSession {
 			return instanceDates;
 		}
 		return null;
+	}
+	
+	public void checkClusterHealth() throws IOException {
+		CheckClusterHealth checkClusterHealthObject = new CheckClusterHealth();
+		for ( String clusterName : this.targetClusterList) {
+			checkClusterHealthObject.setClusterName(clusterName);
+			checkClusterHealthObject.checkClusterMode();
+			boolean safeMode = checkClusterHealthObject.getClusterMode();
+			TestSession.logger.info("cluster mode = " + safeMode);
+			List<String> dataPathList = checkClusterHealthObject.getPathsList();
+			if (checkClusterHealthObject.isDataRequiredToClean() && safeMode == false) {
+				for ( String dataPath : dataPathList)
+					checkClusterHealthObject.deletePath(dataPath);
+			}
+		}
 	}
 
 	public void tearDown() {
