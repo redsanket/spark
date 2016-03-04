@@ -161,7 +161,7 @@ public class CheckClusterHealth {
 	 */
 	public Configuration getConfForRemoteFS() throws IOException {
 		Configuration conf = new Configuration(true);
-		String namenodeWithChangedSchemaAndPort = this.PROCOTOL + this.getClusterNameNode() + ":" + HadooptestConstants.Ports.HDFS;
+		String namenodeWithChangedSchemaAndPort = this.PROCOTOL + this.getClusterNameNode() ;
 		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
 		conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
 		conf.set("hadoop.security.authentication", "Kerberos");
@@ -215,7 +215,7 @@ public class CheckClusterHealth {
 				TestSession.logger.info(path.toString() + " path does not exists.");
 			}
 		} else {
-			TestSession.logger.error("Failed to create an instance of ");
+			TestSession.logger.error("Failed to create an instance of FileSystem.");
 		}
 		return flag;
 	}
@@ -234,8 +234,10 @@ public class CheckClusterHealth {
 				// save script output to log
 				TestSession.logger.info("Command exit value: " + result.getLeft());
 				TestSession.logger.info(result.getRight());
+			} else {
+				TestSession.logger.info("Failed to run the command - " + command);
+				throw new RuntimeException("Exception" );
 			}
-			throw new RuntimeException("Exception" );
 		} else {
 			output = result.getRight();
 			TestSession.logger.info("log = " + output);
