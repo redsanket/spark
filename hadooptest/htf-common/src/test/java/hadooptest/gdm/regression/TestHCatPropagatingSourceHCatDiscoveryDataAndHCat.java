@@ -48,6 +48,15 @@ public class TestHCatPropagatingSourceHCatDiscoveryDataAndHCat extends TestSessi
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
+        
+        boolean isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(sourceCluster);
+        if (!isHCatSupported) {
+            this.consoleHandle.modifyDataSource(sourceCluster, "HCatSupported", "FALSE", "TRUE");
+        }
+        isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(targetCluster);
+        if (!isHCatSupported) {
+            this.consoleHandle.modifyDataSource(targetCluster, "HCatSupported", "FALSE", "TRUE");
+        }
     }
     
     @Test 
