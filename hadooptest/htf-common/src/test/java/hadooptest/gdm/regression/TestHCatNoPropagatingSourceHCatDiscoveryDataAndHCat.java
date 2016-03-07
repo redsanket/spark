@@ -53,6 +53,15 @@ public class TestHCatNoPropagatingSourceHCatDiscoveryDataAndHCat extends TestSes
         //since the source isn't being propagated 
         //the target needs to have this table.
         HCatDataHandle.createTableOnly(targetCluster,tableName);
+        
+        boolean isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(sourceCluster);
+        if (!isHCatSupported) {
+            this.consoleHandle.modifyDataSource(sourceCluster, "HCatSupported", "FALSE", "TRUE");
+        }
+        isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(targetCluster);
+        if (!isHCatSupported) {
+            this.consoleHandle.modifyDataSource(targetCluster, "HCatSupported", "FALSE", "TRUE");
+        }
     }
     
     @Test 
