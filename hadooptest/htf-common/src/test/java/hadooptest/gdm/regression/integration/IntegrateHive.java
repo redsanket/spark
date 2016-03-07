@@ -15,8 +15,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import hadooptest.TestSession;
+import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 
@@ -34,6 +39,9 @@ public class IntegrateHive  /*implements Runnable*/ {
 	private boolean tableCreated = false;
 	private boolean dataLoadedToHive = false;
 	private String currentFeedName;
+	private String hdfsHivePath;
+	private String nameNodeHostName;
+	private static final String PROCOTOL = "hdfs://";
 	private final static String HADOOP_HOME="export HADOOP_HOME=/home/gs/hadoop/current";
 	private final static String JAVA_HOME="export JAVA_HOME=/home/gs/java/jdk64/current/";
 	private final static String HADOOP_CONF_DIR="export HADOOP_CONF_DIR=/home/gs/conf/current";
@@ -54,8 +62,12 @@ public class IntegrateHive  /*implements Runnable*/ {
 		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
 		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
 		this.consoleHandle = new ConsoleHandle();
+		
+		String nameNodeHostNameCommand =  "yinst range -ir \"(@grid_re.clusters." + clusterName + ".namenode)\"";
+		String nameNodeName =  this.executeCommand(nameNodeHostNameCommand).trim();
+		this.setClusterNameNodeName(nameNodeName);
 	}
-
+	
 	public IntegrateHive(String currentFeedName , String dataPath ) { 
 		this.currentFeedName = currentFeedName;
 		this.dataPath = dataPath;
@@ -71,6 +83,100 @@ public class IntegrateHive  /*implements Runnable*/ {
 		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
 		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
 		this.consoleHandle = new ConsoleHandle();
+		
+		String nameNodeHostNameCommand =  "yinst range -ir \"(@grid_re.clusters." + clusterName + ".namenode)\"";
+		String nameNodeName =  this.executeCommand(nameNodeHostNameCommand).trim();
+		this.setClusterNameNodeName(nameNodeName);
+	}
+	
+	public void setClusterNameNodeName(String nameNodeName) {
+		this.nameNodeHostName = nameNodeName.trim();
+	}
+	
+	public String getClusterNameNodeName() {
+		return this.nameNodeHostName;
+	}
+	
+	/**
+	 * Returns the remote cluster configuration object.
+	 * @param aUser  - user
+	 * @param nameNode - name of the cluster namenode. 
+	 * @return
+	 * @throws IOException 
+	 */
+	public Configuration getConfForRemoteFS() throws IOException {
+		Configuration conf = new Configuration(true);
+		String namenodeWithChangedSchemaAndPort = this.PROCOTOL + this.getClusterNameNodeName();
+		TestSession.logger.info("For HDFS set the namenode to:[" + namenodeWithChangedSchemaAndPort + "]");
+		conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
+		conf.set("hadoop.security.authentication", "Kerberos");
+		UserGroupInformation.setConfiguration(conf);
+		UserGroupInformation.loginUserFromKeytab(HadooptestConstants.UserNames.DFSLOAD, HadooptestConstants.Location.Keytab.DFSLOAD);
+		TestSession.logger.info(conf);
+		return conf;
+	}
+	
+	public void checkForHiveDataFolderAndDelete() throws IOException {
+		this.hdfsHivePath = "hdfs://" + this.getClusterNameNodeName() + "/" + this.getDataPath() + "/hiveData" ;
+		TestSession.logger.info("this.hdfsHivePath  " + this.hdfsHivePath );
+		if (this.isPathExists(this.hdfsHivePath) == true) {
+			TestSession.logger.info( this.hdfsHivePath + " path does exists.");
+			if (this.deletePath(this.hdfsHivePath) == true) {
+				TestSession.logger.info( this.hdfsHivePath + " path is deleted successfully.");
+			} else {
+				TestSession.logger.info(" failed to delete " + this.hdfsHivePath );
+			}
+		} else {
+			TestSession.logger.info( this.hdfsHivePath + " path does not exists.");
+		}
+	}
+	
+	/**
+	 * Delete the given path
+	 * @param path path to be deleted
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean deletePath(String dataPath) throws IOException {
+		boolean isPathDeleted = false;
+		Configuration configuration = this.getConfForRemoteFS();
+		FileSystem hdfsFileSystem = FileSystem.get(configuration);
+		if (hdfsFileSystem != null) {
+			if (isPathExists(dataPath)) {
+				Path path = new Path(dataPath);
+				isPathDeleted =  hdfsFileSystem.delete(path, true);
+				if (isPathDeleted == true) {
+					TestSession.logger.info(dataPath + " is deleted successfully");
+				} else {
+					TestSession.logger.info("Failed to delete " + dataPath);
+				}
+			}
+		} else {
+			TestSession.logger.error("Failed to instance of FileSystem ");
+		}
+		return isPathDeleted;
+	}
+	/**
+	 * Check whether the given path exists.
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public  boolean isPathExists(String dataPath) throws IOException {
+		boolean flag = false;
+		Configuration configuration = this.getConfForRemoteFS();
+		FileSystem hdfsFileSystem = FileSystem.get(configuration);
+		if (hdfsFileSystem != null) {
+			Path path = new Path(dataPath);
+			if (hdfsFileSystem.exists(path)) {
+				flag = true;
+			} else {
+				TestSession.logger.info(path.toString() + " path does not exists.");
+			}
+		} else {
+			TestSession.logger.error("Failed to create an instance of ");
+		}
+		return flag;
 	}
 	
 /*	@Override
