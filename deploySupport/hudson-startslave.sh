@@ -275,6 +275,7 @@ done
 # stack component install settings
 [ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
 [ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
+[ -z "$STACK_COMP_INSTALL_PIG" ] && export STACK_COMP_INSTALL_PIG=false
 
 
 ## HIT test pkg
