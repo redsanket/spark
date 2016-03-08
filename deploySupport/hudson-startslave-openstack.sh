@@ -375,6 +375,22 @@ fi
 fetch_artifacts
 
 #################################################################################
+# CHECK IF NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY 
+#################################################################################
+# gridci-747 install pig on gw
+
+if [ "$STACK_COMP_INSTALL_PIG" == true ]; then
+
+  ./pig-install-check.sh $CLUSTER
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Pig component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Pig component on Gateway"
+fi
+
+#################################################################################
 # CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
 #################################################################################
 # gridci-481 install hive server and client
