@@ -253,6 +253,7 @@ done
 # stack component install settings
 [ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
 [ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
+[ -z "$STACK_COMP_INSTALL_PIG" ] && export STACK_COMP_INSTALL_PIG=false
 
 
 ## HIT test pkg
@@ -373,6 +374,22 @@ if [ "$CLEANUP_ON_EXIT" = "true" ]; then
 fi
 
 fetch_artifacts
+
+#################################################################################
+# CHECK IF NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY 
+#################################################################################
+# gridci-747 install pig on gw
+
+if [ "$STACK_COMP_INSTALL_PIG" == true ]; then
+
+  ./pig-install-check.sh $CLUSTER
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Pig component installer failed!"
+  fi
+
+else
+  echo "INFO: Not installing Pig component on Gateway"
+fi
 
 #################################################################################
 # CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
