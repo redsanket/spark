@@ -170,7 +170,7 @@ public class DataAvailabilityPoller {
 				this.pigHealthStatus = false;
 
 				TestSession.logger.info("------- hr has started..! -------------");
-
+				
 				Calendar currentTimeStampCal = Calendar.getInstance();
 				String currentHrFrequency = feed_sdf.format(currentTimeStampCal.getTime());
 				this.setCurrentFrequencyValue(currentHrFrequency);
@@ -268,7 +268,6 @@ public class DataAvailabilityPoller {
 				
 				boolean hcatHealthStatus = integrateHiveObj.isHCatDeployed();
 				String hcatVersion = integrateHiveObj.getHCatVersion();
-
 				if (hcatHealthStatus == true) {
 					hcatStatus = "active~" + hcatVersion;
 				} else {
@@ -397,6 +396,7 @@ public class DataAvailabilityPoller {
 						integrateHiveObj.setDataPath(this.getCurrentFeedBasePath());
 						integrateHiveObj.setCurrentFeedName(this.currentFeedName);
 						integrateHiveObj.setPigVersion(this.getPigVersion());
+						integrateHiveObj.checkForHiveDataFolderAndDelete();
 						integrateHiveObj.modifyPigFile();
 						integrateHiveObj.modifyLoadDataIntoHiveScript();
 						integrateHiveObj.modifyFetchDataUsingHCatalogFile();
@@ -483,7 +483,7 @@ public class DataAvailabilityPoller {
 			TestSession.logger.info("Next data polling will start @ " + futureMin   + "  and  current  time = " + initTime);
 		}
 	}
-
+	
 	/**
 	 * Check whethe HBase Master is up or down. If the hbase master is up it returns the value as "active~" + hbase version.
 	 * @return
