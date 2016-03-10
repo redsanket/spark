@@ -50,7 +50,7 @@ public class IntegrateHive  /*implements Runnable*/ {
 	public static final String PIG_HOME = "export PIG_HOME=/home/y/share/pig";
 	private final static String PATH_COMMAND = "export PATH=$PATH:";
 
-	public IntegrateHive() {		
+	public IntegrateHive() {
 		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
 		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName  +".hive)\"";
 		String hName = this.executeCommand(command).trim();
@@ -486,8 +486,7 @@ public class IntegrateHive  /*implements Runnable*/ {
 	}
 	
 	public synchronized void fetchDataUsingHCat() {
-		String command =  this.initialCommand  + this.PIG_HOME + ";"  + PATH_COMMAND + "; pig -useHCatalog  -Dpig.additional.jars=/home/y/libexec/hive/lib/*.jar:/home/y/share/sharelib/lib/hive-"+ this.getHiveVersion() +"/*.jar:/home/y/libexec/hive/lib/*.jar:/home/y/libexec/hive/auxlib/jdo-api*.jar   -x mapreduce " +
-				this.getHiveScriptLocation() + "/FetchHiveDataUsingHCatalog.pig" + "\" " ;
+		String command =  this.initialCommand  + this.PIG_HOME + ";"  + PATH_COMMAND + "; pig -useHCatalog -x mapreduce " + this.getHiveScriptLocation() + "/FetchHiveDataUsingHCatalog.pig" + "\" " ;
 		TestSession.logger.info("command   = " + command);
 		String  absolutePath = new File("").getAbsolutePath();
 		File file = new File(absolutePath + "/resources/stack_integration/hive/FetchHiveDataUsingHCatalog.pig");
