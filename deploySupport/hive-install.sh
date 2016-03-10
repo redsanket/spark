@@ -56,11 +56,11 @@ mysql -u root < sql_setup.sql
 yinst install hbase
 yinst install cloud_messaging_client -branch current
 #yinst install hcat_server
-# gridci-649 use test branch
-yinst install hive -branch test
-yinst install hive_conf -branch test
+# gridci-765 use current branch
+yinst install hive -branch current
+yinst install hive_conf -branch current
 yinst install yjava_oracle_jdbc_wrappers -branch test
-yinst install hcat_server -branch test
+yinst install hcat_server -branch current
 
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
 yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
