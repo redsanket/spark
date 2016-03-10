@@ -10,7 +10,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+
 import hadooptest.TestSession;
+import hadooptest.gdm.regression.integration.DataBaseOperations;
 
 import java.io.File;
 import java.sql.*;
@@ -25,6 +27,7 @@ public class SendIntegrationReportMail {
 	private static final String TO = "hadoop-hit@yahoo-inc.com";
 	private static final String FROM = "hadoopqa@yahoo-inc.com";
 	private static final String SMTP = "mtarelay.ops.yahoo.net";
+	private DataBaseOperations dbOperations;
 	
 	public static void main(String... args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException, MessagingException {
 		SendIntegrationReportMail obj = new SendIntegrationReportMail();
@@ -94,22 +97,10 @@ public class SendIntegrationReportMail {
 		return null;
 	}
 
-	public Connection getConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		final String DRIVER = "com.mysql.jdbc.Driver";
-		final String DB_NAME = "integration_test";
-		Class.forName(DRIVER).newInstance();
-		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DB_NAME, "root", "");
-		if (con != null) {
-			return con;
-		} else {
-			TestSession.logger.info("Failed to open  the connection.");
-			return con;
-		}
-	}
-
 	public String getRecords() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
 		StringBuilder tableBuilder = null;
-		Connection con = this.getConnection();
+		this.dbOperations = new DataBaseOperations();
+		Connection con = this.dbOperations.getConnection();
 		String QUERY = "SELECT distinct * FROM integration_test where dataSetName like \"%" + this.getTodaysDate() + "%\"  order by dataSetName desc limit 3";
 		System.out.println("QUERY  - " + QUERY);
 		if (con != null) {
