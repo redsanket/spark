@@ -211,13 +211,13 @@ yinst set ygrid_sharelib.pkg_hadoop=hadoopcoretree-$HADOOP_VERSION \
 yinst set ygrid_sharelib.oozie_tag_distcp=hdfs:///tmp/ygrid_sharelib_dir/hadoop/hadoopcoretree-$HADOOP_VERSION/share/hadoop/share/hadoop/tools/lib/hadoop-distcp-$HADOOP_VERSION.jar \
   ygrid_sharelib.oozie_tag_streaming=hdfs:///tmp/ygrid_sharelib_dir/hadoop/hadoopcoretree-$HADOOP_VERSION/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-$HADOOP_VERSION.jar
 ##
-yinst set ygrid_sharelib.oozie_tag_hcat_current=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hcat_latest=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hcat_05=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib
+yinst set ygrid_sharelib.oozie_tag_hcat_current=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
+  ygrid_sharelib.oozie_tag_hcat_latest=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
+  ygrid_sharelib.oozie_tag_hcat_05=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib
 ##
-yinst set ygrid_sharelib.oozie_tag_hive_current=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hive_latest=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hive_10=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/auxlib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib
+yinst set ygrid_sharelib.oozie_tag_hive_current=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
+  ygrid_sharelib.oozie_tag_hive_latest=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
+  ygrid_sharelib.oozie_tag_hive_10=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib
 ##
 yinst set ygrid_sharelib.oozie_tag_pig_current=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
   ygrid_sharelib.oozie_tag_pig_latest=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
