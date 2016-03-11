@@ -18,3 +18,9 @@ echo "INFO: Pig node being installed: $PIGNODE"
 yinst install pig -br current
 yinst set pig.PIG_HOME=/home/y/share/pig
 
+# make the grid links for pig
+PIGVERSION=`yinst ls | grep pig-`
+echo PIGVERSION=$PIGVERSION
+
+yinst install ygrid_pig_multi -br current -set ygrid_pig_multi.CURRENT=$PIGVERSION -same -live
+
