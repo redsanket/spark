@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import com.google.common.base.Splitter;
@@ -36,6 +38,7 @@ import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.integration.metrics.NameNodeDFSMemoryDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeTheadDemon;
 import hadooptest.gdm.regression.integration.metrics.NameNodeThreadInfo;
+import hadooptest.gdm.regression.integration.report.SendIntegrationReportMail;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -83,6 +86,7 @@ public class DataAvailabilityPoller {
 	private final static String HIVE_SITE_FILE_LOCATION = "/home/y/libexec/hive/conf/hive-site.xml";
 	private final static Map <String,String> columnName = new HashMap<String,String>(); 
 	private final static int DAY=0,HOUR=1,MIN=2,SEC=3,MILL_SEC=4;
+	private final static int INTEGRATION_REPORT_HOUR = 15;
 
 	private void setCurrentFeedName(String feedName) {
 		this.currentFeedName = "Integration_Testing_DS_" + this.getCurrentFrequencyValue() ;
@@ -170,6 +174,19 @@ public class DataAvailabilityPoller {
 				this.pigHealthStatus = false;
 
 				TestSession.logger.info("------- hr has started..! -------------");
+				
+				// send integration daily report @ 9 AM for the last 3 hours result.
+				Calendar reportCalendar = Calendar.getInstance();
+				reportCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+				int currentHr = reportCalendar.get(Calendar.HOUR_OF_DAY);
+				if (currentHr == INTEGRATION_REPORT_HOUR)  {
+					SendIntegrationReportMail sendIntegrationReportMailObject = new SendIntegrationReportMail();
+					try {
+						sendIntegrationReportMailObject.sendMail();
+					} catch (MessagingException e) {
+						e.printStackTrace();
+					}
+				}
 				
 				Calendar currentTimeStampCal = Calendar.getInstance();
 				String currentHrFrequency = feed_sdf.format(currentTimeStampCal.getTime());
