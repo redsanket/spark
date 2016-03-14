@@ -439,7 +439,10 @@ public class IntegrateHive  /*implements Runnable*/ {
 			String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 			String nameNode_Name = this.consoleHandle.getClusterNameNodeName(clusterName);
 			String fileContent = new String(readAllBytes(get(loadDataToHiveScriptPath.toString())));
-			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
+			
+			// following line is commented out due to HADOOPPF-10338
+			//fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
+			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name);
 			fileContent = fileContent.replaceAll("FILEPATH", this.getDataPath());
 			
 			TestSession.logger.info( loadDataToHiveScriptPath.toString() + "  fileContent = " + fileContent);
