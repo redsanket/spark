@@ -17,6 +17,10 @@ object SparkHackJetty{
 
     val conf = new SparkConf().setAppName("SparkHackJetty")
     conf.set("spark.broadcast.factory", "org.apache.spark.broadcast.HttpBroadcastFactory")
+    // disable the external shuffle service since we are turning auth off in some cases
+    // and we will fail to authenticate with it otherwise
+    conf.set("spark.shuffle.service.enabled", "false")
+    conf.set("spark.dynamicAllocation.enabled", "false")
     if (turnSecurityOff) { 
       conf.set("spark.authenticate", "false")
     }
