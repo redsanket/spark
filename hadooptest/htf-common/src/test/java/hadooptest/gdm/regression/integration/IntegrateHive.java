@@ -440,9 +440,8 @@ public class IntegrateHive  /*implements Runnable*/ {
 			String nameNode_Name = this.consoleHandle.getClusterNameNodeName(clusterName);
 			String fileContent = new String(readAllBytes(get(loadDataToHiveScriptPath.toString())));
 			
-			// following line is commented out due to HADOOPPF-10338
-			//fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
-			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name);
+			// Remove the port number after HADOOPPF-10338 is fixed
+			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
 			fileContent = fileContent.replaceAll("FILEPATH", this.getDataPath());
 			
 			TestSession.logger.info( loadDataToHiveScriptPath.toString() + "  fileContent = " + fileContent);
