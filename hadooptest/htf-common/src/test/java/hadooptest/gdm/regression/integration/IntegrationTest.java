@@ -31,6 +31,9 @@ import net.sf.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * TestCase : To create a set of dataset for a given duration like a day(s).
@@ -55,6 +58,7 @@ public class IntegrationTest  extends TestSession {
 	private List<String> feedList;
 	private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private WorkFlowHelper workFlowHelper;
+	private CreateIntegrationDataSet createIntegrationDataSetObj;
 	private HCatHelper hcatHelperObject = null;
 	private String HCAT_TYPE =  "DataOnly" ;
 	private static final String TARGET_START_TYPE_MIXED = "Mixed";
@@ -100,12 +104,9 @@ public class IntegrationTest  extends TestSession {
 			}
 		}
 		
-		// TODO this is not the right solution, to modify the dataset xml file and add the target like below.
-		// i should have read the dataset xml file and add the new target node to the targets node. Will implement once new pipeline is working.
-		if (this.targetClusterList.size() >= 1) {
-			this.destinationCluster1 = this.targetClusterList.get(0);
-			this.destinationCluster2 = this.targetClusterList.get(1);
-		}
+		createIntegrationDataSetObj = new CreateIntegrationDataSet();
+        createIntegrationDataSetObj.setHcatType(TARGET_START_TYPE_DATAONLY);
+        createIntegrationDataSetObj.setTargeList(this.targetClusterList);
 		
 		// check for cluster health checkup.
 		this.checkClusterHealth();
@@ -170,13 +171,12 @@ public class IntegrationTest  extends TestSession {
 				
 				Calendar dataSetCal = Calendar.getInstance();
 				long dataSetHourlyTimeStamp =  Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
-				this.dataSetName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
-				System.out.println("dataSetName  = " + this.dataSetName);
+				
+				createIntegrationDataSetObj.createDataSet();
+				this.dataSetName = createIntegrationDataSetObj.getDataSetName();
+				this.modifyDataSet();
 				
 				initialCal = null;
-				
-				// create  a dataset
-				this.createDataSet();
 				
 				// activate the dataset
 				this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
@@ -212,16 +212,11 @@ public class IntegrationTest  extends TestSession {
 		}
 	}
 	
-	/**
-	 * Create a dataset specification configuration file.
-	 */
-	private void createDataSet() {
-		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/ABFHcatDataSet.xml");
+	private void modifyDataSet() {
+		String dataSetConfigFile = createIntegrationDataSetObj.getDataSetPath();
+		TestSession.logger.info("modifyDataSet()  =  dataSetConfigFile  = " + dataSetConfigFile);
 		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
-		
-		// removed the dependency on base dataset.
-		dataSetXml = dataSetXml.replaceAll("TARGET1_NAME", this.destinationCluster1 );
-		dataSetXml = dataSetXml.replaceAll("TARGET2_NAME", this.destinationCluster2);
+		TestSession.logger.info(dataSetXml);
 		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
 		dataSetXml = dataSetXml.replaceAll("FEED_NAME", "temp" );
 		dataSetXml = dataSetXml.replaceAll("FEED_STATS", "temp" + "_stats" );
@@ -230,7 +225,7 @@ public class IntegrationTest  extends TestSession {
 		dataSetXml = dataSetXml.replace("ABF-DATA-PATH", this.ABF_DATA_PATH + "%{date}");
 		dataSetXml = dataSetXml.replace("HCAT_TABLE_NAME", this.dataSetName);
 		dataSetXml = dataSetXml.replaceAll("DATABASE_NAME", this.DATABASE_NAME);
-
+		
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
 		if (response.getStatusCode() != SUCCESS) {
 			try {
