@@ -17,7 +17,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class CreateIntegrationDataSet {
 
@@ -28,7 +31,6 @@ public class CreateIntegrationDataSet {
     private String dataSetName = null;
     private String dataSetPath;
     private List<String> targeList;
-
     
     public CreateIntegrationDataSet() {
     	String absolutePath = new File("").getAbsolutePath();
@@ -57,11 +59,11 @@ public class CreateIntegrationDataSet {
             e.printStackTrace();
         }
     }
-    
 
     public void setDataSetPath(String dataSetPath) {
     	this.dataSetPath = dataSetPath;
     }
+    
     public String getDataSetPath() {
     	return this.dataSetPath;
     }
@@ -153,7 +155,11 @@ public class CreateIntegrationDataSet {
         OutputFormat outputFormat = new OutputFormat();
         outputFormat.setIndenting(true);
         String absoultePath = new File("").getAbsolutePath();
-        String dSName = "Integration_Testing_DS_" + System.currentTimeMillis() + "00";
+        Calendar dataSetCal = Calendar.getInstance();
+        SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
+        feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
+        String dSName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
         this.setDataSetName(dSName);
         String newDataSetXml = absoultePath + "/resources/gdm/datasetconfigs/" + this.getDataSetName() + ".xml";
         TestSession.logger.info("newDataSetXml  = " + newDataSetXml);
