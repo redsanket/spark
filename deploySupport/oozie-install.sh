@@ -248,9 +248,9 @@ yinst set hive.tez_version=$TEZ_VERSION
 # create oozie tmp path and chmod to 755 in order to allow hadoopqa to submit jobs 
 #
 echo "Going to create and chmod hdfs /tmp/oozie to 755 so hadoopqa can submit jobs"
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir /tmp/oozie
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/oozie
 EC=$?
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chown hadoopqa /tmp/oozie
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chown -R hadoopqa /tmp/oozie
 RC=$?
 EC=$((EC+RC))
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /tmp/oozie
