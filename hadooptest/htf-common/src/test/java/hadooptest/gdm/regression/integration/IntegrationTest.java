@@ -171,17 +171,21 @@ public class IntegrationTest  extends TestSession {
 				
 				Calendar dataSetCal = Calendar.getInstance();
 				long dataSetHourlyTimeStamp =  Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
-				
-				createIntegrationDataSetObj.createDataSet();
-				this.dataSetName = createIntegrationDataSetObj.getDataSetName();
-				this.modifyDataSet();
+				this.dataSetName = getDataSetName();
+				if (!checkDataSetAlreadyExists()) {
+					createIntegrationDataSetObj.createDataSet();
+					this.modifyDataSet();
+					
+					// activate the dataset
+					this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
+					this.consoleHandle.sleep(40000);
+					
+				} else {
+					TestSession.logger.info(this.getDataSetName() + " dataSet already exists...");
+				}
 				
 				initialCal = null;
-				
-				// activate the dataset
-				this.consoleHandle.checkAndActivateDataSet(this.dataSetName);
-				this.consoleHandle.sleep(40000);
-				String datasetActivationTime = GdmUtils.getCalendarAsString();
+				String datasetActivationTime = GdmUtils.getCalendarAsString();	
 
 				// check for replication workflow is success for each instance
 				for (String date : dates ) {
@@ -210,6 +214,28 @@ public class IntegrationTest  extends TestSession {
 			TestSession.logger.info("This is " + this.freq  + "  feed. Feed will be started " + this.freq);
 			TestSession.logger.info("Next workflow will start @ " + futureMin   + "  Current  time = " + initTime);
 		}
+	}
+
+	/**
+	 * Check whether dataSet for the current hour is already created.
+	 * @return return true if dataset already exists else return false
+	 */
+	public boolean checkDataSetAlreadyExists() {
+		List<String> dataSetNameList = this.consoleHandle.getAllDataSetName();
+		return dataSetNameList.contains(this.dataSetName.trim());
+	}
+	
+	/**
+	 * Return the current hour dataSetName
+	 * @return
+	 */
+	public String getDataSetName() {
+		Calendar dataSetCal = Calendar.getInstance();
+		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
+		feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
+		String dSName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
+		return dSName;
 	}
 	
 	private void modifyDataSet() {
