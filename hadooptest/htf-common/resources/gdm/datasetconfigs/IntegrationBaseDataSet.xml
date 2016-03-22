@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="gdm-dataset-Test-ABF-with-hcat"
+    name="NEW_DATA_SET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <UGI group="users" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>80</DiscoveryFrequency>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
+    <Paths>
+        <Path location="ABF-DATA-PATH" type="data"/>
+        <Path location="ABF-DATA-PATH" type="count"/>
+        <Path location="ABF-DATA-PATH" type="schema"/>
+    </Paths>
+    <Parameters/>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="SOURCE_NAME" switchovertype="Standard"/>
+    </Sources>
+    <DataFlow/>
+    <Targets/>
+    <HCat>
+     	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatPartitionDataPathMask>$instancedate/$pagivity/$validity/$property</HCatPartitionDataPathMask>
+        <HCatPartitionKeys>instancedate,pagivity,validity,property</HCatPartitionKeys>
+        <HCatSchemaFile>_abf_v1.jr</HCatSchemaFile>
+        <HCatSchemaFormat>Record</HCatSchemaFormat>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
+        <HCatTableName>HCAT_TABLE_NAME</HCatTableName>
+    </HCat>
+</DataSet>
