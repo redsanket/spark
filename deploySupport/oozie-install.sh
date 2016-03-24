@@ -245,15 +245,16 @@ yinst set hive.tez_version=$TEZ_VERSION
 
 
 #
-# create oozie tmp path and chmod to 755 in order to allow hadoopqa to submit jobs 
+# create oozie tmp path and chmod to 777 in order to allow hadoopqa to submit jobs 
+# and oozie user to restart
 #
-echo "Going to create and chmod hdfs /tmp/oozie to 755 so hadoopqa can submit jobs"
+echo "Going to create and chmod hdfs /tmp/oozie to 777 so hadoopqa and oozie users can access"
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/oozie
 EC=$?
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chown -R hadoopqa /tmp/oozie
 RC=$?
 EC=$((EC+RC))
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /tmp/oozie
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /tmp/oozie
 RC=$?
 EC=$((EC+RC))
 if [ $EC -ne 0 ]; then
