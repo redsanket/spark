@@ -246,6 +246,19 @@ fanoutTezUI() {
   return $st
 }
 
+fanoutSpark() {
+  echo 'fanoutSpark: start on ' `date +%H:%M:%S`
+  if [ -z $gateway ]; then
+     echo ERROR: Not define grid_re.clusters.$cluster.gateway
+     return 1
+  fi
+  SPARK_NODE=`echo $gateway | tr ' ' ,`
+  $PDSH_SLOW -w "$SPARK_NODE" $*
+  st=$?
+  echo 'fanoutSpark: end on ' `date +%H:%M:%S`
+  return $st
+}
+
 fanoutGW() {
    # echo fanoutGW: running "$@" 
 

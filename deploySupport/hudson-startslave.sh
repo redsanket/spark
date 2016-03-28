@@ -141,6 +141,11 @@ then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -c11-28`
 fi
 
+if [ ! -z "$SPARK_DIST_TAG" ]
+then
+    export SPARKVERSION=`dist_tag list $SPARK_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+fi
+
 if [ ! -z "$AUTO_CREATE_RELEASE_TAG" ]
 then
     if [ $AUTO_CREATE_RELEASE_TAG = 1 ] && [ ! -z "$HADOOP_RELEASE_TAG" ]
@@ -167,6 +172,7 @@ echo "===  Hadoop Version (full)='$FULLHADOOPVERSION'"
 echo "===  Hadoop Version (short)='$HADOOPVERSION'"
 echo "===  HADOOP_27='$HADOOP_27'"
 [ -n $TEZVERSION ] && echo "===  Tez Version='$TEZVERSION'"
+[ -n $SPARKVERSION ] && echo "===  Spark Version='$SPARKVERSION'"
 echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
 echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
 echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
@@ -245,6 +251,7 @@ done
 [ -z "$INSTALL_TEZ" ] && export INSTALL_TEZ=false
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
+[ -z "$SPARKVERSION" ] && export SPARKVERSION=none
 [ -z "$PIGVERSION" ] && export PIGVERSION=none
 [ -z "$OOZIEVERSION" ] && export OOZIEVERSION=none
 [ -z "$OOZIE_SERVER" ] && export OOZIE_SERVER=default
@@ -276,6 +283,7 @@ done
 [ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
 [ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
 [ -z "$STACK_COMP_INSTALL_PIG" ] && export STACK_COMP_INSTALL_PIG=false
+[ -z "$STACK_COMP_INSTALL_SPARK" ] && export STACK_COMP_INSTALL_SPARK=false
 
 
 ## HIT test pkg
