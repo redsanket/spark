@@ -71,9 +71,9 @@ done
   fi
 
 
-# kinit as hadoopqa, the hadoopqa keytab should already be there from the Configure job
-#kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
-kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
+# kinit as dfsload to allow hdfs setup 
+kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
+#kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
 
 #
 # create sharelib base path for ygrid_sharelib package 
