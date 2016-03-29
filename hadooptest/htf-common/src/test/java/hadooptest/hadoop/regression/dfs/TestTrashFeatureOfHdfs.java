@@ -567,7 +567,7 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 
 		}
 		// wait up to 5 minutes for NN to be out of safemode 
-                for (waitCounter = 0; waitCounter < 30; waitCounter++) {
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
 		  genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
 				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
 				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
@@ -632,7 +632,7 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 		skipRemovingDotTrashInAfterMethod = true;
 
 		// wait up to 5 minutes for NN to be out of safemode 
-                for (waitCounter = 0; waitCounter < 30; waitCounter++) {
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
                   genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
