@@ -14,10 +14,10 @@ echo "INFO: Spark node being installed: $gateway"
 echo "INFO: Spark version being installed: $SPARKVERSION"
 
 # Install Spark
-cmd="yinst i yspark_yarn_install -br current \
+if [ $SPARKVERSION != none ] && [ $STACK_COMP_INSTALL_SPARK != false ]; then
+   cmd="yinst i yspark_yarn_install -br current \
    -set yspark_yarn_install.DOT_SIX=yspark_yarn-$SPARKVERSION \
    -set yspark_yarn_install.LATEST=yspark_yarn-$SPARKVERSION \
    -same -live"
-
-fanoutSpark "$cmd"
-
+   fanoutSpark "$cmd"
+fi
