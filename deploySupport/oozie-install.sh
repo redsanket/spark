@@ -71,9 +71,8 @@ done
   fi
 
 
-# kinit as dfsload to allow hdfs setup 
-kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
-#kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
+# kinit as hadoopqa to allow hdfs /user/hadoopqa/.staging setup 
+kinit -k -t ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM
 
 #
 # create sharelib base path for ygrid_sharelib package 
@@ -243,6 +242,16 @@ yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=true \
 #yinst set hive.metastore_kerberos_principal=hadoopqa/openqe53blue-n4.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 yinst set hive.tez_version=$TEZ_VERSION
 
+# 
+# start oozie server
+#
+# this takes a while
+yinst restart ygrid_sharelib
+yinst restart yoozie
+
+
+# kinit as dfsload for hdfs /tmp/oozie setup
+kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
 #
 # create oozie tmp path and chmod to 777 in order to allow hadoopqa to submit jobs 
@@ -263,9 +272,3 @@ if [ $EC -ne 0 ]; then
 fi
 
 
-#
-# start oozie server
-#
-# this takes a while
-yinst restart ygrid_sharelib
-yinst restart yoozie
