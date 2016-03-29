@@ -1,4 +1,4 @@
-# script to install pig on the cluster's gateway node
+# script to install spark on the cluster's gateway node
 #
 # inputs: cluster being installed
 # outputs: 0 on success
