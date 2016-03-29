@@ -581,7 +581,7 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
                   }
                   else
                   {
-                    sleep(10000);
+                    Thread.sleep(10000);
                   }
                 }
 
@@ -646,7 +646,7 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
                   }
                   else
                   {
-                    sleep(10000);
+                    Thread.sleep(10000);
                   }
                 }
 
