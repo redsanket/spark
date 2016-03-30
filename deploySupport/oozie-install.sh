@@ -263,16 +263,20 @@ kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.C
 echo "Going to create and chmod hdfs /tmp/oozie to 777 so hadoopqa and oozie users can access"
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/oozie
 EC=$?
+if [ $EC -ne 0 ]; then echo "Failed to mkdir /tmp/oozie!"; fi
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chown  hadoopqa /tmp/oozie
 RC=$?
 EC=$((EC+RC))
+if [ $RC -ne 0 ]; then echo "Failed to chown /tmp/oozie!"; fi
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /tmp/oozie
 RC=$?
 EC=$((EC+RC))
+if [ $RC -ne 0 ]; then echo "Failed to chmod /tmp/oozie!"; fi
 # open /user/hive perms for multiple users
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /user/hive 
 RC=$?
 EC=$((EC+RC))
+if [ $RC -ne 0 ]; then echo "Failed to chmod /user/hive!"; fi
 if [ $EC -ne 0 ]; then
   echo "ERROR: hdfs create or chmod paths failed!" 
   exit 1
