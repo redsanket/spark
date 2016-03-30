@@ -30,6 +30,7 @@ public class IntegrateTez  /*implements Runnable*/ {
 	private boolean tezTested;
 	private String tezHostname;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
+	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
 	public static final String INTEGRATION_JAR="/tmp/integration_test_files/lib/*.jar";
 	public static final String PIG_HOME = "/home/y/share/pig";
 	public static final String TEZ_HOME = "/home/gs/tez/current/";
@@ -111,7 +112,7 @@ public class IntegrateTez  /*implements Runnable*/ {
 	}
 	
 	public String getKinitCommand() {
-		String kinitCommand = kINIT_COMMAND;
+		String kinitCommand = HADOOPQA_KINIT_COMMAND;
 		TestSession.logger.info("kinit command - " + kinitCommand);
 		return kinitCommand;
 	}

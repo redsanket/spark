@@ -9,7 +9,7 @@
     <Contact consumer="gdm-dev@yahoo-inc.com"
         owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
     <Comments>GDM automated test dataset built by deploy scripts.</Comments>
-    <UGI group="users" permission="755"/>
+    <UGI group="users" permission="777"/>
     <RunAsOwner/>
     <Frequency>daily</Frequency>
     <DiscoveryFrequency>80</DiscoveryFrequency>

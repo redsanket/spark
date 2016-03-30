@@ -46,6 +46,7 @@ public class IntegrateHive  /*implements Runnable*/ {
 	private final static String JAVA_HOME="export JAVA_HOME=/home/gs/java/jdk64/current/";
 	private final static String HADOOP_CONF_DIR="export HADOOP_CONF_DIR=/home/gs/conf/current";
 	private final static String KNITI = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
+	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
 	private final static String HIVE_VERSION_COMMAND = "hive --version";
 	public static final String PIG_HOME = "export PIG_HOME=/home/y/share/pig";
 	private final static String PATH_COMMAND = "export PATH=$PATH:";
@@ -60,7 +61,7 @@ public class IntegrateHive  /*implements Runnable*/ {
 		Calendar calendar = Calendar.getInstance();
 		Date d = new Date();
 		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
-		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
+		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + HADOOPQA_KINIT_COMMAND  + ";" ;
 		this.consoleHandle = new ConsoleHandle();
 		
 		String nameNodeHostNameCommand =  "yinst range -ir \"(@grid_re.clusters." + clusterName + ".namenode)\"";
@@ -81,7 +82,7 @@ public class IntegrateHive  /*implements Runnable*/ {
 		Calendar calendar = Calendar.getInstance();
 		Date d = new Date();
 		this.setHiveScriptLocation("/tmp/IntegrationTestingHiveScript_" + simpleDateFormat.format(d));
-		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + KNITI  + ";" ;
+		this.initialCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.hiveHostName + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + HADOOPQA_KINIT_COMMAND  + ";" ;
 		this.consoleHandle = new ConsoleHandle();
 		
 		String nameNodeHostNameCommand =  "yinst range -ir \"(@grid_re.clusters." + clusterName + ".namenode)\"";
@@ -441,7 +442,8 @@ public class IntegrateHive  /*implements Runnable*/ {
 			String fileContent = new String(readAllBytes(get(loadDataToHiveScriptPath.toString())));
 			
 			// Remove the port number after HADOOPPF-10338 is fixed
-			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
+			//fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name + ":8020");
+			fileContent = fileContent.replaceAll("NAME_NODE_NAME", "hdfs://" + nameNode_Name );
 			fileContent = fileContent.replaceAll("FILEPATH", this.getDataPath());
 			
 			TestSession.logger.info( loadDataToHiveScriptPath.toString() + "  fileContent = " + fileContent);

@@ -77,6 +77,7 @@ public class DataAvailabilityPoller {
 	private DataBaseOperations dbOperations;
 	private List<String> stackComponent ;
 	private final static String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
+	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
 	private final static String FEED_INSTANCE = "20130309";
 	private final static String FEED_NAME = "bidded_clicks";
 	private final static String PIPE_LINE_INSTANCE = "/tmp/test_stackint/Pipeline";
@@ -467,7 +468,7 @@ public class DataAvailabilityPoller {
 					this.searchDataAvailablity.setState("START_OOZIE_JOB");
 					if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 
-						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
+						String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.HADOOPQA_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
 						TestSession.logger.info("oozieCommand  = " + oozieCommand);
 
 						String tempOozieJobID = this.executeCommand(oozieCommand);
@@ -790,7 +791,7 @@ public class DataAvailabilityPoller {
 		String mrJobValue = null;
 		JSONObject finalFailedJSONObject = null;
 		boolean flag = false;
-		String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.kINIT_COMMAND + ";"  +  "curl  -s --negotiate -u :  -H \\\"Content-Type: application/xml;charset=UTF-8\\\"  " 
+		String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.HADOOPQA_KINIT_COMMAND + ";"  +  "curl  -s --negotiate -u :  -H \\\"Content-Type: application/xml;charset=UTF-8\\\"  " 
 				+ "http://" + this.oozieHostName + ":4080/oozie/v2/job/" + jobIdValue   + "?timezone=GMT" + "\"";
 		TestSession.logger.info("command - " + oozieCommand);
 		String  tempOozieResult= this.executeCommand(oozieCommand);
@@ -1085,7 +1086,7 @@ public class DataAvailabilityPoller {
 		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 		ConsoleHandle consoleHandle = new ConsoleHandle();
 		String integrationNameNodeHostName = consoleHandle.getClusterNameNodeName(clusterName);
-		String getHadoopVersionCommand = "ssh " + integrationNameNodeHostName  + " \"" + kINIT_COMMAND + ";" + "hadoop version\"";
+		String getHadoopVersionCommand = "ssh " + integrationNameNodeHostName  + " \"" + HADOOPQA_KINIT_COMMAND + ";" + "hadoop version\"";
 		String outputResult = this.executeCommand(getHadoopVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
@@ -1117,7 +1118,7 @@ public class DataAvailabilityPoller {
 		String pigHostName = this.executeCommand(command).trim();
 		TestSession.logger.info("pigHostName -  " + pigHostName);
 
-		String getPigVersionCommand = "ssh " + pigHostName  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
+		String getPigVersionCommand = "ssh " + pigHostName  + " \"" + HADOOPQA_KINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
 		String outputResult = this.executeCommand(getPigVersionCommand);
 		TestSession.logger.info("outputResult = " + outputResult);
 		java.util.List<String>outputList = Arrays.asList(outputResult.split("\n"));
@@ -1155,7 +1156,7 @@ public class DataAvailabilityPoller {
 		String command = "yinst range -ir \"(@grid_re.clusters."+ clusterName + ".oozie)\"";
 		TestSession.logger.info("command = " + command);
 		String integrationOozieHostName  = this.executeCommand(command).trim();
-		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + kINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
+		String getOozieVersionCommand = "ssh " + integrationOozieHostName  + " \"" + HADOOPQA_KINIT_COMMAND + ";" + "/home/y/var/yoozieclient/bin/oozie version\"";
 		String outputResult = this.executeCommand(getOozieVersionCommand);
 		this.setOozieHostName(integrationOozieHostName);
 		TestSession.logger.info("outputResult = " + outputResult);
