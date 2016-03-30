@@ -269,9 +269,14 @@ EC=$((EC+RC))
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /tmp/oozie
 RC=$?
 EC=$((EC+RC))
+# open /user/hive perms for multiple users
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /user/hive 
+RC=$?
+EC=$((EC+RC))
 if [ $EC -ne 0 ]; then
-  echo "ERROR: hdfs create path for /tmp/oozie failed!" 
+  echo "ERROR: hdfs create or chmod paths failed!" 
   exit 1
 fi
 
+# open /user/hive perms for multiple users
 
