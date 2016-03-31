@@ -77,23 +77,33 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
 
 		Thread.sleep(20000);
-		// Leave safe-mode
+
+                // wait up to 5 minutes for NN to be out of safemode
 		DfsCliCommands dfsCliCommands = new DfsCliCommands();
 		GenericCliResponseBO genericCliResponse;
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
+                  genericCliResponse = dfsCliCommands.dfsadmin(
+				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP, 
 				DfsTestsBaseClass.Report.NO, "get",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
+				DfsTestsBaseClass.ClearQuota.NO, SetQuota.NO, 
+				0, 
+				DfsTestsBaseClass.ClearSpaceQuota.NO,
+				DfsTestsBaseClass.SetSpaceQuota.NO, 
+				0, 
 				DfsTestsBaseClass.PrintTopology.NO, null);
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "leave",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
+
+                  if (genericCliResponse.response.contains("Safe mode is OFF")) {
+                    TestSession.logger.info("NN is out of Safemode after " + (waitCounter*10) + " seconds");
+                    break;
+                  } else if (waitCounter >= 30) {
+                    TestSession.logger.error("NN never left Safemode after " + (waitCounter*10) + " seconds!");
+                    Assert.fail();
+                  }
+                  else
+                  {
+                    Thread.sleep(10000);
+                  }
+                }
 
 		Configuration conf = fullyDistributedCluster
 				.getConf(HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
