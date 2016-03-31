@@ -66,7 +66,7 @@ public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 				HadooptestConstants.NodeTypes.NAMENODE);
 
         Assert.assertTrue("Did not leave safe mode within timeout.", 
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+                fullyDistributedCluster.waitForSafemodeOff(120000, null));
 		
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -76,7 +76,7 @@ public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 		Thread.sleep(60000);
 		
         Assert.assertTrue("Did not leave safe mode within timeout.", 
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+                fullyDistributedCluster.waitForSafemodeOff(120000, null));
 	}
 
 	@AfterClass
@@ -97,7 +97,7 @@ public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 				TestSession.conf.getProperty("HADOOP_INSTALL_CONF_DIR"));
 
         Assert.assertTrue("Did not leave safe mode within timeout.", 
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+                fullyDistributedCluster.waitForSafemodeOff(120000, null));
 		
 		fullyDistributedCluster.hadoopDaemon(Action.STOP,
 				HadooptestConstants.NodeTypes.RESOURCE_MANAGER);
@@ -110,7 +110,7 @@ public class TestStoppedAdminQueues extends YarnTestsBaseClass {
 		Thread.sleep(20000);
 		
         Assert.assertTrue("Did not leave safe mode within timeout.", 
-                fullyDistributedCluster.waitForSafemodeOff(1000, null));
+                fullyDistributedCluster.waitForSafemodeOff(120000, null));
 	}
 
 	@Test
