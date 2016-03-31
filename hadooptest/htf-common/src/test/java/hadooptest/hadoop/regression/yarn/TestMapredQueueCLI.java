@@ -85,7 +85,8 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
                   genericCliResponse = dfsCliCommands.dfsadmin(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP, 
 				DfsTestsBaseClass.Report.NO, "get",
-				DfsTestsBaseClass.ClearQuota.NO, SetQuota.NO, 
+				DfsTestsBaseClass.ClearQuota.NO, 
+				DfsTestsBaseClass.SetQuota.NO, 
 				0, 
 				DfsTestsBaseClass.ClearSpaceQuota.NO,
 				DfsTestsBaseClass.SetSpaceQuota.NO, 

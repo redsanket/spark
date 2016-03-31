@@ -226,6 +226,8 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 		}
 
                 // wait up to 5 minutes for NN to be out of safemode
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
                 for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
                   genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
@@ -285,6 +287,8 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 		}
 
                 // wait up to 5 minutes for NN to be out of safemode
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
                 for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
                   genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
@@ -346,6 +350,8 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 		}
 
                 // wait up to 5 minutes for NN to be out of safemode
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
                 for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
                   genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
@@ -421,6 +427,8 @@ public class TestDelegationTokens extends DfsTestsBaseClass {
 		}
 
                 // wait up to 5 minutes for NN to be out of safemode
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
                 for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
                   genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
