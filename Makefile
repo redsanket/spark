@@ -12,7 +12,7 @@ cleanHTF:
 compileHTF:
 	@echo "Building HTF"
 	rm -rf hadooptest/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2
-	mvn -f hadooptest/pom.xml package -gs hadooptest/resources/yjava_maven/settings.xml.orig -Pprofile-all -Pprofile-corp -DskipTests
+	mvn -f hadooptest/pom.xml package -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -gs hadooptest/resources/yjava_maven/settings.xml.orig -Pprofile-all -Pprofile-corp -DskipTests
 
 testCommit:
 	@echo "HTF Commit tests"

@@ -508,7 +508,7 @@ if ($use_mvn) {
     if ($storm||$storm090) {
         # Clean the project and build the jars so that we can have a test
         # jar with dependencies for Storm topologies.
-        execute("HTF_WORKSPACE=$workspace /home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
+        execute("HTF_WORKSPACE=$workspace /home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8");
     }
     else {
         # Just clean the project.
@@ -518,7 +518,7 @@ if ($use_mvn) {
             "HADOOP_SHARE=$hadoop_share " .
             "HTF_WORKSPACE=$workspace " .
             "TEZ_VERSION=$tez_version " .
-            "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt");
+            "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8");
     }
 
     ############################################################################
@@ -533,7 +533,7 @@ if ($use_mvn) {
             "HADOOP_CONF_DIR=/home/gs/gridre/yroot." . $cluster . "/conf/hadoop " .
             "HADOOP_HOME=/home/gs/gridre/yroot." . $cluster . "/share/hadoop " .
             "HADOOP_PREFIX=/home/gs/gridre/yroot." . $cluster. "/share/hadoop " .
-            "/home/y/bin/mvn $pom_opt $mvn_settings_opt test -DfailIfNoTests=false ".
+           "/home/y/bin/mvn $pom_opt $mvn_settings_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 test -DfailIfNoTests=false ".
             join(" ", @common_args) . " " .
             $test_opt);
 
@@ -541,7 +541,7 @@ if ($use_mvn) {
 
     # Need to compile the hadooptest jar if it doesn't exist.
     unless (-e "$workspace/target/hadooptest-1.0-SNAPSHOT.jar") {
-        execute("/home/y/bin/mvn clean package -DskipTests");
+        execute("/home/y/bin/mvn clean package -DskipTests -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8");
     }
 
     # RUN TESTS VIA JAVA
