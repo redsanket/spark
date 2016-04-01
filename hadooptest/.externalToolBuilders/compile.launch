@@ -3,7 +3,7 @@
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="/usr/bin/mvn"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_RUN_BUILD_KINDS" value="full,incremental,"/>
-<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="clean package -gs resources/yjava_maven/settings.xml.orig -e -DskipTests -Pprofile-all -Pprofile-corp"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="clean package  -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8  -gs resources/yjava_maven/settings.xml.orig -e -DskipTests -Pprofile-all -Pprofile-corp"/>
 <booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/hadooptest-parent}"/>
 </launchConfiguration>
