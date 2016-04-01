@@ -153,7 +153,7 @@ my $os=$^O;
 my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 
 # INSTALL HADOOPTEST FRAMEWORK
-execute("HTF_WORKSPACE=/ignore $mvn clean -f $local_ws_ht/pom.xml") if ($use_mvn);
+execute("HTF_WORKSPACE=/ignore $mvn clean -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
 execute("scp $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
 execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
