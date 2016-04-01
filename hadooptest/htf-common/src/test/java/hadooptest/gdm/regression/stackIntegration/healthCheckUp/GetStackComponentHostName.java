@@ -5,18 +5,18 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import hadooptest.TestSession;
-import hadooptest.gdm.regression.integration.newOne.IntegrationBase;
+import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class GetStackComponentHostName implements Callable<String> {
 	
 	private String clusterName;
 	private String componentName;
-	private IntegrationBase commaonFunctionObject;
+	private CommonFunctions commaonFunctionObject;
 	
 	public GetStackComponentHostName(String clusterName, String componentName ) {
 		this.clusterName = clusterName;
 		this.componentName = componentName;
-		this.commaonFunctionObject = new IntegrationBase();
+		this.commaonFunctionObject = new CommonFunctions();
 	}
 	
 	public String getClusterName() {

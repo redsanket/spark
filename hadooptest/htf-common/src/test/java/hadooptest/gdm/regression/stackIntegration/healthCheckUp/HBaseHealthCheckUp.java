@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.integration.newOne.IntegrationBase;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import net.sf.json.JSONArray;

@@ -11,7 +11,6 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
 
 import hadooptest.TestSession;
-import hadooptest.gdm.regression.integration.newOne.IntegrationBase;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import net.sf.json.JSONObject;

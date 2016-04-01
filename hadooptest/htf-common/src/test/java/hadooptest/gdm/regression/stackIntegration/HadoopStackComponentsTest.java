@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.integration.newOne.tests.TestDataAvailabilityOnCluster;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class HadoopStackComponentsTest extends TestSession {
