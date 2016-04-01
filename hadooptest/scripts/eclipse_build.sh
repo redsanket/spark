@@ -28,15 +28,15 @@ function readlink_f() {
 readonly ScriptDir="$(dirname "$(readlink_f "$0")")"
 readonly MavenProjectDir="$ScriptDir/.."
 
-readonly MvnOptions="-Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -gs $ScriptDir/../resources/yjava_maven/settings.xml.orig"
+readonly MvnOptions="-gs $ScriptDir/../resources/yjava_maven/settings.xml.orig -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8"
 pushd "$MavenProjectDir"
 # This is to work around the work-around for building with Spark 1.1.
 # https://git.corp.yahoo.com/HadoopQE/hadooptest/blob/7eaf425c70950a46d0ad3a5b810ffe8391a72b4c/Makefile#L14
 rm -vrf "$ScriptDir/../htf-common/src/test/scala/hadooptest/spark/regression/spark1_2"
 set +e
 mvn $MvnOptions eclipse:clean && \
-    mvn $MvnOptions install -DskipTests -Pprofile-corp -Pprofile-all && \
-    mvn $MvnOptions eclipse:eclipse -Pprofile-corp -Pprofile-all
+    mvn $MvnOptions install -DskipTests -Pprofile-corp -Pprofile-all -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8  && \
+    mvn $MvnOptions eclipse:eclipse -Pprofile-corp -Pprofile-all -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 
 readonly ExitCode="$?"
 popd
 
