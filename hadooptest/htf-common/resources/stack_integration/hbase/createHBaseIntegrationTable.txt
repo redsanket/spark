@@ -1,0 +1,3 @@
+create 'integration_test_table' , 'info'
+list 'integration_test_table'
+exit
