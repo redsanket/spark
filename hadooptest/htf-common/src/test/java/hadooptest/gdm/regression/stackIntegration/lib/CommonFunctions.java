@@ -29,7 +29,6 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.integration.SystemCommand;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HBaseHealthCheckUp;
@@ -39,6 +38,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
+import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 
 public class CommonFunctions {
 
