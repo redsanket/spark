@@ -103,25 +103,37 @@ public class DelegationTokenBaseClass extends DfsTestsBaseClass {
 		fullyDistributedCluster.hadoopDaemon(Action.START,
 				HadooptestConstants.NodeTypes.NAMENODE);
 
-		// Take NN out of safemode.
+		// Wait for NN to be out of safemode.
 		TestSession.logger.info("NN and RM nodes have been bounced, "
-				+ "sleeping for 1 min, to take NN out of Safemode");
-		Thread.sleep(60000);
-		genericCliResponse = dfsCliCommands.dfsadmin(
-				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "get",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
+				+ "wait for NN to be out of Safemode");
 
-		genericCliResponse = dfsCliCommands.dfsadmin(
+                // wait up to 5 minutes for NN to be out of safemode
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
+                  genericCliResponse = dfsCliCommands.dfsadmin(
 				DfsTestsBaseClass.EMPTY_ENV_HASH_MAP,
-				DfsTestsBaseClass.Report.NO, "leave",
-				DfsTestsBaseClass.ClearQuota.NO, DfsTestsBaseClass.SetQuota.NO,
-				0, DfsTestsBaseClass.ClearSpaceQuota.NO,
-				DfsTestsBaseClass.SetSpaceQuota.NO, 0,
-				DfsTestsBaseClass.PrintTopology.NO, null);
+				DfsTestsBaseClass.Report.NO, 
+				"get",
+				DfsTestsBaseClass.ClearQuota.NO, 
+				DfsTestsBaseClass.SetQuota.NO, 
+				0, 
+				DfsTestsBaseClass.ClearSpaceQuota.NO,
+                                DfsTestsBaseClass.SetSpaceQuota.NO, 
+				0, 
+				DfsTestsBaseClass.PrintTopology.NO, 
+				null);
+
+                  if (genericCliResponse.response.contains("Safe mode is OFF")) {
+                    TestSession.logger.info("NN is out of Safemode after " + (waitCounter*10) + " seconds");
+                    break;
+                  } else if (waitCounter >= 30) {
+                    TestSession.logger.error("NN never left Safemode after " + (waitCounter*10) + " seconds!");
+                    Assert.fail();
+                  }
+                  else
+                  {
+                    Thread.sleep(10000);
+                  }
+                }
 
 		// Also set the value on the local client
 		conf.setInt("yarn.resourcemanager.delegation.token.renew-interval",
