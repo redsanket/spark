@@ -6,6 +6,8 @@ import static java.nio.file.Files.readAllBytes;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.gdm.regression.integration.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HBaseHealthCheckUp;
@@ -36,6 +39,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HiveHealthChecku
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.OozieHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp;
+import hadooptest.gdm.regression.stackIntegration.tests.hbase.TestIntHBase;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
@@ -54,6 +58,7 @@ public class CommonFunctions {
 	private Map<String,String> hostsNames;
 	private List<String> stackComponentList;
 	private ConsoleHandle consoleHandle ;
+	private DataBaseOperations DataBaseOperations;
 	private static final String TESTCASE_PATH = "/resources/stack_integration";
 	private final static String PATH = "/data/daqdev/abf/data/";
 	private static final String PROCOTOL = "hdfs://";
@@ -73,7 +78,7 @@ public class CommonFunctions {
 		this.consoleHandle = new ConsoleHandle();
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName"));
+		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 	}
 
 	public CommonFunctions(String clusterName) {
@@ -81,7 +86,7 @@ public class CommonFunctions {
 		this.consoleHandle = new ConsoleHandle();
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName"));
+		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 	}
 	
 	public String getPipeLineName() {
@@ -259,6 +264,9 @@ public class CommonFunctions {
 	}
 
 	public void checkClusterHealth() throws InterruptedException, ExecutionException {
+		
+		// insert current dataSetName into the db
+		
 		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
 	}
@@ -309,7 +317,7 @@ public class CommonFunctions {
 		String nNodeName = hostsNames.get("namenode") ;
 		Map<String, StackComponent> stackComponentMap = this.getHealthyStackComponentsMap();
 		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size()  + "   \n " + stackComponentMap.toString());
-		
+					
 		StackComponent tezStackComponent = stackComponentMap.get("tez");
 		Callable<String> testTezComponent = null;
 		if (tezStackComponent != null ) {
@@ -317,7 +325,7 @@ public class CommonFunctions {
 			testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
 			testList.add(testTezComponent);
 		}
-		
+	
 		StackComponent hiveStackComponent = stackComponentMap.get("hive");
 		Callable<String> testIntHive = null;
 		if (hiveStackComponent != null) {
@@ -325,8 +333,16 @@ public class CommonFunctions {
 			testList.add(testIntHive);	
 		}
 		
+		StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
+		Callable<String> testHbaseComponent = null;
+		if (hbaseStackComponent != null)  {
+			TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
+			testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
+			testList.add(testHbaseComponent);
+		}
+		
 		if (testList.size() > 0) {
-			ExecutorService executor = Executors.newFixedThreadPool(2);
+			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 			List<Future<String>> testExecutionList = executor.invokeAll(testList);
 			for ( Future<String> result : testExecutionList) {
 				TestSession.logger.info("result - " + result.get());
@@ -373,10 +389,11 @@ public class CommonFunctions {
 		executor.shutdown();
 
 		// navigate healthyStackComponentsMap
-		TestSession.logger.info("____________________________________________________________________________________________________");
+		StringBuilder resultBuilder = new StringBuilder();
 		for ( String key : healthyStackComponentsMap.keySet()){
 			TestSession.logger.info(key);
 			StackComponent obj = healthyStackComponentsMap.get(key);
+			String componentName = obj.getStackComponentName();
 			TestSession.logger.info("component Name = " + obj.getStackComponentName()  + "  health status = " + obj.getHealth()  + "    version = " + obj.getStackComponentVersion());
 		}
 		TestSession.logger.info("____________________________________________________________________________________________________");
