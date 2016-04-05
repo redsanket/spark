@@ -170,7 +170,6 @@ public class TestCopyDataToHive {
 	
 	public boolean execute() throws IOException {
 		TestSession.logger.info("---------------------------------------------------------------TestCopyDataToHive  start ------------------------------------------------------------------------");
-		//StringBuilder currentPathBuilder =  new StringBuilder("hdfs://").append( this.getNameNodeName()).append("/data/daqdev/abf/data/").append(commonFunctions.getCurrentHourPath()).append("/20130309/").append("hiveData/");
 		StringBuilder currentPathBuilder =  new StringBuilder("hdfs://").append( this.getNameNodeName()).append("/data/daqdev/abf/data/").append(commonFunctions.getCurrentHourPath()).append("/hiveData");
 		this.setHdfsHivePath(currentPathBuilder.toString());
 		this.setCurrentMinute(commonFunctions.getCurrentHrMin());

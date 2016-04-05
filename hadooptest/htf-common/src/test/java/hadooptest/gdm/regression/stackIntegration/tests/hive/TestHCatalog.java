@@ -14,6 +14,7 @@ public class TestHCatalog {
 	private String errorMessage;
 	private String initCommand;
 	private String scriptPath;
+	public static final String PIG_HOME = "/home/y/share/pig";
 	
 	public String getErrorMessage() {
 		return errorMessage;

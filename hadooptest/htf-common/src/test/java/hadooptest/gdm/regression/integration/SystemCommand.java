@@ -7,6 +7,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 public class SystemCommand {
 	
+	private static String errorMessage;
+	
 	/**
 	 * Runs a system command locally
 	 *
@@ -38,11 +40,21 @@ public class SystemCommand {
 				res += line + "\n";
 			}
 		} catch (InterruptedException e) {
+			setErrorMessage(e.getMessage());
 			return null;
 		} catch (IOException e) {
+			setErrorMessage(e.getMessage());
 			return null;
 		}
 		return new ImmutablePair<Integer, String>(exitValue, res);
+	}
+
+	public static String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public static  void setErrorMessage(String errorMessage) {
+		errorMessage = errorMessage;
 	}
 
 }

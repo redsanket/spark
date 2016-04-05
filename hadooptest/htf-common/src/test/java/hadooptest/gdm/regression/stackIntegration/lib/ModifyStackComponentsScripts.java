@@ -68,7 +68,7 @@ public class ModifyStackComponentsScripts {
 			boolean loadDataToHiveScriptFlag = false;
 			File filePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hive/LoadDataToHive_temp.hql");
 			String fileContent = new String(readAllBytes(get(filePath.toString())));
-			fileContent = fileContent.replaceAll("DATA_PATH", "hdfs://"  + this.getNameNodeName() + "/" + this.getDataPath() + /*"/" + this.commonFunctiions.getCurrentHrMin() +*/ "/hiveData/");
+			fileContent = fileContent.replaceAll("DATA_PATH", "hdfs://"  + this.getNameNodeName() + "/" + this.getDataPath() + "/hiveData/");
 			TestSession.logger.info(" - " + fileContent);
 
 			// create new file
@@ -84,10 +84,10 @@ public class ModifyStackComponentsScripts {
 			boolean hbaseCreateTableScriptFlag = false;
 			File hbaseCreateTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable.txt");
 			String hbaseCreateTableScriptFileContent = new String(readAllBytes(get(hbaseCreateTableFilePath.toString())));
-			hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_integration_test_table_" + this.commonFunctiions.getCurrentHourPath());
+			hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getCurrentHourPath());
 
 			// create new file
-			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable_temp.hql");
+			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable_temp.txt");
 			java.nio.file.Files.write(java.nio.file.Paths.get(file.toString()), hbaseCreateTableScriptFileContent.getBytes());
 			hbaseCreateTableScriptFlag = true;
 			TestSession.logger.info("new file ---- " + file.toString());
@@ -99,10 +99,10 @@ public class ModifyStackComponentsScripts {
 			boolean hbaseDeleteTableScriptFlag = false;
 			File hbaseDeleteTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable.txt");
 			String hbaseDeleteTableScriptFileContent = new String(readAllBytes(get(hbaseDeleteTableFilePath.toString())));
-			hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_integration_test_table_" + this.commonFunctiions.getCurrentHourPath());
+			hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getCurrentHourPath());
 
 			// create new file
-			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable_temp.hql");
+			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable_temp.txt");
 			java.nio.file.Files.write(java.nio.file.Paths.get(file.toString()), hbaseDeleteTableScriptFileContent.getBytes());
 			hbaseDeleteTableScriptFlag = true;
 			TestSession.logger.info("new file ---- " + file.toString());
