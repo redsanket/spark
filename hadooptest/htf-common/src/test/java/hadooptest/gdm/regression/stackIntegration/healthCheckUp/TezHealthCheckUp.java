@@ -29,6 +29,7 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
+		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
 		this.stackComponent.setHostName(this.getHostName());
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
 		TestSession.logger.info("command - " + command);
@@ -44,9 +45,18 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 				if (log.startsWith(TEZ_HOME) == true ) {
 					String temp = TEZ_HOME + "/tez-api-";
 					String version = log.substring( temp.length() - 1, log.length()).replace(".jar", "").trim();
-					this.stackComponent.setStackComponentVersion(version);
-					this.stackComponent.setHealth(true);
-					break;
+					TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   " + version);
+					if (version != null) {
+						this.stackComponent.setStackComponentVersion(version);
+						this.stackComponent.setHealth(true);
+						break;	
+					} else if (version == null) {
+						this.stackComponent.setStackComponentVersion("0.0");
+						this.stackComponent.setHealth(false);
+						this.stackComponent.setErrorString("Tez is not installed. Check whether tez-api-* exists under " + TEZ_HOME + " or " + this.commonFunctions.getErrorMessage());
+						break;
+					}
+					
 				}
 			}	
 		} else if (result == null) {

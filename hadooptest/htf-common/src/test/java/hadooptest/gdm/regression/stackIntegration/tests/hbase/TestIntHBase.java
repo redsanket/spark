@@ -70,8 +70,11 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 	}
 	
 	public String  execute() {
+		TestSession.logger.info(" ---------------------------------------------------------------  TestHBASE  start ------------------------------------------------------------------------");
 		boolean isHBaseTableCreated = false , isHBaseRecordInserted = false , isTableScanned = false, isTableDeleted = false;
-		String tableName = this.commonFunctions.getPipeLineName() + "_" + this.commonFunctions.getCurrentHourPath();
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		String tableName = this.commonFunctions.getPipeLineName() + "_" + currentDataSetName;
+		this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "RUNNING");
 		TestSession.logger.info("Hbase Table name =-  " + tableName);
 		TestHBaseCreateTable testHBaseCreateTable = new TestHBaseCreateTable(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName);
 		isHBaseTableCreated = testHBaseCreateTable.execute();
@@ -92,17 +95,25 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 						TestSession.logger.info("HBase table deleted successfully ");
 					} else {
 						TestSession.logger.info("Failed to delete HBase table");
+						this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
+						this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
 					}
 				} else {
 					TestSession.logger.info("HBase Table scanned failed.. ");
+					this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
+					this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
 				}
 			} else {
 				TestSession.logger.info("Failed to insert record into HBasetable");
+				this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
+				this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
 			}
 		} else {
 			TestSession.logger.info("Failed to create the hbase table " + tableName + "  hence hbase test is marked as failed.");
+			this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
+			this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
 		}
-		
+		TestSession.logger.info(" ---------------------------------------------------------------  TestHBASE  start ------------------------------------------------------------------------");
 		TestSession.logger.info("HbaseTable created = " + isHBaseTableCreated  + "  records inserted - " + isHBaseRecordInserted  + "  table scanned - " + isTableScanned + " hbase deleted - " + isTableDeleted);
 		boolean hbaseTestResult = isHBaseTableCreated && isHBaseRecordInserted && isTableScanned && isTableDeleted;
 		return COMPONENT_NAME + "-" + hbaseTestResult;

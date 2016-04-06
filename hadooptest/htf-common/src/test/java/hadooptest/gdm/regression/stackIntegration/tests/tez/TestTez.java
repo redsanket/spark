@@ -8,14 +8,14 @@ import hadooptest.TestSession;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
-public class TestTez implements Callable<String>{
+public class TestTez implements Callable<String> {
 	
 	private StackComponent stackComponent;
 	private CommonFunctions commonFunctions;
 	private String hostName;
 	private String nameNodeName;
 	private String initCommand;
-	
+	private String mrJobURL;
 	private final static String HADOOP_HOME="export HADOOP_HOME=/home/gs/hadoop/current";
 	private final static String JAVA_HOME="export JAVA_HOME=/home/gs/java/jdk64/current/";
 	private final static String HADOOP_CONF_DIR="export HADOOP_CONF_DIR=/home/gs/conf/current";
@@ -29,6 +29,14 @@ public class TestTez implements Callable<String>{
 		this.initCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " +  this.getHostName() + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + HADOOPQA_KNITI  + ";" ;
 	}
 	
+	public String getMrJobURL() {
+		return mrJobURL;
+	}
+
+	public void setMrJobURL(String mrJobURL) {
+		this.mrJobURL = mrJobURL;
+	}
+
 	public String getInitCommand() {
 		return initCommand;
 	}
@@ -72,13 +80,16 @@ public class TestTez implements Callable<String>{
 		this.setNameNodeName(nameNodeName);
 		this.setHostName(hostName);
 		this.setDataSetName(dataSetName);
+		this.stackComponent.setCurrentState("STARTED");
 	}
 	
 	public String execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestTez  start ------------------------------------------------------------------------");
+		this.stackComponent.setCurrentState("RUNNING");
 		this.constructCommand();
 		boolean flag = false;
 		String testResult = null;
+		String mrJobURL = null;
 		String command = this.getInitCommand() + "pig -x tez "
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
 				+ "  "
@@ -88,7 +99,6 @@ public class TestTez implements Callable<String>{
 		String executionResult = this.commonFunctions.executeCommand(command);
 		if (executionResult != null) {
 			List<String> insertOutputList = Arrays.asList(executionResult.split("\n"));
-			String mrJobURL = null;
 			int count = 0;
 			String startTime = null , endTime = null;
 			for ( String item : insertOutputList ) {
@@ -109,11 +119,14 @@ public class TestTez implements Callable<String>{
 			}
 			String insertRecordResult = null;
 			if (flag == true) {
-				testResult = "pass";
+				testResult = "PASS";
 			} else if (flag == false) {
-				testResult = "fail";
+				testResult = "FAIL";
+				//this.stackComponent.setErrorString(this.commonFunctions.getErrorMessage());
 			}
+			this.stackComponent.setCurrentState("COMPLETED");
 			this.stackComponent.setResult(testResult);
+			this.stackComponent.setCurrentMRJobLink(mrJobURL);
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestTez  end ------------------------------------------------------------------------");
 		return this.stackComponent.getStackComponentName() + "-" + flag;

@@ -174,8 +174,10 @@ public class TestCopyDataToHive {
 		this.setHdfsHivePath(currentPathBuilder.toString());
 		this.setCurrentMinute(commonFunctions.getCurrentHrMin());
 		this.setConfiguration(this.commonFunctions.getNameConfForRemoteFS(this.getNameNodeName()));
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
 		checkForHiveDataFolderAndDelete();
 		boolean flag = false;
+		String mrJobURL = null;
 		String command = this.getInitCommand() + "pig -x tez "
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
 				+ "  "
@@ -186,7 +188,7 @@ public class TestCopyDataToHive {
 		String executionResult = this.commonFunctions.executeCommand(command);
 		if (executionResult != null) {
 			List<String> insertOutputList = Arrays.asList(executionResult.split("\n"));
-			String mrJobURL = null;
+			
 			int count = 0;
 			String startTime = null , endTime = null;
 			for ( String item : insertOutputList ) {
@@ -206,10 +208,18 @@ public class TestCopyDataToHive {
 				}
 			}
 			if (flag == false) {
+				this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHive", "FAIL");
+				this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveComment", this.commonFunctions.getErrorMessage());
+				this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveMRJobURL", mrJobURL);
 				this.setCurrentMinute(this.commonFunctions.getErrorMessage());
+			} else if (flag == true) {
+				this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHive", "PASS");
+				this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveMRJobURL", mrJobURL);
 			}
 		} else {
 			this.setErrorMessage(this.commonFunctions.getErrorMessage());
+			this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHive", "FAIL");
+			this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveComment", this.commonFunctions.getErrorMessage());
 		}
 		TestSession.logger.info("-----------------------------------------------------------TestCopyDataToHive end ----------------------------------------------------------------------------");
 		return flag;

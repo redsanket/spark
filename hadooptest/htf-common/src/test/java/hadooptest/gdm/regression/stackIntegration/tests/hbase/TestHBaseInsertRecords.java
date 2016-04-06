@@ -92,8 +92,9 @@ public class TestHBaseInsertRecords {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start ------------------------------------------------------------------------");
-
+		String currentDataSet = this.commonFunctions.getCurrentHourPath();
 		boolean insertRecordResult = false;
+		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
 		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce " 
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
@@ -107,10 +108,7 @@ public class TestHBaseInsertRecords {
 		if (output != null ) {
 			List<String> insertOutputList = Arrays.asList(output.split("\n"));
 			String insertResult = insertOutputList.get(insertOutputList.size() - 1);
-			TestSession.logger.info("Result - " + insertResult );
-
-			String mrJobURL = null;
-			int count = 0;
+			TestSession.logger.info("Result - " + insertResult );			int count = 0;
 			String startTime = null , endTime = null;
 			for ( String item : insertOutputList ) {
 				if (item.indexOf("INFO  org.apache.hadoop.mapreduce.Job - The url to track the job:") > -1) {
@@ -134,6 +132,13 @@ public class TestHBaseInsertRecords {
 				}
 				count++;
 			}
+		}
+		if (insertRecordResult == false) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTable", "FAIL");
+			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTableMRJobURL", mrJobURL );
+		} else if (insertRecordResult == true) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTable", "PASS");
+			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTableMRJobURL", mrJobURL );
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  end  ------------------------------------------------------------------------");
 		return insertRecordResult;

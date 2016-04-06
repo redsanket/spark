@@ -31,10 +31,11 @@ import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.integration.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
+import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HBaseHealthCheckUp;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HCatalogHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HiveHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.OozieHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup;
@@ -58,7 +59,7 @@ public class CommonFunctions {
 	private Map<String,String> hostsNames;
 	private List<String> stackComponentList;
 	private ConsoleHandle consoleHandle ;
-	private DataBaseOperations DataBaseOperations;
+	private DataBaseOperations dbOperations;
 	private static final String TESTCASE_PATH = "/resources/stack_integration";
 	private final static String PATH = "/data/daqdev/abf/data/";
 	private static final String PROCOTOL = "hdfs://";
@@ -79,6 +80,8 @@ public class CommonFunctions {
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
 		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
+		dbOperations = new DataBaseOperations();
+		this.createDB();
 	}
 
 	public CommonFunctions(String clusterName) {
@@ -87,6 +90,8 @@ public class CommonFunctions {
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
 		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
+		dbOperations = new DataBaseOperations();
+		this.createDB();
 	}
 	
 	public String getPipeLineName() {
@@ -198,7 +203,7 @@ public class CommonFunctions {
 				TestSession.logger.info(result.getRight());
 			} else {
 				TestSession.logger.error("Failed to execute " + command);
-				this.setErrorMessage(SystemCommand.getErrorMessage());
+				//this.setErrorMessage(result.getLeft());
 				return null;
 			}
 		} else {
@@ -266,6 +271,7 @@ public class CommonFunctions {
 	public void checkClusterHealth() throws InterruptedException, ExecutionException {
 		
 		// insert current dataSetName into the db
+		this.dbOperations.insertDataSetName(this.getCurrentHourPath());
 		
 		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
@@ -273,12 +279,9 @@ public class CommonFunctions {
 
 	public void preInit() {
 		ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() , PATH + this.getCurrentHourPath() );
-		
 		try {
 			modifyStackComponentsScripts.execute();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
@@ -341,14 +344,27 @@ public class CommonFunctions {
 			testList.add(testHbaseComponent);
 		}
 		
+		String overAllResult = "PASS";
+		
 		if (testList.size() > 0) {
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 			List<Future<String>> testExecutionList = executor.invokeAll(testList);
 			for ( Future<String> result : testExecutionList) {
-				TestSession.logger.info("result - " + result.get());
+				List<String> testExecutionResult = Arrays.asList(result.get().split("-"));
+				if (testExecutionResult.size() > 0) {
+					TestSession.logger.info("result - " + result.get());
+					if (testExecutionResult.get(1).equals("false") == true) {
+						overAllResult = "FAIL";
+						TestSession.logger.info(testExecutionResult.get(1) + " stack component failed.");
+						break;
+					}	
+				}
 			}
 			executor.shutdown();
 		}
+		
+		this.updateDB(this.getCurrentHourPath().trim(), "result", overAllResult);
+		
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
@@ -368,11 +384,13 @@ public class CommonFunctions {
 		Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));
 		Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
 		Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
+		Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
 		Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
 		Callable oOzieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
 		healthCheckList.add(tezHealthCheckUpObj);
 		healthCheckList.add(pigHealthCheckupObj);
 		healthCheckList.add(hiveHealthCheckupObj);
+		healthCheckList.add(hCatalogHealthCheckUpObj);
 		healthCheckList.add(hBaseHealthCheckUpObj);
 		healthCheckList.add(oOzieHealthCheckUpObj);
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -522,5 +540,23 @@ public class CommonFunctions {
 
 	public String getPigPathCommand() {
 		return this.getPathCommand();
+	}
+	
+	public void createDB(){
+		try {
+			this.dbOperations.createDB();
+			this.dbOperations.createIntegrationResultTable();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public synchronized void updateDB(String dataSetName, String columnName , String columnValue) {
+		DataBaseOperations dbOperations = new DataBaseOperations();
+		if (dbOperations != null) {
+			dbOperations.insertComponentTestResult(dataSetName, columnName , columnValue);
+		} else {
+			TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
+		}
 	}
 }

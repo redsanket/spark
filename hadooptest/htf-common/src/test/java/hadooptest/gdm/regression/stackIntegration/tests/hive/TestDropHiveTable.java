@@ -61,7 +61,7 @@ public class TestDropHiveTable {
 	}	
 
 	public boolean execute() {
-		TestSession.logger.info("---------------------------------------------------------------TestDropHiveTable  start ------------------------------------------------------------------------");
+		TestSession.logger.info("--------------------------------------------------------------- TestDropHiveTable  start ------------------------------------------------------------------------");
 		String executionCommand = this.getCommand() + " hive -f " + this.getScriptLocation() + "/" + HIVE_DROP_TABLE_SCRIPT_NAME + "\" ";
 		TestSession.logger.info("executionCommand = " + executionCommand);
 		String executionResult = this.commonFunctions.executeCommand(executionCommand);
@@ -84,7 +84,7 @@ public class TestDropHiveTable {
 			this.setErrorMessage(this.commonFunctions.getErrorMessage());
 		}
 		TestSession.logger.info("executionResult of drop table result - " + this.getResult());
-		TestSession.logger.info("---------------------------------------------------------------TestDropHiveTable  end  ------------------------------------------------------------------------");
+		TestSession.logger.info("--------------------------------------------------------------- TestDropHiveTable  end  ------------------------------------------------------------------------");
 		return this.getResult();
 	}
 }
