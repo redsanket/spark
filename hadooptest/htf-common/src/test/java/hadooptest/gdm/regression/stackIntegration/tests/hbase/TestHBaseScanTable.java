@@ -82,8 +82,9 @@ public class TestHBaseScanTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  start ------------------------------------------------------------------------");
-
+		String currentDataSet = this.commonFunctions.getCurrentHourPath();
 		boolean scanRecordResult = false;
+		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
 		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce "
 				+ "-param \"TABLE_NAME=" + this.getTableName() + "\""
@@ -94,7 +95,6 @@ public class TestHBaseScanTable {
 			List<String> scanOuputList = Arrays.asList(output.split("\n"));
 			String scanResult = scanOuputList.get(scanOuputList.size() - 2);
 			TestSession.logger.info("Result - " + scanResult );
-			String mrJobURL = null;
 			int count = 0;
 			String startTime = null , endTime = null;
 			for ( String item : scanOuputList ) {
@@ -117,6 +117,13 @@ public class TestHBaseScanTable {
 				}
 				count++;
 			}
+		}
+		if (scanRecordResult == false) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTable", "FAIL");
+			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableMRJobURL", mrJobURL );
+		} else if (scanRecordResult == true) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTable", "PASS");
+			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableMRJobURL", mrJobURL );
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  end  ------------------------------------------------------------------------");
 		return scanRecordResult;

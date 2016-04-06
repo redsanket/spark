@@ -1,5 +1,9 @@
 package hadooptest.gdm.regression.stackIntegration;
 
+import hadooptest.TestSession;
+import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
+import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
+
 public class StackComponent {
 	
 	private String stackComponentName;
@@ -13,6 +17,7 @@ public class StackComponent {
 	private String currentMRJobLink;
 	private String componentTestCaseExecutionResultFilePath;
 	private String dataSetName;
+	private String currentState;
 	private boolean health;
 	private boolean isScriptCopied;
 	
@@ -36,12 +41,42 @@ public class StackComponent {
 		this.stackComponentVersion = stackComponentVersion;
 	}
 	
+	public String getCurrentState() {
+		return currentState;
+	}
+
+	public void setCurrentState(String currentState) {
+		this.currentState = currentState;
+		CommonFunctions commonFunctions = new CommonFunctions();
+		String currentDataSetName = commonFunctions.getCurrentHourPath();
+		if (this.getStackComponentName().equals("pig") || this.getStackComponentName().equals("tez") ||  this.getStackComponentName().equals("hive")  ||  this.getStackComponentName().equals("hcat") ||  this.getStackComponentName().equals("hbase")) {
+			
+			// add version to db.
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			TestSession.logger.info("component Name = " + this.getStackComponentName());
+			TestSession.logger.info("version = " + this.getStackComponentVersion());
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() +  "CurrentState" , this.getCurrentState());
+		}
+	}
+	
 	public String getCurrentMRJobLink() {
 		return currentMRJobLink;
 	}
 
 	public void setCurrentMRJobLink(String currentMRJobLink) {
 		this.currentMRJobLink = currentMRJobLink;
+		CommonFunctions commonFunctions = new CommonFunctions();
+		String currentDataSetName = commonFunctions.getCurrentHourPath();
+		if (this.getStackComponentName().equals("pig") || this.getStackComponentName().equals("tez") ||  this.getStackComponentName().equals("hive")  ||  this.getStackComponentName().equals("hcat") ||  this.getStackComponentName().equals("hbase")) {
+			
+			// add version to db.
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			TestSession.logger.info("component Name = " + this.getStackComponentName());
+			TestSession.logger.info("version = " + this.getStackComponentVersion());
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() +  "MRJobURL" , this.getCurrentMRJobLink());
+		}
 	}
 
 	public String getCurrentTestCaseName() {
@@ -70,14 +105,46 @@ public class StackComponent {
 
 	public void setStackComponentVersion(String stackComponentVersion) {
 		this.stackComponentVersion = stackComponentVersion;
+		CommonFunctions commonFunctions = new CommonFunctions();
+		String currentDataSetName = commonFunctions.getCurrentHourPath();
+		if (this.getStackComponentName().equals("pig") || this.getStackComponentName().equals("tez") ||  this.getStackComponentName().equals("hive")  ||  this.getStackComponentName().equals("hcat") ||  this.getStackComponentName().equals("hbase")) {
+			// add version to db.
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			TestSession.logger.info("dataSetName = " + currentDataSetName);
+			TestSession.logger.info("component Name = " + this.getStackComponentName());
+			TestSession.logger.info("version = " + this.getStackComponentVersion());
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() +  "Version" , this.getStackComponentVersion());
+		}
 	}
 
-	public void setResult(String result) { 
+	public void setResult(String result) {
 		this.result = result;
+		CommonFunctions commonFunctions = new CommonFunctions();
+		String currentDataSetName = commonFunctions.getCurrentHourPath();
+		if (this.getStackComponentName().equals("pig") || this.getStackComponentName().equals("tez") ||  this.getStackComponentName().equals("hive")  ||  this.getStackComponentName().equals("hcat") ||  this.getStackComponentName().equals("hbase")) {
+			// add version to db.
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			TestSession.logger.info("component Name = " + this.getStackComponentName());
+			TestSession.logger.info("version = " + this.getResult());
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() + "Result" , this.getResult());
+		}
 	}
 
 	public void setErrorString(String errorString) {
 		this.errorString = errorString;
+		CommonFunctions commonFunctions = new CommonFunctions();
+		String currentDataSetName = commonFunctions.getCurrentHourPath();
+		if (this.getStackComponentName().equals("pig") || this.getStackComponentName().equals("tez") ||  this.getStackComponentName().equals("hive")  ||  this.getStackComponentName().equals("hcat") ||  this.getStackComponentName().equals("hbase")) {
+			// add version to db.
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			TestSession.logger.info("dataSetName = " + this.getDataSetName());
+			TestSession.logger.info("component Name = " + this.getStackComponentName());
+			TestSession.logger.info("version = " + this.getResult());
+			TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
+			commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() , this.getErrorString());
+		}
 	}
 
 	public void setTestList(String testList) {

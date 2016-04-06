@@ -80,7 +80,7 @@ public class TestLoadDataToHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestLoadDataToHiveTable  start ------------------------------------------------------------------------");
-
+		String currentDataSetName = this.commonFunction.getCurrentHourPath();
 		boolean  dataLoadedToHive = false;
 		this.setCurrentMinute(commonFunction.getCurrentHrMin());	
 		String command = this.getInitCommand() + " hive -f " + this.stackComponent.getScriptLocation() + "/LoadDataToHive.hql" +  "\"";
@@ -95,8 +95,14 @@ public class TestLoadDataToHiveTable {
 			}
 			if (dataLoadedToHive == false) {
 				this.setErrorMessage(this.commonFunction.getErrorMessage());
+				this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTable", "FAIL");
+				this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableComment", this.commonFunction.getErrorMessage());
+			} else 	if (dataLoadedToHive == true) {
+				this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTable", "PASS");
 			}
 		} else {
+			this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTable", "FAIL");
+			this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableComment", this.commonFunction.getErrorMessage());
 			this.setErrorMessage(this.commonFunction.getErrorMessage());
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestLoadDataToHiveTable  end ------------------------------------------------------------------------");

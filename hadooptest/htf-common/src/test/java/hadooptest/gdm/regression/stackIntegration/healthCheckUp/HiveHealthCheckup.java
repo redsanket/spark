@@ -30,6 +30,7 @@ public class HiveHealthCheckup implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
+		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
 		this.stackComponent.setHostName(this.getHostName());
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + "  \"" + IntegrationConstants.HADOOP_HOME + ";" + IntegrationConstants.JAVA_HOME + ";" +  IntegrationConstants.HADOOP_CONF_DIR + ";"  + IntegrationConstants.kINIT_COMMAND   + ";" + HIVE_VERSION_COMMAND  + "\" ";
 		TestSession.logger.info("command -" + command);

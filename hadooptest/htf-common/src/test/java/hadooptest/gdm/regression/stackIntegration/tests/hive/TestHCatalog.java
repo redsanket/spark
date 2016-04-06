@@ -51,13 +51,15 @@ public class TestHCatalog {
 	
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHCatalog  start ------------------------------------------------------------------------");
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSetName, "hcatCurrentState", "RUNNING");
 		boolean flag = false;
+		String mrJobURL = "";
 		String command = this.getInitCommand() + "pig -useHCatalog -x tez " + this.getScriptPath() + "/FetchHiveDataUsingHCatalog_temp.pig" + "\"" ;
 		String result = this.commonFunctions.executeCommand(command);
 		if (result != null ) {
 			List<String> fetchDataOutputList = Arrays.asList(result.split("\n"));
 			int count=0;
-			String mrJobURL = "";
 			String startTime = null , endTime = null;
 			TestSession.logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    fetchDataUsingHCat() ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			for (String str : fetchDataOutputList ) {
@@ -83,8 +85,15 @@ public class TestHCatalog {
 				count++;
 			}
 			if (flag == false) {
+				this.commonFunctions.updateDB(currentDataSetName, "hcatResult", "FAIL");
+				this.commonFunctions.updateDB(currentDataSetName, "hcatMRJobURL", mrJobURL);
+				this.commonFunctions.updateDB(currentDataSetName, "hcatComment", this.commonFunctions.getErrorMessage());
 				this.setErrorMessage(this.commonFunctions.getErrorMessage());
-			} 
+			}  else if (flag == true) {
+				this.commonFunctions.updateDB(currentDataSetName, "hcatResult", "PASS");
+				this.commonFunctions.updateDB(currentDataSetName, "hcatMRJobURL", mrJobURL);
+			}
+			this.commonFunctions.updateDB(currentDataSetName, "hcatCurrentState", "COMPLETED");
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestHCatalog  end ------------------------------------------------------------------------");
 		return flag;

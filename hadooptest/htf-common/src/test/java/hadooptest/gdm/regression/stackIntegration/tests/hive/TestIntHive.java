@@ -76,18 +76,32 @@ public class TestIntHive implements java.util.concurrent.Callable<String>{
 	
 	@Override
 	public String call() throws Exception {
+		CommonFunctions commonFunctions = new CommonFunctions();
+		commonFunctions.updateDB(this.getDataSetName() , "hiveCurrentState" , "STARTED");
+		TestSession.logger.info("--------------------------------------------------------------- TestIntHive  start ------------------------------------------------------------------------");
 		boolean isTableDropped = false , isTableCreated = false ,  isDataCopied = false , isDataInserted = false , isDataFetchedUsingHCatalog = false;
 		String hiveInitCommand = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " +  this.stackComponent.getHostName() + "  \"" +HADOOP_HOME + ";" + JAVA_HOME + ";" +  HADOOP_CONF_DIR + ";"  + HADOOPQA_KNITI  + ";" ;
+		
+		
+		String dataSetName = this.commonFunctions.getCurrentHourPath();
+		commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "RUNNING");
 
 		TestDropHiveTable testDropHiveTable = new TestDropHiveTable( hiveInitCommand + "," +   this.stackComponent.getScriptLocation());
 		TestCreateHiveTable testCreateHiveTable = new TestCreateHiveTable(hiveInitCommand + "," +   this.stackComponent.getScriptLocation());
 		TestCopyDataToHive testCopyDataToHive = new TestCopyDataToHive(this.stackComponent ,  this.stackComponent.getHostName() , this.getNameNodeName() ,  this.getDataSetName() ,hiveInitCommand );
 		
 		if ((isTableDropped = testDropHiveTable.execute()) == true) {
+			
 			TestSession.logger.info("Hive table dropped successfully");
+			commonFunctions.updateDB(dataSetName , "hiveDropTable" , "PASS");
+			
 			if ((isTableCreated = testCreateHiveTable.execute()) == true) {
+				
 				TestSession.logger.info("Hive table created successfully");
+				commonFunctions.updateDB(dataSetName , "hiveCreateTable" , "PASS");
+				
 				if ((isDataCopied = testCopyDataToHive.execute()) == true) {
+					
 					TestSession.logger.info("coping hive data  successfully");
 					String currentHiveDataPath = testCopyDataToHive.getCurrentHivePath();
 					TestSession.logger.info("currentHiveDataPath  = " + currentHiveDataPath);
@@ -95,28 +109,46 @@ public class TestIntHive implements java.util.concurrent.Callable<String>{
 					isDataInserted =  testLoadDataToHiveTable.execute();
 					if (isDataInserted == true) {
 						TestSession.logger.info("Record inserted into the table successfully...!");
+						commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
+						commonFunctions.updateDB(dataSetName , "hiveResult" , "PASS");
 						TestHCatalog testHCatalog =  new TestHCatalog(hiveInitCommand ,  this.stackComponent.getScriptLocation());
 						isDataFetchedUsingHCatalog = testHCatalog.execute();
 						if (isDataFetchedUsingHCatalog == true) {
 							TestSession.logger.info("Successfully fetched the record using hcat.");
 						} else {
+							commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
+							commonFunctions.updateDB(dataSetName , "hiveResult" , "FAIL");
 							TestSession.logger.error("failed to fetch the record using hcat.");
 						}
 					} else {
+						commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
+						commonFunctions.updateDB(dataSetName , "hiveResult" , "FAIL");
 						TestSession.logger.info("Failed to insert records into the table. Reason : " + testLoadDataToHiveTable.getErrorMessage());
 					}
 				} else {
+					commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
+					commonFunctions.updateDB(dataSetName , "hiveResult" , "FAIL");
 					TestSession.logger.info("coping hive data failed successfully. Reason : " + testCopyDataToHive.getErrorMessage());
 				}
 			} else {
+				commonFunctions.updateDB(dataSetName , "hiveCreateTable" , "FAIL");
+				commonFunctions.updateDB(dataSetName , "hiveResult" , "FAIL");
+				commonFunctions.updateDB(dataSetName , "hiveCreateTableComment" , testCreateHiveTable.getErrorMessage());
+				commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
 				TestSession.logger.info("Hive table created failed. Reason : " + testCreateHiveTable.getErrorMessage());
 			}
 		} else {
+			commonFunctions.updateDB(dataSetName , "hiveDropTable" , "FAIL");
+			commonFunctions.updateDB(dataSetName , "hiveResult" , "FAIL");
+			commonFunctions.updateDB(dataSetName , "hiveDropTableComment" , testDropHiveTable.getErrorMessage());
+			commonFunctions.updateDB(dataSetName , "hiveCurrentState" , "COMPLETED");
 			TestSession.logger.error("Hive table dropped failed. Reason : " + testDropHiveTable.getErrorMessage());
 		}
 		TestSession.logger.info("isTableDroped = " + isTableDropped  + "  isTableCreated =  " + isTableCreated  +  "   isDataCopied "  + isDataCopied  + "    isDataInserted = " + isDataInserted  + "   isDataFetchedUsingHCatalog = " + isDataFetchedUsingHCatalog);
 		boolean result = isTableDropped && isTableCreated && isDataCopied && isDataInserted &&  isDataFetchedUsingHCatalog;
 		String componentName =  this.stackComponent.getStackComponentName() + "-" + result;
+		
+		TestSession.logger.info("--------------------------------------------------------------- TestIntHive  start ------------------------------------------------------------------------");
 		return  componentName ;
 	}
 }

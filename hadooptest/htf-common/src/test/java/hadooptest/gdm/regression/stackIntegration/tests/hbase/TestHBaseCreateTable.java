@@ -76,6 +76,7 @@ public class TestHBaseCreateTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseCreateTable  start ------------------------------------------------------------------------");
+		String currentDataSet = this.commonFunctions.getCurrentHourPath();
 		TestSession.logger.info("path = " + this.getPath() + "   knit = " + this.getKinitCommand()  + "  script location =   " + this.getScriptPath());
 		boolean hbaseTableCreated = false;
 		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getScriptPath() + "/createHBaseIntegrationTable_temp.txt\"";
@@ -85,8 +86,10 @@ public class TestHBaseCreateTable {
 			String createOutput = creatTableLogOuputList.get(creatTableLogOuputList.size() - 2);
 			if ( (createOutput.equals(this.getTableName()) == true) && (creatTableLogOuputList.get(creatTableLogOuputList.size() -1).startsWith("1 row(s)")) ) {
 				hbaseTableCreated = true;
+				this.commonFunctions.updateDB(currentDataSet, "hbaseCreateTable", "PASS");
 			} else {
 				hbaseTableCreated = false;
+				this.commonFunctions.updateDB(currentDataSet, "hbaseCreateTable", "FAIL");
 			}	
 		}
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseCreateTable  end ------------------------------------------------------------------------");
