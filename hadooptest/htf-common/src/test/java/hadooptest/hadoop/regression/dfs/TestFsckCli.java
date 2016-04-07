@@ -320,27 +320,16 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		Assert.assertNotNull(fsckResponse);
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
 
-                // wait up to 5 minutes for NN to be out of safemode
-                DfsCliCommands dfsCliCommands = new DfsCliCommands();
-                GenericCliResponseBO genericCliResponse;
-                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
-                  genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+                // NN was manually 'entered' into safemode so make it 'leave' 
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-
-                  if (genericCliResponse.response.contains("Safe mode is OFF")) {
-                    TestSession.logger.info("NN is out of Safemode after " + (waitCounter*10) + " seconds");
-                    break;
-                  } else if (waitCounter >= 30) {
-                    TestSession.logger.error("NN never left Safemode after " + (waitCounter*10) + " seconds!");
-                    Assert.fail();
-                  }
-                  else
-                  {
-                    Thread.sleep(10000);
-                  }
-                }
-
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 	}
 
 	@Test
