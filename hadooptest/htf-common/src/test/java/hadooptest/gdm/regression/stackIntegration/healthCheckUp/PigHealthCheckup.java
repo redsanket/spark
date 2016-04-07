@@ -38,6 +38,7 @@ public class PigHealthCheckup implements Callable<StackComponent>{
 	}
 	
 	public void getPigVersion(String result) {
+		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
 		if (result != null) {
 			java.util.List<String>outputList = Arrays.asList(result.split("\n"));
 			for ( String str : outputList) {
@@ -55,7 +56,10 @@ public class PigHealthCheckup implements Callable<StackComponent>{
 		}else if (result == null) {
 			this.stackComponent.setStackComponentVersion("0.0");
 			this.stackComponent.setHealth(false);
-			this.stackComponent.setErrorString("Pig is not installed, check whether for /home/y/share/pig"  + " or " + this.commonFunctionsObj.getErrorMessage());
+			this.commonFunctionsObj.updateDB(currentDataSet, "pigResult", "FAIL");
+			this.commonFunctionsObj.updateDB(currentDataSet, "pigCurrentState", "COMPLETED");
+			this.commonFunctionsObj.updateDB(currentDataSet, "pigComments", result);
+			this.stackComponent.setErrorString("Pig is not installed, check whether for /home/y/share/pig"  + " or " + result);
 		}
 	}
 

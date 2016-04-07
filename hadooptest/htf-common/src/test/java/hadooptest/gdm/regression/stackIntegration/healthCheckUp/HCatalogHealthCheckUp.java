@@ -59,6 +59,7 @@ public class HCatalogHealthCheckUp  implements Callable<StackComponent>{
 	}
 	
 	public void getHiveVersion(String result) {
+		String currentDataSet = this.commonFunctions.getCurrentHourPath();
 		if (result != null) {
 			List<String> outputList = Arrays.asList(result.split("\n"));
 			for ( String str : outputList) {
@@ -72,6 +73,9 @@ public class HCatalogHealthCheckUp  implements Callable<StackComponent>{
 		} else if (result == null) {
 			this.stackComponent.setStackComponentVersion("0.0");
 			this.stackComponent.setHealth(false);
+			this.commonFunctions.updateDB(currentDataSet, "hcatResult", "FAIL");
+			this.commonFunctions.updateDB(currentDataSet, "hcatCurrentState", "COMPLETED");
+			this.commonFunctions.updateDB(currentDataSet, "hcatComments", result);
 			this.stackComponent.setErrorString("Check whether hive server is up or " + this.commonFunctions.getErrorMessage());
 		}
 	}

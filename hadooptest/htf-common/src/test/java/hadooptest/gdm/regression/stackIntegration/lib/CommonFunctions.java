@@ -33,9 +33,11 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GDMHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HBaseHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HCatalogHealthCheckUp;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HadoopHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HiveHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.OozieHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup;
@@ -376,17 +378,22 @@ public class CommonFunctions {
 		// TODO : use this.getHostsNames method
 		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
 		this.setHostsNames(hostsNames);
-
+		
 		String nn = hostsNames.get("namenode");
 		this.setNameNodeName(nn);
 		Map<String, StackComponent> healthyStackComponentsMap = new HashMap<>();
 		List<Callable<StackComponent>> healthCheckList = new ArrayList<Callable<StackComponent>>();
+		Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
+		Callable hadoopHealthCheckupObj = new HadoopHealthCheckup(hostsNames.get("namenode"));
 		Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));
 		Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
 		Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
 		Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
 		Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
 		Callable oOzieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
+		
+		healthCheckList.add(gdmHealthCheckUpObj);
+		healthCheckList.add(hadoopHealthCheckupObj);
 		healthCheckList.add(tezHealthCheckUpObj);
 		healthCheckList.add(pigHealthCheckupObj);
 		healthCheckList.add(hiveHealthCheckupObj);
@@ -397,7 +404,7 @@ public class CommonFunctions {
 		List<Future<StackComponent>> healthCheckUpResultList = executor.invokeAll(healthCheckList);
 		for ( Future<StackComponent> result : healthCheckUpResultList) {
 			StackComponent obj = result.get();
-			if ( obj.getHealth() == true){
+			if ( obj.getHealth() == true) {
 				healthyStackComponentsMap.put(obj.getStackComponentName(), obj);
 			} else if ( obj.getHealth() == false) {
 				TestSession.logger.info("component Name = " + obj.getStackComponentName() + "   status - " + obj.getHealth()  + "  version =  " + obj.getStackComponentVersion() + "  error = " + obj.getErrorString());

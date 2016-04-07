@@ -83,6 +83,7 @@ public class TestHBaseScanTable {
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  start ------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "RUNNING");
 		boolean scanRecordResult = false;
 		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
@@ -125,6 +126,7 @@ public class TestHBaseScanTable {
 			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTable", "PASS");
 			this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableMRJobURL", mrJobURL );
 		}
+		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "COMPLETED");
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  end  ------------------------------------------------------------------------");
 		return scanRecordResult;
 	}

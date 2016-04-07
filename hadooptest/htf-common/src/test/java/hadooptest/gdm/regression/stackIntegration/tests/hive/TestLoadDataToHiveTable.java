@@ -81,6 +81,7 @@ public class TestLoadDataToHiveTable {
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestLoadDataToHiveTable  start ------------------------------------------------------------------------");
 		String currentDataSetName = this.commonFunction.getCurrentHourPath();
+		this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableCurrentState", "RUNNING");
 		boolean  dataLoadedToHive = false;
 		this.setCurrentMinute(commonFunction.getCurrentHrMin());	
 		String command = this.getInitCommand() + " hive -f " + this.stackComponent.getScriptLocation() + "/LoadDataToHive.hql" +  "\"";
@@ -105,6 +106,7 @@ public class TestLoadDataToHiveTable {
 			this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableComment", this.commonFunction.getErrorMessage());
 			this.setErrorMessage(this.commonFunction.getErrorMessage());
 		}
+		this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableCurrentState", "COMPLETED");
 		TestSession.logger.info("---------------------------------------------------------------TestLoadDataToHiveTable  end ------------------------------------------------------------------------");
 		return dataLoadedToHive;
 	}

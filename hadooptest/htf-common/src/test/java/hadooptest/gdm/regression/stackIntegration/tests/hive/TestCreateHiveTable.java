@@ -58,6 +58,8 @@ public class TestCreateHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("--------------------------------------------------------------- TestCreateHiveTable  start ------------------------------------------------------------------------");
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSetName, "hiveCreateTableCurrentState", "RUNNING");
 		String executionCommand = this.getCommand() + " hive -f " + this.getScriptLocation() + "/" + HIVE_CREATE_TABLE_SCRIPT_NAME + "\" ";
 		TestSession.logger.info("executionCommand = " + executionCommand);
 		String executionResult = this.commonFunctions.executeCommand(executionCommand);
@@ -78,6 +80,7 @@ public class TestCreateHiveTable {
 			this.setResult(false);
 			this.setErrorMessage(this.commonFunctions.getErrorMessage());
 		}
+		this.commonFunctions.updateDB(currentDataSetName, "hiveCreateTableCurrentState", "COMPLETED");
 		TestSession.logger.info("--------------------------------------------------------------- TestCreateHiveTable  start ------------------------------------------------------------------------");
 		return this.getResult();	
 	}
