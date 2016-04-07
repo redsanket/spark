@@ -321,15 +321,15 @@ public class TestFsckCli extends DfsTestsBaseClass {
 		Assert.assertEquals(fsckResponse.fsckSummaryBO.status, "HEALTHY");
 
                 // NN was manually 'entered' into safemode so make it 'leave' 
-                dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
-                               ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-                               SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-                dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
-                               ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-                               SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-                dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
-                               ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-                               SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+                dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 	}
 
 	@Test
