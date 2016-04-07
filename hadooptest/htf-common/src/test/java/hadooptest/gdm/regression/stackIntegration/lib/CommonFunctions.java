@@ -272,8 +272,13 @@ public class CommonFunctions {
 
 	public void checkClusterHealth() throws InterruptedException, ExecutionException {
 		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentHrPath = simpleDateFormat.format(calendar.getTime());
+		
 		// insert current dataSetName into the db
-		this.dbOperations.insertDataSetName(this.getCurrentHourPath());
+		this.dbOperations.insertDataSetName(this.getCurrentHourPath() , currentHrPath);
 		
 		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
