@@ -91,7 +91,7 @@ public class DataBaseOperations {
 		}
 	}
 	
-	public void insertDataSetName(String dataSetName) {
+	public void insertDataSetName(String dataSetName , String currentDate) {
 		Connection con = null;
 
 		/**
@@ -100,9 +100,10 @@ public class DataBaseOperations {
 
 		try {
 			con = this.getConnection();
-			String INSERT_ROW = "INSERT INTO " + DBCommands.TABLE_NAME + " (dataSetName)  "  + "  values (?) ";
+			String INSERT_ROW = "INSERT INTO " + DBCommands.TABLE_NAME + " (dataSetName, date)  "  + "  values (?,?) ";
 			PreparedStatement preparedStatement = con.prepareCall(INSERT_ROW);
 			preparedStatement.setString(1, dataSetName);
+			preparedStatement.setString(2, currentDate);
 			boolean isRecordInserted = preparedStatement.execute();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
 			TestSession.logger.error("Failed to insert the current dataset name in to the database." + e);

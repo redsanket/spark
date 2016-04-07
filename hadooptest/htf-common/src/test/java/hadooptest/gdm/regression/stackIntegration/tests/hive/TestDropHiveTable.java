@@ -82,7 +82,7 @@ public class TestDropHiveTable {
 				this.setErrorMessage(this.commonFunctions.getErrorMessage());
 				this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableComment", executionResult);
 			}else if (flag == true) {
-				this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableResult", "PASS");
+				this.commonFunctions.updateDB(currentDataSetName, "hiveDropTable", "PASS");
 			}
 		} else {
 			this.setResult(false);

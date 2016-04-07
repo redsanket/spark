@@ -9,6 +9,9 @@ public interface DBCommands {
 			"CREATE TABLE IF NOT EXISTS " + TABLE_NAME
 			+ " ( dataSetName VARCHAR(150) , "
 			
+			// date
+			+ "date VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+			
 			// hadoop
 			+ "hadoopVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
