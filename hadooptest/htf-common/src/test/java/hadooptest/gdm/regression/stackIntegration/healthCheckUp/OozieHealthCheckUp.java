@@ -50,6 +50,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	}
 	
 	public void executeRestQuery(String query) {
+		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
 		TestSession.logger.info("____________________________________________________________________________________________________");
 		try {
 			com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctionsObj.getCookie()).get(query);
@@ -62,11 +63,17 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 		} else {
 			this.stackComponent.setHealth(false);
 			this.stackComponent.setStackComponentVersion("0.0");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieResult", "FAIL");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieCurrentState", "COMPLETED");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieComments", "check whether oozie server is down");
 		}
 		}catch(Exception e) {
 			this.stackComponent.setHealth(false);
 			this.stackComponent.setStackComponentVersion("0.0");
-			this.stackComponent.setErrorString(e.getMessage() + "  check whether oozie server is down..");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieResult", "FAIL");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieCurrentState", "COMPLETED");
+			this.commonFunctionsObj.updateDB(currentDataSet, "oozieComments", "check whether oozie server is down");
+			this.stackComponent.setErrorString(e.getMessage() + "check whether oozie server is down..");
 			e.printStackTrace();
 		}
 		TestSession.logger.info("____________________________________________________________________________________________________");

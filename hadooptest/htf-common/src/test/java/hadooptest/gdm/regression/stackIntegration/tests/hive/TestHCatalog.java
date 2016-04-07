@@ -87,7 +87,7 @@ public class TestHCatalog {
 			if (flag == false) {
 				this.commonFunctions.updateDB(currentDataSetName, "hcatResult", "FAIL");
 				this.commonFunctions.updateDB(currentDataSetName, "hcatMRJobURL", mrJobURL);
-				this.commonFunctions.updateDB(currentDataSetName, "hcatComment", this.commonFunctions.getErrorMessage());
+				this.commonFunctions.updateDB(currentDataSetName, "hcatComment", result);
 				this.setErrorMessage(this.commonFunctions.getErrorMessage());
 			}  else if (flag == true) {
 				this.commonFunctions.updateDB(currentDataSetName, "hcatResult", "PASS");

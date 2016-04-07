@@ -66,6 +66,7 @@ public class TestDataAvailabilityOnCluster {
 		this.commonFunctionObject = new CommonFunctions();
 		this.setNameNode(nameNodeName);
 		this.setCurrentHour(this.commonFunctionObject.getCurrentHourPath());
+		
 	}
 	
 	public String getNameNode() {
@@ -175,7 +176,7 @@ public class TestDataAvailabilityOnCluster {
 	}
 
 	public boolean checkSuccessPathExists() {
-		boolean flag = false;
+		boolean flag = false , exceptionArised = false;
 		try {
 			FileSystem hdfsFileSystem = FileSystem.get(this.configuration);
 			String hdfsPath = PATH + this.getCurrentHour();
@@ -185,7 +186,22 @@ public class TestDataAvailabilityOnCluster {
 				flag = true;
 			}
 		} catch (IOException e) {
+			exceptionArised = true;
+			this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopResult" , "FAIL");
+			this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "COMPLETED");
+			this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmResult" , "FAIL");
+			this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "COMPLETED");
 			e.printStackTrace();
+		}finally{
+			if (flag == true) {
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopResult" , "PASS");
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "COMPLETED");
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmResult" , "PASS");
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "COMPLETED");
+			} else if (flag == false && exceptionArised == false) {
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "RUNNING");
+				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "RUNNING");
+			}
 		}
 		return flag;
 	}

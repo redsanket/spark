@@ -62,6 +62,8 @@ public class TestDropHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("--------------------------------------------------------------- TestDropHiveTable  start ------------------------------------------------------------------------");
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableCurrentState", "RUNNING");
 		String executionCommand = this.getCommand() + " hive -f " + this.getScriptLocation() + "/" + HIVE_DROP_TABLE_SCRIPT_NAME + "\" ";
 		TestSession.logger.info("executionCommand = " + executionCommand);
 		String executionResult = this.commonFunctions.executeCommand(executionCommand);
@@ -78,11 +80,15 @@ public class TestDropHiveTable {
 			}
 			if (flag == false) {
 				this.setErrorMessage(this.commonFunctions.getErrorMessage());
-			}	
+				this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableComment", executionResult);
+			}else if (flag == true) {
+				this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableResult", "PASS");
+			}
 		} else {
 			this.setResult(false);
 			this.setErrorMessage(this.commonFunctions.getErrorMessage());
 		}
+		this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableCurrentState", "COMPLETED");
 		TestSession.logger.info("executionResult of drop table result - " + this.getResult());
 		TestSession.logger.info("--------------------------------------------------------------- TestDropHiveTable  end  ------------------------------------------------------------------------");
 		return this.getResult();

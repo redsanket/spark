@@ -93,25 +93,31 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 					isTableDeleted = testHBaseDeleteTable.execute();
 					if (isTableDeleted == true) {
 						TestSession.logger.info("HBase table deleted successfully ");
+						this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "PASS");
+						this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
 					} else {
 						TestSession.logger.info("Failed to delete HBase table");
 						this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
 						this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
+						this.commonFunctions.updateDB(currentDataSetName, "hbaseComment", "Failed to delete hbase table");
 					}
 				} else {
 					TestSession.logger.info("HBase Table scanned failed.. ");
 					this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
 					this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
+					this.commonFunctions.updateDB(currentDataSetName, "hbaseComment", "Failed to scan hbase table");
 				}
 			} else {
 				TestSession.logger.info("Failed to insert record into HBasetable");
 				this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
 				this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
+				this.commonFunctions.updateDB(currentDataSetName, "hbaseComment", "Failed to insert record into hbase table");
 			}
 		} else {
 			TestSession.logger.info("Failed to create the hbase table " + tableName + "  hence hbase test is marked as failed.");
 			this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "COMPLETED");
 			this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
+			this.commonFunctions.updateDB(currentDataSetName, "hbaseComment", "Failed to create hbase table");
 		}
 		TestSession.logger.info(" ---------------------------------------------------------------  TestHBASE  start ------------------------------------------------------------------------");
 		TestSession.logger.info("HbaseTable created = " + isHBaseTableCreated  + "  records inserted - " + isHBaseRecordInserted  + "  table scanned - " + isTableScanned + " hbase deleted - " + isTableDeleted);

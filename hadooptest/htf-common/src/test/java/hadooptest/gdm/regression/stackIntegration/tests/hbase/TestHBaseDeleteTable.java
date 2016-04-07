@@ -66,6 +66,8 @@ public class TestHBaseDeleteTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseDeleteTable  start ------------------------------------------------------------------------");
+		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSet, "hbaseDeleteTableCurrentState", "RUNNING");
 		TestSession.logger.info("path = " + this.getPath() + "   knit = " + this.getKinitCommand()  + "  script location =   " + this.getScriptPath());
 		boolean hbaseTableDeleted = false;
 		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getScriptPath() + "/deleteHBaseIntegrationTable_temp.txt\"";
@@ -78,6 +80,12 @@ public class TestHBaseDeleteTable {
 				hbaseTableDeleted = false;
 			}
 		}
+		if (hbaseTableDeleted == false) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseDeleteTable", "FAIL");
+		} else if (hbaseTableDeleted == true) {
+			this.commonFunctions.updateDB(currentDataSet, "hbaseDeleteTable", "PASS");
+		}
+		this.commonFunctions.updateDB(currentDataSet, "hbaseDeleteTableCurrentState", "COMPLETED");
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseDeleteTable  end ------------------------------------------------------------------------");
 		return hbaseTableDeleted;
 	}

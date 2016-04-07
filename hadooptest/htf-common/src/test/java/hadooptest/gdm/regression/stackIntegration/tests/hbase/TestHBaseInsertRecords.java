@@ -93,6 +93,7 @@ public class TestHBaseInsertRecords {
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start ------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSet, "hbaseInsertTableCurrentState", "RUNNING");
 		boolean insertRecordResult = false;
 		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
@@ -140,6 +141,7 @@ public class TestHBaseInsertRecords {
 			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTable", "PASS");
 			this.commonFunctions.updateDB(currentDataSet, "hbaseInsertRecordTableMRJobURL", mrJobURL );
 		}
+		this.commonFunctions.updateDB(currentDataSet, "hbaseInsertTableCurrentState", "COMPLETED");
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  end  ------------------------------------------------------------------------");
 		return insertRecordResult;
 	}

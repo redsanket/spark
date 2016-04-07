@@ -8,15 +8,16 @@ import hadooptest.TestSession;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
-public class TezHealthCheckUp implements Callable<StackComponent>{
-
+public class HadoopHealthCheckup implements Callable<StackComponent>{
 	private String hostName;
 	private CommonFunctions commonFunctions;
-	private final String COMPONENT_NAME = "tez";
-	public final String TEZ_HOME = "/home/gs/tez/current/";
+	private final String COMPONENT_NAME = "hadoop";
+	public final String TEZ_HOME = "/home/gs/tez/current/";	
+	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
+
 	private StackComponent stackComponent;
 	
-	public TezHealthCheckUp(String hostName) {
+	public HadoopHealthCheckup(String hostName) {
 		this.hostName = hostName;
 		this.commonFunctions = new CommonFunctions();
 		this.stackComponent = new StackComponent();
@@ -34,11 +35,11 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
 		TestSession.logger.info("command - " + command);
 		String result = this.commonFunctions.executeCommand(command);
-		this.getTezVersion(result);
+		this.getHadoopVersion(result);
 		return this.stackComponent;
 	}
 	
-	public void getTezVersion(String result) {
+	public void getHadoopVersion(String result) {
 		String currentDataSet = this.commonFunctions.getCurrentHourPath();
 		if (result != null) {
 			List<String> logOutputList = Arrays.asList(result.split("\n"));
@@ -54,10 +55,9 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 					} else if (version == null) {
 						this.stackComponent.setStackComponentVersion("0.0");
 						this.stackComponent.setHealth(false);
-						this.commonFunctions.updateDB(currentDataSet, "tezResult", "FAIL");
-						this.commonFunctions.updateDB(currentDataSet, "tezCurrentState", "COMPLETED");
-						this.commonFunctions.updateDB(currentDataSet, "tezComments", result);
-						this.stackComponent.setErrorString("Tez is not installed. Check whether tez-api-* exists under " + TEZ_HOME + " or " + this.commonFunctions.getErrorMessage());
+						this.commonFunctions.updateDB(currentDataSet, "hadoopResult", "FAIL");
+						this.commonFunctions.updateDB(currentDataSet, "hadoopeCurrentState", "COMPLETED");
+						this.commonFunctions.updateDB(currentDataSet, "hadoopComments", "Hadoop failed.");
 						break;
 					}
 					

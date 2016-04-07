@@ -170,11 +170,12 @@ public class TestCopyDataToHive {
 	
 	public boolean execute() throws IOException {
 		TestSession.logger.info("---------------------------------------------------------------TestCopyDataToHive  start ------------------------------------------------------------------------");
+		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveCurrentState", "RUNNING");
 		StringBuilder currentPathBuilder =  new StringBuilder("hdfs://").append( this.getNameNodeName()).append("/data/daqdev/abf/data/").append(commonFunctions.getCurrentHourPath()).append("/hiveData");
 		this.setHdfsHivePath(currentPathBuilder.toString());
 		this.setCurrentMinute(commonFunctions.getCurrentHrMin());
 		this.setConfiguration(this.commonFunctions.getNameConfForRemoteFS(this.getNameNodeName()));
-		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
 		checkForHiveDataFolderAndDelete();
 		boolean flag = false;
 		String mrJobURL = null;
@@ -221,6 +222,7 @@ public class TestCopyDataToHive {
 			this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHive", "FAIL");
 			this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveComment", this.commonFunctions.getErrorMessage());
 		}
+		this.commonFunctions.updateDB(currentDataSetName, "hiveCopyDataToHiveCurrentState", "COMPLETED");
 		TestSession.logger.info("-----------------------------------------------------------TestCopyDataToHive end ----------------------------------------------------------------------------");
 		return flag;
 	}

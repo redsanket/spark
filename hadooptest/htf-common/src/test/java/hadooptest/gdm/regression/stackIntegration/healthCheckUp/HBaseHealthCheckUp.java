@@ -74,9 +74,13 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setHostName(this.getHostName());
+		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
 		this.getHBaseHealthCheck();
 		if (getHBaseRegionalServerHealthCheckup() == 0) {
 			this.stackComponent.setHealth(false);
+			this.commonFunctionsObj.updateDB(currentDataSet, "hbaseResult", "FAIL");
+			this.commonFunctionsObj.updateDB(currentDataSet, "hbaseCurrentState", "COMPLETED");
+			this.commonFunctionsObj.updateDB(currentDataSet, "hbaseComments", "Regional servers are down, but HBase master is up.");
 			this.stackComponent.setErrorString("Regional servers are down, but HBase master is up.");
 		}
 		return this.stackComponent;
@@ -137,7 +141,6 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 				this.stackComponent.setStackComponentVersion("0.0");
 			}
 			TestSession.logger.info("hbaseVersion  = " + hbaseVersion);
-			TestSession.logger.info("-----------------");
 		}
 	}
 	
