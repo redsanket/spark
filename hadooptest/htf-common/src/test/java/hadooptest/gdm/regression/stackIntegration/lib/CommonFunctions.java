@@ -351,8 +351,7 @@ public class CommonFunctions {
 			testList.add(testHbaseComponent);
 		}
 		
-		String overAllResult = "PASS";
-		
+		boolean overAllExecutionResult = true; 
 		if (testList.size() > 0) {
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 			List<Future<String>> testExecutionList = executor.invokeAll(testList);
@@ -361,17 +360,33 @@ public class CommonFunctions {
 				if (testExecutionResult.size() > 0) {
 					TestSession.logger.info("result - " + result.get());
 					if (testExecutionResult.get(1).equals("false") == true) {
-						overAllResult = "FAIL";
+						overAllExecutionResult = false;
 						TestSession.logger.info(testExecutionResult.get(1) + " stack component failed.");
 						break;
-					}	
+					}
 				}
 			}
 			executor.shutdown();
 		}
 		
-		this.updateDB(this.getCurrentHourPath().trim(), "result", overAllResult);
+		// navigate the health of the stack component and check whether any one of the component is down. If down mark the testcase as fail.
+		boolean isHealth = true;
+		for ( String key : stackComponentMap.keySet()) {
+			StackComponent scomponent = stackComponentMap.get(key);
+			boolean flag = scomponent.getHealth();
+			// if one of the component health is bad , then mark the execution test as failed.
+			if (flag == false) {
+				isHealth = false;
+			}
+		}
 		
+		String overAllResult = null;
+		if ( ( isHealth == true) && (overAllExecutionResult == true)) {
+			overAllResult = "PASS";
+		} else  {
+			overAllResult = "FAIL";
+		}
+		this.updateDB(this.getCurrentHourPath().trim(), "result", overAllResult);
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {

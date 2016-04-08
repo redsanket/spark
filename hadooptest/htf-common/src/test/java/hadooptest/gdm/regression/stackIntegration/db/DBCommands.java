@@ -97,6 +97,8 @@ public interface DBCommands {
 			
 			// oozie
 			+ "oozieVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+			+ "oozieResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+			+ "oozieCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 			+ "oozieComments TEXT   , "
 			
 			+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
