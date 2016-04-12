@@ -58,7 +58,7 @@ public class HadoopHealthCheckup implements Callable<StackComponent>{
 		} else if (result == null || flag == false) {
 			this.stackComponent.setStackComponentVersion("0.0");
 			this.stackComponent.setHealth(false);
-			this.stackComponent.setErrorString("Failed to get the hadoop Vesion - reasone " + this.commonFunctions.getErrorMessage());
+			this.stackComponent.setErrorString("Failed to get the hadoop Vesion - reason " + this.commonFunctions.getErrorMessage());
 		}
 		if (flag== true) {
 			this.stackComponent.setStackComponentVersion(hadoopVersion);
