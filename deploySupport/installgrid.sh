@@ -137,7 +137,7 @@ export TIMESTAMP=$DATESTRING
 set -e
 function error_handler {
    LASTLINE="$1"
-   echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+   echo "ERROR: Trapped error signal in [${BASH_SOURCE}]: line ${LASTLINE} of current or downstream script"
 }
 trap 'error_handler ${LINENO}' ERR
 
