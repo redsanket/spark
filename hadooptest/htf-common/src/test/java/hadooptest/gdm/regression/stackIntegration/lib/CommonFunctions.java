@@ -532,8 +532,8 @@ public class CommonFunctions {
 			String folderName = "/tmp/integration-testing/" + componentName;
 			String componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
 			String rmDirCommand = " rm -rf " + folderName;
-			String mkdirCommand = " mkdir -p " + componentFolder  + "  | echo $?";
-			String command = "ssh " +  hostName + "  \"" +  rmDirCommand + ";" + mkdirCommand + "\"" ;
+			String mkDirCommand = " mkdir -p " + componentFolder  + "  | echo $?";
+			String command = "ssh " +  hostName + "  \"" +  rmDirCommand + ";" + mkDirCommand + "\"" ;
 			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 			String mkDirCommandExecResult  = this.executeCommand(command);
 			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
