@@ -148,13 +148,13 @@ public class CreateIntegrationDataSet {
     public Element createNewNode(String nodeName) {
         Element newElement = this.getDocument().createElement(nodeName);
         return newElement;
-
     }
 
     public void writeModifiedDocumentToFile() {
         OutputFormat outputFormat = new OutputFormat();
         outputFormat.setIndenting(true);
         String absoultePath = new File("").getAbsolutePath();
+        
         Calendar dataSetCal = Calendar.getInstance();
         SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
         feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -226,7 +226,7 @@ public class CreateIntegrationDataSet {
              targetsNode.appendChild(policiesElement);
 
              // policy element
-             Element policyElement = this.createNewNode(policiesElement , "Policy" , "condition", "instanceDate(instancelist, instance) > 1" , "type" , "retention");
+             Element policyElement = this.createNewNode(policiesElement , "Policy" , "condition", "instanceDate(instancelist, instance) > 5" , "type" , "retention");
              policiesElement.appendChild(policyElement);
              newTargetElement.appendChild(policiesElement);
 

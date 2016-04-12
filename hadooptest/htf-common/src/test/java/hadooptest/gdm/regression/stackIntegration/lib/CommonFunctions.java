@@ -529,20 +529,27 @@ public class CommonFunctions {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 			simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Calendar calendar = Calendar.getInstance();
-			String folderName = "/tmp/integration-testing/" + componentName  + File.separator +  simpleDateFormat.format(calendar.getTime());
-			String mkdirCommand = "ssh " +  hostName  + "  mkdir -p " + folderName  + "  | echo $?";
-			String mkDirCommandExecResult  = this.executeCommand(mkdirCommand);
+			String folderName = "/tmp/integration-testing/" + componentName;
+			String componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
+			String rmDirCommand = " rm -rf " + folderName;
+			String mkDirCommand = " mkdir -p " + componentFolder  + "  | echo $?";
+			String command = "ssh " +  hostName + "  \"" +  rmDirCommand + ";" + mkDirCommand + "\"" ;
+			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			String mkDirCommandExecResult  = this.executeCommand(command);
+			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			
 			if (mkDirCommandExecResult != null) {
 				mkdirFlag = true;
-				TestSession.logger.info(folderName + "  created successfully on " + hostName);
-				String scpCommand = "scp " + componentFile.toString() +  File.separator + "*" + "  "  + hostName + ":" + folderName;
+				TestSession.logger.info(componentFolder + "  created successfully on " + hostName);
+				String scpCommand = "scp " + componentFile.toString() +  File.separator + "*" + "  "  + hostName + ":" + componentFolder;
 				String scpCommandResutlt = this.executeCommand(scpCommand);
 				if (scpCommandResutlt != null) {
 					isTestCaseCopiedFlag = true;
-					this.setScriptLocation(folderName);
+					this.setScriptLocation(componentFolder);
 					TestSession.logger.info(componentFile.toString() + "  copied successfully on " + hostName);
 				}
 			}
+			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 		} else {
 			TestSession.logger.error(componentFile.toString() + " path does not exists. Please check whether you have specified testcase path.");
 		}
