@@ -32,7 +32,7 @@ public class HadoopHealthCheckup implements Callable<StackComponent>{
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
 		this.stackComponent.setHostName(this.getHostName());
-		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
+		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() +  "  \"" + "hadoop version\"";
 		TestSession.logger.info("command - " + command);
 		String result = this.commonFunctions.executeCommand(command);
 		this.getHadoopVersion(result);
@@ -41,32 +41,28 @@ public class HadoopHealthCheckup implements Callable<StackComponent>{
 	
 	public void getHadoopVersion(String result) {
 		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String hadoopVersion = null;
+		boolean flag = false;
 		if (result != null) {
-			List<String> logOutputList = Arrays.asList(result.split("\n"));
-			for ( String log : logOutputList) {
-				if (log.startsWith(TEZ_HOME) == true ) {
-					String temp = TEZ_HOME + "/tez-api-";
-					String version = log.substring( temp.length() - 1, log.length()).replace(".jar", "").trim();
-					TestSession.logger.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   " + version);
-					if (version != null) {
-						this.stackComponent.setStackComponentVersion(version);
-						this.stackComponent.setHealth(true);
-						break;	
-					} else if (version == null) {
-						this.stackComponent.setStackComponentVersion("0.0");
-						this.stackComponent.setHealth(false);
-						this.commonFunctions.updateDB(currentDataSet, "hadoopResult", "FAIL");
-						this.commonFunctions.updateDB(currentDataSet, "hadoopeCurrentState", "COMPLETED");
-						this.commonFunctions.updateDB(currentDataSet, "hadoopComments", "Hadoop failed.");
-						break;
-					}
-					
+			TestSession.logger.info("hadoop version result = " + result);
+			java.util.List<String>outputList = Arrays.asList(result.split("\n"));
+			for ( String str : outputList) {
+				TestSession.logger.info(str);
+				if ( str.startsWith("Hadoop") == true ) {
+					hadoopVersion = Arrays.asList(str.split(" ")).get(1);
+					flag = true;
+					break;
 				}
-			}	
-		} else if (result == null) {
+			}
+			TestSession.logger.info("Hadoop Version - " + hadoopVersion);	
+		} else if (result == null || flag == false) {
 			this.stackComponent.setStackComponentVersion("0.0");
 			this.stackComponent.setHealth(false);
-			this.stackComponent.setErrorString("Tez is not installed. Check whether tez-api-* exists under " + TEZ_HOME + " or " + this.commonFunctions.getErrorMessage());
+			this.stackComponent.setErrorString("Failed to get the hadoop Vesion - reasone " + this.commonFunctions.getErrorMessage());
+		}
+		if (flag== true) {
+			this.stackComponent.setStackComponentVersion(hadoopVersion);
+			this.stackComponent.setHealth(true);
 		}
 	}
 }
