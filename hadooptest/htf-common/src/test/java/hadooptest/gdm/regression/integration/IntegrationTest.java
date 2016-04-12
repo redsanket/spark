@@ -306,7 +306,7 @@ public class IntegrationTest  extends TestSession {
 			boolean safeMode = checkClusterHealthObject.getClusterMode();
 			TestSession.logger.info("cluster mode = " + safeMode);
 			List<String> dataPathList = checkClusterHealthObject.getPathsList();
-			if (checkClusterHealthObject.isDataRequiredToClean() && safeMode == false) {
+			if (checkClusterHealthObject.getCleanUpFlag() && safeMode == false) {
 				for ( String dataPath : dataPathList)
 					checkClusterHealthObject.deletePath(dataPath);
 			}

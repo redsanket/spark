@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.util.Map;
 
-
 /**
  * Check whether given cluster is in SAFE_MODE and delete the given path on the cluster.
  */
@@ -82,8 +81,8 @@ public class CheckClusterHealth {
 	
 	public String getClusterNameNode() {
 		return this.clusterNameNodeName;
-	}
-
+	}	
+	
 	/**
 	 * Get the cluster mode and check whether data needs to be deleted even if one of the datanode is 50% of data.
 	 * @return
@@ -131,12 +130,16 @@ public class CheckClusterHealth {
 				// if datanode's blockPoolUsedPercent is greater than 50% then we need to delete the folders
 				if (temp > BLOCK_USED_LIMIT) {
 					// clean hdfs
-					cleanUpFlag = true;
+					this.setCleanUpFlag(true);
+					this.setDataNodeFullCount();
 					
 					// increase the datanode that is full by 50% of space
-					dataNodeFullCount++;
 					
-					TestSession.logger.info("DataNode " + key + "  of " + this.getClusterName()  + "  is filled with data of " + temp + "  on HDFS.");
+					
+					TestSession.logger.info("DataNode " + key + "  of " + this.getClusterName()  + "  is filled with data of " + temp + "  on HDFS.  cleanUpFlag =  "  +  this.getCleanUpFlag());
+					if (this.getCleanUpFlag() == true) {
+						TestSession.logger.info("Clean up required ");
+					}
 				}
 				TestSession.logger.info("------------------------------------------------");
 			}
@@ -144,6 +147,23 @@ public class CheckClusterHealth {
 		return cMode;
 	}
 	
+	public boolean getCleanUpFlag() {
+		TestSession.logger.info("Clean up required " + this.cleanUpFlag);
+		return cleanUpFlag;
+	}
+
+	public void setCleanUpFlag(boolean cleanUpFlag) {
+		this.cleanUpFlag = cleanUpFlag;
+	}
+
+	public int getDataNodeFullCount() {
+		return dataNodeFullCount;
+	}
+
+	public void setDataNodeFullCount() {
+		this.dataNodeFullCount++;
+	}
+
 	/**
 	 * tells whether data should be deleted.
 	 * @return
