@@ -282,14 +282,19 @@ setGridParameters() {
        nmachines=`wc -l hostlist.$cluster.txt | cut -f1 -d' '`
        echo "**** " ; echo "**** $nmachines node cluster" ; echo "**** "
 
-       # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
-       # for oozie for two cases will happen, IntTest install or component install,
-       # in both cases we exclude the oozie node(s), can have multiple members
-       # for component install, need to convert spaces to | for correct exclusion
+       # Construct space separated non slave node list to filter out nodes from
+       # the host list
        nonslave_nodes="$daqnode $gateway $hcat_server $hcatservernode \
                        $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
                        $jobtrackernode $namenode $secondarynamenode \
                        $zookeepernodes"
+       [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
+
+       # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
+       # for oozie for two cases will happen, IntTest install or component install,
+       # in both cases we exclude the oozie node(s), can have multiple members
+       # for component install, need to convert spaces to | for correct exclusion
+       #
        # 'if' check needs to deal with two cases for excluding oozienode, if integration
        # component install is selected (STACK_COMP_INSTALL_OOZIE is true) or if oozie
        # component is using the cluster (oozie role will have multiple members), then
@@ -303,22 +308,20 @@ setGridParameters() {
        if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ $OOZIE_ROLE_MEMBER_COUNT -gt 1 ]; then
            nonslave_nodes+=" $oozienode"
        fi
-       re=""
-       for node in $nonslave_nodes; do
-           re="$re|$node"
-       done 
-       # Remove the leading '|' in the pattern
-       re=`echo $re|cut -d'|' -f2-`
 
+       # Construct out pipe separated nodes to filter out from the host list from
+       # space separated non slave node list
+       # First sed removes spaces from end of the variable
+       # Second sed replaces one or more spaces with '|'
+       re=`echo $nonslave_nodes|sed 's/ *$//'|sed 's/  */\|/g'`
        echo "re='$re'"
-       egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
-#
 
-#
-       
+       # Filter out pipe separated nodes in $re from the host list
+       egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
+
 
        # sort -o slaves.$cluster.txt slaves.$cluster.txt
-        # step 2f: final dusting-off. Note that we have package-name hard-coded - a last bit of ugliness we should formalize and make go away.
+       # step 2f: final dusting-off. Note that we have package-name hard-coded - a last bit of ugliness we should formalize and make go away.
 #
 #
 #
