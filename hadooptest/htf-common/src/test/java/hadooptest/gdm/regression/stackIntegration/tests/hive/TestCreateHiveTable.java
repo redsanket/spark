@@ -58,7 +58,7 @@ public class TestCreateHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("--------------------------------------------------------------- TestCreateHiveTable  start ------------------------------------------------------------------------");
-		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		String currentDataSetName = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSetName, "hiveCreateTableCurrentState", "RUNNING");
 		String executionCommand = this.getCommand() + " hive -f " + this.getScriptLocation() + "/" + HIVE_CREATE_TABLE_SCRIPT_NAME + "\" ";
 		TestSession.logger.info("executionCommand = " + executionCommand);

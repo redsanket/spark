@@ -29,6 +29,7 @@ public class PigHealthCheckup implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
+		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
 		this.stackComponent.setHostName(this.getHostName());
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName()  + " \"" + kINIT_COMMAND + ";" + "export PIG_HOME=/home/y/share/pig;export PATH=$PATH:$PIG_HOME/bin/;pig -version\"";
 		TestSession.logger.info("command - " + command);
@@ -38,7 +39,7 @@ public class PigHealthCheckup implements Callable<StackComponent>{
 	}
 	
 	public void getPigVersion(String result) {
-		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
+		String currentDataSet = this.stackComponent.getDataSetName();
 		if (result != null) {
 			java.util.List<String>outputList = Arrays.asList(result.split("\n"));
 			for ( String str : outputList) {

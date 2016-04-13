@@ -82,7 +82,7 @@ public class TestHBaseScanTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  start ------------------------------------------------------------------------");
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "RUNNING");
 		boolean scanRecordResult = false;
 		String mrJobURL = null;

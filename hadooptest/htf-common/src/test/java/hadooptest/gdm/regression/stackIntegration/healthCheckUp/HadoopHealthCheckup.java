@@ -30,7 +30,7 @@ public class HadoopHealthCheckup implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
-		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
+		this.stackComponent.setDataSetName(this.commonFunctions.getDataSetName());
 		this.stackComponent.setHostName(this.getHostName());
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() +  "  \"" + "hadoop version\"";
 		TestSession.logger.info("command - " + command);
@@ -40,7 +40,7 @@ public class HadoopHealthCheckup implements Callable<StackComponent>{
 	}
 	
 	public void getHadoopVersion(String result) {
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.stackComponent.getDataSetName();
 		String hadoopVersion = null;
 		boolean flag = false;
 		if (result != null) {

@@ -49,8 +49,8 @@ public class GDMHealthCheckUp implements Callable<StackComponent>{
 	}
 	
 	public void checkGDMHealthCheckup() {
-
-		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
+		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
+		String currentDataSet = this.stackComponent.getDataSetName();
 		String gdmVersion = "0.0";
 		boolean flag = false;
 		ConsoleHandle consoleHandle = new ConsoleHandle();

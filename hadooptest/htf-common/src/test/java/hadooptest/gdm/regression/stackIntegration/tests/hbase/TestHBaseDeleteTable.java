@@ -66,7 +66,7 @@ public class TestHBaseDeleteTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseDeleteTable  start ------------------------------------------------------------------------");
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseDeleteTableCurrentState", "RUNNING");
 		TestSession.logger.info("path = " + this.getPath() + "   knit = " + this.getKinitCommand()  + "  script location =   " + this.getScriptPath());
 		boolean hbaseTableDeleted = false;

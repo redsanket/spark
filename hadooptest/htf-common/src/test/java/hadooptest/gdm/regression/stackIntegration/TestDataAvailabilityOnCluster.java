@@ -18,18 +18,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
+
 
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
@@ -58,6 +47,7 @@ public class TestDataAvailabilityOnCluster {
 	private String currentStatus;
 	private String nameNode;
 	private String currentHour;
+	private String dataSetName;
 	public FileSystem hdfsFileSystem ;
 	private CommonFunctions commonFunctionObject;
 	private Configuration configuration;
@@ -66,9 +56,16 @@ public class TestDataAvailabilityOnCluster {
 		this.commonFunctionObject = new CommonFunctions();
 		this.setNameNode(nameNodeName);
 		this.setCurrentHour(this.commonFunctionObject.getCurrentHourPath());
-		
 	}
 	
+	public String getDataSetName() {
+		return dataSetName;
+	}
+
+	public void setDataSetName(String dataSetName) {
+		this.dataSetName = dataSetName;
+	}
+
 	public String getNameNode() {
 		return nameNode;
 	}
@@ -105,6 +102,8 @@ public class TestDataAvailabilityOnCluster {
 	}
 
 	public boolean pollForDataAvaiability() throws IOException {
+		
+		this.setDataSetName(this.commonFunctionObject.getDataSetName());
 		
 		this.configuration = this.getConfForRemoteFS();
 		boolean flag =  false;
@@ -187,20 +186,20 @@ public class TestDataAvailabilityOnCluster {
 			}
 		} catch (IOException e) {
 			exceptionArised = true;
-			this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopResult" , "FAIL");
-			this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "COMPLETED");
-			this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmResult" , "FAIL");
-			this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "COMPLETED");
+			this.commonFunctionObject.updateDB(this.getDataSetName(), "hadoopResult" , "FAIL");
+			this.commonFunctionObject.updateDB(this.getDataSetName(), "hadoopCurrentState" , "COMPLETED");
+			this.commonFunctionObject.updateDB(this.getDataSetName(), "gdmResult" , "FAIL");
+			this.commonFunctionObject.updateDB(this.getDataSetName(), "gdmCurrentState" , "COMPLETED");
 			e.printStackTrace();
-		}finally{
+		}finally {
 			if (flag == true) {
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopResult" , "PASS");
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "COMPLETED");
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmResult" , "PASS");
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "COMPLETED");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "hadoopResult" , "PASS");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "hadoopCurrentState" , "COMPLETED");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "gdmResult" , "PASS");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "gdmCurrentState" , "COMPLETED");
 			} else if (flag == false && exceptionArised == false) {
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "hadoopCurrentState" , "RUNNING");
-				this.commonFunctionObject.updateDB(this.getCurrentHour(), "gdmCurrentState" , "RUNNING");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "hadoopCurrentState" , "RUNNING");
+				this.commonFunctionObject.updateDB(this.getDataSetName(), "gdmCurrentState" , "RUNNING");
 			}
 		}
 		return flag;

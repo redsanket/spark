@@ -91,7 +91,7 @@ public class DataBaseOperations {
 		}
 	}
 	
-	public void insertDataSetName(String dataSetName , String currentDate) {
+	public void insertDataSetName(String dataSetName , String currentDate ) {
 		Connection con = null;
 
 		/**
@@ -125,7 +125,36 @@ public class DataBaseOperations {
 		Connection con = null;
 		try {
 			con = this.getConnection();
-			String 	UPDATE_RECORD = "update " + DBCommands.TABLE_NAME + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\"";
+			String 	UPDATE_RECORD = "update " + DBCommands.TABLE_NAME + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\""    ;
+			TestSession.logger.info("UPDATE_RECORD  = " + UPDATE_RECORD);
+			if (con != null) {
+				Statement stmt = con.createStatement();
+				stmt.execute(UPDATE_RECORD);
+				TestSession.logger.info("Record updated successfully..!");
+				stmt.close();
+			}
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+			TestSession.logger.error("Failed to update " + columnName + "  result into DB." + e);
+			e.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					TestSession.logger.error("Failed to close db connection." + e);
+					e.printStackTrace();
+				}
+			}	
+		}
+	}
+	
+	
+	public synchronized void insertComponentTestResult(String dataSetName , String testIteration, String columnName , String columnValue) {
+		TestSession.logger.info("dataSetName  = " + dataSetName  + "   columnName  = " + columnName  + "   columnValue = " + columnValue);
+		Connection con = null;
+		try {
+			con = this.getConnection();
+			String 	UPDATE_RECORD = "update " + DBCommands.TABLE_NAME + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\""  + "  and testIteration=\"" + testIteration +  "\""   ;
 			TestSession.logger.info("UPDATE_RECORD  = " + UPDATE_RECORD);
 			if (con != null) {
 				Statement stmt = con.createStatement();

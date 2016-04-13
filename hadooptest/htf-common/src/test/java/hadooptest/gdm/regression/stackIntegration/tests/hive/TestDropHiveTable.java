@@ -62,7 +62,7 @@ public class TestDropHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("--------------------------------------------------------------- TestDropHiveTable  start ------------------------------------------------------------------------");
-		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		String currentDataSetName = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSetName, "hiveDropTableCurrentState", "RUNNING");
 		String executionCommand = this.getCommand() + " hive -f " + this.getScriptLocation() + "/" + HIVE_DROP_TABLE_SCRIPT_NAME + "\" ";
 		TestSession.logger.info("executionCommand = " + executionCommand);

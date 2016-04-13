@@ -11,11 +11,12 @@ public interface DBCommands {
 			
 			// date
 			+ "date VARCHAR(30)  DEFAULT 'UNKNOWN' , "
-			
+						
 			// hadoop
 			+ "hadoopVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 			+ "hadoopResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+			+ "hadoopComments TEXT   , "
 			
 			// gdm
 			+ "gdmVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "

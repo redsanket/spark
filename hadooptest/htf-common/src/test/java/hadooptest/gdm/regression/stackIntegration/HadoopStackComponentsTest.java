@@ -20,6 +20,7 @@ public class HadoopStackComponentsTest extends TestSession {
 	private String clusterName;
 	private CommonFunctions commonFunctionsObject;
 	private TestDataAvailabilityOnCluster testDataAvailabilityOnCluster; 
+	private static final int TEST_ITERATION_COUNT = 3;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -48,22 +49,27 @@ public class HadoopStackComponentsTest extends TestSession {
 
 	@Test
 	public void checkStackComponentsHealth() throws InterruptedException, ExecutionException, IOException {
+		testStack();
+	}
+	
+	public void testStack() throws InterruptedException, ExecutionException, IOException {
+		for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
+			String currentDataSetName = this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
+			this.commonFunctionsObject.setDataSetName(currentDataSetName);
+			
+			// check component health
+			this.commonFunctionsObject.checkClusterHealth();
+			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName());
 
-		// check component health
-		this.commonFunctionsObject.checkClusterHealth();
-		this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName());
+			// check for data avaiable for the current hr 
+			boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();
+			TestSession.logger.info("isDataAvailable  = " + isDataAvailable);
 
-		// check for data avaiable for the current hr 
-		boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();
-		TestSession.logger.info("isDataAvailable  = " + isDataAvailable);
-
-		if (isDataAvailable ) {
-			this.commonFunctionsObject.preInit();
-			this.commonFunctionsObject.initComponents();
-			this.commonFunctionsObject.testStackComponent();
-
-			// TODO : write code to clean up, but better to leave the log for debugging purpose, but do the clean up as part of init step.
+			if (isDataAvailable ) {
+				this.commonFunctionsObject.preInit();
+				this.commonFunctionsObject.initComponents();
+				this.commonFunctionsObject.testStackComponent();
+			}
 		}
-
 	}
 }

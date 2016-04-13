@@ -80,7 +80,7 @@ public class TestLoadDataToHiveTable {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestLoadDataToHiveTable  start ------------------------------------------------------------------------");
-		String currentDataSetName = this.commonFunction.getCurrentHourPath();
+		String currentDataSetName = this.commonFunction.getDataSetName();
 		this.commonFunction.updateDB(currentDataSetName, "hiveLoadDataToTableCurrentState", "RUNNING");
 		boolean  dataLoadedToHive = false;
 		this.setCurrentMinute(commonFunction.getCurrentHrMin());	

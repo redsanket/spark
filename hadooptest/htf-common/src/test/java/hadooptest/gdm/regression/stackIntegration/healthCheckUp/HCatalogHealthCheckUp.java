@@ -28,7 +28,7 @@ public class HCatalogHealthCheckUp  implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
-		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
+		this.stackComponent.setDataSetName(this.commonFunctions.getDataSetName());
 		this.stackComponent.setHostName(this.getHostName());
 		this.getHCatVersion();
 		return this.stackComponent;
@@ -59,7 +59,7 @@ public class HCatalogHealthCheckUp  implements Callable<StackComponent>{
 	}
 	
 	public void getHiveVersion(String result) {
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.stackComponent.getDataSetName();
 		if (result != null) {
 			List<String> outputList = Arrays.asList(result.split("\n"));
 			for ( String str : outputList) {
