@@ -268,7 +268,7 @@ fanoutSparkUI() {
   SPARK_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
   $PDSH_SLOW -w "$SPARK_UI_NODE_LIST" $*
   st=$?
-  echo 'fanoutSpark_UI: end on ' `date +%H:%M:%S`
+  echo 'fanoutSpark_UI: end on '`date +%H:%M:%S`
   return $st
 }
 
