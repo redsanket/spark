@@ -259,6 +259,20 @@ fanoutSpark() {
   return $st
 }
 
+fanoutSparkUI() {
+  echo 'fanoutSparkUI: start on '`date +%H:%M:%S`
+  if [ -z $jobtrackernode ]; then
+     echo ERROR: Not define grid_re.clusters.$cluster.jobtracker
+     return 1
+  fi
+  SPARK_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
+  $PDSH_SLOW -w "$SPARK_UI_NODE_LIST" $*
+  st=$?
+  echo 'fanoutSpark_UI: end on '`date +%H:%M:%S`
+  return $st
+}
+
+
 fanoutGW() {
    # echo fanoutGW: running "$@" 
 
