@@ -140,8 +140,8 @@ while (<>) {
             $hostname = $2;
             unless ($hostname =~ $prev_hostname) {
                 # reboot the node
-                print("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n");
-                print $fh_issues "ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n";
+                print("ssh devadm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n");
+                print $fh_issues "ssh devadm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname\n";
 
                 # system("ssh adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $hostname");
                 # Sorry, user hadoopqa is not allowed to execute '/home/y/bin/flubber_conutil -m reboot dense28.blue.ygrid.yahoo.com' as hadoopqa on adm102.blue.ygrid.yahoo.com.
