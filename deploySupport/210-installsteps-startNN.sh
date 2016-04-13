@@ -88,7 +88,17 @@ then
     fanoutSecondary "rm /tmp/namenode2-part-1-script.sh"
 
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
-    $PDSH -w "$SLAVELIST" "export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export  JAVA_HOME=$JAVA_HOME && sh /tmp/datanode-script.sh $arg $cluster  && rm -f /tmp/datanode-script.sh"
+    set -x
+    $PDSH -w "$SLAVELIST" "\
+export GSHOME=$GSHOME && export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
+echo "export HADOOP_PREFIX=${yroothome}/share/hadoop" && \
+export HADOOP_HOME=${yroothome}/share/hadoop-combined-folder && \
+export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && \
+export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export JAVA_HOME=$JAVA_HOME && \
+sh /tmp/datanode-script.sh $arg $cluster; \
+EC=\$?; echo EC=\$EC; [[ \$EC -eq 0 ]] && rm -f /tmp/datanode-script.sh\
+"
+    set +x
 
     (
     echo "export GSHOME=$GSHOME"
