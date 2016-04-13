@@ -260,7 +260,7 @@ fanoutSpark() {
 }
 
 fanoutSparkUI() {
-  echo 'fanoutSparkUI: start on ' `date +%H:%M:%S`
+  echo 'fanoutSparkUI: start on '`date +%H:%M:%S`
   if [ -z $jobtrackernode ]; then
      echo ERROR: Not define grid_re.clusters.$cluster.jobtracker
      return 1
