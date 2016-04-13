@@ -10,7 +10,7 @@ HDFS_TEST_DIR=$3
 LOCAL_PROXY=$4
 REMOTE_PROXY=$5
 
-ADM_HOST=${ADM_HOST:="adm102.blue.ygrid.yahoo.com"}
+ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 HDFS_TEST_DIR=${HDFS_TEST_DIR:="/HTF/testdata/dfs/"}
 PROXY_PORT=4443
 

@@ -112,8 +112,9 @@ note("Running on host '$hostname', using hdfsproxy '$hproxy' ");
 
 # trim(my $nn_alias = `yinst range -ir "(\@grid_re.clusters.$cluster.namenode_alias)"`);
 
-execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
-execute("ssh -t adm102.blue.ygrid.yahoo.com sudo ssh -t $hproxy ls -l /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
+my $adm_host='devadm102.blue.ygrid.yahoo.com';
+execute("ssh -t $adm_host sudo ssh -t $hproxy chmod a+r /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
+execute("ssh -t $adm_host sudo ssh -t $hproxy ls -l /home/y/conf/yjava_tomcat/ssl.crt/ca.crt /home/y/conf/ygrid_services_cert/ca.crt");
 
 # execute("scp $hproxy:/grid/0/yroot/var/yroots/hit_hp/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
 execute("scp $hproxy:/home/y/conf/yjava_tomcat/ssl.crt/ca.crt $tmpdir/ca.crt");
