@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DataSet catalog="gdm-catalog" description="gdm-dataset-Test-ABF-with-hcat"
+<DataSet catalog="gdm-catalog" description="integration_dataset"
     name="NEW_DATA_SET_NAME"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
     <Active>TRUE</Active>
-    <RetentionEnabled>TRUE</RetentionEnabled>
+    <RetentionEnabled>FALSE</RetentionEnabled>
     <VerificationInstance/>
     <Priority>HIGHEST</Priority>
     <Contact consumer="gdm-dev@yahoo-inc.com"
