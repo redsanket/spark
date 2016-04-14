@@ -80,6 +80,7 @@ public class TestTez implements Callable<String> {
 		this.setNameNodeName(nameNodeName);
 		this.setHostName(hostName);
 		this.setDataSetName(dataSetName);
+		this.stackComponent.setDataSetName(this.commonFunctions.getDataSetName());
 		this.stackComponent.setCurrentState("STARTED");
 	}
 	

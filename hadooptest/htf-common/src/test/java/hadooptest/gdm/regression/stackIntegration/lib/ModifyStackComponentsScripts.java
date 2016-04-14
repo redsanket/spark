@@ -84,7 +84,7 @@ public class ModifyStackComponentsScripts {
 			boolean hbaseCreateTableScriptFlag = false;
 			File hbaseCreateTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable.txt");
 			String hbaseCreateTableScriptFileContent = new String(readAllBytes(get(hbaseCreateTableFilePath.toString())));
-			hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getCurrentHourPath());
+			hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getDataSetName());
 
 			// create new file
 			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable_temp.txt");
@@ -99,7 +99,7 @@ public class ModifyStackComponentsScripts {
 			boolean hbaseDeleteTableScriptFlag = false;
 			File hbaseDeleteTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable.txt");
 			String hbaseDeleteTableScriptFileContent = new String(readAllBytes(get(hbaseDeleteTableFilePath.toString())));
-			hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getCurrentHourPath());
+			hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getDataSetName());
 
 			// create new file
 			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable_temp.txt");

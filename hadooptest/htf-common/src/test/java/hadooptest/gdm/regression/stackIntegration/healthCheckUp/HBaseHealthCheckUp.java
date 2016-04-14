@@ -74,7 +74,8 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setHostName(this.getHostName());
-		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
+		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
+		String currentDataSet = this.stackComponent.getDataSetName();
 		this.getHBaseHealthCheck();
 		if (getHBaseRegionalServerHealthCheckup() == 0) {
 			this.stackComponent.setHealth(false);

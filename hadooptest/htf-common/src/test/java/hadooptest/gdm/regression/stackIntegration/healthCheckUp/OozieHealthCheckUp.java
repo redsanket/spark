@@ -43,6 +43,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setHostName(this.getHostName());
+		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
 		String query = "http://" + this.getHostName() + QUERY;
 		TestSession.logger.info("query = " + query);
 		this.executeRestQuery(query);
@@ -50,7 +51,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	}
 	
 	public void executeRestQuery(String query) {
-		String currentDataSet = this.commonFunctionsObj.getCurrentHourPath();
+		String currentDataSet = this.stackComponent.getDataSetName(); 
 		TestSession.logger.info("____________________________________________________________________________________________________");
 		try {
 			com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctionsObj.getCookie()).get(query);

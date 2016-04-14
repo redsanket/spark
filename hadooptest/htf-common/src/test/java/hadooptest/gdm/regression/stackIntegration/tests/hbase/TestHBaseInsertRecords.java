@@ -92,7 +92,7 @@ public class TestHBaseInsertRecords {
 
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start ------------------------------------------------------------------------");
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseInsertTableCurrentState", "RUNNING");
 		boolean insertRecordResult = false;
 		String mrJobURL = null;

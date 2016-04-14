@@ -57,6 +57,7 @@ public class CommonFunctions {
 	private String errorMessage;
 	private String scriptLocation;
 	private String pipeLineName;
+	private static String dataSetName;
 	private Map<String,StackComponent> healthyStackComponentsMap;
 	private Map<String,String> hostsNames;
 	private List<String> stackComponentList;
@@ -76,7 +77,7 @@ public class CommonFunctions {
 	public static final String TEZ_HEALTH_CHECKUP = "tez_health";
 	public static final String TEZ_RESULT = "tez_result";
 	public static final String HADOOP_HOME="/home/gs/hadoop/current";
-
+	
 	public CommonFunctions() {
 		this.consoleHandle = new ConsoleHandle();
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
@@ -96,6 +97,15 @@ public class CommonFunctions {
 		this.createDB();
 	}
 	
+	public String getDataSetName() {
+		TestSession.logger.info("```````````````````````````````````````  getDataSetName( ) ```````````````````````````````````````````````" + dataSetName);
+		return dataSetName;
+	}
+
+	public void setDataSetName(String dataSetName) {
+		this.dataSetName = dataSetName;
+	}
+
 	public String getPipeLineName() {
 		return pipeLineName;
 	}
@@ -270,15 +280,15 @@ public class CommonFunctions {
 		return componentHostNames;
 	}
 
-	public void checkClusterHealth() throws InterruptedException, ExecutionException {
+	public void checkClusterHealth( ) throws InterruptedException, ExecutionException {
 		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currentHrPath = simpleDateFormat.format(calendar.getTime());
 		
 		// insert current dataSetName into the db
-		this.dbOperations.insertDataSetName(this.getCurrentHourPath() , currentHrPath);
+		this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
 		
 		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
@@ -335,14 +345,14 @@ public class CommonFunctions {
 			testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
 			testList.add(testTezComponent);
 		}
-	
+			
 		StackComponent hiveStackComponent = stackComponentMap.get("hive");
 		Callable<String> testIntHive = null;
 		if (hiveStackComponent != null) {
 			testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
 			testList.add(testIntHive);	
 		}
-		
+				
 		StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
 		Callable<String> testHbaseComponent = null;
 		if (hbaseStackComponent != null)  {
@@ -386,7 +396,7 @@ public class CommonFunctions {
 		} else  {
 			overAllResult = "FAIL";
 		}
-		this.updateDB(this.getCurrentHourPath().trim(), "result", overAllResult);
+		this.updateDB(this.getDataSetName(), "result", overAllResult);
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {

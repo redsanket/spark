@@ -29,7 +29,7 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 	@Override
 	public StackComponent call() throws Exception {
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
-		this.stackComponent.setDataSetName(this.commonFunctions.getCurrentHourPath());
+		this.stackComponent.setDataSetName(this.commonFunctions.getDataSetName());
 		this.stackComponent.setHostName(this.getHostName());
 		String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + " \"ls -t " + TEZ_HOME + "tez-api-*\"";
 		TestSession.logger.info("command - " + command);
@@ -39,7 +39,7 @@ public class TezHealthCheckUp implements Callable<StackComponent>{
 	}
 	
 	public void getTezVersion(String result) {
-		String currentDataSet = this.commonFunctions.getCurrentHourPath();
+		String currentDataSet = this.stackComponent.getDataSetName();
 		if (result != null) {
 			List<String> logOutputList = Arrays.asList(result.split("\n"));
 			for ( String log : logOutputList) {

@@ -51,7 +51,7 @@ public class TestHCatalog {
 	
 	public boolean execute() {
 		TestSession.logger.info("---------------------------------------------------------------TestHCatalog  start ------------------------------------------------------------------------");
-		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		String currentDataSetName = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSetName, "hcatCurrentState", "RUNNING");
 		boolean flag = false;
 		String mrJobURL = "";
@@ -64,7 +64,7 @@ public class TestHCatalog {
 			TestSession.logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    fetchDataUsingHCat() ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			for (String str : fetchDataOutputList ) {
 				TestSession.logger.info("str = " + str);
-				if (str.indexOf("org.apache.hadoop.mapreduce.Job - The url to track the job:") > -1) {				
+				if (str.indexOf("org.apache.hadoop.mapreduce.Job - The url to track the job:") > -1) {	
 					List<String>  temp = Arrays.asList(str.split(" "));
 					mrJobURL = temp.get(temp.size() - 1);
 					TestSession.logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  mrJobURL  = " + mrJobURL);
@@ -72,7 +72,7 @@ public class TestHCatalog {
 				if (str.trim().startsWith("Success")) {
 					flag = true;
 					TestSession.logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  flag  = " + flag);
-				} 
+				}
 				if (str.indexOf("HadoopVersion	PigVersion	UserId	StartedAt	FinishedAt	Features") > -1) {
 					count++;
 					String tempTime = fetchDataOutputList.get(count);
