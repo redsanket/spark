@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
@@ -91,7 +92,8 @@ public class TestHBaseInsertRecords {
 	}
 
 	public boolean execute() {
-		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start ------------------------------------------------------------------------");
+		String currentTableName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctions.getDataSetName();
+		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start   "+  currentTableName + "------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseInsertTableCurrentState", "RUNNING");
 		boolean insertRecordResult = false;
@@ -102,7 +104,7 @@ public class TestHBaseInsertRecords {
 				+ "  "
 				+ "-param \"DATASET_NAME=" + dataSetName + "\""
 				+ "  "
-				+ "-param \"TABLE_NAME=" + this.getTableName() + "\""
+				+ "-param \"TABLE_NAME=" + currentTableName + "\""
 				+ "  "
 				+ this.getScriptPath() + "/HBaseInsertRecord_temp.pig\"";
 		String output = this.commonFunctions.executeCommand(command );
