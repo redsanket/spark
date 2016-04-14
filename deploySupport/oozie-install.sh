@@ -28,11 +28,13 @@ HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.$CLUSTER |grep hadoopcoretr
 TEZ_VERSION=`ls /home/gs/tez/current/tez-common-*|cut -d'-' -f3|cut -d'.' -f1-5`
 
 TMPFILE="/tmp/yinst_tmp.out$$"
-yinst ls|egrep 'hive-|hcat_server|hbase|pig' > $TMPFILE
+yinst ls|egrep 'hive-|hcat_server|hbase|pig-' > $TMPFILE
 PIG_VERSION=`grep pig $TMPFILE | cut -d'-' -f2`
 HIVE_VERSION=`grep hive- $TMPFILE | cut -d'-' -f2`
 HCAT_VERSION=`grep hcat_server $TMPFILE | cut -d'-' -f2`
 HBASE_VERSION=`grep hbase $TMPFILE | cut -d'-' -f2`
+echo HADOOP_VERSION $HADOOP_VERSION
+echo TEZ_VERSION $TEZ_VERSION
 echo PIG_VERSION $PIG_VERSION
 echo HIVE_VERSION $HIVE_VERSION
 echo HCAT_VERSION $HCAT_VERSION
