@@ -13,7 +13,6 @@ oozie-build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running sphinx-build..."
-	@cd external/oozie          
 	. $(ACTIVATE) && make -C $(OOZIE) html
 
 oozie-gh-pages:
