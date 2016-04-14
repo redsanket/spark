@@ -72,7 +72,7 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 	public String  execute() {
 		TestSession.logger.info(" ---------------------------------------------------------------  TestHBASE  start ------------------------------------------------------------------------");
 		boolean isHBaseTableCreated = false , isHBaseRecordInserted = false , isTableScanned = false, isTableDeleted = false;
-		String currentDataSetName = this.commonFunctions.getCurrentHourPath();
+		String currentDataSetName = this.commonFunctions.getDataSetName();
 		String tableName = this.commonFunctions.getPipeLineName() + "_" + currentDataSetName;
 		this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "RUNNING");
 		TestSession.logger.info("Hbase Table name =-  " + tableName);
