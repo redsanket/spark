@@ -26,4 +26,4 @@ oozie-publish: oozie-gh-pages oozie-build
 	mv -fv $(OOZIE)/_build/html/* oozie/guide
 	rm -rf $(OOZIE)
 	git add -A
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages
+	git commit -m "Generated gh-pages." && git push origin gh-pages
