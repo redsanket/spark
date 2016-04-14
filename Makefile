@@ -18,7 +18,7 @@ oozie-build:
 oozie-gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
 	rm -rf oozie/guide/_images/ oozie/guide/_sources/ oozie/guide/_static/ oozie/guide/*.html oozie/guide/*.js oozie/guide/objects.inv
-	git checkout ${GIT_BRANCH} $(OOZIE)
+	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
 oozie-publish: oozie-gh-pages oozie-build
