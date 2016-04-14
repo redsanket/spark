@@ -95,7 +95,8 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 yinst i ygrid_cacert
 BRANCH=test
 yinst i yoozie -br $BRANCH
-yinst i ygrid_sharelib -br $BRANCH
+# gridci-924, ygrid_sharelib pkg branches are being fiddled with...
+yinst i ygrid_sharelib -br current 
 yinst i hadoopgplcompression-1.0.2.2.1209201519
 yinst i yoozie_client -br $BRANCH
 
