@@ -11,6 +11,8 @@
 # serve to show the default.
 
 import sys, os
+import shlex
+import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -18,6 +20,8 @@ import sys, os
 #sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration -----------------------------------------------------
+
+extensions = ['sphinx.ext.extlinks']
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
@@ -67,7 +71,7 @@ copyright = u'2013, Yahoo! Inc., 2013'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['.build']
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -100,7 +104,8 @@ highlight_language = 'javascript'
 #html_theme = 'ydntheme'
 
 # Theme for using on devel.corp.yahoo.com
-html_theme = 'haiku'
+#html_theme = 'haiku'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -108,7 +113,8 @@ html_theme = 'haiku'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
+#html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
+html_theme_path = ['_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -129,7 +135,7 @@ html_title = 'Oozie User Guide'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['.static']
+html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
