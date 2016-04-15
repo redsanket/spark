@@ -37,8 +37,6 @@ hadoop-gh-pages:
 	git reset HEAD
 
 hadoop-publish: hadoop-gh-pages hadoop-build
-	@echo "Removing old files."
-	git commit -am "Removing old files." && git push origin gh-pages
 	@echo "Copying new files."
 	cp -r $(OOZIE)/_build/html/* oozie
 	cp -r $(HIVE)/_build/html/* hive
@@ -46,7 +44,7 @@ hadoop-publish: hadoop-gh-pages hadoop-build
 	cp -r $(STORM)/_build/html/* storm
 	cp -r $(STARLING)/_build/html/* starling
 	cp -r $(HBASE)/_build/html/* hbase
-	rm setup.cfg tox.ini
+	rm -rf external setup.cfg tox.ini
 	@echo "Adding and saving new docs."
-	rm -rf external && git add -A 
+	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
