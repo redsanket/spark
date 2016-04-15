@@ -28,7 +28,7 @@ oozie-publish: oozie-gh-pages oozie-build
 	@echo "Copying new files."
 	mkdir -p oozie
 	cp -R $(OOZIE)/_build/html/* oozie
-	rm -rf $(OOZIE) external artifacts setup.cfg tox.ini
+	rm -rf $(OOZIE) external setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
