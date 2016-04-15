@@ -10,10 +10,10 @@ shared:
   steps:
     doc_build:
       description: calls sphinx-build
-      command: make -f ./Makefile oozie-build
+      command: make -f ./Makefile hadoop-build
     publish:
       description: calls sphinx-build and uploads the content to gh-pages branch
-      command: make -f ./Makefile oozie-publish
+      command: make -f ./Makefile hadoop-publish
 profiles:
   pull-request:
       description: >
