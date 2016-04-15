@@ -8,7 +8,7 @@ HIVE = external/hive/guide
 HUE = external/hue/guide
 STORM = external/storm/guide
 STARLING = external/starling/guide
-HBASE = external/oozie/guide
+HBASE = external/hbase/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
