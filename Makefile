@@ -23,6 +23,6 @@ oozie-gh-pages:
 
 oozie-publish: oozie-gh-pages oozie-build
 	mv -fv $(OOZIE)/_build/html/* oozie/guide
-	rm -rf $(OOZIE)
-	git add -A
+	rm -rf external
+	git add -A oozie/guide
 	git commit -m "Generated gh-pages." && git push origin gh-pages
