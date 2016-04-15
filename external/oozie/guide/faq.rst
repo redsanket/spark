@@ -4,7 +4,7 @@ FAQ
 .. 04/22/15: Rewrote
 .. 05/15/15: Edited.
 
-This section answers some of the most common questions we get about Oozie at Yahoo. For 
+This section answers some of the most common questions about Oozie at Yahoo. For 
 troubleshooting issues, see `Troubleshooting <ts.html>`_.
 
 Questions
