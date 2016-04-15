@@ -4,6 +4,11 @@ TMP_ENV := $(shell mktemp -d)
 ACTIVATE = $(TMP_ENV)/bin/activate
 PIP = $(TMP_ENV)/bin/pip
 OOZIE = external/oozie/guide
+HIVE = external/hive/guide
+HUE = external/hue/guide
+STORM = external/storm/guide
+STARLING = external/starling/guide
+HBASE = external/oozie/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
@@ -13,7 +18,7 @@ oozie-build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running sphinx-build..."
-	. $(ACTIVATE) && make -C $(OOZIE) html
+	. $(ACTIVATE) && make -C $(OOZIE) html && make -C $(HIVE) && make -C $(HUE) && make -C $(STORM) && make -C $(STARLING) && make -C $(HBASE) 
 
 oozie-gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
@@ -23,12 +28,17 @@ oozie-gh-pages:
 
 oozie-publish: oozie-gh-pages oozie-build
 	@echo "Removing old files."
-	git rm -rf oozie
+	git rm -rf oozie hive hue storm starling hbase
 	git commit -am "Removing old files." && git push origin gh-pages
 	@echo "Copying new files."
-	mkdir -p oozie
+	mkdir -p oozie hive hue storm starling hbase
 	cp -R $(OOZIE)/_build/html/* oozie
-	rm -rf $(OOZIE) external setup.cfg tox.ini
+	cp -R $(HIVE)/_build/html/* hive
+	cp -R $(HUE)/_build/html/* hue
+	cp -R $(STORM)/_build/html/* storm
+	cp -R $(STARLING)/_build/html/* starling
+	cp -R $(HBASE)/_build/html/* hbase
+	rm -rf external setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
