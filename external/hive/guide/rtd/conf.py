@@ -33,7 +33,7 @@ def _warn_node(self, msg, node):
 
 extensions = ['sphinx.ext.extlinks']
 
-templates_path = ['_templates']
+templates_path = ['../_templates']
 
 exclude_patterns = ['_build']
 
@@ -41,9 +41,9 @@ pygments_style = 'sphinx'
 
 html_theme = 'sphinx_rtd_theme'
 
-html_theme_path = ['_themes']
+html_theme_path = ['../_themes']
 
-html_static_path = ['_static']
+html_static_path = ['../_static']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -79,7 +79,7 @@ copyright = u'2013, Yahoo! Inc., 2013'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['.build']
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

@@ -24,7 +24,6 @@ import sphinx.environment
 from docutils.utils import get_source_line
 
 
-
 # -- General configuration -----------------------------------------------------
 
 
@@ -37,11 +36,8 @@ extensions = ['sphinx.ext.extlinks']
 
 # Add any paths that contain templates here, relative to this directory.
 
-# Templates path for docs on YDN.
-templates_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
-
 # Templates path for docs on developer.corp.yahoo.com
-templates_path = ['_templates']
+templates_path = ['../_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -109,9 +105,6 @@ highlight_language = 'javascript'
 # Theme to use on YDN.
 #html_theme = 'ydntheme'
 
-# Theme for using on devel.corp.yahoo.com
-html_theme = 'haiku'
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -139,7 +132,7 @@ html_title = 'HBase User Guide'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['.static']
+html_static_path = ['../_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

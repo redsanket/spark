@@ -39,11 +39,8 @@ extensions = ['sphinx.ext.extlinks']
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 # Add any paths that contain templates here, relative to this directory.
 
-# Templates path for docs on YDN.
-# templates_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
-
 # Templates path for docs on developer.corp.yahoo.com
-templates_path = ['_templates']
+templates_path = ['../_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -122,7 +119,7 @@ html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
-html_theme_path = ['_themes']
+html_theme_path = ['../_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

@@ -31,7 +31,7 @@ def _warn_node(self, msg, node):
 
 extensions = ['sphinx.ext.extlinks']
 
-templates_path = ['_templates']
+templates_path = ['../_templates']
 
 exclude_patterns = ['_build']
 
@@ -39,9 +39,9 @@ pygments_style = 'sphinx'
 
 html_theme = 'sphinx_rtd_theme'
 
-html_theme_path = ['_themes']
+html_theme_path = ['../_themes']
 
-html_static_path = ['_static']
+html_static_path = ['../_static']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -109,9 +109,6 @@ highlight_language = 'javascript'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #html_theme_options = {}
-
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
