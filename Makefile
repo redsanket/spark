@@ -22,6 +22,8 @@ oozie-gh-pages:
 	git reset HEAD
 
 oozie-publish: oozie-gh-pages oozie-build
+	git rm -rf oozie/guide
+	mkdir -p oozie/guide
 	cp -r $(OOZIE)/_build/html/* oozie/guide
 	rm -rf $(OOZIE) external artifacts setup.cfg tox.ini
 	git add -A 
