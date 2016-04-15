@@ -12,13 +12,18 @@ HBASE = external/hbase/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
+test:
+	$(VIRTUALENV) $(TMP_ENV)
+	@echo "Installing Sphinx..."
+	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
+	. $(ACTIVATE) && make -H
 hadoop-build:
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
-	@echo "running sphinx-build..."
-	. $(ACTIVATE) && sphinx-build -c $(OOZIE)/rtd $(OOZIE) html && sphinx-build -c $(HIVE)/rtd $(HIVE) html && sphinx-build -c $(HUE)/rtd $(HUE) html && sphinx-build -c $(STORM)/rtd $(STORM) html && sphinx-build -c $(STARLING)/rtd $(STARLING) html && sphinx-build -c $(HBASE)/rtd $(HBASE) html
+	@echo "running $(SPHINXBUILD)..."
+	. $(ACTIVATE) && make -C $(OOZIE) -f $(OOZIE)/rtd/conf.py html && $(SPHINXBUILD) -c $(HIVE)/rtd $(HIVE) html && $(SPHINXBUILD) -c $(HUE)/rtd $(HUE) html && $(SPHINXBUILD) -c $(STORM)/rtd $(STORM) html && $(SPHINXBUILD) -c $(STARLING)/rtd $(STARLING) html && $(SPHINXBUILD) -c $(HBASE)/rtd $(HBASE) html
 
 hadoop-gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
