@@ -18,7 +18,7 @@ hadoop-build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running sphinx-build..."
-	. $(ACTIVATE) && make -c $(OOZIE)/rtd/conf.py $(OOZIE) html && make -c $(HIVE)/rtd/conf.py $(HIVE) html && make -c $(HUE)/rtd/conf.py $(HUE) html && make -c $(STORM)/rtd/conf.py $(STORM) html && make -c $(STARLING)/rtd/conf.py $(STARLING) html && make -c $(HBASE)/rtd/conf.py $(HBASE) html
+	. $(ACTIVATE) && sphinx-build -c $(OOZIE)/rtd/conf.py $(OOZIE) html && sphinx-build -c $(HIVE)/rtd/conf.py $(HIVE) html && sphinx-build -c $(HUE)/rtd/conf.py $(HUE) html && sphinx-build -c $(STORM)/rtd/conf.py $(STORM) html && sphinx-build -c $(STARLING)/rtd/conf.py $(STARLING) html && sphinx-build -c $(HBASE)/rtd/conf.py $(HBASE) html
 
 hadoop-gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
