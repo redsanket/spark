@@ -48,4 +48,3 @@ hadoop-publish: hadoop-gh-pages hadoop-build
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
-        git co ${GIT_BRANCH}
