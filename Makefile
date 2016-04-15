@@ -17,17 +17,17 @@ oozie-build:
 
 oozie-gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
-	rm -rf oozie/guide/_images/ oozie/guide/_sources/ oozie/guide/_static/ oozie/guide/*.html oozie/guide/*.js oozie/guide/objects.inv
+	rm -rf oozie/_images/ oozie/_sources/ oozie/_static/ oozie/*.html oozie/*.js oozie/objects.inv
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
 oozie-publish: oozie-gh-pages oozie-build
 	@echo "Removing old files."
-	git rm -rf oozie/guide
+	git rm -rf oozie
 	git commit -am "Removing old files." && git push origin gh-pages
 	@echo "Copying new files."
-	mkdir -p oozie/guide
-	cp -R $(OOZIE)/_build/html/* oozie/guide
+	mkdir -p oozie
+	cp -R $(OOZIE)/_build/html/* oozie
 	rm -rf $(OOZIE) external artifacts setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
