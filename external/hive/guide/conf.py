@@ -19,7 +19,7 @@ import sphinx_rtd_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-mport sphinx.environment
+import sphinx.environment
 from docutils.utils import get_source_line
 
 def _warn_node(self, msg, node):
