@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-# project = u'Hue'
+project = u'Hue'
 copyright = u'2013, Yahoo! Inc., 2013'
 
 # The version info for the project you're documenting, acts as replacement for
