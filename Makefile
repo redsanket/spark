@@ -38,12 +38,12 @@ hadoop-gh-pages:
 
 hadoop-publish: hadoop-gh-pages hadoop-build
 	@echo "Copying new files."
-	cp -r $(OOZIE)/_build/html/* oozie
-	cp -r $(HIVE)/_build/html/* hive
-	cp -r $(HUE)/_build/html/* hue
-	cp -r $(STORM)/_build/html/* storm
-	cp -r $(STARLING)/_build/html/* starling
-	cp -r $(HBASE)/_build/html/* hbase
+	cp -R $(OOZIE)/_build/html/* oozie
+	cp -R $(HIVE)/_build/html/* hive
+	cp -R $(HUE)/_build/html/* hue
+	cp -R $(STORM)/_build/html/* storm
+	cp -R $(STARLING)/_build/html/* starling
+	cp -R $(HBASE)/_build/html/* hbase
 	rm -rf external setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
