@@ -24,10 +24,10 @@ oozie-gh-pages:
 oozie-publish: oozie-gh-pages oozie-build
 	@echo "Removing old files."
 	git rm -rf oozie/guide
-	git ci -am "Removing old files." && git push origin gh-pages
+	git commit -am "Removing old files." && git push origin gh-pages
 	@echo "Copying new files."
 	mkdir -p oozie/guide
-	cp -r $(OOZIE)/_build/html/* oozie/guide
+	cp -R $(OOZIE)/_build/html/* oozie/guide
 	rm -rf $(OOZIE) external artifacts setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
