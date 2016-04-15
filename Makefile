@@ -23,6 +23,6 @@ oozie-gh-pages:
 
 oozie-publish: oozie-gh-pages oozie-build
 	mv -fv $(OOZIE)/_build/html/* oozie/guide
-	rm -rf external artifacts screwdriver setup.cfg tox.ini
-	git add -A oozie/guide
+	rm -rf external artifacts setup.cfg tox.ini
+	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
