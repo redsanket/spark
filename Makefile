@@ -47,7 +47,6 @@ hadoop-publish: hadoop-gh-pages hadoop-build
 	cp -r $(STARLING)/_build/html/* starling
 	cp -r $(HBASE)/_build/html/* hbase
 	rm setup.cfg tox.ini
-	rm -rf external
 	@echo "Adding and saving new docs."
-	git add -A 
+	rm -rf external && git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
