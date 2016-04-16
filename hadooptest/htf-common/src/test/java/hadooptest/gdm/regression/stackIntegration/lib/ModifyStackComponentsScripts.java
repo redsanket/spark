@@ -1,7 +1,11 @@
 package hadooptest.gdm.regression.stackIntegration.lib;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -18,10 +22,44 @@ public class ModifyStackComponentsScripts {
 
 	private String resourceAbsolutePath;
 	private String nameNodeName;
+	private String jobTracker;
+	private String oozieHostName;
 	private String dataPath;
 	private String pipeLineName;
 	private CommonFunctions commonFunctiions;
 	private static final int THREAD_SIZE = 1;
+	
+	public ModifyStackComponentsScripts(String nameNodeName , String dataPath) {
+		this.setNameNodeName(nameNodeName);
+		this.setDataPath(dataPath);
+		this.setResourceAbsolutePath(new File("").getAbsolutePath());
+		this.commonFunctiions = new CommonFunctions();
+	}
+	
+	public ModifyStackComponentsScripts(String nameNodeName, String jobTracker, String oozieHostName, String dataPath ) {
+		this.setNameNodeName(nameNodeName);
+		this.setDataPath(dataPath);
+		this.setResourceAbsolutePath(new File("").getAbsolutePath());
+		this.commonFunctiions = new CommonFunctions();
+		this.setJobTracker(jobTracker);
+		this.setOozieHostName(oozieHostName);
+	}
+	
+	public String getJobTracker() {
+		return jobTracker;
+	}
+
+	public void setJobTracker(String jobTracker) {
+		this.jobTracker = jobTracker;
+	}
+
+	public String getOozieHostName() {
+		return oozieHostName;
+	}
+
+	public void setOozieHostName(String oozieHostName) {
+		this.oozieHostName = oozieHostName;
+	}
 
 	public String getPipeLineName() {
 		return pipeLineName;
@@ -47,12 +85,7 @@ public class ModifyStackComponentsScripts {
 		this.dataPath = dataPath;
 	}
 
-	public ModifyStackComponentsScripts(String nameNodeName , String dataPath) {
-		this.setNameNodeName(nameNodeName);
-		this.setDataPath(dataPath);
-		this.setResourceAbsolutePath(new File("").getAbsolutePath());
-		this.commonFunctiions = new CommonFunctions();
-	}
+
 
 	public String getResourceAbsolutePath() {
 		return resourceAbsolutePath;
@@ -109,11 +142,62 @@ public class ModifyStackComponentsScripts {
 			return "hbaseDeleteTableScript-" + hbaseDeleteTableScriptFlag;
 		};
 		
+		Callable<String> oozieModifyJobProperties = () -> {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+			String currentHR = simpleDateFormat.format(calendar.getTime());
+			boolean oozieModifyScriptFlag = false;
+			
+			File oozieJobPropertiesFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/job.properties.tmp");
+			String oozieJobPropertiesFileContent = new String(readAllBytes(get(oozieJobPropertiesFilePath.toString())));
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_INPUT_PATH", "/data/daqdev/abf/data/" + this.commonFunctiions.getCurrentHourPath() + "/20130309/PAGE/Valid/News/part*");
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_DATE_TIME", currentHR + "00");
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_PATH", "/tmp/integration-testing/oozie/" + currentHR);
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", "/tmp/integration-testing/oozie/" + currentHR + "/outputDir/"  );  // TODO create the folder when running the testcase
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("HCAT_SERVER_NAME", this.getOozieHostName() );
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("JOB_TRACKER_HOST_NAME", this.getJobTracker() );
+			oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("NAMENODE_HOST_NAME", this.getNameNodeName() );
+			
+			TestSession.logger.info("!!!!!!!!!!");
+			TestSession.logger.info("oozieJobPropertiesFileContent  = " + oozieJobPropertiesFileContent);
+			TestSession.logger.info("!!!!!!!!!!");
+			
+			// create new file
+			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/job.properties");
+			java.nio.file.Files.write(java.nio.file.Paths.get(file.toString()), oozieJobPropertiesFileContent.getBytes());
+			oozieModifyScriptFlag = true;
+			TestSession.logger.info("new file ---- " + file.toString());
+			return "oozieJobProperties-" + oozieModifyScriptFlag;
+		};
+		
+		Callable<String> oozieModifyWorkFlowScript = () -> {
+			boolean oozieModifyWorkFlowFlag = false;
+			String currentJobName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctiions.getDataSetName();
+			File oozieWorkFlowFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/workflow.xml.tmp");
+			String oozieWorkFlowFileContent = new String(readAllBytes(get(oozieWorkFlowFilePath.toString())));
+			oozieWorkFlowFileContent = oozieWorkFlowFileContent.replaceAll("stackint_oozie_RawInputETL", "stackint_oozie_RawInput_" + currentJobName );
+			
+			TestSession.logger.info("!!!!!!!!!!");
+			TestSession.logger.info("oozieWorkFlowFileContent  = " + oozieWorkFlowFileContent);
+			TestSession.logger.info("!!!!!!!!!!");
+			
+			// create new file
+			File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/workflow.xml");
+			java.nio.file.Files.write(java.nio.file.Paths.get(file.toString()), oozieWorkFlowFileContent.getBytes());
+			oozieModifyWorkFlowFlag = true;
+			TestSession.logger.info("new file ---- " + file.toString());
+			
+			return "oozieWorkFlow-" + oozieModifyWorkFlowFlag;
+		};
+		
 		ExecutorService executors = Executors.newFixedThreadPool(THREAD_SIZE);
 		List<Callable<String>> list = new java.util.ArrayList<Callable<String>>();
 		list.add(loadDataToHiveScript);
 		list.add(hbaseCreateTableScript);
 		list.add(hbaseDeleteTableScript);
+		list.add(oozieModifyJobProperties);
+		list.add(oozieModifyWorkFlowScript);
 
 		List<Future<String>> testExecutionList = executors.invokeAll(list);
 		for ( Future<String> result : testExecutionList) {
@@ -122,4 +206,5 @@ public class ModifyStackComponentsScripts {
 		}
 		executors.shutdown();
 	}
+	
 }
