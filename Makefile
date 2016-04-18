@@ -12,11 +12,6 @@ HBASE = external/hbase/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
-test:
-	$(VIRTUALENV) $(TMP_ENV)
-	@echo "Installing Sphinx..."
-	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
-	. $(ACTIVATE) && make -H
 hadoop-build:
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
