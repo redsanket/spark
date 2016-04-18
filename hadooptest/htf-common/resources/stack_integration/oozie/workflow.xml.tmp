@@ -1,0 +1,189 @@
+<workflow-app xmlns='uri:oozie:workflow:0.4' name='stackint_oozie_RawInputETL'>
+
+  <credentials>
+    <credential name='hcatauth' type='hcat'>
+      <property>
+        <name>hcat.metastore.uri</name>
+        <value>${HCAT_URI}</value>
+      </property>
+      <property>
+        <name>hcat.metastore.principal</name>
+        <value>${HCAT_PRINCIPAL}</value>
+      </property>
+    </credential>
+  </credentials>
+
+
+  <start to="cleanup_output" />
+
+  <action name="cleanup_output">
+    <java>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <configuration>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+            <value>${my_outputDir}</value>
+        </property>
+      </configuration>
+
+      <main-class>
+        org.apache.hadoop.fs.FsShell
+      </main-class>
+      <arg> -rm </arg>
+      <arg> -r </arg>
+      <arg> -f </arg>
+      <arg>${my_outputDir}</arg>
+      <capture-output/>
+    </java>
+    <ok to="check_input"/>
+    <error to="fail1"/>
+  </action>
+
+
+  <action name="check_input">
+    <java>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <configuration>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+            <value>${my_srcFile},${my_outputDir}</value>
+        </property>
+      </configuration>
+
+      <main-class>
+        org.apache.hadoop.fs.FsShell
+      </main-class>
+      <arg> -ls </arg>
+      <arg>${my_srcFile}</arg>
+      <capture-output/>
+    </java>
+    <ok to="pig_raw_processor"/>
+    <error to="fail2"/>
+  </action>
+
+  <action name="pig_raw_processor">
+    <pig>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <configuration>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>oozie.action.sharelib.for.pig</name>
+          <value>pig_current</value>
+        </property>
+      </configuration>
+      <script>${pig_script}</script>
+      <param>INPUTFILE=${my_srcFile}</param>
+      <param>OUTPUTDIR=${my_outputDir}</param>
+      <argument>-x</argument>
+      <argument>mapreduce</argument>
+
+    </pig>
+    <ok to="hive_storage" />
+    <error to="fail3" />
+  </action>
+
+  <action name="hive_storage" cred="hcatauth">
+    <hive xmlns="uri:oozie:hive-action:0.4">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+
+      <!--<job-xml>hive-site.xml</job-xml> -->
+
+      <configuration>
+        <property>
+          <name>hive.execution.engine</name>
+          <value>mr</value>
+        </property>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>hive.querylog.location</name>
+            <value>./hivelogs</value>
+        </property>
+        <property>
+          <name>oozie.action.sharelib.for.hive</name>
+            <value>hive_current,hcat_current</value>
+        </property>
+      </configuration>
+
+      <script>${hive_script}</script>
+      <param>IN_DB=${IN_DB}</param>
+      <param>IN_TABLE=${IN_TABLE}</param>
+      <param>my_srcFile=${my_outputDir}</param>
+
+    </hive>
+    <ok to="hive_verify" />
+    <error to="fail4" />
+  </action>
+
+  <action name="hive_verify" cred="hcatauth">
+    <hive xmlns="uri:oozie:hive-action:0.4">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+
+      <!--<job-xml>hive-site.xml</job-xml> -->
+
+      <configuration>
+        <property>
+          <name>hive.execution.engine</name>
+          <value>mr</value>
+        </property>
+        <property>
+          <name>mapred.job.queue.name</name>
+          <value>${queueName}</value>
+        </property>
+        <property>
+          <name>hive.querylog.location</name>
+            <value>./hivelogs</value>
+        </property>
+        <property>
+          <name>oozie.action.sharelib.for.hive</name>
+            <value>hive_current,hcat_current</value>
+        </property>
+      </configuration>
+
+      <script>${hive_script_verify_data}</script>
+      <param>IN_DB=${IN_DB}</param>
+      <param>IN_TABLE=${IN_TABLE}</param>
+
+    </hive>
+    <ok to="end" />
+    <error to="fail5" />
+  </action>
+
+
+  <kill name="fail1">
+     <message>Stack Integration pipeline test, failed to cleanup output path, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+  <kill name="fail2">
+     <message>Stack Integration pipeline test, fail on input check, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+  <kill name="fail3">
+     <message>Stack Integration pipeline test, fail on pig raw processor, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+  <kill name="fail4">
+     <message>Stack Integration pipeline test, fail on hive storage, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+  <kill name="fail5">
+     <message>Stack Integration pipeline test, verify fail on hive data, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+ <end name="end" />
+
+</workflow-app>
