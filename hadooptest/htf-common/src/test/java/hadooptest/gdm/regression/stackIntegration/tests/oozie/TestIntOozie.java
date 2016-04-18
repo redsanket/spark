@@ -87,12 +87,12 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	public String call() throws Exception {
 		String sourePath = new File("").getAbsolutePath() + "/resources/stack_integration/oozie";
 		String destPath = "/tmp/integration-testing/oozie/" +  this.getCurrentHr() ;
-		createWorkFlowFolder(destPath + "/outputDir/");
+		//createWorkFlowFolder(destPath + "/outputDir/");
 		copySupportingFilesToScratch(destPath);
 		String result = execute();
 		return "oozie-" + result;
 	}
-	
+		
 	public String getCurrentHr() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 		Calendar calendar = Calendar.getInstance();
@@ -103,11 +103,8 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 
 	public String  execute() {
 		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  start ------------------------------------------------------------------------");
-
 		String currentJobName = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "RUNNING");
-
-		
 		String currentHR = getCurrentHr();
 		boolean oozieResult = false;
 
@@ -128,7 +125,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		}
 		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "COMPLETED");
 		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  end ------------------------------------------------------------------------");
-		return "oozie"  + "-" + oozieResult;
+		return "" + oozieResult;
 	}
 	
 	public String getResult() {
