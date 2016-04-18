@@ -119,16 +119,19 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
 		this.setOozieJobID(jobID);
 		String result = getResult();
-		this.commonFunctions.updateDB(currentJobName, "oozieResult", result);
-		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "COMPLETED");
-		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  end ------------------------------------------------------------------------");
-		if ( result.indexOf("SUCCEEDED") > -1 ) {
+		if (result.indexOf("KILLED") > -1) {
+			this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
+			oozieResult = false;
+		} else if ( result.indexOf("SUCCEEDED") > -1 ) {
+			this.commonFunctions.updateDB(currentJobName, "oozieResult", "PASS");
 			oozieResult = true;
 		}
+		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "COMPLETED");
+		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  end ------------------------------------------------------------------------");
 		return "oozie"  + "-" + oozieResult;
 	}
 	
-	public String getResult(){
+	public String getResult() {
 		String status =  null;
 		String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
 		com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
