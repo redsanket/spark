@@ -363,7 +363,7 @@ public class CommonFunctions {
 			testList.add(testHbaseComponent);
 		}
 		
-		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
+/*		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 		Callable<String> testIntOozie = null;
 		if (oozieStackComponent != null) {
 			try {
@@ -374,7 +374,7 @@ public class CommonFunctions {
 				TestSession.logger.error("Failed to create configuration " + e);
 				e.printStackTrace();
 			}
-		}
+		}*/
 		
 		boolean overAllExecutionResult = true; 
 		if (testList.size() > 0) {
