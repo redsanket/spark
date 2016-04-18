@@ -44,6 +44,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.tests.hbase.TestIntHBase;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
+import hadooptest.gdm.regression.stackIntegration.tests.oozie.TestIntOozie;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 
@@ -295,8 +296,9 @@ public class CommonFunctions {
 	}
 
 	public void preInit() {
-		ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() , PATH + this.getCurrentHourPath() );
 		try {
+			Map<String,String> hostsNames = this.getAllStackComponentHostNames();
+			ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() ,hostsNames.get("jobTracker") , hostsNames.get("oozie") , PATH + this.getCurrentHourPath() );
 			modifyStackComponentsScripts.execute();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
@@ -359,6 +361,20 @@ public class CommonFunctions {
 			TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
 			testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
 			testList.add(testHbaseComponent);
+		}
+		
+		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
+		Callable<String> testIntOozie = null;
+		org.apache.hadoop.conf.Configuration configuration = null;
+		if (oozieStackComponent != null) {
+			try {
+				configuration = this.getConfForRemoteFS();
+				testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
+				testList.add(testIntOozie);
+			} catch (IOException e) {
+				TestSession.logger.error("Failed to create configuration " + e);
+				e.printStackTrace();
+			}
 		}
 		
 		boolean overAllExecutionResult = true; 
@@ -532,26 +548,32 @@ public class CommonFunctions {
 
 	public boolean copyTestCases(String componentName , String testCasesPath , String hostName) {
 		boolean isTestCaseCopiedFlag = false , mkdirFlag = false;
+		String componentFolder = null , mkDirCommand = null, scpCommand = null;
 		String  absolutePath = new File("").getAbsolutePath();
 		File componentFile = new File(absolutePath + testCasesPath + File.separator + componentName);
 		if (componentFile.exists()) {
+			this.getCurrentHrMin();
 			// create the testcase folder for the current hr and min
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 			simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Calendar calendar = Calendar.getInstance();
 			String folderName = "/tmp/integration-testing/" + componentName;
-			String componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
 			String rmDirCommand = " rm -rf " + folderName;
-			String mkDirCommand = " mkdir -p " + componentFolder  + "  | echo $?";
+			if (componentName.indexOf("oozie") > -1) {
+				componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
+				mkDirCommand = " mkdir -p " + componentFolder + "/outputDir/" + "  | echo $?";
+			} else {
+				componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
+				mkDirCommand = " mkdir -p " + componentFolder  + "  | echo $?";
+			}
 			String command = "ssh " +  hostName + "  \"" +  rmDirCommand + ";" + mkDirCommand + "\"" ;
 			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 			String mkDirCommandExecResult  = this.executeCommand(command);
 			TestSession.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-			
 			if (mkDirCommandExecResult != null) {
 				mkdirFlag = true;
 				TestSession.logger.info(componentFolder + "  created successfully on " + hostName);
-				String scpCommand = "scp " + componentFile.toString() +  File.separator + "*" + "  "  + hostName + ":" + componentFolder;
+				scpCommand = "scp " + componentFile.toString() +  File.separator + "*" + "  "  + hostName + ":" + componentFolder;
 				String scpCommandResutlt = this.executeCommand(scpCommand);
 				if (scpCommandResutlt != null) {
 					isTestCaseCopiedFlag = true;
