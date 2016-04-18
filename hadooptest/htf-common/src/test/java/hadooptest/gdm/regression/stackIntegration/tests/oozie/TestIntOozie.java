@@ -88,7 +88,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		String sourePath = new File("").getAbsolutePath() + "/resources/stack_integration/oozie";
 		String destPath = "/tmp/integration-testing/oozie/" +  this.getCurrentHr() ;
 		createWorkFlowFolder(destPath + "/outputDir/");
-		copySupportingFilesToScrach(destPath);
+		copySupportingFilesToScratch(destPath);
 		String result = execute();
 		return "oozie-" + result;
 	}
@@ -167,7 +167,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean copySupportingFilesToScrach(String des) throws IOException {
+	public boolean copySupportingFilesToScratch(String des) throws IOException {
 		boolean flag = false;
 		FileSystem remoteFS = FileSystem.get(this.configuration);
 		String absolutePath = new File("").getAbsolutePath();
