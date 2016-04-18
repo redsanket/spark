@@ -365,10 +365,9 @@ public class CommonFunctions {
 		
 		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 		Callable<String> testIntOozie = null;
-		org.apache.hadoop.conf.Configuration configuration = null;
 		if (oozieStackComponent != null) {
 			try {
-				configuration = this.getConfForRemoteFS();
+				org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
 				testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
 				testList.add(testIntOozie);
 			} catch (IOException e) {
@@ -384,7 +383,6 @@ public class CommonFunctions {
 			for ( Future<String> result : testExecutionList) {
 				List<String> testExecutionResult = Arrays.asList(result.get().split("-"));
 				if (testExecutionResult.size() > 0) {
-					TestSession.logger.info("result - " + result.get());
 					if (testExecutionResult.get(1).equals("false") == true) {
 						overAllExecutionResult = false;
 						TestSession.logger.info(testExecutionResult.get(1) + " stack component failed.");
@@ -416,10 +414,6 @@ public class CommonFunctions {
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
-
-		/**
-		 * TODO : Get hadoop version , GDM version.
-		 */
 
 		// TODO : use this.getHostsNames method
 		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
@@ -478,7 +472,7 @@ public class CommonFunctions {
 			String  absolutePath = new File("").getAbsolutePath();
 			TestSession.logger.info("There is no folder, so creating the folder.");
 			String currentHrMin = this.getCurrentHourPath();
-			String mkdirCommand = "ssh " + hostName + "  \"mkdir -p /tmp/integration_test_files/lib/\" | echo $?";
+			String mkdirCommand = "ssh " + hostName + "  \"mkdir -p /tmp/integration_test_files/lib/ | echo $? \"";
 			String result = this.executeCommand(mkdirCommand);
 			if (result != null) {
 				TestSession.logger.info("mkdir result  = " + result);
@@ -525,7 +519,7 @@ public class CommonFunctions {
 		if (result == null) {
 			flag = false;
 			TestSession.logger.info("Error Message = " + this.getErrorMessage());
-		} else if (result != null ){
+		} else if (result != null ) {
 			TestSession.logger.info("--------------------------------------");
 			java.util.List<String> resultList = Arrays.asList(result.split("\n"));
 			TestSession.logger.info(resultList.toString());
@@ -546,7 +540,8 @@ public class CommonFunctions {
 		return flag;
 	}
 
-	public boolean copyTestCases(String componentName , String testCasesPath , String hostName) {
+	public synchronized boolean copyTestCases(String componentName , String testCasesPath , String hostName) {
+		TestSession.logger.info("-----copyTestCases-----" + componentName);
 		boolean isTestCaseCopiedFlag = false , mkdirFlag = false;
 		String componentFolder = null , mkDirCommand = null, scpCommand = null;
 		String  absolutePath = new File("").getAbsolutePath();
@@ -560,6 +555,7 @@ public class CommonFunctions {
 			String folderName = "/tmp/integration-testing/" + componentName;
 			String rmDirCommand = " rm -rf " + folderName;
 			if (componentName.indexOf("oozie") > -1) {
+				TestSession.logger.info("*****creating_Oozie_Folder****");
 				componentFolder = folderName  + File.separator +  simpleDateFormat.format(calendar.getTime());
 				mkDirCommand = " mkdir -p " + componentFolder + "/outputDir/" + "  | echo $?";
 			} else {
