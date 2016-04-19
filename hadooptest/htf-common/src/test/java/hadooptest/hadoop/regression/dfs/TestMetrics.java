@@ -442,9 +442,11 @@ public class TestMetrics extends DfsTestsBaseClass {
                 }
 
 		resetInfo();
+                // gridci-932, 2 requests are coming into nn very soon after restart, causing false failures,
+                // changing test to check for jmx value <=2
 		Assert.assertTrue("The current value for property " + PROPERTY
-				+ " does not reset to 0 after NN restart. See Bug 4626670",
-				CURRENT_VALUE == 0);
+				+ " does not reset to 2 or less after NN restart. See Bug 4626670 or GRIDCI-932",
+				CURRENT_VALUE <= 2);
 
 	}
 
