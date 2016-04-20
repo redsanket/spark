@@ -32,6 +32,8 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
+import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
+import hadooptest.gdm.regression.stackIntegration.db.DBCommands;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GDMHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
@@ -411,6 +413,9 @@ public class CommonFunctions {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
+		
+		AggIntResult aggIntResultObj = new AggIntResult();
+		aggIntResultObj.getResults();
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
@@ -608,6 +613,10 @@ public class CommonFunctions {
 		try {
 			this.dbOperations.createDB();
 			this.dbOperations.createIntegrationResultTable();
+			String tableName = DBCommands.CREATE_INTEGRATION_TABLE;
+			tableName = tableName.replaceAll("TB_NAME", DBCommands.FINAL_RESULT_TABLE_NAME);
+			TestSession.logger.info("tableName = " + tableName);
+			this.dbOperations.createTable(tableName);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
