@@ -86,7 +86,8 @@ public class AggIntResult {
 							}
 					}
 				}
-			} catch (SQLException e) {
+			} 
+		}catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
