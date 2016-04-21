@@ -46,7 +46,7 @@ Install the following:
 
 ##### Edits 
 
-1. Go to https://git.corp.yahoo.com/hadoop/docs/tree/master/external//<product>/guide/.
+1. Go to `https://git.corp.yahoo.com/hadoop/docs/tree/master/external/<product>/guide/` (replace `<product>` with the Hadoop product, such as `oozie`).
 1. Find the file you want to edit.
 1. Open the file in the GitHub Editor.
 1. Click the **Edit** icon.
@@ -58,12 +58,12 @@ Install the following:
 
 These are for much larger changes, so we recommend using the fork/clone paradigm. 
 
-1. [Fork the repository](https://help.github.com/articles/fork-a-repo, "Forking Git Repository") containing the source files for the documentation. 
+1. [Fork the repository](https://git.corp.yahoo.com/hadoop/docs#fork-destination-box). 
 1. Clone your fork locally.
 1. [Add the remote repository](https://help.github.com/articles/adding-a-remote, "Add a Remote") 
    pointing to the original repository so you can pull in the latest changes to your local repository.
 1. (Optional) Create a new branch for your work. This helps you to isolate your changes against the original source files.
-1. Make your changes: edits, new documentation, updates. Create new documentation with templates when you can by copying the templates and using a descriptive name for your tutorial/code example.
+1. Make your changes: edits, new documentation, updates. 
 1. [Fetch the latest changes](https://help.github.com/articles/fetching-a-remote#fetch, "Fetch From a Remote") 
    from the original remote repository and resolve any conflicts.
 1. Build the documentation locally to confirm that the HTML is rendered correctly: 
