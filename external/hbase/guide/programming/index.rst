@@ -303,29 +303,29 @@ finally deletes the table.
                   try {
                       String tablename = "scores";
                       String[] families = { "grade", "course" };
-                      HBaseTest.creatTable(tablename, families);
+                      HBaseAdvEx.createTable(tablename, families);
  
                       // Add record zkb
-                      HBaseTest.addRecord(tablename, "zkb", "grade", "", "5");
-                      HBaseTest.addRecord(tablename, "zkb", "course", "", "90");
-                      HBaseTest.addRecord(tablename, "zkb", "course", "math", "97");
-                      HBaseTest.addRecord(tablename, "zkb", "course", "art", "87");
+                      HBaseAdvEx.addRecord(tablename, "zkb", "grade", "", "5");
+                      HBaseAdvEx.addRecord(tablename, "zkb", "course", "", "90");
+                      HBaseAdvEx.addRecord(tablename, "zkb", "course", "math", "97");
+                      HBaseAdvEx.addRecord(tablename, "zkb", "course", "art", "87");
 							 // Add record baoniu
-                      HBaseTest.addRecord(tablename, "baoniu", "grade", "", "4");
-                      HBaseTest.addRecord(tablename, "baoniu", "course", "math", "89");
+                      HBaseAdvEx.addRecord(tablename, "baoniu", "grade", "", "4");
+                      HBaseAdvEx.addRecord(tablename, "baoniu", "course", "math", "89");
  
                       System.out.println("===========get one record========");
-                      HBaseTest.getOneRecord(tablename, "zkb");
+                      HBaseAdvEx.getOneRecord(tablename, "zkb");
  
                       System.out.println("===========show all record========");
-                      HBaseTest.getAllRecord(tablename);
+                      HBaseAdvEx.getAllRecord(tablename);
  
                       System.out.println("===========del one record========");
-                      HBaseTest.delRecord(tablename, "baoniu");
-                      HBaseTest.getAllRecord(tablename);
+                      HBaseAdvEx.delRecord(tablename, "baoniu");
+                      HBaseAdvEx.getAllRecord(tablename);
  
                       System.out.println("===========show all record========");
-                      HBaseTest.getAllRecord(tablename);
+                      HBaseAdvEx.getAllRecord(tablename);
                   } catch (Exception e) {
                       e.printStackTrace();
                   }
