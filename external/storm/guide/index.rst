@@ -7,7 +7,7 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-The goal of this guide is to help Yahoos use Storm on the Yahoo grid, and thus, is not a comprehensive guide for Storm.
+Our goal is to help Yahoos use Storm on the Yahoo grid, and thus, is not a comprehensive guide for Storm.
 For more comprehensive documentation, we recommend the `Apache Storm documentation <http://storm.incubator.apache.org>`_. 
 
 On-Boarding
