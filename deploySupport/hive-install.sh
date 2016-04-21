@@ -63,22 +63,26 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 #
 # check if we need to use a reference cluster, else use 'current'
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
+
   yinst install hive -br current
   yinst install hive_conf -br current
   yinst install hcat_server -br current
 else 
+  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
+
   HIVE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
   echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
 
-  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_$STACK_COMP_REFERENCE_CLUSTER`
+  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_${STACK_COMP_REFERENCE_CLUSTER}`
   echo HIVE_CONF_VERSION_REFERENCE_CLUSTER is: $HIVE_CONF_VERSION_REFERENCE_CLUSTER
 
   HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
   echo HCAT_SERVER_VERSION_REFERENCE_CLUSTER is: $HCAT_SERVER_VERSION_REFERENCE_CLUSTER
 
-  yinst install hive-$HIVE_VERSION_REFERENCE_CLUSTER
-  yinst install hive_conf-$HIVE_CONF_VERSION_REFERENCE_CLUSTER
-  yinst install hcat_server-$HCAT_SERVER_VERSION_REFERENCE_CLUSTER
+  yinst install hive-${HIVE_VERSION_REFERENCE_CLUSTER}
+  yinst install hive_conf-${HIVE_CONF_VERSION_REFERENCE_CLUSTER}
+  yinst install hcat_server-${HCAT_SERVER_VERSION_REFERENCE_CLUSTER}
 fi
 
 
@@ -119,7 +123,7 @@ else
   PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
   echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
   #
-  yinst install pig-$PIG_VERSION_REFERENCE_CLUSTER
+  yinst install pig-${PIG_VERSION_REFERENCE_CLUSTER}
 fi
 
 yinst set pig.PIG_HOME=/home/y/share/pig
