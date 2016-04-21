@@ -100,14 +100,11 @@ yinst i ygrid_cacert
 ## install oozie
 #
 # check if we need to use a reference cluster, else use 'current'
+echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-
   yinst install yoozie -br current
   yinst install yoozie_client -br current
 else
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-
   OOZIE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie`
   echo OOZIE_VERSION_REFERENCE_CLUSTER is: $OOZIE_VERSION_REFERENCE_CLUSTER
 

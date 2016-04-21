@@ -18,11 +18,10 @@ echo "INFO: Pig node being installed: $PIGNODE"
 ## install pig
 #
 # check if we need to use a reference cluster, else use 'current'
+echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
   yinst i pig -br current
 else
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
   PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
   echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
   #

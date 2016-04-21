@@ -62,15 +62,12 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 ## install hive
 #
 # check if we need to use a reference cluster, else use 'current'
+echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-
   yinst install hive -br current
   yinst install hive_conf -br current
   yinst install hcat_server -br current
 else 
-  echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-
   HIVE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
   echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
 
