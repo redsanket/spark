@@ -22,7 +22,7 @@ echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
   yinst i pig -br current
 else
-  PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
+  PIG_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
   echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
   #
   yinst install pig-$PIG_VERSION_REFERENCE_CLUSTER

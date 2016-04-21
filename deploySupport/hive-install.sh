@@ -68,13 +68,13 @@ if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
   yinst install hive_conf -br current
   yinst install hcat_server -br current
 else 
-  HIVE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
+  HIVE_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
   echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
 
-  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_${STACK_COMP_REFERENCE_CLUSTER}`
+  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_${STACK_COMP_REFERENCE_CLUSTER}`
   echo HIVE_CONF_VERSION_REFERENCE_CLUSTER is: $HIVE_CONF_VERSION_REFERENCE_CLUSTER
 
-  HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
+  HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
   echo HCAT_SERVER_VERSION_REFERENCE_CLUSTER is: $HCAT_SERVER_VERSION_REFERENCE_CLUSTER
 
   yinst install hive-${HIVE_VERSION_REFERENCE_CLUSTER}
@@ -117,7 +117,7 @@ yinst set hcat_server.keydb_passkey=dbpassword
 if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
   yinst i pig -br current
 else
-  PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
+  PIG_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
   echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
   #
   yinst install pig-${PIG_VERSION_REFERENCE_CLUSTER}
