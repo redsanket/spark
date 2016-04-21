@@ -10,12 +10,13 @@ if you wanted to see the user documentation for Hive, you would look in `hadoop/
 ## Authoring Format
 
 The external documentation is generally authored in reStructuredText and rendered into HTML.
-The internal documentation will generally be in Markdown and might not be rendered or published.
 
 ## Where Do I View the Rendered External Documentation?
 
-The user documentation can be found on devel.corp.yahoo.com. For example,
-the Hive User Guide can be found at http://devel.corp.yahoo.com/hive/guide.
+The user documentation can be found on `http://git.corp.yahoo.com/pages/hadoop/docs/<product>`, where 
+`<product>` can be `hue`, `hive`, `storm`, `starling`, or `oozie`. We may have other
+Hadoop guides in the future as well. For example,
+the Hive User Guide can be found at http://git.corp.yahoo.com/pages/hadoop/docs/hive/. 
 
 The following is the general URI syntax for documentation: `http://devel.corp.yahoo.com/{hadoop_product}/guide` 
 
@@ -41,8 +42,22 @@ Install the following:
 * [Git](http://git-scm.com/book/en/Getting-Started-Installing-Git, "Installing Git")
 * (Optional) [Sphinx](http://sphinx-doc.org/latest/install.html, "Sphinx Installation")
 
-#### Steps
- 
+#### Making Changes
+
+##### Edits 
+
+1. Go to https://git.corp.yahoo.com/hadoop/docs/tree/master/external//<product>/guide/.
+1. Find the file you want to edit.
+1. Open the file in the GitHub Editor.
+1. Click the **Edit** icon.
+1. Make your changes.
+1. Provide a short commit message.
+1. Click **Commit changes** to submit your PR.
+
+##### Substantive Edits / Reorganization of Content
+
+These are for much larger changes, so we recommend using the fork/clone paradigm. 
+
 1. [Fork the repository](https://help.github.com/articles/fork-a-repo, "Forking Git Repository") containing the source files for the documentation. 
 1. Clone your fork locally.
 1. [Add the remote repository](https://help.github.com/articles/adding-a-remote, "Add a Remote") 
@@ -51,33 +66,23 @@ Install the following:
 1. Make your changes: edits, new documentation, updates. Create new documentation with templates when you can by copying the templates and using a descriptive name for your tutorial/code example.
 1. [Fetch the latest changes](https://help.github.com/articles/fetching-a-remote#fetch, "Fetch From a Remote") 
    from the original remote repository and resolve any conflicts.
-1. View your rendered documentation based on the source file format:
-   * reStructuredText (reST)
-     - View the changed files on GitHub/Git Enterprise
-     - Use http://rst.ninjs.org/ to render your changes as HTML.
-     - Build the documentation locally with Sphinx.
-   * (Markdown) - Use GitHub/Git Enterprise to view the rendered HTML.
-   * (XML) - Use an XML editor that has the capability of rendering XML into HTML.
+1. Build the documentation locally to confirm that the HTML is rendered correctly: 
+    * `$ make test`
+    * `$ cd docs/<product>` # `<product>` can be `oozie`, `hive`, `hue`, `storm`, or `hbase` 
+    * `$ open index.html`
+    * Navigate to page that was changed and confirm that the changes are correct.
 1. [Create a pull request](https://help.github.com/articles/creating-a-pull-request, "Create Pull Request"). 
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
    * Pull the updates from the original repository into your master branch.
    * Delete the branch you used for the pull request both locally and remotely.
-11. Build your documentation:
-   * Use [RTFM](http://rtfm.corp.yahoo.com/rtfm/, "RTFM") to publish the documentation to devel.corp.yahoo.com for
-     internal use.
-   * Use the [YDN Push Tool](http://pushtool.ydn.corp.bf1.yahoo.com/, "YDN Push Tool") to publish the documentation 
-     to [YDN](http://developer.yahoo.com/, "Yahoo! Developer Network") for external use.
-   * Request someone with access to RTFM or the YDN Push Tool to publish documentation on your behalf.
+1. View the updated documentation at http://git.corp.yahoo.com/pages/hadoop/docs/<product>.
  
 ## What if I Find Issues With the Documentation?
 
 We welcome users to file issues or make pull requests, so if you
 find a mistake or can't find information, let us know by filing an issue.
-If you think you can write the documentation, please do and make a PR.
+If you think you can write the documentation, please do so and then submit a PR.
 Our team will review your PR, make comments/suggestions, and eventually
 merge your PR.
-
-
-
 

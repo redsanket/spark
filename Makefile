@@ -12,7 +12,22 @@ HBASE = external/hbase/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
-hadoop-build:
+# Use 'make hadoop-test' to build the documentation locally. Docs will be copied to docs/<product>.
+test:
+	@echo "Creating virtualenv..."
+	$(VIRTUALENV) $(TMP_ENV)
+	@echo "Installing Sphinx..."
+	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
+	@echo "running $(SPHINXBUILD) to generate documentation locally..."
+	$(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase
+ 
+# Deletes locally built docs
+clean:
+	@echo "Deleting build directory."
+	rm -rf docs
+
+# Screwdriver uses this to build documentation.
+build:
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
@@ -20,7 +35,8 @@ hadoop-build:
 	@echo "running $(SPHINXBUILD)..."
 	. $(ACTIVATE) && make -C $(OOZIE) html && make -C $(HIVE) html && make -C $(HUE) html && make -C $(STORM) html && make -C $(STARLING) html && make -C $(HBASE) html
 
-hadoop-gh-pages:
+# Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
+gh-pages:
 	git checkout -f gh-pages # throw away local changes made by screwdriver
 	rm -rf oozie/_images/ oozie/_sources/ oozie/_static/ oozie/*.html oozie/*.js oozie/objects.inv
 	rm -rf hive/_images/ hive/_sources/ hive/_static/ hive/*.html hive/*.js hive/objects.inv
@@ -31,7 +47,8 @@ hadoop-gh-pages:
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
-hadoop-publish: hadoop-gh-pages hadoop-build
+# Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
+publish: gh-pages build
 	@echo "Copying new files."
 	cp -R $(OOZIE)/_build/html/* oozie
 	cp -R $(HIVE)/_build/html/* hive
