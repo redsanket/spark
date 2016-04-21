@@ -11,7 +11,7 @@ What is Starling?
 
 Starling (aka "Hadoop Analytics Warehouse" or HAW) collects and processes various 
 types of logs and configurations from Yahoo grids and populates a central 
-data-warehouse with this information. This data can then be analyzed for 
+data warehouse with this information. This data can then be analyzed for 
 generating various reports (key performance indicators for the grids, utilization 
 of the grids, metering grid-usage, etc.) and for deriving insights useful for 
 research and development.

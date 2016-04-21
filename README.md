@@ -67,11 +67,12 @@ These are for much larger changes, so we recommend using the fork/clone paradigm
 1. [Fetch the latest changes](https://help.github.com/articles/fetching-a-remote#fetch, "Fetch From a Remote") 
    from the original remote repository and resolve any conflicts.
 1. Build the documentation locally to confirm that the HTML is rendered correctly: 
-    * `$ make build`
-    * `$ cd docs/<product>` # `<product>` can be `oozie`, `hive`, `hue`, `storm`, or `hbase` 
-    * `$ open index.html`
-    * Navigate to page that was changed and confirm that the changes are correct.
-    * `$ make clean` # Removes the build files.
+    1. Install [Python 2.7](https://www.python.org/downloads/) and [virtualenv](https://pypi.python.org/pypi/virtualenv).
+    1. Build docs: `$ make build`
+    1. Change to the build directory: `$ cd docs/<product>` # `<product>` can be `oozie`, `hive`, `hue`, `storm`, or `hbase` 
+    1. Open landing page of a guide: `$ open index.html`
+    1. Navigate to page that was changed and confirm that the changes are correct.
+    1. Delete the build files: `$ make clean` 
 1. [Create a pull request](https://help.github.com/articles/creating-a-pull-request, "Create Pull Request"). 
 1. Update your pull request based on the feedback and suggestions in the comments.
 1. Once your pull request has been merged, do your regular Git upkeep:
