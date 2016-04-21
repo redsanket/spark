@@ -13,8 +13,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 import hadooptest.TestSession;
 
@@ -74,7 +79,9 @@ public class DataBaseOperations {
 	 * @throws ClassNotFoundException
 	 */
 	public void createIntegrationResultTable() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		createTable(DBCommands.CREATE_INTEGRATION_TABLE);
+		String tableName = DBCommands.CREATE_INTEGRATION_TABLE;
+		tableName = tableName.replaceAll("TB_NAME", DBCommands.TABLE_NAME);
+		createTable(tableName);
 	}
 	
 	public void createTable(final String TABLE_NAME) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -215,6 +222,30 @@ public class DataBaseOperations {
 			stmt.execute(UPDATE_RECORD);
 			System.out.println("Record updated successfully..!");
 			stmt.close();
+		}
+	}
+	
+	public void getTodayResult() {
+		java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentDate = simpleDateFormat.format(calendar.getTime());
+		String QUERY = "select * from integration where date like "  + "\""  + currentDate + "\"";
+		Table<String, String, String> todayIntResultTable = HashBasedTable.create();
+		try {
+			java.sql.Connection connection = this.getConnection();
+			Statement statement = connection.createStatement();
+			if (statement != null) {
+				ResultSet resultSet = statement.executeQuery(QUERY);
+				if (resultSet != null) {
+					while (resultSet.next()) {
+						
+					}
+				}	
+			}
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+			TestSession.logger.error("failed to get the connection - " +  e);
+			e.printStackTrace();
 		}
 	}
 	
