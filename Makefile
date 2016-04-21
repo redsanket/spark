@@ -12,28 +12,16 @@ HBASE = external/hbase/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
-# Use 'make hadoop-test' to build the documentation locally. Docs will be copied to docs/<product>.
-test:
-	@echo "Creating virtualenv..."
-	$(VIRTUALENV) $(TMP_ENV)
-	@echo "Installing Sphinx..."
-	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
-	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	$(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase
- 
-# Deletes locally built docs
-clean:
-	@echo "Deleting build directory."
-	rm -rf docs
-
 # Screwdriver uses this to build documentation.
+# Use 'make build' to build the documentation locally. Docs will be copied to docs/<product>.
 build:
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
-	@echo "running $(SPHINXBUILD)..."
-	. $(ACTIVATE) && make -C $(OOZIE) html && make -C $(HIVE) html && make -C $(HUE) html && make -C $(STORM) html && make -C $(STARLING) html && make -C $(HBASE) html
+	@echo "running $(SPHINXBUILD) to generate documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase
+ 
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
 gh-pages:
@@ -50,13 +38,18 @@ gh-pages:
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
 publish: gh-pages build
 	@echo "Copying new files."
-	cp -R $(OOZIE)/_build/html/* oozie
-	cp -R $(HIVE)/_build/html/* hive
-	cp -R $(HUE)/_build/html/* hue
-	cp -R $(STORM)/_build/html/* storm
-	cp -R $(STARLING)/_build/html/* starling
-	cp -R $(HBASE)/_build/html/* hbase
-	rm -rf external setup.cfg tox.ini
+	cp -R docs/oozie/* oozie
+	cp -R docs/hive/* hive
+	cp -R docs/hue/* hue
+	cp -R docs/storm/* storm
+	cp -R docs/starling/* starling
+	cp -R docs/hbase/* hbase
+	rm -rf docs setup.cfg tox.ini
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
+
+# Deletes locally built docs
+clean:
+	@echo "Deleting build directory."
+	rm -rf docs
