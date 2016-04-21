@@ -105,10 +105,10 @@ if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
   yinst install yoozie -br current
   yinst install yoozie_client -br current
 else
-  OOZIE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie`
+  OOZIE_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie`
   echo OOZIE_VERSION_REFERENCE_CLUSTER is: $OOZIE_VERSION_REFERENCE_CLUSTER
 
-  OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie_client`
+  OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie_client`
   echo OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER is: $OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER
 
   yinst install yoozie-${OOZIE_VERSION_REFERENCE_CLUSTER}
