@@ -1,4 +1,5 @@
 
+
 # The Oozie documentation build configuration file.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -53,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Oozie'
+# project = u'Oozie'
 copyright = u'2013, Yahoo! Inc., 2013'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -73,7 +73,7 @@ More complex objects are ignored.
    :widths: 15, 45
 
    "``uptimeSecs``", "The uptime in seconds for the worker."
-   "``startTimeSecs``, "The UNIX time when the worker came up."
+   "``startTimeSecs``", "The UNIX time when the worker came up."
    "``GC/ParNew/ConcurrentMarkSweep_count``", The number of garbage collections that have happened."
    "``GC/ParNew/ConcurrentMarkSweep_timeMs``", "The time spent doing those garbage collections."	
    "``Memory/heap/nonHeap_unusedBytes``", "The unused bytes."	

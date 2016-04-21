@@ -21,3 +21,12 @@ _build/
 
 # Mac desktop service store files
 .DS_Store
+
+# Build files for Readthedocs
+.Python
+.vagrant/
+bin/
+include/
+lib/
+pip-selfcheck.json
+docs

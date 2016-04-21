@@ -11,28 +11,39 @@
 # serve to show the default.
 
 import sys, os
+import shlex
+import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+import sphinx.environment
+from docutils.utils import get_source_line
+
+def _warn_node(self, msg, node):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.doctest', 'sphinx.ext.ifconfig']
+extensions = ['sphinx.ext.extlinks']
 
-# Add any paths that contain templates here, relative to this directory.
-
-# Templates path for docs on YDN.
-templates_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
-
-# Templates path for docs on developer.corp.yahoo.com
 templates_path = ['_templates']
+
+exclude_patterns = ['_build']
+
+pygments_style = 'sphinx'
+
+html_theme = 'sphinx_rtd_theme'
+
+html_theme_path = ['_themes']
+
+html_static_path = ['_static']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -44,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-# project = u'Hive'
+project = u'Hive'
 copyright = u'2013, Yahoo! Inc., 2013'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -68,7 +79,7 @@ copyright = u'2013, Yahoo! Inc., 2013'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['.build']
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -84,8 +95,6 @@ exclude_patterns = ['.build']
 # output. They are ignored by default.
 #show_authors = False
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
 
 highlight_language = 'javascript'
 # A list of ignored prefixes for module index sorting.
@@ -97,19 +106,13 @@ highlight_language = 'javascript'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-# Theme to use on YDN.
-#html_theme = 'ydntheme'
 
-# Theme for using on devel.corp.yahoo.com
-html_theme = 'haiku'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #html_theme_options = {}
 
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['/home/y/share/htdocs/cocktails/sphinx_rst_ydn/ydn_template/']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

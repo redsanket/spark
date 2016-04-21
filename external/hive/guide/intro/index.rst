@@ -14,7 +14,6 @@ large amounts of data on the grid as if you were working with a relational datab
 Hive offers a broad range of SQL semantics and integrates with both ODBC and JDBC interfaces,
 making it ideal for analyzing data. 
 
-
 Why Hive?
 =========
 
@@ -22,9 +21,8 @@ Hive is one of the fastest growing products on the grid for many reasons.
 The following highlight some of reasons that Yahoo has chosen
 to use Hive.
 
-
 - **Battle-Tested Standard** - Hive is the SQL standard for Hadoop that has been 
-  around for 7+ years. In addition to Yahoo, it has been tested on a large scale 
+  around for more than seven years. In addition to Yahoo, it has been tested on a large scale 
   at companies such as Facebook and Netflix.
 - **Single Solution** - Hive works across a broad spectrum of data volumes and 
   allows you to load, store, read, analyze, and combine data. 

@@ -1,0 +1,32 @@
+platform: python
+shared:
+  notifications:
+    email: "jcatera@yahoo-inc.com"
+  plugins:
+    test_results:
+      enabled: false
+    coverage:
+      enabled: false
+  steps:
+    doc_build:
+      description: calls sphinx-build
+      command: make -f ./Makefile build
+    publish:
+      description: calls sphinx-build and uploads the content to gh-pages branch
+      command: make -f ./Makefile publish
+profiles:
+  pull-request:
+      description: >
+          Runs when a Pull Request is opened or updated
+      build_containers: [python]
+      publish_containers: [python]
+      steps:
+          - init
+          - doc_build
+  default:
+      description: >
+          Runs after a commit is made to your primary branch
+      steps:
+          - init
+          - doc_build
+          - publish

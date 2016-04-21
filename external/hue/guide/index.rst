@@ -30,8 +30,8 @@ behave differently in Yahoo's Hue UI.
 Accessing Hue
 =============
 
-Each Grid cluster has a dedicated Hue instance, which do not share information among 
-themselves in any way. You have access to the Hue instance on any cluster, but you 
+Each Grid cluster has a dedicated Hue instance, that does not share information with
+the other cluster instances. You have access to the Hue instance on any cluster, but you 
 can only access and modify data that you have access permission.
 
 .. _using_socks_proxy:
