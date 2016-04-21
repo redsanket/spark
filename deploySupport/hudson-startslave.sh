@@ -279,12 +279,17 @@ done
 [ -z "$HIVEIGORTAG" ] && export HIVEIGORTAG=none
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
-# stack component install settings
+#
+## stack component install settings
+#
+# component package version reference
+[ -z "$STACK_COMP_REFERENCE_CLUSTER" ] && export STACK_COMP_REFERENCE_CLUSTER=false
+#
+# potential component(s) to install
 [ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
 [ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
 [ -z "$STACK_COMP_INSTALL_PIG" ] && export STACK_COMP_INSTALL_PIG=false
 [ -z "$STACK_COMP_INSTALL_SPARK" ] && export STACK_COMP_INSTALL_SPARK=false
-
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none

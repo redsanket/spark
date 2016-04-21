@@ -96,16 +96,25 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 #
 yinst i ygrid_cacert
 
-# get the version used on AR
-OOZIE_VERSION_AR=`./query_release -c axonitered -b oozie -p yoozie`
-echo OOZIE_VERSION_AR is: $OOZIE_VERSION_AR
+#
+## install oozie
+#
+# check if we need to use a reference cluster, else use 'current'
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst install yoozie -br current
+  yinst install yoozie_client -br current
+else
+  OOZIE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie`
+  echo OOZIE_VERSION_REFERENCE_CLUSTER is: $OOZIE_VERSION_REFERENCE_CLUSTER
 
-OOZIE_CLIENT_VERSION_AR=`./query_release -c axonitered -b oozie -p yoozie_client`
-echo OOZIE_CLIENT_VERSION_AR is: $OOZIE_CLIENT_VERSION_AR
+  OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie_client`
+  echo OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER is: $OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER
 
-yinst i yoozie-$OOZIE_VERSION_AR
-yinst i yoozie_client-$OOZIE_CLIENT_VERSION_AR
- 
+  yinst install yoozie-$OOZIE_VERSION_REFERENCE_CLUSTER
+  yinst install yoozie_client-$OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER
+fi
+
+
 # gridci-924, ygrid_sharelib pkg branches are being fiddled with...
 yinst i ygrid_sharelib -br current 
 yinst i hadoopgplcompression-1.0.2.2.1209201519

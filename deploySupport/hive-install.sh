@@ -57,19 +57,30 @@ yinst install hbase
 yinst install cloud_messaging_client -branch current
 yinst install yjava_oracle_jdbc_wrappers -branch test
 
-# install hive
-HIVE_VERSION_AR=`./query_release -c axonitered -b hive -p hive`
-echo HIVE_VERSION_AR is: $HIVE_VERSION_AR
 
-HIVE_CONF_VERSION_AR=`./query_release -c axonitered -b hive -p hive_conf_axonitered`
-echo HIVE_CONF_VERSION_AR is: $HIVE_CONF_VERSION_AR
+#
+## install hive
+#
+# check if we need to use a reference cluster, else use 'current'
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst install hive -br current
+  yinst install hive_conf -br current
+  yinst install hcat_server -br current
+else 
+  HIVE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
+  echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
 
-HCAT_SERVER_VERSION_AR=`./query_release -c axonitered -b hive -p hcat_server`
-echo HCAT_SERVER_VERSION_AR is: $HCAT_SERVER_VERSION_AR
+  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_$STACK_COMP_REFERENCE_CLUSTER`
+  echo HIVE_CONF_VERSION_REFERENCE_CLUSTER is: $HIVE_CONF_VERSION_REFERENCE_CLUSTER
 
-yinst install hive-$HIVE_VERSION_AR 
-yinst install hive_conf-$HIVE_CONF_VERSION_AR 
-yinst install hcat_server-$HCAT_SERVER_VERSION_AR 
+  HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
+  echo HCAT_SERVER_VERSION_REFERENCE_CLUSTER is: $HCAT_SERVER_VERSION_REFERENCE_CLUSTER
+
+  yinst install hive-$HIVE_VERSION_REFERENCE_CLUSTER
+  yinst install hive_conf-$HIVE_CONF_VERSION_REFERENCE_CLUSTER
+  yinst install hcat_server-$HCAT_SERVER_VERSION_REFERENCE_CLUSTER
+fi
+
 
 # hive yinst sets
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
@@ -98,12 +109,21 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
 yinst set hcat_server.keydb_passkey=dbpassword
 
-# install pig
-PIG_VERSION_AR=`./query_release -c axonitered -b pig -p pig_current`
-echo PIG_VERSION_AR is: $PIG_VERSION_AR
 #
-yinst install pig-$PIG_VERSION_AR
+## install pig
+#
+# check if we need to use a reference cluster, else use 'current'
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst i pig -br current
+else
+  PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
+  echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
+  #
+  yinst install pig-$PIG_VERSION_REFERENCE_CLUSTER
+fi
+
 yinst set pig.PIG_HOME=/home/y/share/pig
+
 #
 # make the grid links for pig
 PIGVERSION=`yinst ls | grep pig-`
