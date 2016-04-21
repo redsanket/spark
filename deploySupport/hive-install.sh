@@ -52,16 +52,26 @@ echo "flush privileges;" >> /tmp/sql_setup.sql
 # apply sql script to DB
 mysql -u root < sql_setup.sql
 
-# install hive and supporting packages
+# install supporting packages
 yinst install hbase
 yinst install cloud_messaging_client -branch current
-#yinst install hcat_server
-# gridci-765 use current branch
-yinst install hive -branch current
-yinst install hive_conf -branch current
 yinst install yjava_oracle_jdbc_wrappers -branch test
-yinst install hcat_server -branch current
 
+# install hive
+HIVE_VERSION_AR=`./query_release -c axonitered -b hive -p hive`
+echo HIVE_VERSION_AR is: $HIVE_VERSION_AR
+
+HIVE_CONF_VERSION_AR=`./query_release -c axonitered -b hive -p hive_conf_axonitered`
+echo HIVE_CONF_VERSION_AR is: $HIVE_CONF_VERSION_AR
+
+HCAT_SERVER_VERSION_AR=`./query_release -c axonitered -b hive -p hcat_server`
+echo HCAT_SERVER_VERSION_AR is: $HCAT_SERVER_VERSION_AR
+
+yinst install hive-$HIVE_VERSION_AR 
+yinst install hive_conf-$HIVE_CONF_VERSION_AR 
+yinst install hcat_server-$HCAT_SERVER_VERSION_AR 
+
+# hive yinst sets
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
 yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
 yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
@@ -89,7 +99,10 @@ yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
 yinst set hcat_server.keydb_passkey=dbpassword
 
 # install pig
-yinst install pig -br current
+PIG_VERSION_AR=`./query_release -c axonitered -b pig -p pig_current`
+echo PIG_VERSION_AR is: $PIG_VERSION_AR
+#
+yinst install pig-$PIG_VERSION_AR
 yinst set pig.PIG_HOME=/home/y/share/pig
 #
 # make the grid links for pig

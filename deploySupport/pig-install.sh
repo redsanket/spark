@@ -15,7 +15,10 @@ echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Pig node being installed: $PIGNODE"
 
 # install pig
-yinst install pig -br current
+PIG_VERSION_AR=`./query_release -c axonitered -b pig -p pig_current`
+echo PIG_VERSION_AR is: $PIG_VERSION_AR
+#
+yinst install pig-$PIG_VERSION_AR
 yinst set pig.PIG_HOME=/home/y/share/pig
 
 # make the grid links for pig

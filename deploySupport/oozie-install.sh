@@ -95,12 +95,20 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # 0.23 hadoop)
 #
 yinst i ygrid_cacert
-BRANCH=test
-yinst i yoozie -br $BRANCH
+
+# get the version used on AR
+OOZIE_VERSION_AR=`./query_release -c axonitered -b oozie -p yoozie`
+echo OOZIE_VERSION_AR is: $OOZIE_VERSION_AR
+
+OOZIE_CLIENT_VERSION_AR=`./query_release -c axonitered -b oozie -p yoozie_client`
+echo OOZIE_CLIENT_VERSION_AR is: $OOZIE_CLIENT_VERSION_AR
+
+yinst i yoozie-$OOZIE_VERSION_AR
+yinst i yoozie_client-$OOZIE_CLIENT_VERSION_AR
+ 
 # gridci-924, ygrid_sharelib pkg branches are being fiddled with...
 yinst i ygrid_sharelib -br current 
 yinst i hadoopgplcompression-1.0.2.2.1209201519
-yinst i yoozie_client -br $BRANCH
 
 
 #
