@@ -14,8 +14,20 @@ PIGNODE_SHORT=`echo $PIGNODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Pig node being installed: $PIGNODE"
 
-# install pig
-yinst install pig -br current
+#
+## install pig
+#
+# check if we need to use a reference cluster, else use 'current'
+echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst i pig -br current
+else
+  PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
+  echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
+  #
+  yinst install pig-$PIG_VERSION_REFERENCE_CLUSTER
+fi
+
 yinst set pig.PIG_HOME=/home/y/share/pig
 
 # make the grid links for pig

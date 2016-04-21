@@ -52,16 +52,38 @@ echo "flush privileges;" >> /tmp/sql_setup.sql
 # apply sql script to DB
 mysql -u root < sql_setup.sql
 
-# install hive and supporting packages
+# install supporting packages
 yinst install hbase
 yinst install cloud_messaging_client -branch current
-#yinst install hcat_server
-# gridci-765 use current branch
-yinst install hive -branch current
-yinst install hive_conf -branch current
 yinst install yjava_oracle_jdbc_wrappers -branch test
-yinst install hcat_server -branch current
 
+
+#
+## install hive
+#
+# check if we need to use a reference cluster, else use 'current'
+echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst install hive -br current
+  yinst install hive_conf -br current
+  yinst install hcat_server -br current
+else 
+  HIVE_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
+  echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
+
+  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_${STACK_COMP_REFERENCE_CLUSTER}`
+  echo HIVE_CONF_VERSION_REFERENCE_CLUSTER is: $HIVE_CONF_VERSION_REFERENCE_CLUSTER
+
+  HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
+  echo HCAT_SERVER_VERSION_REFERENCE_CLUSTER is: $HCAT_SERVER_VERSION_REFERENCE_CLUSTER
+
+  yinst install hive-${HIVE_VERSION_REFERENCE_CLUSTER}
+  yinst install hive_conf-${HIVE_CONF_VERSION_REFERENCE_CLUSTER}
+  yinst install hcat_server-${HCAT_SERVER_VERSION_REFERENCE_CLUSTER}
+fi
+
+
+# hive yinst sets
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
 yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
 yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
@@ -88,9 +110,21 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
 yinst set hcat_server.keydb_passkey=dbpassword
 
-# install pig
-yinst install pig -br current
+#
+## install pig
+#
+# check if we need to use a reference cluster, else use 'current'
+if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
+  yinst i pig -br current
+else
+  PIG_VERSION_REFERENCE_CLUSTER=`./query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
+  echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
+  #
+  yinst install pig-${PIG_VERSION_REFERENCE_CLUSTER}
+fi
+
 yinst set pig.PIG_HOME=/home/y/share/pig
+
 #
 # make the grid links for pig
 PIGVERSION=`yinst ls | grep pig-`
