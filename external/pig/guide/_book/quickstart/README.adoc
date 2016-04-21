@@ -1,9 +1,0 @@
-= Quick Start
-:toc:
-:sectanchors:
-:linkattrs:
-
-This quick start is intended to be run on one of the Yahoo gateways. We suggest 
-using Axonite Red, as it is the sandbox gateway. For those wanting to create a 
-launcher box (basically your own custom gateway), see link:launchers.html[Installing Pig on Your Launcher Box].
-
