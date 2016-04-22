@@ -413,7 +413,7 @@ impact performance if you in fact did have more to emit.
 
 You can have multiple streams and send different events to different streams.
 
-.. code-block::
+.. code-block:: java
 
    @Override
    public void nextTuple() {
