@@ -36,7 +36,7 @@ gh-pages:
 	git reset HEAD
 
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
-publish: gh-pages build clean
+publish: gh-pages build 
 	@echo "Copying new files."
 	cp -R docs/oozie/* oozie
 	cp -R docs/hive/* hive
@@ -47,8 +47,3 @@ publish: gh-pages build clean
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
-
-# Deletes locally built docs
-clean:
-	@echo "Cleaning up build directory and files."
-	rm -rf docs setup.cfg tox.ini MANIFEST.ini external
