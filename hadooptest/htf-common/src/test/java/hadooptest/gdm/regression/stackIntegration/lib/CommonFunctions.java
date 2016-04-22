@@ -356,7 +356,7 @@ public class CommonFunctions {
 			testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
 			testList.add(testIntHive);	
 		}
-				
+		
 		StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
 		Callable<String> testHbaseComponent = null;
 		if (hbaseStackComponent != null)  {
@@ -365,7 +365,7 @@ public class CommonFunctions {
 			testList.add(testHbaseComponent);
 		}
 		
-/*		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
+		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 		Callable<String> testIntOozie = null;
 		if (oozieStackComponent != null) {
 			try {
@@ -376,7 +376,7 @@ public class CommonFunctions {
 				TestSession.logger.error("Failed to create configuration " + e);
 				e.printStackTrace();
 			}
-		}*/
+		}
 		
 		boolean overAllExecutionResult = true; 
 		if (testList.size() > 0) {
