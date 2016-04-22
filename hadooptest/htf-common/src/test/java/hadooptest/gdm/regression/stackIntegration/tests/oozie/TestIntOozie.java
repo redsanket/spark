@@ -243,7 +243,11 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 				if ( pathDeletedFlag == true) {
 					TestSession.logger.info(path + " is deleted successfully");
 				} else {
-					TestSession.logger.error("Failed to delete " + path );
+					try {
+						throw new Exception("Failed to delete " + path);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		} catch (IOException e) {
