@@ -87,12 +87,11 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	public String call() throws Exception {
 		String sourePath = new File("").getAbsolutePath() + "/resources/stack_integration/oozie";
 		String destPath = "/tmp/integration-testing/oozie/" +  this.getCurrentHr() ;
-		//createWorkFlowFolder(destPath + "/outputDir/");
+		createWorkFlowFolder(destPath + "/outputDir/");
 		copySupportingFilesToScratch(destPath);
 		String result = execute();
 		return "oozie-" + result;
 	}
-		
 	public String getCurrentHr() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 		Calendar calendar = Calendar.getInstance();
@@ -110,18 +109,29 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 
 		String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.DFSLOAD_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "http://" + this.getHostName() + ":4080/oozie -auth kerberos"   + " \"";
 		String tempOozieJobID = this.commonFunctions.executeCommand(oozieCommand);
-		TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
-		int indexOfJobIdOutput = tempOozieJobID.indexOf("job:");
-		TestSession.logger.info("indexOfJobIdOutput = " + indexOfJobIdOutput);
-		String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
-		this.setOozieJobID(jobID);
-		String result = getResult();
-		if (result.indexOf("KILLED") > -1) {
+		if (tempOozieJobID == null) {
 			this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
+			this.commonFunctions.updateDB(currentJobName, "oozieComments", "failed to submit the job, try submitting the job manually.");
 			oozieResult = false;
-		} else if ( result.indexOf("SUCCEEDED") > -1 ) {
-			this.commonFunctions.updateDB(currentJobName, "oozieResult", "PASS");
-			oozieResult = true;
+		} else if (tempOozieJobID.indexOf("Error") > -1) {
+			TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
+			this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
+			this.commonFunctions.updateDB(currentJobName, "oozieComments", tempOozieJobID);
+			oozieResult = false;
+		} else {
+			TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
+			int indexOfJobIdOutput = tempOozieJobID.indexOf("job:");
+			TestSession.logger.info("indexOfJobIdOutput = " + indexOfJobIdOutput);
+			String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
+			this.setOozieJobID(jobID);
+			String result = getResult();
+			if (result.indexOf("KILLED") > -1) {
+				this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
+				oozieResult = false;
+			} else if ( result.indexOf("SUCCEEDED") > -1 ) {
+				this.commonFunctions.updateDB(currentJobName, "oozieResult", "PASS");
+				oozieResult = true;
+			}
 		}
 		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "COMPLETED");
 		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  end ------------------------------------------------------------------------");
@@ -219,11 +229,29 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 			createFolders(path);
 		} else {
 			TestSession.logger.info(pipeLinePath.toString()  + " already exists, deleting and create a new one!");
-			navigate(path);
+			deletePathOnHDFS(path);
 			createFolders(path);
 		}
 	}
 
+	public void deletePathOnHDFS(String path) {
+		try {
+			FileSystem remoteFS = FileSystem.get(this.configuration);
+			Path hdfsPath = new Path(path);
+			if ( remoteFS.exists(hdfsPath)) {
+				boolean pathDeletedFlag = remoteFS.delete(hdfsPath, true);
+				if ( pathDeletedFlag == true) {
+					TestSession.logger.info(path + " is deleted successfully");
+				} else {
+					TestSession.logger.error("Failed to delete " + path );
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	/**
 	 * Navigate the specified path and delete folders and files
 	 * @param path
