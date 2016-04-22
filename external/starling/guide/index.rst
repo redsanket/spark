@@ -18,7 +18,7 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-Our goal is to help Yahoos use Starling, on the Yahoo grid, and thus, is not a comprehensive guide for Starling.
+Our goal is to help Yahoos use Starling on the Yahoo grid, and thus, is not a comprehensive guide for Starling.
 
 .. _onboard:
 

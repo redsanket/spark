@@ -44,7 +44,7 @@ publish: gh-pages build
 	cp -R docs/storm/* storm
 	cp -R docs/starling/* starling
 	cp -R docs/hbase/* hbase
-	rm -rf docs setup.cfg tox.ini MANIFEST.ini
+	rm -rf docs setup.cfg tox.ini MANIFEST.ini external
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
