@@ -9,11 +9,14 @@ shared:
       enabled: false
   steps:
     doc_build:
-      description: calls sphinx-build
+      description: Calls 'sphinx-build'
       command: make -f ./Makefile build
     publish:
-      description: calls sphinx-build and uploads the content to gh-pages branch
+      description: Calls 'sphinx-build' and uploads the content to 'gh-pages' branch.
       command: make -f ./Makefile publish
+    clean:
+      description: Removes the build directory and files.
+      command: make -f ./Makefile clean
 profiles:
   pull-request:
       description: >
