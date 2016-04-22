@@ -36,7 +36,7 @@ gh-pages:
 	git reset HEAD
 
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
-publish: gh-pages build
+publish: gh-pages build clean
 	@echo "Copying new files."
 	cp -R docs/oozie/* oozie
 	cp -R docs/hive/* hive

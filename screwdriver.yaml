@@ -14,9 +14,6 @@ shared:
     publish:
       description: Calls 'sphinx-build' and uploads the content to 'gh-pages' branch.
       command: make -f ./Makefile publish
-    clean:
-      description: Removes the build directory and files.
-      command: make clean
 profiles:
   pull-request:
       description: >
@@ -33,4 +30,3 @@ profiles:
           - init
           - doc_build
           - publish
-          - clean

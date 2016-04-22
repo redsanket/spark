@@ -435,7 +435,7 @@ Job Designer Fields
 
 .. csv-table:: Job Designer Fields
    :header: "Fields", "Description", "Notes"
-   :widths: 15, 30
+   :widths: 15, 30, 30
 
    "Name", "Identifies the job and its collection of properties and parameters.", ""
    "Description", "A description of the job.", ""
