@@ -437,7 +437,6 @@ Job Designer Fields
    :header: "Fields", "Description", "Notes"
    :widths: 15, 30
 
-
    "Name", "Identifies the job and its collection of properties and parameters.", ""
    "Description", "A description of the job.", ""
    "Advanced", "Is shared: indicates whether to share the action with all users. Oozie parameters passed to Oozie.", ""
@@ -454,7 +453,7 @@ Job Designer Fields
    "Java", "Main class written in Java.", "Jar path to a JAR file containing the main class used to invoke the program
            the arguments to pass to the main class, and options to the JVM."
    "Pig", "Pig script.", "The script name and path to the Pig script."
-   "Hive, "Hive script.", "The script name and the path to the Hive script."
+   "Hive", "Hive script.", "The script name and the path to the Hive script."
    "Shell", "Shell command.", "The shell command and output of the command to capture."
    "Ssh", "SSH command.", "The **user** to run the command, the **host** where to run the command, the ssh **command**,
           the **output** to capture."
@@ -816,7 +815,7 @@ The **Import action** menu lets you import an action from the **Job Designer** o
 
 
 +-------------------------------------------------------------+------------------------------------------------------------------------+
-| **Job Designer Import**                                      | **Oozie Import**                                                       |
+| **Job Designer Import**                                     | **Oozie Import**                                                       |
 +=============================================================+========================================================================+
 | .. image:: images/hue_oozie_editor-import_job_designer.jpg  | .. image:: images/hue_oozie_editor-import_oozie.jpg                    |
 |    :height: 288px                                           |    :height: 288px                                                      |
