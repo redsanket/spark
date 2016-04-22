@@ -30,4 +30,3 @@ profiles:
           - init
           - doc_build
           - publish
-          - clean
