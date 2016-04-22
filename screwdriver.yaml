@@ -16,7 +16,7 @@ shared:
       command: make -f ./Makefile publish
     clean:
       description: Removes the build directory and files.
-      command: make -f ./Makefile clean
+      command: make clean
 profiles:
   pull-request:
       description: >
