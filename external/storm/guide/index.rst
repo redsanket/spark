@@ -19,9 +19,6 @@ and `tutorials <./tutorials>`_ to help you get started.
 Getting Help
 ============
 
-
-
-
 General Questions
 -----------------
 
@@ -56,7 +53,7 @@ Bugzilla Links
 Ticket Filing Process
 #####################
 
-If you have identified an issue with Storm withn your environment or 
+If you have identified an issue with Storm within your environment or 
 while testing, you may file a Bugzilla Ticket. When filing the ticket, 
 include the following if relevant:
 
