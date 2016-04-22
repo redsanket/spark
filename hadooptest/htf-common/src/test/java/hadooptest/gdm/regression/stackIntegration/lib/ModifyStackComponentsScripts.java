@@ -176,7 +176,7 @@ public class ModifyStackComponentsScripts {
 			String currentJobName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctiions.getDataSetName();
 			File oozieWorkFlowFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/workflow.xml.tmp");
 			String oozieWorkFlowFileContent = new String(readAllBytes(get(oozieWorkFlowFilePath.toString())));
-			oozieWorkFlowFileContent = oozieWorkFlowFileContent.replaceAll("stackint_oozie_RawInputETL", "stackint_oozie_RawInput_" + currentJobName );
+			oozieWorkFlowFileContent = oozieWorkFlowFileContent.replaceAll("stackint_oozie_RawInputETL",  currentJobName );
 			
 			TestSession.logger.info("!!!!!!!!!!");
 			TestSession.logger.info("oozieWorkFlowFileContent  = " + oozieWorkFlowFileContent);
