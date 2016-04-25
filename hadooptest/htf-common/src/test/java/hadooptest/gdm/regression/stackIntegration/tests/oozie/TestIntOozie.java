@@ -168,7 +168,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 				String result = jsonPath.prettyPrint();
 				TestSession.logger.info("result = " + result);
 				JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
-				status = walkToOozieReponseAndUpdateResult(oozieJsonResult);
+				status = walkToOozieResponseAndUpdateResult(oozieJsonResult);
 				if (status != null) {
 					try {
 						Thread.sleep(250);
@@ -185,7 +185,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		return status;
 	}
 	
-	public String walkToOozieReponseAndUpdateResult(JSONObject responseObject) {
+	public String walkToOozieResponseAndUpdateResult(JSONObject responseObject) {
 		String status = null;
 		if (responseObject.containsKey("actions") ){
 			JSONArray actionJsonArray = responseObject.getJSONArray("actions");
