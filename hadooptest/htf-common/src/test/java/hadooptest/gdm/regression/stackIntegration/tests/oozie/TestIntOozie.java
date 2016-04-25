@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -23,6 +24,9 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 public class TestIntOozie implements java.util.concurrent.Callable<String>{
 
@@ -30,6 +34,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	private String nameNodeName;
 	private StackComponent stackComponent;
 	private String oozieJobID;
+	private String currentJobName;
 	org.apache.hadoop.conf.Configuration configuration;
 	private CommonFunctions commonFunctions;
 	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
@@ -43,6 +48,14 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		this.commonFunctions = new CommonFunctions();
 	}
 	
+	public String getCurrentJobName() {
+		return currentJobName;
+	}
+
+	public void setCurrentJobName(String currentJobName) {
+		this.currentJobName = currentJobName;
+	}
+
 	public String getOozieJobID() {
 		return oozieJobID;
 	}
@@ -103,6 +116,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	public String  execute() {
 		TestSession.logger.info(" ---------------------------------------------------------------  TestIntOozie  start ------------------------------------------------------------------------");
 		String currentJobName = this.commonFunctions.getDataSetName();
+		this.setCurrentJobName(currentJobName);
 		this.commonFunctions.updateDB(currentJobName, "oozieCurrentState", "RUNNING");
 		String currentHR = getCurrentHr();
 		boolean oozieResult = false;
@@ -116,7 +130,6 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		} else if (tempOozieJobID.indexOf("Error") > -1) {
 			TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
 			this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
-			this.commonFunctions.updateDB(currentJobName, "oozieComments", tempOozieJobID);
 			oozieResult = false;
 		} else {
 			TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
@@ -124,7 +137,9 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 			TestSession.logger.info("indexOfJobIdOutput = " + indexOfJobIdOutput);
 			String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
 			this.setOozieJobID(jobID);
+			
 			String result = getResult();
+			//String result = getOozieExecutionResult();
 			if (result.indexOf("KILLED") > -1) {
 				this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
 				oozieResult = false;
@@ -141,27 +156,64 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	public String getResult() {
 		String status =  null;
 		String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
+		TestSession.logger.info("oozie query = " + query);
 		com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
 		TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
 		if (response != null) {
 			JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
 			status = jsonPath.getString("status");
+			
 			while ( status.indexOf("RUNNING") > -1) {
 				jsonPath = pollOozieJobResult();
-				try {
-					Thread.sleep(250);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				status = jsonPath.getString("status");
-				if (! (status.indexOf("RUNNING") > -1)   ) {
-					break;
+				String result = jsonPath.prettyPrint();
+				TestSession.logger.info("result = " + result);
+				JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
+				status = walkToOozieResponseAndUpdateResult(oozieJsonResult);
+				if (status != null) {
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					status = jsonPath.getString("status");
+					if (! (status.indexOf("RUNNING") > -1)   ) {
+						break;
+					}	
 				}
 			}
 		}
 		return status;
 	}
 	
+	public String walkToOozieResponseAndUpdateResult(JSONObject responseObject) {
+		String status = null;
+		if (responseObject.containsKey("actions") ){
+			JSONArray actionJsonArray = responseObject.getJSONArray("actions");
+			if (actionJsonArray.size() > 0) {
+				for ( int i = 0; i < actionJsonArray.size() - 1 ; i ++) {
+					JSONObject actionItem = actionJsonArray.getJSONObject(i);
+					if (actionItem.containsKey("transition")) {
+						String transitionName = actionItem.getString("transition");
+						status = actionItem.getString("status");
+						if (status.indexOf("OK") > -1) {
+							String consoleUrl = actionItem.getString("consoleUrl");
+							
+							// TODO need to create columns in db & update the result
+							
+						} else if ( (status.indexOf("FAILED") > -1) || (status.indexOf("ERROR") > -1) || (status.indexOf("KILLED") > -1))  {
+							TestSession.logger.info("Response - " + responseObject.toString());
+							String consoleUrl = actionItem.getString("consoleUrl");
+							String errorMessage = actionItem.getString("errorMessage");
+							this.commonFunctions.updateDB(this.getCurrentJobName(), "oozieComments", errorMessage + " - " + consoleUrl );
+						}
+					}
+					
+				}
+			}
+		}
+		return status;
+	}
+
 	private JsonPath pollOozieJobResult() {
 		String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
 		com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);

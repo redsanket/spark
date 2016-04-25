@@ -87,7 +87,6 @@ public class CommonFunctions {
 		this.constructCurrentHrMin();
 		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 		dbOperations = new DataBaseOperations();
-		this.createDB();
 	}
 
 	public CommonFunctions(String clusterName) {
@@ -97,7 +96,6 @@ public class CommonFunctions {
 		this.constructCurrentHrMin();
 		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 		dbOperations = new DataBaseOperations();
-		this.createDB();
 	}
 	
 	public String getDataSetName() {
