@@ -36,6 +36,7 @@ public class HadoopStackComponentsTest extends TestSession {
 		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 		setClusterName(cName);
 		this.commonFunctionsObject = new CommonFunctions(cName);
+		this.commonFunctionsObject.createDB();
 		this.commonFunctionsObject.setStackComponentList(Arrays.asList(stackComponentsArray));
 	}
 
