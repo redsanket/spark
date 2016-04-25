@@ -18,8 +18,11 @@ public class TestHBaseInsertRecords {
 	private String path;
 	private String tableName;
 	private String nameNodeName;
+	private String hbaseGateWayHostName;
 	private CommonFunctions commonFunctions;
 	private StackComponent stackComponent;
+	public static final String PIG_HOME = "/home/y/share/pig";
+	public static final String KINIT = "kinit -k -t /etc/grid-keytabs/hbaseqa.dev.service.keytab hbaseqa/";
 	
 	public TestHBaseInsertRecords() {
 	}
@@ -34,7 +37,15 @@ public class TestHBaseInsertRecords {
 		this.setNameNodeName(nameNodeName);
 		this.commonFunctions = new CommonFunctions();
 	}
-	
+
+	public String getHbaseGateWayHostName() {
+		return hbaseGateWayHostName;
+	}
+
+	public void setHbaseGateWayHostName(String hbaseGateWayHostName) {
+		this.hbaseGateWayHostName = hbaseGateWayHostName;
+	}
+
 	public String getHostName() {
 		return hostName;
 	}
@@ -90,8 +101,34 @@ public class TestHBaseInsertRecords {
 	public void setStackComponent(StackComponent stackComponent) {
 		this.stackComponent = stackComponent;
 	}
+	
+	public void getHBaseGateWayHostName() {
+		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
+		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
+		TestSession.logger.info("Command = " + command);
+		String hostName = this.commonFunctions.executeCommand(command).trim();	
+		this.setHbaseGateWayHostName(hostName);
+	}
+	
+	public void copyScriptFilesToGw() {
+		if (this.commonFunctions.isJarFileExist(this.getHbaseGateWayHostName()) == true) {
+			boolean flag = this.commonFunctions.copyTestCases("hbase" ,this.commonFunctions.TESTCASE_PATH , this.getHbaseGateWayHostName());
+			if (flag == true) {
+				TestSession.logger.info("script files copied to hbase gateway - " + this.getHbaseGateWayHostName());
+			} else {
+				try {
+					throw new  Exception("Failed to copy the script files on hbase gateway");
+				} catch (Exception e) {
+					TestSession.logger.error(e);
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public boolean execute() {
+		this.getHBaseGateWayHostName();
+		this.copyScriptFilesToGw();
 		String currentTableName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctions.getDataSetName();
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start   "+  currentTableName + "------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getDataSetName();
@@ -99,7 +136,9 @@ public class TestHBaseInsertRecords {
 		boolean insertRecordResult = false;
 		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
-		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce " 
+		
+		String command = "ssh " + getHbaseGateWayHostName() + "  \"export HBASE_PREFIX=/home/y/libexec/hbase;export PATH=$PATH:/home/y/share/pig:/home/y/libexec/hbase/bin:/tmp/integration_test_files/lib/*.jar;" 
+		+ KINIT + ";" + "export PIG_HOME=" + PIG_HOME + ";export PATH=$PATH:$PIG_HOME/bin/;pig -x mapreduce  " 
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
 				+ "  "
 				+ "-param \"DATASET_NAME=" + dataSetName + "\""

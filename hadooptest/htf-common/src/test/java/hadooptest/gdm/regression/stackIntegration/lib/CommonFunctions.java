@@ -66,7 +66,7 @@ public class CommonFunctions {
 	private List<String> stackComponentList;
 	private ConsoleHandle consoleHandle ;
 	private DataBaseOperations dbOperations;
-	private static final String TESTCASE_PATH = "/resources/stack_integration";
+	public static final String TESTCASE_PATH = "/resources/stack_integration";
 	private final static String PATH = "/data/daqdev/abf/data/";
 	private static final String PROCOTOL = "hdfs://";
 	private final int THREAD_POOL_SIZE = 5;
