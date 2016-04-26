@@ -101,6 +101,7 @@
     <TestWatchForDataDrop>
 		<clusterName>$(CLUSTER_NAME)</clusterName>
 		<pipeLineName>$(PIPELINE_NAME)</pipeLineName>
+		<stackComponents>$(STACK_COMPONENT_TEST_LIST)</stackComponents>
 		<duration>$(DURATION)</duration> <!-- duration in days -->
 		<frequency>$(FREQUENCY)</frequency>
 		<testType>$(TEST_TYPE)</testType>

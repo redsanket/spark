@@ -64,6 +64,7 @@ public class CommonFunctions {
 	private Map<String,StackComponent> healthyStackComponentsMap;
 	private Map<String,String> hostsNames;
 	private List<String> stackComponentList;
+	private List<String> currentStackComponentTestList;
 	private ConsoleHandle consoleHandle ;
 	private DataBaseOperations dbOperations;
 	public static final String TESTCASE_PATH = "/resources/stack_integration";
@@ -97,7 +98,15 @@ public class CommonFunctions {
 		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 		dbOperations = new DataBaseOperations();
 	}
-	
+
+	public List<String> getCurrentStackComponentTestList() {
+		return currentStackComponentTestList;
+	}
+
+	public void setCurrentStackComponentTestList(List<String> currentStackComponentTestList) {
+		this.currentStackComponentTestList = currentStackComponentTestList;
+	}
+
 	public String getDataSetName() {
 		TestSession.logger.info("```````````````````````````````````````  getDataSetName( ) ```````````````````````````````````````````````" + dataSetName);
 		return dataSetName;
@@ -339,43 +348,54 @@ public class CommonFunctions {
 		String nNodeName = hostsNames.get("namenode") ;
 		Map<String, StackComponent> stackComponentMap = this.getHealthyStackComponentsMap();
 		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size()  + "   \n " + stackComponentMap.toString());
-					
-		StackComponent tezStackComponent = stackComponentMap.get("tez");
-		Callable<String> testTezComponent = null;
-		if (tezStackComponent != null ) {
-			TestSession.logger.info("nNodeName  = " + nNodeName  +  "  tezStackComponent = " + tezStackComponent.toString());
-			testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
-			testList.add(testTezComponent);
-		}
-			
-		StackComponent hiveStackComponent = stackComponentMap.get("hive");
-		Callable<String> testIntHive = null;
-		if (hiveStackComponent != null) {
-			testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
-			testList.add(testIntHive);	
+		
+		
+		List<String> currentStackTestComponent = this.getCurrentStackComponentTestList();
+		
+		if (currentStackTestComponent.contains("tez")) {
+			StackComponent tezStackComponent = stackComponentMap.get("tez");
+			Callable<String> testTezComponent = null;
+			if (tezStackComponent != null ) {
+				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  tezStackComponent = " + tezStackComponent.toString());
+				testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
+				testList.add(testTezComponent);
+			}	
 		}
 		
-		StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
-		Callable<String> testHbaseComponent = null;
-		if (hbaseStackComponent != null)  {
-			TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
-			testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
-			testList.add(testHbaseComponent);
-		}
-		
-		StackComponent oozieStackComponent = stackComponentMap.get("oozie");
-		Callable<String> testIntOozie = null;
-		if (oozieStackComponent != null) {
-			try {
-				org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
-				testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
-				testList.add(testIntOozie);
-			} catch (IOException e) {
-				TestSession.logger.error("Failed to create configuration " + e);
-				e.printStackTrace();
+		if (currentStackTestComponent.contains("hive")) {
+			StackComponent hiveStackComponent = stackComponentMap.get("hive");
+			Callable<String> testIntHive = null;
+			if (hiveStackComponent != null) {
+				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
+				testList.add(testIntHive);	
 			}
 		}
+			
+		if (currentStackTestComponent.contains("hbase")) {
+			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
+			Callable<String> testHbaseComponent = null;
+			if (hbaseStackComponent != null)  {
+				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
+				testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
+				testList.add(testHbaseComponent);
+			}			
+		}
 		
+		if (currentStackTestComponent.contains("oozie")) {
+			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
+			Callable<String> testIntOozie = null;
+			if (oozieStackComponent != null) {
+				try {
+					org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
+					testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
+					testList.add(testIntOozie);
+				} catch (IOException e) {
+					TestSession.logger.error("Failed to create configuration " + e);
+					e.printStackTrace();
+				}
+			}			
+		}
+				
 		boolean overAllExecutionResult = true; 
 		if (testList.size() > 0) {
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -417,32 +437,87 @@ public class CommonFunctions {
 	}
 
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
-
-		// TODO : use this.getHostsNames method
+		StringBuilder unTestedComponentListString = new StringBuilder();
 		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
 		this.setHostsNames(hostsNames);
-		
 		String nn = hostsNames.get("namenode");
 		this.setNameNodeName(nn);
 		Map<String, StackComponent> healthyStackComponentsMap = new HashMap<>();
 		List<Callable<StackComponent>> healthCheckList = new ArrayList<Callable<StackComponent>>();
-		Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
-		Callable hadoopHealthCheckupObj = new HadoopHealthCheckup(hostsNames.get("namenode"));
-		Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));
-		Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
-		Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
-		Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
-		Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
-		Callable oOzieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
+		List<String> currentTestComponentList = this.getCurrentStackComponentTestList();
+		if ( currentTestComponentList == null || currentTestComponentList.size() == 0) {
+			try {
+				throw new Exception("Please specify the test component List..!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		boolean gdmFlag = false, hadoopFlag = false, tezFlag = false, pigFlag = false, hiveFlag=false, hcatalogFlag = false, hbaseFlag = false, oozieFlag = false;
+		 
+		if (currentTestComponentList.contains("gdm")) {
+			Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
+			healthCheckList.add(gdmHealthCheckUpObj);
+			gdmFlag = true;
+		} else {
+			unTestedComponentListString.append("gdm").append(",");
+		}
 		
-		healthCheckList.add(gdmHealthCheckUpObj);
-		healthCheckList.add(hadoopHealthCheckupObj);
-		healthCheckList.add(tezHealthCheckUpObj);
-		healthCheckList.add(pigHealthCheckupObj);
-		healthCheckList.add(hiveHealthCheckupObj);
-		healthCheckList.add(hCatalogHealthCheckUpObj);
-		healthCheckList.add(hBaseHealthCheckUpObj);
-		healthCheckList.add(oOzieHealthCheckUpObj);
+		if (currentTestComponentList.contains("hadoop")) {
+			Callable hadoopHealthCheckupObj = new HadoopHealthCheckup(hostsNames.get("namenode"));
+			healthCheckList.add(hadoopHealthCheckupObj);
+			hadoopFlag = true;
+		}  else {
+			unTestedComponentListString.append("hadoop").append(",");
+		}
+		
+		if (currentTestComponentList.contains("tez")) {
+			Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));	
+			healthCheckList.add(tezHealthCheckUpObj);
+			tezFlag = true;
+		} else {
+			unTestedComponentListString.append("tez").append(",");
+		}
+		
+		if (currentTestComponentList.contains("pig")) {
+			Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
+			healthCheckList.add(pigHealthCheckupObj);
+			pigFlag = true;
+		}else {
+			unTestedComponentListString.append("pig").append(",");
+		}
+		
+		if (currentTestComponentList.contains("hive")) {
+			Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
+			healthCheckList.add(hiveHealthCheckupObj);
+			hiveFlag = true;
+		}else {
+			unTestedComponentListString.append("hive").append(",");
+		}
+		
+		if (currentTestComponentList.contains("hcat")) {
+			Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
+			healthCheckList.add(hCatalogHealthCheckUpObj);
+			hcatalogFlag = true;
+		} else {
+			unTestedComponentListString.append("hcat").append(",");
+		}
+		
+		if (currentTestComponentList.contains("hbase")) {
+			Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
+			healthCheckList.add(hBaseHealthCheckUpObj);
+			hbaseFlag = true;
+		} else {
+			unTestedComponentListString.append("hbase").append(",");
+		}
+		
+		if (currentTestComponentList.contains("oozie")) {
+			Callable oOzieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
+			healthCheckList.add(oOzieHealthCheckUpObj);
+			oozieFlag = true;
+		} else {
+			unTestedComponentListString.append("oozie");
+		}
+		
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		List<Future<StackComponent>> healthCheckUpResultList = executor.invokeAll(healthCheckList);
 		for ( Future<StackComponent> result : healthCheckUpResultList) {
@@ -455,7 +530,7 @@ public class CommonFunctions {
 			TestSession.logger.info("component Name = " + obj.getStackComponentName() + "   status - " + obj.getHealth()  + "  version =  " + obj.getStackComponentVersion());
 		}
 		executor.shutdown();
-
+		
 		// navigate healthyStackComponentsMap
 		StringBuilder resultBuilder = new StringBuilder();
 		for ( String key : healthyStackComponentsMap.keySet()){
@@ -464,6 +539,39 @@ public class CommonFunctions {
 			String componentName = obj.getStackComponentName();
 			TestSession.logger.info("component Name = " + obj.getStackComponentName()  + "  health status = " + obj.getHealth()  + "    version = " + obj.getStackComponentVersion());
 		}
+		
+		// mark the individual components are not tested, since the user has not want them to test.
+		if (gdmFlag == false) {
+			this.updateDB(this.getDataSetName(), "gdmComments", "Specified not to test");
+			
+			// since gdm uses hadoop
+			this.updateDB(this.getDataSetName(), "hadoopComments", "Specified not to test");
+		}
+
+		if (pigFlag == false) {
+			this.updateDB(this.getDataSetName(), "pigComments", "Specified not to test");
+		}
+		if (tezFlag == false) {
+			this.updateDB(this.getDataSetName(), "tezComments", "Specified not to test");
+		}
+		if (hiveFlag == false) {
+			this.updateDB(this.getDataSetName(), "hiveComment", "Specified not to test");
+		}
+		if (hcatalogFlag == false) {
+			this.updateDB(this.getDataSetName(), "hcatComment", "Specified not to test");
+		}
+		if (hbaseFlag == false) {
+			this.updateDB(this.getDataSetName(), "hbaseComment", "Specified not to test");
+		}
+		if (oozieFlag == false) {
+			this.updateDB(this.getDataSetName(), "oozieComments", "Specified not to test");
+		}
+		
+		
+		if (unTestedComponentListString.length() > 1) {
+			this.updateDB(this.getDataSetName(), "comments", unTestedComponentListString.toString() + " specified as not to test." );
+		}
+		
 		TestSession.logger.info("____________________________________________________________________________________________________");
 		return healthyStackComponentsMap;
 	}

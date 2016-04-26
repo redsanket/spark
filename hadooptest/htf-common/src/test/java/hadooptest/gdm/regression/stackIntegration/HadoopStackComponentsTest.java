@@ -2,6 +2,7 @@ package hadooptest.gdm.regression.stackIntegration;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
@@ -28,16 +29,29 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	@Before
-	public void setUp() {
-	}
+	public void setUp() { }
 
 	public HadoopStackComponentsTest() throws IOException {
+		
+		String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+		TestSession.logger.info("test list - " + currentStackComponentTestList);
+		List<String> tempStackComponentList = Arrays.asList(currentStackComponentTestList.split(" "));
+		if (tempStackComponentList == null || tempStackComponentList.size() == 0) {
+			try {
+				throw new Exception("Please specify atleast atleast one stack component.");
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(0);
+			}
+		}
+		
 		stackComponents = new StackComponent[stackComponentsArray.length];
 		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 		setClusterName(cName);
 		this.commonFunctionsObject = new CommonFunctions(cName);
 		this.commonFunctionsObject.createDB();
 		this.commonFunctionsObject.setStackComponentList(Arrays.asList(stackComponentsArray));
+		this.commonFunctionsObject.setCurrentStackComponentTestList(tempStackComponentList);
 	}
 
 	public String getClusterName() {
