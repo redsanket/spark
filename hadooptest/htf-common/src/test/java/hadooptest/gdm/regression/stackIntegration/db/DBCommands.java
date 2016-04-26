@@ -22,6 +22,7 @@ public interface DBCommands {
 				+ "gdmVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "gdmCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 				+ "gdmResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "gdmComments TEXT   , "
 				
 				// pig
 				+ "pigVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
@@ -31,33 +32,33 @@ public interface DBCommands {
 				+ "tezVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "tezCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 				+ "tezMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
-				+ "tezResult VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "tezResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "tezComments TEXT , "
 				
 				// hive 
 				+ "hiveVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
-				+ "hiveResult VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hiveResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveComment TEXT    , "
 				
 				// hiveDrop table
-				+ "hiveDropTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hiveDropTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveDropTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hiveDropTableComment TEXT   , "
 				
 				// hiveCreate table
-				+ "hiveCreateTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hiveCreateTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCreateTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCreateTableComment TEXT   , "
 				
 				// hiveCopyData
-				+ "hiveCopyDataToHive VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hiveCopyDataToHive VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCopyDataToHiveMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCopyDataToHiveCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hiveCopyDataToHiveComment TEXT    , "
 				
 				// hiveLoadDataToTable
-				+ "hiveLoadDataToTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hiveLoadDataToTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hiveLoadDataToTableComment TEXT   , "
 				+ "hiveLoadDataToTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				
@@ -71,28 +72,28 @@ public interface DBCommands {
 				// hbase
 				+ "hbaseVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
-				+ "hbaseResult VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hbaseResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseComment TEXT    , "
 				
 				// hbase Table create
-				+ "hbaseCreateTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hbaseCreateTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseCreateTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseCreateTableComment TEXT  , "
 				
 				// hbase record insert into table
-				+ "hbaseInsertRecordTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hbaseInsertRecordTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseInsertRecordTableMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseInsertTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseInsertRecordTableComment TEXT   , "
 
 				// hbase record scan into table
-				+ "hbaseScanRecordTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hbaseScanRecordTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseScanRecordTableMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseScanRecordTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseScanRecordTableComment TEXT    , "
 				
 				// hbase table delete
-				+ "hbaseDeleteTable VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "hbaseDeleteTable VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseDeleteTableCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "hbaseDeleteTableComment TEXT   , "
 				
@@ -102,5 +103,7 @@ public interface DBCommands {
 				+ "oozieCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
 				+ "oozieComments TEXT   , "
 				
+				
+				+ "comments TEXT   , "
 				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
 }
