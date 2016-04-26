@@ -393,7 +393,7 @@ public class CommonFunctions {
 					TestSession.logger.error("Failed to create configuration " + e);
 					e.printStackTrace();
 				}
-			}			
+			}
 		}
 				
 		boolean overAllExecutionResult = true; 
@@ -511,8 +511,8 @@ public class CommonFunctions {
 		}
 		
 		if (currentTestComponentList.contains("oozie")) {
-			Callable oOzieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
-			healthCheckList.add(oOzieHealthCheckUpObj);
+			Callable oozieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
+			healthCheckList.add(oozieHealthCheckUpObj);
 			oozieFlag = true;
 		} else {
 			unTestedComponentListString.append("oozie");

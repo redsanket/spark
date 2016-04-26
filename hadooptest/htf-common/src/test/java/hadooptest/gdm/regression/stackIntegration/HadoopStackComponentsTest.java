@@ -38,7 +38,7 @@ public class HadoopStackComponentsTest extends TestSession {
 		List<String> tempStackComponentList = Arrays.asList(currentStackComponentTestList.split(" "));
 		if (tempStackComponentList == null || tempStackComponentList.size() == 0) {
 			try {
-				throw new Exception("Please specify atleast atleast one stack component.");
+				throw new Exception("Please specify atleast one stack component.");
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(0);
