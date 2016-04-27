@@ -49,3 +49,6 @@ publish: gh-pages build
 	@echo "Adding and saving new docs."
 	git add -A 
 	git commit -m "Generated gh-pages." && git push origin gh-pages
+
+clean: 
+	rm -rf docs
