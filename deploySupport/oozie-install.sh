@@ -114,8 +114,8 @@ else
     echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
     exit 1
   fi
-  PACKAGE_VERSION_OOZIE=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
-  PACKAGE_VERSION_OOZIE_CLIENT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
+  PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
+  PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 fi
 
 yinst i $PACKAGE_VERSION_OOZIE

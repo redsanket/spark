@@ -398,7 +398,7 @@ fetch_artifacts
 
 if [ "$STACK_COMP_INSTALL_PIG" == true ]; then
 
-  ./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
+  ./pig-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Pig component installer failed!"
   fi
@@ -417,7 +417,7 @@ fi
 
 if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
 
-  ./hive-install-check.sh $CLUSTER $CLUSTER $REFERENCE_CLUSTER
+  ./hive-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Hive component installer failed!"
   fi
@@ -435,7 +435,7 @@ fi
 # gridci-916, use a reference cluster for component versions, else 'current' branch
 
 if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
-  ./oozie-install-check.sh $CLUSTER $CLUSTER $REFERENCE_CLUSTER
+  ./oozie-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Oozie component installer failed!"
   fi

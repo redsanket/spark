@@ -77,9 +77,9 @@ else
     echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
     exit 1
   fi
-  PACKAGE_VERSION_HIVE=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
-  PACKAGE_VERSION_HIVE_CONF=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
-  PACKAGE_VERSION_HCAT_SERVER=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
+  PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+  PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
+  PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 fi
 
 yinst i $PACKAGE_VERSION_HIVE
@@ -123,7 +123,7 @@ echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
 if [ "$REFERENCE_CLUSTER" == "none" ]; then
   PACKAGE_VERSION_PIG=`yinst package -br current pig`
 else
-  PACKAGE_VERSION_PIG=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
 fi
 
 yinst install $PACKAGE_VERSION_PIG
