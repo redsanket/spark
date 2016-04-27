@@ -110,7 +110,7 @@ if [ "$REFERENCE_CLUSTER" == "none" ]; then
 else
   yinst i hadoop_releases_utils
   RC=$?
-  if [ "$RC" -ne 0 ]; then
+  if [ $RC -ne 0 ]; then
     echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
     exit 1
   fi
