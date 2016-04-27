@@ -5,15 +5,17 @@
 # The hive installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed 
+# inputs: cluster being installed, reference cluster 
 # outputs: 0 on success
 
-if [ $# -ne 1 ]; then
-  echo "ERROR: need the cluster name"
+if [ $# -ne 2 ]; then
+  echo "ERROR: need the cluster name, and reference cluster"
   exit 1
 fi
 
 CLUSTER=$1
+REFERENCE_CLUSTER=$2
+
 HIVENODE=`hostname`
 HIVENODE_SHORT=`echo $HIVENODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
@@ -61,26 +63,28 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 #
 ## install hive
 #
+
 # check if we need to use a reference cluster, else use 'current'
-echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  yinst install hive -br current
-  yinst install hive_conf -br current
-  yinst install hcat_server -br current
-else 
-  HIVE_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive`
-  echo HIVE_VERSION_REFERENCE_CLUSTER is: $HIVE_VERSION_REFERENCE_CLUSTER
-
-  HIVE_CONF_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hive_conf_${STACK_COMP_REFERENCE_CLUSTER}`
-  echo HIVE_CONF_VERSION_REFERENCE_CLUSTER is: $HIVE_CONF_VERSION_REFERENCE_CLUSTER
-
-  HCAT_SERVER_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b hive -p hcat_server`
-  echo HCAT_SERVER_VERSION_REFERENCE_CLUSTER is: $HCAT_SERVER_VERSION_REFERENCE_CLUSTER
-
-  yinst install hive-${HIVE_VERSION_REFERENCE_CLUSTER}
-  yinst install hive_conf-${HIVE_CONF_VERSION_REFERENCE_CLUSTER}
-  yinst install hcat_server-${HCAT_SERVER_VERSION_REFERENCE_CLUSTER}
+echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
+if [ "$REFERENCE_CLUSTER" == "none" ]; then
+  PACKAGE_VERSION_HIVE=`yinst package -br current hive`
+  PACKAGE_VERSION_HIVE_CONF=`yinst package -br current hive_conf`
+  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br current hcat_server`
+else
+  yinst i hadoop_releases_utils
+  RC=$?
+  if [ $RC -ne 0 ]; then
+    echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
+    exit 1
+  fi
+  PACKAGE_VERSION_HIVE=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+  PACKAGE_VERSION_HIVE_CONF=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
+  PACKAGE_VERSION_HCAT_SERVER=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 fi
+
+yinst i $PACKAGE_VERSION_HIVE
+yinst i $PACKAGE_VERSION_HIVE_CONF
+yinst i $PACKAGE_VERSION_HCAT_SERVER
 
 
 # hive yinst sets
@@ -113,14 +117,20 @@ yinst set hcat_server.keydb_passkey=dbpassword
 #
 ## install pig
 #
+
 # check if we need to use a reference cluster, else use 'current'
-if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  yinst i pig -br current
+echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
+if [ "$REFERENCE_CLUSTER" == "none" ]; then
+  PACKAGE_VERSION_PIG=`yinst package -br current pig`
 else
-  PIG_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b pig -p pig_current`
-  echo PIG_VERSION_REFERENCE_CLUSTER is: $PIG_VERSION_REFERENCE_CLUSTER
-  #
-  yinst install pig-${PIG_VERSION_REFERENCE_CLUSTER}
+  PACKAGE_VERSION_PIG=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
+fi
+
+yinst install $PACKAGE_VERSION_PIG
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "Error: failed to install $PACKAGE_VERSION_PIG on $PIGNODE!"
+  exit 1
 fi
 
 yinst set pig.PIG_HOME=/home/y/share/pig

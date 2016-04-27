@@ -4,15 +4,17 @@
 # The oozie installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed 
+# inputs: cluster being installed, reference cluster 
 # outputs: 0 on success
 
-if [ $# -ne 1 ]; then
-  echo "ERROR: need the cluster name"
+if [ $# -ne 2 ]; then
+  echo "ERROR: need the cluster name and reference cluster"
   exit 1
 fi
 
 CLUSTER=$1
+REFERENCE_CLUSTER=$2
+
 OOZIENODE=`hostname`
 OOZIENODE_SHORT=`echo $OOZIENODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
@@ -99,22 +101,25 @@ yinst i ygrid_cacert
 #
 ## install oozie
 #
+
 # check if we need to use a reference cluster, else use 'current'
-echo "STACK_COMP_REFERENCE_CLUSTER is: $STACK_COMP_REFERENCE_CLUSTER"
-if [ "$STACK_COMP_REFERENCE_CLUSTER" == "none" ]; then
-  yinst install yoozie -br current
-  yinst install yoozie_client -br current
+echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
+if [ "$REFERENCE_CLUSTER" == "none" ]; then
+  PACKAGE_VERSION_OOZIE=`yinst package -br current yoozie`
+  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br current yoozie_client`
 else
-  OOZIE_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie`
-  echo OOZIE_VERSION_REFERENCE_CLUSTER is: $OOZIE_VERSION_REFERENCE_CLUSTER
-
-  OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER=`${WORKSPACE}/deploySupport/query_releases -c $STACK_COMP_REFERENCE_CLUSTER -b oozie -p yoozie_client`
-  echo OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER is: $OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER
-
-  yinst install yoozie-${OOZIE_VERSION_REFERENCE_CLUSTER}
-  yinst install yoozie_client-${OOZIE_CLIENT_VERSION_REFERENCE_CLUSTER}
+  yinst i hadoop_releases_utils
+  RC=$?
+  if [ "$RC" -ne 0 ]; then
+    echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
+    exit 1
+  fi
+  PACKAGE_VERSION_OOZIE=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
+  PACKAGE_VERSION_OOZIE_CLIENT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 fi
 
+yinst i $PACKAGE_VERSION_OOZIE
+yinst i $PACKAGE_VERSION_OOZIE_CLIENT
 
 # gridci-924, ygrid_sharelib pkg branches are being fiddled with...
 yinst i ygrid_sharelib -br current 
