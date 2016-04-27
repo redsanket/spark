@@ -360,10 +360,11 @@ cat manifest.txt
 # CHECK IF NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY 
 #################################################################################
 # gridci-747 install pig on gw
+# gridci-916, use a reference cluster for component versions, else 'current' branch
 
 if [ "$STACK_COMP_INSTALL_PIG" == true ]; then
 
-  ./pig-install-check.sh $CLUSTER
+  ./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Pig component installer failed!"
   fi
@@ -378,10 +379,11 @@ fi
 # gridci-481 install hive server and client
 # this relies on hive service keytab being generated and pushed out in the cluster configure portion
 # of cluster building (cluster-build/configure_cluster)
+# gridci-916, use a reference cluster for component versions, else 'current' branch
 
 if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
 
-  ./hive-install-check.sh $CLUSTER
+  ./hive-install-check.sh $CLUSTER $REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Hive component installer failed!"
   fi
@@ -396,9 +398,10 @@ fi
 # gridci-561 install yoozie server
 # this relies on oozie service keytab being generated and pushed out in the cluster 
 # configure portion of cluster building (cluster-build/configure_cluster)
+# gridci-916, use a reference cluster for component versions, else 'current' branch
 
 if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
-  ./oozie-install-check.sh $CLUSTER
+  ./oozie-install-check.sh $CLUSTER $REFERENCE_CLUSTER
   if [ $? -ne 0 ]; then
     echo "ERROR: Oozie component installer failed!"
   fi
