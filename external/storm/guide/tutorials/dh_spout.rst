@@ -9,7 +9,7 @@ a built-in Yahoo spout, to count DH Rainbow events.
 
 The diagram below shows how the DH Rainbow bolt gets data from the Data Highway and feeds it to the bolt that counts events.
 
-.. images:: images/dh_rb-event_count_bolt.jpg
+.. image:: images/dh_rb-event_count_bolt.jpg
    :height: 100px
    :width: 200 px
    :scale: 100 %

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains the documentation for Hadoop users and for the Yahoo team
+This repository contains Hadoop documentation for the Yahoo team
 developing Hadoop technology. The Hadoop user documentation can be found in the
 `external` directory, where each technology is given its own directory. For example,
 if you wanted to see the user documentation for Hive, you would look in `hadoop/docs/external/hive`.

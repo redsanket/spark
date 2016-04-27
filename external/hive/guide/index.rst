@@ -4,7 +4,8 @@ Hive User Guide
 
 This guide is intended to help Yahoos use `Hive <http://hortonworks.com/hadoop/hive/>`_ 
 at work. It's not intended to be a comprehensive guide for Hive, but a supplement to
-external `Apache Hive wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_. Thus, the scope of this documentation is limited to Hive within a Yahoo environment.
+the external `Apache Hive wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_. 
+Thus, the scope of this documentation is limited to Hive within a Yahoo environment.
 
 
 .. toctree::

@@ -18,7 +18,7 @@ This document is **Yahoo Proprietary/Confidential**. Do not release the contents
 About This Guide
 ================
 
-The goal of this guide is to help Yahoos use Starling, on the Yahoo grid, and thus, is not a comprehensive guide for Starling.
+Our goal is to help Yahoos use Starling on the Yahoo grid, and thus, is not a comprehensive guide for Starling.
 
 .. _onboard:
 
@@ -127,18 +127,3 @@ Indicates a user tip related to a procedural step or general information.
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
 | .. caution:: Use ``wss`` for WebSocket connections in YMonkey.                  | Advises user to perform actions to avoid errors.                       |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   overview/index
-   quickstart/index
-   onboarding/index
-   tutorials/index
-   programming/index
-   security/index
-   registry_service_api/index
-   monitoring/index
-   architecture/index
-   reference/index
-

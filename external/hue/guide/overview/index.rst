@@ -10,15 +10,6 @@ through a Web UI. The Yahoo implementation of Hue allows you to browse HDFS file
 execute Pig scripts, use Oozie workflows, and submit MapReduce programs. Hue is extensible, so you
 can expect new applications that give you access to other Hadoop components in the future.
 
-.. Apache open source
-
-..
-.. Hue is a set of web applications that enable you to interact with a Hadoop cluster. Hue applications 
-.. let you browse HDFS and jobs, manage a Hive metastore, run Hive, Cloudera Impala 
-.. queries and Pig scripts, browse HBase, export data with Sqoop, submit MapReduce 
-.. programs, build custom search engines with Solr, and schedule repetitive workflows with Oozie.
-
-
 Why Use Hue?
 ============
 
