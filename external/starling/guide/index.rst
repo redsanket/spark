@@ -127,18 +127,3 @@ Indicates a user tip related to a procedural step or general information.
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
 | .. caution:: Use ``wss`` for WebSocket connections in YMonkey.                  | Advises user to perform actions to avoid errors.                       |
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   overview/index
-   quickstart/index
-   onboarding/index
-   tutorials/index
-   programming/index
-   security/index
-   registry_service_api/index
-   monitoring/index
-   architecture/index
-   reference/index
-
