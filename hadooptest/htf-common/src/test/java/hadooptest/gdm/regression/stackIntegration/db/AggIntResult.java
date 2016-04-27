@@ -221,6 +221,7 @@ public class AggIntResult {
 							String oozieResult =  resultSet.getString("oozieResult");
 							String oozieCurrentState =  resultSet.getString("oozieCurrentState");
 							String oozieComments =  resultSet.getString("oozieComments");
+							String comments =  resultSet.getString("comments");
 							String result =  resultSet.getString("result");
 							
 							if (isRecordAlreadyExists(dataSetName1) == false) {
@@ -230,7 +231,7 @@ public class AggIntResult {
 										hiveLoadDataToTableCurrentState,hcatVersion,hcatCurrentState,hcatResult,hcatMRJobURL,hcatComment,hbaseVersion,hbaseCurrentState,hbaseResult,hbaseComment,hbaseCreateTable,
 										hbaseCreateTableCurrentState,hbaseCreateTableComment,hbaseInsertRecordTable,hbaseInsertRecordTableMRJobURL,hbaseInsertTableCurrentState,hbaseInsertRecordTableComment,hbaseScanRecordTable,
 										hbaseScanRecordTableMRJobURL,hbaseScanRecordTableCurrentState,hbaseScanRecordTableComment,hbaseDeleteTable,hbaseDeleteTableCurrentState,hbaseDeleteTableComment,oozieVersion,
-										oozieResult,oozieCurrentState,oozieComments,result);
+										oozieResult,oozieCurrentState,oozieComments,comments, result);
 	 						} else {
 	 							TestSession.logger.info( dataSetName1 + "    already exists...!");
 	 						}						
@@ -252,7 +253,7 @@ public class AggIntResult {
 			String  hbaseComment, String  hbaseCreateTable, String   hbaseCreateTableCurrentState, String  hbaseCreateTableComment, String  hbaseInsertRecordTable, String  hbaseInsertRecordTableMRJobURL, 
 			String  hbaseInsertTableCurrentState, String  hbaseInsertRecordTableComment, String  hbaseScanRecordTable, String   hbaseScanRecordTableMRJobURL, String  hbaseScanRecordTableCurrentState, 
 			String  hbaseScanRecordTableComment, String  hbaseDeleteTable, String  hbaseDeleteTableCurrentState, String  hbaseDeleteTableComment, String  oozieVersion, String   oozieResult, String  oozieCurrentState, 
-			String  oozieComments, String  result) {
+			String  oozieComments, String comments, String  result) {
 
 		String INSERT_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + " (dataSetName, date, hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,gdmVersion,gdmCurrentState,gdmResult,pigVersion,pigComments,tezVersion,tezCurrentState,tezMRJobURL,"
 				+ " tezResult,tezComments,hiveVersion,hiveCurrentState,hiveResult,hiveComment,hiveDropTable,hiveDropTableCurrentState,hiveDropTableComment,hiveCreateTable,hiveCreateTableCurrentState,   "
@@ -260,7 +261,7 @@ public class AggIntResult {
 				+ " hiveLoadDataToTableCurrentState,hcatVersion,hcatCurrentState,hcatResult,hcatMRJobURL,hcatComment,hbaseVersion,hbaseCurrentState,hbaseResult,hbaseComment,hbaseCreateTable, "
 				+ " hbaseCreateTableCurrentState,hbaseCreateTableComment,hbaseInsertRecordTable,hbaseInsertRecordTableMRJobURL,hbaseInsertTableCurrentState,hbaseInsertRecordTableComment,hbaseScanRecordTable, "
 				+ " hbaseScanRecordTableMRJobURL,hbaseScanRecordTableCurrentState,hbaseScanRecordTableComment,hbaseDeleteTable,hbaseDeleteTableCurrentState,hbaseDeleteTableComment,oozieVersion, "
-				+ " oozieResult,oozieCurrentState,oozieComments,result )  "  + "  values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
+				+ " oozieResult,oozieCurrentState,oozieComments,comments, result )  "  + "  values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
 		PreparedStatement preparedStatement;
 		try {
 			String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
@@ -280,13 +281,14 @@ public class AggIntResult {
 			preparedStatement.setString(46, hbaseInsertRecordTable);preparedStatement.setString(47, hbaseInsertRecordTableMRJobURL);preparedStatement.setString(48, hbaseInsertTableCurrentState);preparedStatement.setString(49, hbaseInsertRecordTableComment);
 			preparedStatement.setString(50, hbaseScanRecordTable);preparedStatement.setString(51, hbaseScanRecordTableMRJobURL);preparedStatement.setString(52, hbaseScanRecordTableCurrentState);
 			preparedStatement.setString(53, hbaseScanRecordTableComment);preparedStatement.setString(54, hbaseDeleteTable);preparedStatement.setString(55, hbaseDeleteTableCurrentState);preparedStatement.setString(56, hbaseDeleteTableComment);
-			preparedStatement.setString(57, oozieVersion);preparedStatement.setString(58, oozieResult);preparedStatement.setString(59, oozieCurrentState);preparedStatement.setString(60, oozieComments);preparedStatement.setString(61, result);
+			preparedStatement.setString(57, oozieVersion);preparedStatement.setString(58, oozieResult);preparedStatement.setString(59, oozieCurrentState);preparedStatement.setString(60, oozieComments);
+			preparedStatement.setString(61, comments);
+			preparedStatement.setString(62, result);
 			boolean isRecordInserted = preparedStatement.execute();
 		} catch (SQLException e) {
 			TestSession.logger.error("Exception is thown while inserting the record - " + e);
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public boolean isRecordAlreadyExists(String dataSetName) {
