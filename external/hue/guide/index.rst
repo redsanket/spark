@@ -39,7 +39,7 @@ can only access and modify data that you have access permission.
 Using SOCKS Proxy
 -----------------
 
-To access Hue instances, you are required to use the ``SOCKS`` proxy in the browser.
+To access Hue instances, you must use the ``SOCKS`` proxy in the browser.
 The ``SOCKS`` host is ``socks.yahoo.com`` and the port is ``1080``, which will allow
 the Hadoop Job Browser to access the ResourceManager (RM) jobs logs.
 
