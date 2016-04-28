@@ -27,7 +27,7 @@ else
     echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
     exit 1
   fi
-  PACKAGE_VERSION_PIG=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
 fi
 
 #
