@@ -239,7 +239,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		// we don't have this here, job's bookkeeping should be done after 10 secs 
 		boolean JobNotFound = true;
 		int counter = 0;
-		while (JobNotFound || counter <= 10) {
+		while (JobNotFound && counter <= 10) {
 			counter++;
 			Thread.sleep(1000);
 			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
