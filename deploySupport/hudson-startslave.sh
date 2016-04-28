@@ -257,6 +257,8 @@ done
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$SPARKVERSION" ] && export SPARKVERSION=none
+[ -z "$SPARK_HISTORY_VERSION" ] && export SPARK_HISTORY_VERSION=none
+[ -z "$SPARK_QUEUE" ] && export SPARK_QUEUE=default
 [ -z "$PIGVERSION" ] && export PIGVERSION=none
 [ -z "$OOZIEVERSION" ] && export OOZIEVERSION=none
 [ -z "$OOZIE_SERVER" ] && export OOZIE_SERVER=default

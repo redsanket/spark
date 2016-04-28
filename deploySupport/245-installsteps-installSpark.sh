@@ -4,7 +4,7 @@
 # outputs: 0 on success
 
 # Install Spark only when values are non default
-if [ $SPARKVERSION != none ] && [ $STACK_COMP_INSTALL_SPARK != false ]; then
+if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_COMP_INSTALL_SPARK != false ]; then
    if [ $# -ne 1 ]; then
      echo "ERROR: need the cluster name"
      exit 1
