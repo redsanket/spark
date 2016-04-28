@@ -19,7 +19,7 @@ echo "INFO: Pig node being installed: $PIGNODE"
 # check if we need to use a reference cluster, else use 'current'
 echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
 if [ "$REFERENCE_CLUSTER" == "none" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br current pig`
+  PACKAGE_VERSION_PIG=`yinst package -br current pig | cut -d' ' -f1`
 else
   yinst i hadoop_releases_utils
   RC=$?

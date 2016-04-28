@@ -67,9 +67,9 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check if we need to use a reference cluster, else use 'current'
 echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
 if [ "$REFERENCE_CLUSTER" == "none" ]; then
-  PACKAGE_VERSION_HIVE=`yinst package -br current hive`
-  PACKAGE_VERSION_HIVE_CONF=`yinst package -br current hive_conf`
-  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br current hcat_server`
+  PACKAGE_VERSION_HIVE=`yinst package -br current hive  | cut -d' ' -f1`
+  PACKAGE_VERSION_HIVE_CONF=`yinst package -br current hive_conf  | cut -d' ' -f1`
+  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br current hcat_server  | cut -d' ' -f1`
 else
   yinst i hadoop_releases_utils
   RC=$?
@@ -121,7 +121,7 @@ yinst set hcat_server.keydb_passkey=dbpassword
 # check if we need to use a reference cluster, else use 'current'
 echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
 if [ "$REFERENCE_CLUSTER" == "none" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br current pig`
+  PACKAGE_VERSION_PIG=`yinst package -br current pig  | cut -d' ' -f1`
 else
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
 fi
