@@ -67,11 +67,11 @@
       <arg>${my_srcFile}</arg>
       <capture-output/>
     </java>
-    <ok to="pig_raw_processor"/>
+    <ok to="pig_abf_input_PageValidNews"/>
     <error to="fail2"/>
   </action>
 
-  <action name="pig_raw_processor">
+  <action name="pig_abf_input_PageValidNews">
     <pig>
       <job-tracker>${jobTracker}</job-tracker>
       <name-node>${nameNode}</name-node>
@@ -82,7 +82,7 @@
         </property>
         <property>
           <name>oozie.action.sharelib.for.pig</name>
-          <value>pig_current</value>
+          <value>pig_latest</value>
         </property>
       </configuration>
       <script>${pig_script}</script>
@@ -101,6 +101,8 @@
       <job-tracker>${jobTracker}</job-tracker>
       <name-node>${nameNode}</name-node>
 
+	<job-xml>hive-site.xml</job-xml>
+
       <configuration>
         <property>
           <name>hive.execution.engine</name>
@@ -112,11 +114,11 @@
         </property>
         <property>
           <name>hive.querylog.location</name>
-            <value>./hivelogs</value>
+          <value>./hivelogs</value>
         </property>
         <property>
-          <name>oozie.action.sharelib.for.hive</name>
-            <value>hive_current,hcat_current</value>
+         <name>oozie.action.sharelib.for.hive</name>
+            <value>hive_latest,hcat_latest</value>
         </property>
       </configuration>
 
@@ -134,6 +136,8 @@
     <hive xmlns="uri:oozie:hive-action:0.4">
       <job-tracker>${jobTracker}</job-tracker>
       <name-node>${nameNode}</name-node>
+      
+      <job-xml>hive-site.xml</job-xml>
 
       <configuration>
         <property>
@@ -150,7 +154,7 @@
         </property>
         <property>
           <name>oozie.action.sharelib.for.hive</name>
-            <value>hive_current,hcat_current</value>
+            <value>hive_latest,hcat_latest</value>
         </property>
       </configuration>
 
