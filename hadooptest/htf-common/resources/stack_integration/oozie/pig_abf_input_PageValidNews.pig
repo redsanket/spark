@@ -11,4 +11,3 @@ in1 = filter in1 by connection_speed == 'CS_broadband';
 
 out1 = foreach in1 generate calendar_day,connection_speed,region,valid,content_type,event_type,hostname,ip;
 store out1 into '$OUTPUTDIR';
-

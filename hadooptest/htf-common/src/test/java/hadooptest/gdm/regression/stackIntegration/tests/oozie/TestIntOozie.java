@@ -40,6 +40,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 	private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
 	private final static String DFSLOAD_KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
+	private final static String HIVE_SITE_XML_FILE_LOCATION = "/home/y/libexec/hive/conf/hive-site.xml";
 
 	public TestIntOozie(StackComponent stackComponent , String hostName , org.apache.hadoop.conf.Configuration configuration) {
 		this.setHostName(hostName);
@@ -98,13 +99,49 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 
 	@Override
 	public String call() throws Exception {
+		copyHiveSiteXML();
 		String sourePath = new File("").getAbsolutePath() + "/resources/stack_integration/oozie";
 		String destPath = "/tmp/integration-testing/oozie/" +  this.getCurrentHr() ;
 		createWorkFlowFolder(destPath + "/outputDir/");
 		copySupportingFilesToScratch(destPath);
+		copyJarFiles(destPath);
 		String result = execute();
 		return "oozie-" + result;
 	}
+	
+	/**
+	 * Copy hive-site.xml file from hcat server to the local host where HTF is running
+	 * @return true if hive-site.xml file is copied
+	 */
+	public boolean copyHiveSiteXML( ) {
+		TestSession.logger.info("************************************************************************************");
+		boolean flag = false;
+		String hiveSiteXMLFileLocation = new File("").getAbsolutePath() + "/resources/stack_integration/oozie";
+		File hiveSiteFile = new File(hiveSiteXMLFileLocation);
+		if (hiveSiteFile.exists() ) {
+			String scpCommand = "scp  " + this.getHostName() + ":" + HIVE_SITE_XML_FILE_LOCATION + "   "  + hiveSiteXMLFileLocation ;
+			this.commonFunctions.executeCommand(scpCommand);
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			String hiveFilePath = hiveSiteXMLFileLocation + "/hive-site.xml";
+			File hiveFile = new File(hiveFilePath);
+			if (hiveFile.exists()) {
+				TestSession.logger.info(hiveFilePath  + "  is copied successfully.");
+				flag = true;
+			} else {
+				TestSession.logger.info("Failed to  copy " + hiveFilePath);
+			}
+		} else {
+			TestSession.logger.info(hiveSiteXMLFileLocation + " already exists ");
+		}
+		return flag;
+	}
+	
 	public String getCurrentHr() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 		Calendar calendar = Calendar.getInstance();
@@ -171,7 +208,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 				status = walkToOozieResponseAndUpdateResult(oozieJsonResult);
 				if (status != null) {
 					try {
-						Thread.sleep(250);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -252,6 +289,29 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 		return flag;
 	}
 	
+	public boolean copyJarFiles(String des) throws IOException {
+		boolean flag = false;
+		FileSystem remoteFS = FileSystem.get(this.configuration);
+		String absolutePath = new File("").getAbsolutePath();
+		System.out.println("Absolute Path =  " + absolutePath);
+		File integrationFilesPath = new File(absolutePath + "/resources/stack_integration/lib/");
+		if (integrationFilesPath.exists()) {
+			Path destPath = new Path(des);
+			File fileList[] = integrationFilesPath.listFiles();
+			for ( File f : fileList) {
+				if (f.isFile()) {
+					Path scrFilePath = new Path(f.toString());
+					remoteFS.copyFromLocalFile(false , true, scrFilePath , destPath);
+					System.out.println( scrFilePath + "  files copied sucessfully to " + des);
+					flag = true;
+				}
+			}
+		} else {
+			System.out.println(integrationFilesPath.toString() + " does not exists...");
+		}		
+		return flag;
+	}
+	
 	/**
 	 * Create a folder on HDFS.
 	 * @param path
@@ -306,7 +366,6 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 			e.printStackTrace();
 		}
 	}
-	
 	
 	/**
 	 * Navigate the specified path and delete folders and files

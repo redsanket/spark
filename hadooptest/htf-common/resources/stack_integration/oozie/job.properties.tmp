@@ -23,5 +23,3 @@ queueName=default
 
 my_outputDir=ADD_INSTANCE_OUTPUT_PATH
 my_srcFile=ADD_INSTANCE_INPUT_PATH
-
-
