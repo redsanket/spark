@@ -19,8 +19,9 @@ for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics.
 The following logs in bold are collected by Starling:
 
 - **Job History** - this provides detailed information on an executed job, including asks and task attempts, counters, etc.
-- **Job Configuration** - this provides the configuration information forn executed Job.
-- **Job Summary** - this provides a summary of an executed Job.data is written in 
+- **Job Configuration** - this provides the configuration information
+    from an executed job.
+- **Job Summary** - this provides a summary of an executed job.
 - **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary
   NameNode in less-recent versions of Hadoop). This is collected every month by default.
 - **Audit Logs** - these contain records of accesses and modifications to file-system objects.
@@ -41,25 +42,23 @@ When is it Collected?
 ---------------------
 
 Data is collected every night, but trends are computed initially on a monthly 
-basis possibly improved in future.
+basis, possibly improving in the future.
 
 How is it Collected?
 --------------------
 
-A predefined workflow that triggers a series of steps where in the first step will 
-copy configured log files in the Hadoop ecosystem into the cluster. A subsequent 
-step would extract information from the log file and store the data into a scalable 
-store such as Hive. The raw log files can then be removed after the workflow completes. 
-This workflow will be scheduled to run on a recurring basis.
+A predefined workflow triggers a series of steps, the first of which 
+copies log files from Grid clusters into the Starling
+warehouse cluster. the specific log files and clusters are defined by configuration. A subsequent 
+step extracts information from the log files and stores it into Hive.
+This workflow is executed by Oozie on a recurring basis.
 
-Users can execute an ad hoc query against this warehouse. We also propose to have a 
-workflow that triggers a series of predetermined computation of trends from this 
-warehouse and results stored in the same warehouse or an SQL store.
+Users can execute an ad hoc query against the data via HCatalog.
 
 Data Retention Policy
 ---------------------
 
-The retention policy depends on the data set. Generally though, we retain some data between one and two years.
+The retention policy depends on the dataset. Generally though, we retain some data between one and two years.
 
 Data Warehouse
 ==============
@@ -68,8 +67,7 @@ What is the Data Warehouse?
 ---------------------------
 
 The Data Warehouse for Starling is simply the Hive database
-``starling``. Many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what`
-are mapped to Hive tables through HCatalog. Thus, if you wanted to analyze
+``starling``. The various source logs are mapped to Hive tables through HCatalog. Thus, if you wanted to analyze
 Job History logs, you could run a query against the ``starling_job_summary``
 table.  
 
@@ -78,17 +76,15 @@ Where is the Data Warehouse?
 ----------------------------
 
 You can access the Hive ``starling`` database on Axonite Blue (axonite-gw.blue.ygrid.yahoo.com).
-For many of the source logs discussed in :ref:`What Data is Collected? <data_overview-what>`_,
-there is a corresponding Hive table in the ``starling`` database.
 
 
 How is the Data Warehouse Accessed?
 -----------------------------------
 
-The typical and suggested way to access Starling data is through Hive, but Pig can use
+Interactive access to Starling data is through Hive queries, but Pig can use
 the library ``org.apache.hcatalog.pig.HCatLoader();`` to access
 the tables through HCatalog. You can also use MapReduce 
-again through HCatalog.
+through HCatalog.
 
 To learn how, see `Getting Started <../getting_started/>`_ and
 for examples in Hive and Pig, see `Query Bank <../query_bank>`_.
@@ -102,7 +98,7 @@ Introduction
 
 HCatalog is a metadata management layer for all Hadoop grids. All datasets and 
 their schemas are registered in HCatalog, allowing engines such as Hive, Pig, 
-or MapReduce query this layer to get the data on HDFS and what schema is used to 
+or MapReduce to use this layer to get to the data on HDFS and the schema used to 
 represent it.
 
 How Does It Work?
@@ -111,7 +107,7 @@ How Does It Work?
 Raw and processed logs are stored using HCatalog and partitioned by cluster and date. 
 These partitioning keys are grid (of type string) and within that ``dt`` (of type string 
 and format YYYY_MM_DD) respectively. Partitioning drastically reduces the amount 
-of data that Hive has to process through for generating the results for most queries. 
+of data that Hive has to process to generate the results for most queries. 
 If a log is collected more frequently than once per day, there will be another partition 
 ``tm`` (of type string and format HH_MM) within the ``dt`` partition.
 
