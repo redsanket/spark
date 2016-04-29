@@ -19,8 +19,7 @@ for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics.
 The following logs in bold are collected by Starling:
 
 - **Job History** - this provides detailed information on an executed job, including asks and task attempts, counters, etc.
-- **Job Configuration** - this provides the configuration information
-    from an executed job.
+- **Job Configuration** - this provides the configuration information from an executed job.
 - **Job Summary** - this provides a summary of an executed job.
 - **FSImage** - this is the file-system image for HDFS generated periodically by the Backup Node (or the Secondary
   NameNode in less-recent versions of Hadoop). This is collected every month by default.
