@@ -146,6 +146,11 @@ then
     export SPARKVERSION=`dist_tag list $SPARK_DIST_TAG | awk '{print $1}' | cut -d- -f2`
 fi
 
+if [ ! -z "$SPARK_HISTORY_SERVER_DIST_TAG" ]
+then
+    export SPARK_HISTORY_VERSION=`dist_tag list $SPARK_HISTORY_SERVER_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+fi
+
 if [ ! -z "$AUTO_CREATE_RELEASE_TAG" ]
 then
     if [ $AUTO_CREATE_RELEASE_TAG = 1 ] && [ ! -z "$HADOOP_RELEASE_TAG" ]
@@ -252,6 +257,8 @@ done
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$SPARKVERSION" ] && export SPARKVERSION=none
+[ -z "$SPARK_HISTORY_VERSION" ] && export SPARK_HISTORY_VERSION=none
+[ -z "$SPARK_QUEUE" ] && export SPARK_QUEUE=default
 [ -z "$PIGVERSION" ] && export PIGVERSION=none
 [ -z "$OOZIEVERSION" ] && export OOZIEVERSION=none
 [ -z "$OOZIE_SERVER" ] && export OOZIE_SERVER=default
