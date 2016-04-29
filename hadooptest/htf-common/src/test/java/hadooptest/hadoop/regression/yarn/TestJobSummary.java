@@ -243,7 +243,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
 			counter++;
 			Thread.sleep(1000);
 			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId);
-		
+		}
 
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
