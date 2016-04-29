@@ -234,11 +234,21 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		TestSession.logger.info(resonsesInDoneAndDoneIntermediateFolder
 				.toString());
 
+		// delay to give time for RM to move done files, ideally we would want to use
+		// a definitive state that job is completely done including the bookeeping but
+		// we don't have this here, job's bookkeeping should be done after 10 secs 
+		boolean JobNotFound = true;
+		int counter = 0;
+		while (JobNotFound && counter <= 10) {
+			counter++;
+			Thread.sleep(1000);
+			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId);
+		}
+
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
 						+ resonsesInDoneAndDoneIntermediateFolder.toString(),
-				resonsesInDoneAndDoneIntermediateFolder.toString().contains(
-						jobId));
+				resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
 
 	}
 
