@@ -242,8 +242,8 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		while (JobNotFound && counter <= 10) {
 			counter++;
 			Thread.sleep(1000);
-			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
-		}
+			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId);
+		
 
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
