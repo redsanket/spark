@@ -215,7 +215,7 @@ public class DataBaseOperations {
 		// remove the extra , character 
 		String temp = tempeStr.toString();
 		String updateStr = temp.substring(0, temp.length() - 2 );
-		String UPDATE_RECORD = "UPDATE " + DBCommands.TABLE_NAME + "  SET  " +  updateStr.toString() +  "  where dataSetName = \"" + dataSetName + "\"";
+		String UPDATE_RECORD = "UPDATE " + DBCommands.FINAL_RESULT_TABLE_NAME + "  SET  " +  updateStr.toString() +  "  where dataSetName = \"" + dataSetName + "\"";
 		System.out.println("UPDATE_RECORD  = " + UPDATE_RECORD);
 		if (con != null) {
 			Statement stmt = con.createStatement();
