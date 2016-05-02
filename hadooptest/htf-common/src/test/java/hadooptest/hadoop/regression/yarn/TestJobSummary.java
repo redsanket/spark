@@ -22,6 +22,27 @@ import org.junit.experimental.categories.Category;
 @Category(ParallelMethodTests.class)
 public class TestJobSummary extends YarnTestsBaseClass {
 
+	// utility method to check JHS for a given jobId, returns true if the job is found
+	// else returns false after 10 seconds of checking. This is not ideal, it would be
+	// better to check a definitive "done" state for the job where we can be sure the 
+ 	// job files are transferred to history server, but we don't have this here.
+	boolean checkJobInDonePath (String jobid, StringBuilder sb) {
+		boolean JobFound = false;
+		int counter = 0;
+		while ( !JobFound && counter <= 10 ) {
+        		counter++;
+			try {
+        			Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.err.println("thread sleep failed! " + e.getMessage());	
+			}
+        		JobFound = (sb.toString().contains(jobid));
+		}
+		
+		return JobFound;
+	}
+
+
 	@Test
 	public void testSuccessJobStatusInJobSummaryLog() throws Exception {
 		String testName = "testSummary-1";
@@ -47,27 +68,32 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		Util.sleep(10);
 		
 		// Look in the done folder
-		StringBuilder resonsesInDoneAndDoneIntermediateFolder = new StringBuilder();
+		StringBuilder responsesInDoneAndDoneIntermediateFolder = new StringBuilder();
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done", Recursive.YES);
 
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
 		// Also look in the done_intermediate folder
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done_intermediate", Recursive.YES);
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
+		// race condition when checking JHS, since we don't have a definite job "done"
+		// state to use, check JHS for job and break to the Assert if it's there, if not
+   		// then we throw the Assert
+		if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
+			TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+                }
+			
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
-						+ resonsesInDoneAndDoneIntermediateFolder.toString(),
-				resonsesInDoneAndDoneIntermediateFolder.toString().contains(
-						jobId));
-
+						+ responsesInDoneAndDoneIntermediateFolder.toString(),
+				responsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
 	}
 
 	@Test
@@ -92,27 +118,32 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		}
 
 		// Look in the done folder
-		StringBuilder resonsesInDoneAndDoneIntermediateFolder = new StringBuilder();
+		StringBuilder responsesInDoneAndDoneIntermediateFolder = new StringBuilder();
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done", Recursive.YES);
 
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
 		// Also look in the done_intermediate folder
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done_intermediate", Recursive.YES);
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
+
+                // race condition when checking JHS, since we don't have a definite job "done"
+                // state to use, check JHS for job and break to the Assert if it's there, if not
+                // then we throw the Assert
+                if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
+                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+                }
 
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
-						+ resonsesInDoneAndDoneIntermediateFolder.toString(),
-				resonsesInDoneAndDoneIntermediateFolder.toString().contains(
-						jobId));
-
+						+ responsesInDoneAndDoneIntermediateFolder.toString(),
+				responsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
 	}
 
 	@Test
@@ -143,26 +174,26 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		 * show up under /mapred/history/done
 		 */
 		//
-		// StringBuilder resonsesInDoneAndDoneIntermediateFolder = new
+		// StringBuilder responsesInDoneAndDoneIntermediateFolder = new
 		// StringBuilder();
 		// // Check the done folder
 		// genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 		// HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 		// "/mapred/history/done", Recursive.YES);
-		// resonsesInDoneAndDoneIntermediateFolder
+		// responsesInDoneAndDoneIntermediateFolder
 		// .append(genericCliResponse.response);
 		//
 		// // Also check the done_intermediate folder
 		// genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 		// HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 		// "/mapred/history/done_intermediate", Recursive.YES);
-		// resonsesInDoneAndDoneIntermediateFolder
+		// responsesInDoneAndDoneIntermediateFolder
 		// .append(genericCliResponse.response);
 		//
 		// Assert.assertTrue(
 		// "Not able to lookup:(" + jobId + ") "
-		// + resonsesInDoneAndDoneIntermediateFolder.toString(),
-		// resonsesInDoneAndDoneIntermediateFolder.toString().contains(
+		// + responsesInDoneAndDoneIntermediateFolder.toString(),
+		// responsesInDoneAndDoneIntermediateFolder.toString().contains(
 		// jobId));
 
 	}
@@ -215,12 +246,12 @@ public class TestJobSummary extends YarnTestsBaseClass {
 			Thread.sleep(1000);
 		}
 
-		StringBuilder resonsesInDoneAndDoneIntermediateFolder = new StringBuilder();
+		StringBuilder responsesInDoneAndDoneIntermediateFolder = new StringBuilder();
 		// First check in the done folder
 		genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done", Recursive.YES);
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
 		// Also append the contents of the done_intermediate folder
@@ -228,28 +259,23 @@ public class TestJobSummary extends YarnTestsBaseClass {
 				HadooptestConstants.UserNames.HDFSQA, "", localCluster,
 				"/mapred/history/done_intermediate", Recursive.YES);
 
-		resonsesInDoneAndDoneIntermediateFolder
+		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
-		TestSession.logger.info(resonsesInDoneAndDoneIntermediateFolder
+		TestSession.logger.info(responsesInDoneAndDoneIntermediateFolder
 				.toString());
 
-		// delay to give time for RM to move done files, ideally we would want to use
-		// a definitive state that job is completely done including the bookeeping but
-		// we don't have this here, job's bookkeeping should be done after 10 secs 
-		boolean JobNotFound = true;
-		int counter = 0;
-		while (JobNotFound && counter <= 10) {
-			counter++;
-			Thread.sleep(1000);
-			JobNotFound = resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId);
-		}
+                // race condition when checking JHS, since we don't have a definite job "done"
+                // state to use, check JHS for job and break to the Assert if it's there, if not
+                // then we throw the Assert
+                if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
+                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+                }
 
 		Assert.assertTrue(
 				"Not able to lookup:(" + jobId + ") "
-						+ resonsesInDoneAndDoneIntermediateFolder.toString(),
-				resonsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
-
+						+ responsesInDoneAndDoneIntermediateFolder.toString(),
+				responsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
 	}
 
 
