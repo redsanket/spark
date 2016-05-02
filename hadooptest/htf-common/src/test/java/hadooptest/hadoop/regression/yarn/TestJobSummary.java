@@ -31,7 +31,11 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		int counter = 0;
 		while ( !JobFound && counter <= 10 ) {
         		counter++;
-        		Thread.sleep(1000);
+			try {
+        			Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.err.println("thread sleep failed! " + e.getMessage());	
+			}
         		JobFound = (sb.toString().contains(jobid));
 		}
 		
