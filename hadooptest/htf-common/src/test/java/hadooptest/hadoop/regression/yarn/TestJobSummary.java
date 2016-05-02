@@ -22,9 +22,9 @@ import org.junit.experimental.categories.Category;
 @Category(ParallelMethodTests.class)
 public class TestJobSummary extends YarnTestsBaseClass {
 
-        // utility method to check JHS for a given jobId, returns true if the job is found
-        // else returns false after 10 seconds of checking. This is not ideal, it would be
-        // better to check a definitive "done" state for the job where we can be sure the 
+	// utility method to check JHS for a given jobId, returns true if the job is found
+	// else returns false after 10 seconds of checking. This is not ideal, it would be
+	// better to check a definitive "done" state for the job where we can be sure the 
  	// job files are transferred to history server, but we don't have this here.
 	boolean checkJobInDonePath (String jobid) {
 		boolean JobFound = false;
@@ -80,7 +80,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
 				.append(genericCliResponse.response);
 
 		// race condition when checking JHS, since we don't have a definite job "done"
-                // state to use, check JHS for job and break to the Assert if it's there, if not
+		// state to use, check JHS for job and break to the Assert if it's there, if not
    		// then we throw the Assert
 		if ( !checkJobInDonePath(jobId) ) {
 			TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
