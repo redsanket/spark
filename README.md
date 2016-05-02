@@ -14,7 +14,7 @@ The external documentation is generally authored in reStructuredText and rendere
 ## Where Do I View the Rendered External Documentation?
 
 The user documentation can be found on `http://git.corp.yahoo.com/pages/hadoop/docs/<product>`, where 
-`<product>` can be `hue`, `hive`, `storm`, `starling`, or `oozie`. We may have other
+`<product>` can be `hue`, `hive`, `storm`, `starling`, `hbase`, or `oozie`. We may have other
 Hadoop guides in the future as well. For example,
 the Hive User Guide can be found at http://git.corp.yahoo.com/pages/hadoop/docs/hive/. 
 
@@ -69,7 +69,7 @@ These are for much larger changes, so we recommend using the fork/clone paradigm
 1. Build the documentation locally to confirm that the HTML is rendered correctly: 
     1. Install [Python 2.7](https://www.python.org/downloads/) and [virtualenv](https://pypi.python.org/pypi/virtualenv).
     1. Build docs: `$ make build`
-    1. Change to the build directory: `$ cd docs/<product>` # `<product>` can be `oozie`, `hive`, `hue`, `storm`, or `hbase` 
+    1. Change to the build directory: `$ cd docs/<product>` # `<product>` can be `oozie`, `hive`, `hue`, `storm`, `starling`, or `hbase` 
     1. Open landing page of a guide: `$ open index.html`
     1. Navigate to page that was changed and confirm that the changes are correct.
     1. Delete the build files: `$ make clean` 
@@ -83,7 +83,7 @@ These are for much larger changes, so we recommend using the fork/clone paradigm
 ## What if I Find Issues With the Documentation?
 
 We welcome users to file issues or make pull requests, so if you
-find a mistake or can't find information, let us know by filing an issue.
+find a mistake or can't find information you need, let us know by filing an issue.
 If you think you can write the documentation, please do so and then submit a PR.
 Our team will review your PR, make comments/suggestions, and eventually
 merge your PR.

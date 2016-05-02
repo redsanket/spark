@@ -16,7 +16,7 @@ Starling collects log data from the grid in a variety of formats.
 The log data includes information about jobs, HDFS, audit log
 for NameNode, HCatalog, and HiveServer 2, as well as Simon metrics. 
 
-The following logs in bold are collected by Starling:
+The following logs are collected by Starling:
 
 - **Job History** - this provides detailed information on an executed job, including asks and task attempts, counters, etc.
 - **Job Configuration** - this provides the configuration information from an executed job.
@@ -41,23 +41,23 @@ When is it Collected?
 ---------------------
 
 Data is collected every night, but trends are computed initially on a monthly 
-basis, possibly improving in the future.
+basis. This may improve in the future.
 
 How is it Collected?
 --------------------
 
 A predefined workflow triggers a series of steps, the first of which 
 copies log files from Grid clusters into the Starling
-warehouse cluster. the specific log files and clusters are defined by configuration. A subsequent 
+warehouse cluster; the specific log files and clusters are defined by configuration. A subsequent 
 step extracts information from the log files and stores it into Hive.
 This workflow is executed by Oozie on a recurring basis.
 
-Users can execute an ad hoc query against the data via HCatalog.
+Users can execute ad hoc queries against the data via HCatalog.
 
 Data Retention Policy
 ---------------------
 
-The retention policy depends on the dataset. Generally though, we retain some data between one and two years.
+The retention policy depends on the dataset. We retain most data between one and two years.
 
 Data Warehouse
 ==============
