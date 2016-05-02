@@ -26,13 +26,13 @@ public class TestJobSummary extends YarnTestsBaseClass {
 	// else returns false after 10 seconds of checking. This is not ideal, it would be
 	// better to check a definitive "done" state for the job where we can be sure the 
  	// job files are transferred to history server, but we don't have this here.
-	boolean checkJobInDonePath (String jobid) {
+	boolean checkJobInDonePath (String jobid, StringBuilder sb) {
 		boolean JobFound = false;
 		int counter = 0;
 		while ( !JobFound && counter <= 10 ) {
         		counter++;
         		Thread.sleep(1000);
-        		JobFound = (responsesInDoneAndDoneIntermediateFolder.toString().contains(jobId));
+        		JobFound = (sb.toString().contains(jobid));
 		}
 		
 		return JobFound;
@@ -82,7 +82,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		// race condition when checking JHS, since we don't have a definite job "done"
 		// state to use, check JHS for job and break to the Assert if it's there, if not
    		// then we throw the Assert
-		if ( !checkJobInDonePath(jobId) ) {
+		if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
 			TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
                 }
 			
@@ -132,7 +132,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
                 // race condition when checking JHS, since we don't have a definite job "done"
                 // state to use, check JHS for job and break to the Assert if it's there, if not
                 // then we throw the Assert
-                if ( !checkJobInDonePath(jobId) ) {
+                if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
                         TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
                 }
 
@@ -264,7 +264,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
                 // race condition when checking JHS, since we don't have a definite job "done"
                 // state to use, check JHS for job and break to the Assert if it's there, if not
                 // then we throw the Assert
-                if ( !checkJobInDonePath(jobId) ) {
+                if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
                         TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
                 }
 
