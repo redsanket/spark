@@ -100,9 +100,38 @@ public interface DBCommands {
 				// oozie
 				+ "oozieVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "oozieResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
-				+ "oozieCurrentState VARCHAR(10)  DEFAULT 'UNKNOWN' , "
+				+ "oozieCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 				+ "oozieComments TEXT   , "
 				
+				// oozie cleanup 
+				+ "cleanup_outputResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "cleanup_outputCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "cleanup_outputMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "cleanup_outputComments TEXT   , "
+								
+				// oozie check_input
+				+ "check_inputResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "check_inputCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "check_inputMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "check_inputComments TEXT   , "
+				
+				// oozie pig_abf_input_PageValidNews
+				+ "pig_abf_input_PageValidNewsResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "pig_abf_input_PageValidNewsCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "pig_abf_input_PageValidNewsMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "pig_abf_input_PageValidNewsComments TEXT   , "
+				
+				// oozie hive_storage
+				+ "hive_storageResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "hive_storageCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "hive_storageMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "hive_storageComments TEXT   , "
+				
+				// oozie hive_verify
+				+ "hive_verifyResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "hive_verifyCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "hive_verifyMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "hive_verifyComments TEXT   ,"
 				
 				+ "comments TEXT   , "
 				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";

@@ -176,7 +176,6 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 			this.setOozieJobID(jobID);
 			
 			String result = getResult();
-			//String result = getOozieExecutionResult();
 			if (result.indexOf("KILLED") > -1) {
 				this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
 				oozieResult = false;
@@ -215,7 +214,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 					status = jsonPath.getString("status");
 					if (! (status.indexOf("RUNNING") > -1)   ) {
 						break;
-					}	
+					}
 				}
 			}
 		}
@@ -232,16 +231,25 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
 					if (actionItem.containsKey("transition")) {
 						String transitionName = actionItem.getString("transition");
 						status = actionItem.getString("status");
-						if (status.indexOf("OK") > -1) {
-							String consoleUrl = actionItem.getString("consoleUrl");
-							
-							// TODO need to create columns in db & update the result
-							
-						} else if ( (status.indexOf("FAILED") > -1) || (status.indexOf("ERROR") > -1) || (status.indexOf("KILLED") > -1))  {
-							TestSession.logger.info("Response - " + responseObject.toString());
-							String consoleUrl = actionItem.getString("consoleUrl");
-							String errorMessage = actionItem.getString("errorMessage");
-							this.commonFunctions.updateDB(this.getCurrentJobName(), "oozieComments", errorMessage + " - " + consoleUrl );
+						String name = actionItem.getString("name");
+						if ( !(name.indexOf("start") > -1)) {
+							if (status.indexOf("RUNNING") > -1) {
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "CurrentState", "RUNNING");
+							}
+							if (status.indexOf("OK") > -1) {
+								String consoleUrl = actionItem.getString("consoleUrl");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "CurrentState", "COMPLETED");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "Result", "PASS");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "MRJobURL",consoleUrl);
+							} else if ( (status.indexOf("FAILED") > -1) || (status.indexOf("ERROR") > -1) || (status.indexOf("KILLED") > -1))  {
+								TestSession.logger.info("Response - " + responseObject.toString());
+								String consoleUrl = actionItem.getString("consoleUrl");
+								String errorMessage = actionItem.getString("errorMessage");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "Result", "FAIL");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "CurrentState", "COMPLETED");
+								this.commonFunctions.updateDB(this.getCurrentJobName(), name + "MRJobURL",  consoleUrl );
+								this.commonFunctions.updateDB(this.getCurrentJobName(), "oozieComments", errorMessage + " - " + consoleUrl );
+							}	
 						}
 					}
 					

@@ -359,7 +359,7 @@ public class CommonFunctions {
 				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  tezStackComponent = " + tezStackComponent.toString());
 				testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
 				testList.add(testTezComponent);
-			}	
+			}
 		}
 		
 		if (currentStackTestComponent.contains("hive")) {
@@ -435,7 +435,7 @@ public class CommonFunctions {
 		AggIntResult aggIntResultObj = new AggIntResult();
 		aggIntResultObj.getResults();
 	}
-
+	
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
 		StringBuilder unTestedComponentListString = new StringBuilder();
 		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
@@ -460,6 +460,7 @@ public class CommonFunctions {
 			gdmFlag = true;
 		} else {
 			unTestedComponentListString.append("gdm").append(",");
+			this.updateDB(this.getDataSetName(), "gdmResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hadoop")) {
@@ -468,6 +469,7 @@ public class CommonFunctions {
 			hadoopFlag = true;
 		}  else {
 			unTestedComponentListString.append("hadoop").append(",");
+			this.updateDB(this.getDataSetName(), "hadoopResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("tez")) {
@@ -476,6 +478,7 @@ public class CommonFunctions {
 			tezFlag = true;
 		} else {
 			unTestedComponentListString.append("tez").append(",");
+			this.updateDB(this.getDataSetName(), "tezResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("pig")) {
@@ -483,7 +486,9 @@ public class CommonFunctions {
 			healthCheckList.add(pigHealthCheckupObj);
 			pigFlag = true;
 		}else {
-			unTestedComponentListString.append("pig").append(",");
+			// since tez is executed using pig, so skipping this
+			//unTestedComponentListString.append("pig").append(",");
+			;	
 		}
 		
 		if (currentTestComponentList.contains("hive")) {
@@ -492,6 +497,7 @@ public class CommonFunctions {
 			hiveFlag = true;
 		}else {
 			unTestedComponentListString.append("hive").append(",");
+			this.updateDB(this.getDataSetName(), "hiveResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hcat")) {
@@ -500,6 +506,7 @@ public class CommonFunctions {
 			hcatalogFlag = true;
 		} else {
 			unTestedComponentListString.append("hcat").append(",");
+			this.updateDB(this.getDataSetName(), "hcatResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hbase")) {
@@ -508,6 +515,7 @@ public class CommonFunctions {
 			hbaseFlag = true;
 		} else {
 			unTestedComponentListString.append("hbase").append(",");
+			this.updateDB(this.getDataSetName(), "hbaseResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("oozie")) {
@@ -516,6 +524,7 @@ public class CommonFunctions {
 			oozieFlag = true;
 		} else {
 			unTestedComponentListString.append("oozie");
+			this.updateDB(this.getDataSetName(), "oozieResult", "SKIPPED");
 		}
 		
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -542,34 +551,33 @@ public class CommonFunctions {
 		
 		// mark the individual components are not tested, since the user has not want them to test.
 		if (gdmFlag == false) {
-			this.updateDB(this.getDataSetName(), "gdmComments", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "gdmComments", "SKIPPED");
 			
 			// since gdm uses hadoop
-			this.updateDB(this.getDataSetName(), "hadoopComments", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "hadoopComments", "SKIPPED");
 		}
 
 		if (pigFlag == false) {
-			this.updateDB(this.getDataSetName(), "pigComments", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "pigComments", "SKIPPED");
 		}
 		if (tezFlag == false) {
-			this.updateDB(this.getDataSetName(), "tezComments", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "tezComments", "SKIPPED");
 		}
 		if (hiveFlag == false) {
-			this.updateDB(this.getDataSetName(), "hiveComment", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "hiveComment", "SKIPPED");
 		}
 		if (hcatalogFlag == false) {
-			this.updateDB(this.getDataSetName(), "hcatComment", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "hcatComment", "SKIPPED");
 		}
 		if (hbaseFlag == false) {
-			this.updateDB(this.getDataSetName(), "hbaseComment", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "hbaseComment", "SKIPPED");
 		}
 		if (oozieFlag == false) {
-			this.updateDB(this.getDataSetName(), "oozieComments", "Specified not to test");
+			this.updateDB(this.getDataSetName(), "oozieComments", "SKIPPED");
 		}
 		
-		
 		if (unTestedComponentListString.length() > 1) {
-			this.updateDB(this.getDataSetName(), "comments", unTestedComponentListString.toString() + " specified as not to test." );
+			this.updateDB(this.getDataSetName(), "comments", unTestedComponentListString.toString() + "  SKIPPED" );
 		}
 		
 		TestSession.logger.info("____________________________________________________________________________________________________");
