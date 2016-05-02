@@ -22,13 +22,6 @@ public class AggIntResult {
 	private Map<String,String> componentsResultMap;
 	private DataBaseOperations dataBaseOperations;
 	private java.sql.Connection connection;
-	private static final int TEZ_TEST_CASES = 1;
-	private static final int PIG_TEST_CASES = 1;
-	private static final int HIVE_TEST_CASES = 4;
-	private static final int HCATALOG_TEST_CASES = 1;
-	private static final int HBASE_TEST_CASES = 4;
-	private static final int OOZIE_TEST_CASES = 5;
-	private static final int GDM_TEST_CASES = 1;
 
 	public AggIntResult() {
 		componentsResultMap = new HashMap<String,String>();
