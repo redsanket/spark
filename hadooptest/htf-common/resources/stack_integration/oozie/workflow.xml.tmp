@@ -86,6 +86,7 @@
         </property>
       </configuration>
       <script>${pig_script}</script>
+      <param>NAME_NODE=${nameNode}</param>
       <param>INPUTFILE=${my_srcFile}</param>
       <param>OUTPUTDIR=${my_outputDir}</param>
       <argument>-x</argument>

@@ -1,3 +1,4 @@
+create database IF NOT EXISTS ${IN_DB}; 
 use ${IN_DB};
 drop table ${IN_TABLE};
 CREATE EXTERNAL TABLE ${IN_TABLE} (calendar_day string, connection_speed string, region string, valid string, content_type string, event_type string, hostname string, ip string) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE LOCATION "/tmp/test_stackint/Tables";
