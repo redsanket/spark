@@ -10,7 +10,7 @@ you might use Oozie by looking at common use cases and patterns.
 The use patterns are related to how Workflows are used in respect to data.
 
 If you don't see your use case or pattern below, don't hesitate to write
-to the iList yahoo-oozie-users@yahoo-inc.com and ask if 
+to the iList oozie-users@yahoo-inc.com and ask if 
 Oozie is a viable solution for your use case.
 
 .. _use_cases-use:
