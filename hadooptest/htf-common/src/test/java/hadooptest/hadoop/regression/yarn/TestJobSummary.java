@@ -23,13 +23,13 @@ import org.junit.experimental.categories.Category;
 public class TestJobSummary extends YarnTestsBaseClass {
 
 	// utility method to check JHS for a given jobId, returns true if the job is found
-	// else returns false after 10 seconds of checking. This is not ideal, it would be
+	// else returns false after 60 seconds of checking. This is not ideal, it would be
 	// better to check a definitive "done" state for the job where we can be sure the 
  	// job files are transferred to history server, but we don't have this here.
 	boolean checkJobInDonePath (String jobid, StringBuilder sb) {
 		boolean JobFound = false;
 		int counter = 0;
-		while ( !JobFound && counter <= 10 ) {
+		while ( !JobFound && counter <= 60 ) {
         		counter++;
 			try {
         			Thread.sleep(1000);
@@ -39,6 +39,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
         		JobFound = (sb.toString().contains(jobid));
 		}
 		
+		TestSession.logger.debug("Call to checkJobInDonePath returns after: " + counter + " seconds");
 		return JobFound;
 	}
 
@@ -87,7 +88,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		// state to use, check JHS for job and break to the Assert if it's there, if not
    		// then we throw the Assert
 		if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
-			TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+			TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 60 seconds!!");
                 }
 			
 		Assert.assertTrue(
@@ -137,7 +138,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
                 // state to use, check JHS for job and break to the Assert if it's there, if not
                 // then we throw the Assert
                 if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
-                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 60 seconds!!");
                 }
 
 		Assert.assertTrue(
@@ -269,7 +270,7 @@ public class TestJobSummary extends YarnTestsBaseClass {
                 // state to use, check JHS for job and break to the Assert if it's there, if not
                 // then we throw the Assert
                 if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
-                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 10 seconds!!");
+                        TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 60 seconds!!");
                 }
 
 		Assert.assertTrue(
