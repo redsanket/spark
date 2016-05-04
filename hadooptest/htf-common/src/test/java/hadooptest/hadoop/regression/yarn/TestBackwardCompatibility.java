@@ -51,11 +51,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -86,11 +86,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -152,11 +152,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -190,11 +190,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -257,11 +257,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -294,11 +294,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -361,11 +361,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -398,11 +398,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml"\");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
