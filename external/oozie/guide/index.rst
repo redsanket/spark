@@ -52,7 +52,7 @@ Getting Help
 General Questions
 -----------------
 
-- yahoo-oozie-users@yahoo-inc.com 
+- oozie-users@yahoo-inc.com 
 
 Support
 -------
