@@ -1,6 +1,8 @@
-VIRTUALENV = /opt/python/bin/virtualenv
+#VIRTUALENV = /opt/python/bin/virtualenv
+VIRTUALENV = virtualenv
 
-TMP_ENV := $(shell mktemp -d)
+#TMP_ENV := $(shell mktemp -d tmpenv.XXXX)
+TMP_ENV := $(shell date +%Y%m%d%H%M%S)
 ACTIVATE = $(TMP_ENV)/bin/activate
 PIP = $(TMP_ENV)/bin/pip
 OOZIE = external/oozie/guide
@@ -15,13 +17,16 @@ export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 # Screwdriver uses this to build documentation.
 # Use 'make build' to build the documentation locally. Docs will be copied to docs/<product>.
 build:
+	echo 'Creating temp dir $(TMP_ENV)'
+	mkdir $(TMP_ENV)
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
 	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase
- 
+	echo 'Removing temp dir $(TMP_ENV)'
+	rm -rf $(TMP_ENV) 
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
 gh-pages:
