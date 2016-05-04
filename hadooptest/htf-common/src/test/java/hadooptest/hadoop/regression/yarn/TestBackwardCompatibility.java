@@ -423,7 +423,7 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("-output");
 		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("\"cat job.xml"\");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
