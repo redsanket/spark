@@ -51,17 +51,20 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapred.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -86,17 +89,20 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -152,11 +158,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -165,6 +171,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapred.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -190,11 +199,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -203,6 +212,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapreduce.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -257,11 +269,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -270,6 +282,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapred.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -294,11 +309,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -307,6 +322,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapreduce.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -361,11 +379,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		ArrayList<String> commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output1");
+		commandFrags.add("\"" + dirInHdfs + "/Output1\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -374,6 +392,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapred.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
@@ -398,11 +419,11 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		 */
 		commandFrags = new ArrayList<String>();
 		commandFrags.add("-input");
-		commandFrags.add(dirInHdfs + "/input.txt");
+		commandFrags.add("\"" + dirInHdfs + "/input.txt\"");
 		commandFrags.add("-output");
-		commandFrags.add(dirInHdfs + "/Output4");
+		commandFrags.add("\"" + dirInHdfs + "/Output4\"");
 		commandFrags.add("-mapper");
-		commandFrags.add("cat job.xml");
+		commandFrags.add("\"cat job.xml\"");
 		commandFrags.add("-reducer");
 		commandFrags.add("NONE");
 		commandFrags.add("-jobconf");
@@ -411,6 +432,9 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		commandFrags.add("\"mapreduce.job.name=" + testName + "\"");
 		commandFrags.add("-jobconf");
 		commandFrags.add("\"mapreduce.job.acl-view-job=*\"");
+
+		TestSession.logger.debug("\nArg array list sent to Streaming job:");
+		TestSession.logger.debug(commandFrags.toString() + "\n");
 
 		for (String aCommandFrag : commandFrags) {
 			TestSession.logger.info(aCommandFrag + " ");
