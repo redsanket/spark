@@ -387,9 +387,9 @@ public class AggIntResult {
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
 			String  comments, String result ) {		
-
+		String dsName = null;
 		try {
-			String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
+			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 			this.dataBaseOperations.updateRecord(this.connection , "date" , date,
 					"hadoopVersion", hadoopVersion,
 					"hadoopCurrentState" , hadoopCurrentState,

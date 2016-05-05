@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class HadoopStackComponentsTest extends TestSession {
@@ -84,8 +83,6 @@ public class HadoopStackComponentsTest extends TestSession {
 				this.commonFunctionsObject.preInit();
 				this.commonFunctionsObject.initComponents();
 				this.commonFunctionsObject.testStackComponent();
-				AggIntResult aggIntResultObj = new AggIntResult();
-				aggIntResultObj.finalResult();
 			}
 		}
 	}
