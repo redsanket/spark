@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class HadoopStackComponentsTest extends TestSession {
@@ -32,7 +33,6 @@ public class HadoopStackComponentsTest extends TestSession {
 	public void setUp() { }
 
 	public HadoopStackComponentsTest() throws IOException {
-		
 		String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
 		TestSession.logger.info("test list - " + currentStackComponentTestList);
 		List<String> tempStackComponentList = Arrays.asList(currentStackComponentTestList.split(" "));
@@ -44,7 +44,7 @@ public class HadoopStackComponentsTest extends TestSession {
 				System.exit(0);
 			}
 		}
-		
+
 		stackComponents = new StackComponent[stackComponentsArray.length];
 		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
 		setClusterName(cName);
@@ -66,12 +66,12 @@ public class HadoopStackComponentsTest extends TestSession {
 	public void checkStackComponentsHealth() throws InterruptedException, ExecutionException, IOException {
 		testStack();
 	}
-	
+
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
 		for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
 			String currentDataSetName = this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
 			this.commonFunctionsObject.setDataSetName(currentDataSetName);
-			
+
 			// check component health
 			this.commonFunctionsObject.checkClusterHealth();
 			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName());
@@ -84,6 +84,8 @@ public class HadoopStackComponentsTest extends TestSession {
 				this.commonFunctionsObject.preInit();
 				this.commonFunctionsObject.initComponents();
 				this.commonFunctionsObject.testStackComponent();
+				AggIntResult aggIntResultObj = new AggIntResult();
+				aggIntResultObj.finalResult();
 			}
 		}
 	}

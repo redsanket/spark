@@ -18,6 +18,7 @@ import hadooptest.cluster.gdm.GdmUtils;
 public class AggIntResult {
 
 	private String currentDate;
+	private String currentPipeLineName;
 	private java.util.List<String> hadoopVersionList;
 	private Map<String,String> componentsResultMap;
 	private DataBaseOperations dataBaseOperations;
@@ -25,6 +26,8 @@ public class AggIntResult {
 
 	public AggIntResult() {
 		componentsResultMap = new HashMap<String,String>();
+		String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+		this.setCurrentPipeLineName(pipeLineName);
 		java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -36,6 +39,14 @@ public class AggIntResult {
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String getCurrentPipeLineName() {
+		return currentPipeLineName;
+	}
+
+	public void setCurrentPipeLineName(String currentPipeLineName) {
+		this.currentPipeLineName = currentPipeLineName;
 	}
 
 	public void addResultToMap(String componentName, String result) {
@@ -49,247 +60,231 @@ public class AggIntResult {
 	public void setCurrentDate(String currentDate) {
 		this.currentDate = currentDate;
 	}
-
-	public java.util.List<String> getTodayNumberHadoopVersions() {
-		java.util.List<String> hadoopVersionList = new java.util.ArrayList<>();
-		String QUERY = "select date , hadoopVersion from " + DBCommands.TABLE_NAME + "  where date=" + "\"" + getCurrentDate() + "\"" + "  group by hadoopVersion";
-		TestSession.logger.info("QUERY = " + QUERY);
-		java.sql.Statement statement = null;
-		java.sql.ResultSet resultSet = null;	 
-		try {
-			statement = this.connection.createStatement();
-			if (statement != null) {
-				resultSet = statement.executeQuery(QUERY);
-				if (resultSet != null) {
-					while(resultSet.next()) {
-						String hadoopVersion = resultSet.getString("hadoopVersion");
-						hadoopVersionList.add(hadoopVersion);
+	
+	public void finalResult() {
+		java.util.List<String> versionList = getToDaysResult();
+		if (versionList != null) {
+			for ( String version : versionList) {
+				TestSession.logger.info("version - " + version);
+				int recordCount = getRecordCount(DBCommands.TABLE_NAME , this.getCurrentPipeLineName() , version ,  getCurrentDate() );
+				if (recordCount == 3 ) {
+					// navigate the records and check for results.
+					String query = "select * from  " + DBCommands.TABLE_NAME + "  where date like  " + "\"" + getCurrentDate() + "\""  +"  and  " + this.getCurrentPipeLineName() + "Version"+ "  like  " +  "\"" +  version + "\"";
+					TestSession.logger.info("query - " + query);
+					getToDaysAllTheResult(query);
+				}
+				
+				// Incase integration is run more than once  i,e manually
+				if (recordCount > 3 ) {
+					TestSession.logger.info("More than once integration test is run..!");
+					
+					//check whether current date and current build is shown in integration dashboard db. 
+					int aggTableRecordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , version ,  getCurrentDate() );
+					if (aggTableRecordCount == 0) {
+						
+						// insert the result in to the agg table
+						String query = "select * from  " + DBCommands.TABLE_NAME + "  where date like  " + "\"" + getCurrentDate() + "\""  +"  and  " + this.getCurrentPipeLineName() + "Version"+ "  like  " +  "\"" +  version + "\"";
+						getToDaysAllTheResult(query);
+					} else if (aggTableRecordCount > 0) {
+						TestSession.logger.info("Record already exists for " + getCurrentDate()  + "  & "  + this.getCurrentPipeLineName() + "Version"+  "  "  + version);
 					}
 				}
+				if (recordCount == 0){
+					TestSession.logger.info("Integration test dn't run for ");
+				}  
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} else {
+			TestSession.logger.info("Looks like today integration did not run..");
 		}
-		return hadoopVersionList;
 	}
-
-
-	public void getResults() {
-		boolean flag = true;
-		int iteration = 0;
-		java.sql.Statement statement = null;
-		java.sql.ResultSet resultSet = null;
-		java.util.List<String> dataSetNameList = new ArrayList<>();
-		java.util.List<String> hadoopVersionList = this.getTodayNumberHadoopVersions();
-		for (String hadoopVersion : hadoopVersionList ) {
-			String QUERY = "select dataSetName from integration_test where hadoopVersion like " + "\"" + hadoopVersion + "\"" ;
-			TestSession.logger.info("QUERY = " + QUERY);
+	
+	public java.util.List<String> getToDaysResult() {
+		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion  from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\"";
+		TestSession.logger.info("query - " + query);
+		java.sql.ResultSet resultSet = this.getResultSet(query);
+		java.util.List<String> compondentVersionList = new java.util.ArrayList<>();
+		if (resultSet != null) {
 			try {
-				statement = this.connection.createStatement();
-				if (statement != null) {
-					resultSet = statement.executeQuery(QUERY);
-					if (resultSet != null) {
-						while(resultSet.next()) {
-							String dataSetName =  resultSet.getString("dataSetName");
-							String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
-							if (dataSetNameList.contains(dsName) == false) {
-								dataSetNameList.add(dsName);
-							}
-						}
+				while (resultSet.next()) {
+					String componentVersion = resultSet.getString( this.getCurrentPipeLineName() + "Version");
+					if (compondentVersionList.contains(componentVersion) == false) {
+						compondentVersionList.add(componentVersion);
 					}
-				} 
-			}catch (SQLException e) {
+				}
+			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-		for (String dsName : dataSetNameList) {
-			navigateRecords(dsName);	
-		}
+		return compondentVersionList;
 	}
-
-	public void navigateRecords(String dataSetName ) {
-		Statement statement;
-		boolean flag = true;
-		int index = 0;
-		List<String> resultDataSet = new ArrayList<String>();
-		Map<String,Boolean> dataSetResult = new HashMap<String,Boolean>();
-		try {
-			statement = this.connection.createStatement();
-			if (statement != null) {
-				String 	QUERY = "select * from  " + DBCommands.TABLE_NAME + " where dataSetName like " + "\""  + dataSetName + "%\"";
-				TestSession.logger.info("QUERY = " + QUERY);
-				ResultSet resultSet = statement.executeQuery(QUERY);
-				if (resultSet != null) {
-					while (resultSet.next()) {
-						String dataSetName1 =  resultSet.getString("dataSetName");
-						String hadoopResult =  resultSet.getString("hadoopResult");
-						String gdmResult =  resultSet.getString("gdmResult");
-						String tezResult =  resultSet.getString("tezResult");
-						String hiveResult =  resultSet.getString("hiveResult");
-						String hiveDropTable =  resultSet.getString("hiveDropTable");
-						String hiveCreateTable =  resultSet.getString("hiveCreateTable");
-						String hiveCopyDataToHive =  resultSet.getString("hiveCopyDataToHive");
-						String hiveLoadDataToTable =  resultSet.getString("hiveLoadDataToTable");
-						String hcatResult =  resultSet.getString("hcatResult");
-						String hbaseResult =  resultSet.getString("hbaseResult");
-						String hbaseCreateTable =  resultSet.getString("hbaseCreateTable");
-						String hbaseInsertRecordTable =  resultSet.getString("hbaseInsertRecordTable");
-						String hbaseScanRecordTable =  resultSet.getString("hbaseScanRecordTable");
-						String hbaseDeleteTable =  resultSet.getString("hbaseDeleteTable");
-
-						String oozieResult = resultSet.getString("oozieResult");
-						String cleanup_outputResult = resultSet.getString("cleanup_outputResult");
-						String check_inputResult = resultSet.getString("check_inputResult");
-						String pig_abf_input_PageValidNewsResult = resultSet.getString("pig_abf_input_PageValidNewsResult");
-						String hive_storageResult = resultSet.getString("hive_storageResult");
-						String hive_verifyResult = resultSet.getString("hive_verifyResult");
-
-
-						String result =  resultSet.getString("result");
-						resultDataSet.add(dataSetName1);
-						if( (hadoopResult.indexOf("PASS") > -1) && (gdmResult.indexOf("PASS") > -1) && (tezResult.indexOf("PASS") > -1) && (hiveResult.indexOf("PASS") > -1) && (hiveDropTable.indexOf("PASS") > -1) 
-								&& (hiveCreateTable.indexOf("PASS") > -1)  && (hiveCopyDataToHive.indexOf("PASS") > -1)  && (hiveLoadDataToTable.indexOf("PASS") > -1)  && (hcatResult.indexOf("PASS") > -1) 
-								&& (hbaseResult.indexOf("PASS") > -1) && (hbaseCreateTable.indexOf("PASS") > -1) && (hbaseInsertRecordTable.indexOf("PASS") > -1) && (hbaseScanRecordTable.indexOf("PASS") > -1) 
-								&& (hbaseDeleteTable.indexOf("PASS") > -1) &&  (oozieResult.indexOf("PASS") > -1) && (cleanup_outputResult.indexOf("PASS") > -1) && (check_inputResult.indexOf("PASS") > -1) &&
-								(pig_abf_input_PageValidNewsResult.indexOf("PASS") > -1) && (hive_storageResult.indexOf("PASS") > -1) &&  (hive_verifyResult.indexOf("PASS") > -1) &&  (result.indexOf("PASS") > -1)  == false) {
-							break;
-						}
-						index++;
-					}
+	
+	public int getRecordCount(String tableName , String componentName , String componentVersion , String date) {
+		int recordCount = 0;
+		String QUERY = "select count(*) recordCount from  " + tableName + "  where " + componentName + "Version" + "  like  " +  "\"" +  componentVersion  + "\"" + "  and date like  "  + "\"" + date + "\"";
+		TestSession.logger.info("QUERY = " + QUERY);
+		java.sql.ResultSet resultSet = getResultSet(QUERY);
+		if (resultSet != null) {
+			try {
+				while (resultSet.next()) {
+					String rCount = resultSet.getString("recordCount");
+					TestSession.logger.info("rCount = " + rCount);
+					recordCount = Integer.parseInt(rCount);
 				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-		if (resultDataSet.size() == 0) {
-			TestSession.logger.info("There is no dataset selected ");
-		} else {
-			String dsName = resultDataSet.get(resultDataSet.size() - 1);
-			TestSession.logger.info("********** " + resultDataSet);
-			updateTheFinalResult(dsName);
-		}
+		return recordCount;
 	}
-
-	public void updateTheFinalResult(String dataSetName) {
-		Statement statement;
-		Map<String,String> tempMap = new HashMap<String, String>();
+	
+	public void getToDaysAllTheResult(String query) {
+		java.sql.ResultSet resultSet = getResultSet(query);
+		String compVersion = null , dataSetName1 = null;
 		int count = 0;
-		try {
-			statement = this.connection.createStatement();
-			if ( statement != null) {
-				String 	QUERY = "select * from  " + DBCommands.TABLE_NAME + " where dataSetName = " + "\""  + dataSetName + "\"";
-				TestSession.logger.info("QUERY  = " + QUERY);
-				ResultSet resultSet = statement.executeQuery(QUERY);
-				if (resultSet != null) {
-					while (resultSet.next()) {
-						String dataSetName1 =  resultSet.getString("dataSetName");
-						String date =  resultSet.getString("date");
+		boolean isTestFailed = false;
+		List<String>dataSetNameList = new ArrayList<String>();
+		List<DBTableColumnsReplica> dbTableColumnsReplicaList = new ArrayList<DBTableColumnsReplica>();
+		if (resultSet != null) {
+			try {
+				while(resultSet.next()) {
+					compVersion = resultSet.getString(this.getCurrentPipeLineName() +"Version");
+					dataSetName1 =  resultSet.getString("dataSetName");
+					String date =  resultSet.getString("date");
 
-						String hadoopVersion =  resultSet.getString("hadoopVersion");
-						String hadoopCurrentState =  resultSet.getString("hadoopCurrentState");
-						String hadoopResult =  resultSet.getString("hadoopResult");
-						String hadoopComments =  resultSet.getString("hadoopComments");
+					String hadoopVersion =  resultSet.getString("hadoopVersion");
+					String hadoopCurrentState =  resultSet.getString("hadoopCurrentState");
+					String hadoopResult =  resultSet.getString("hadoopResult");
+					String hadoopComments =  resultSet.getString("hadoopComments");
 
-						String gdmVersion =  resultSet.getString("gdmVersion");
-						String gdmCurrentState =  resultSet.getString("gdmCurrentState");
-						String gdmResult =  resultSet.getString("gdmResult");
-						String gdmComments =  resultSet.getString("gdmComments");
+					String gdmVersion =  resultSet.getString("gdmVersion");
+					String gdmCurrentState =  resultSet.getString("gdmCurrentState");
+					String gdmResult =  resultSet.getString("gdmResult");
+					String gdmComments =  resultSet.getString("gdmComments");
 
-						String pigVersion =  resultSet.getString("pigVersion");
-						String pigComments =  resultSet.getString("pigComments");
+					String pigVersion =  resultSet.getString("pigVersion");
+					String pigComments =  resultSet.getString("pigComments");
 
-						String tezVersion =  resultSet.getString("tezVersion");
-						String tezCurrentState =  resultSet.getString("tezCurrentState");
-						String tezMRJobURL =  resultSet.getString("tezMRJobURL");
-						String tezResult =  resultSet.getString("tezResult");
-						String tezComments =  resultSet.getString("tezComments");
+					String tezVersion =  resultSet.getString("tezVersion");
+					String tezCurrentState =  resultSet.getString("tezCurrentState");
+					String tezMRJobURL =  resultSet.getString("tezMRJobURL");
+					String tezResult =  resultSet.getString("tezResult");
+					String tezComments =  resultSet.getString("tezComments");
 
-						String hiveVersion =  resultSet.getString("hiveVersion");
-						String hiveCurrentState =  resultSet.getString("hiveCurrentState");
-						String hiveResult =  resultSet.getString("hiveResult");
-						String hiveComment =  resultSet.getString("hiveComment");
+					String hiveVersion =  resultSet.getString("hiveVersion");
+					String hiveCurrentState =  resultSet.getString("hiveCurrentState");
+					String hiveResult =  resultSet.getString("hiveResult");
+					String hiveComment =  resultSet.getString("hiveComment");
 
-						String hiveDropTable =  resultSet.getString("hiveDropTable");
-						String hiveDropTableCurrentState =  resultSet.getString("hiveDropTableCurrentState");
-						String hiveDropTableComment =  resultSet.getString("hiveDropTableComment");
+					String hiveDropTable =  resultSet.getString("hiveDropTable");
+					String hiveDropTableCurrentState =  resultSet.getString("hiveDropTableCurrentState");
+					String hiveDropTableComment =  resultSet.getString("hiveDropTableComment");
 
-						String hiveCreateTable =  resultSet.getString("hiveCreateTable");
-						String hiveCreateTableCurrentState =  resultSet.getString("hiveCreateTableCurrentState");
-						String hiveCreateTableComment =  resultSet.getString("hiveCreateTableComment");
+					String hiveCreateTable =  resultSet.getString("hiveCreateTable");
+					String hiveCreateTableCurrentState =  resultSet.getString("hiveCreateTableCurrentState");
+					String hiveCreateTableComment =  resultSet.getString("hiveCreateTableComment");
 
-						String hiveCopyDataToHive =  resultSet.getString("hiveCopyDataToHive");
-						String hiveCopyDataToHiveMRJobURL =  resultSet.getString("hiveCopyDataToHiveMRJobURL");
-						String hiveCopyDataToHiveCurrentState =  resultSet.getString("hiveCopyDataToHiveCurrentState");
-						String hiveCopyDataToHiveComment =  resultSet.getString("hiveCopyDataToHiveComment");
+					String hiveCopyDataToHive =  resultSet.getString("hiveCopyDataToHive");
+					String hiveCopyDataToHiveMRJobURL =  resultSet.getString("hiveCopyDataToHiveMRJobURL");
+					String hiveCopyDataToHiveCurrentState =  resultSet.getString("hiveCopyDataToHiveCurrentState");
+					String hiveCopyDataToHiveComment =  resultSet.getString("hiveCopyDataToHiveComment");
 
-						String hiveLoadDataToTable =  resultSet.getString("hiveLoadDataToTable");
-						String hiveLoadDataToTableComment =  resultSet.getString("hiveLoadDataToTableComment");
-						String hiveLoadDataToTableCurrentState =  resultSet.getString("hiveLoadDataToTableCurrentState");
+					String hiveLoadDataToTable =  resultSet.getString("hiveLoadDataToTable");
+					String hiveLoadDataToTableComment =  resultSet.getString("hiveLoadDataToTableComment");
+					String hiveLoadDataToTableCurrentState =  resultSet.getString("hiveLoadDataToTableCurrentState");
 
-						String hcatVersion =  resultSet.getString("hcatVersion");
-						String hcatCurrentState =  resultSet.getString("hcatCurrentState");
-						String hcatResult =  resultSet.getString("hcatResult");
-						String hcatMRJobURL =  resultSet.getString("hcatMRJobURL");
-						String hcatComment =  resultSet.getString("hcatComment");
+					String hcatVersion =  resultSet.getString("hcatVersion");
+					String hcatCurrentState =  resultSet.getString("hcatCurrentState");
+					String hcatResult =  resultSet.getString("hcatResult");
+					String hcatMRJobURL =  resultSet.getString("hcatMRJobURL");
+					String hcatComment =  resultSet.getString("hcatComment");
 
-						String hbaseVersion =  resultSet.getString("hbaseVersion");
-						String hbaseCurrentState =  resultSet.getString("hbaseCurrentState");
-						String hbaseResult =  resultSet.getString("hbaseResult");
-						String hbaseComment =  resultSet.getString("hbaseComment");
+					String hbaseVersion =  resultSet.getString("hbaseVersion");
+					String hbaseCurrentState =  resultSet.getString("hbaseCurrentState");
+					String hbaseResult =  resultSet.getString("hbaseResult");
+					String hbaseComment =  resultSet.getString("hbaseComment");
 
-						String hbaseCreateTable =  resultSet.getString("hbaseCreateTable");
-						String hbaseCreateTableCurrentState =  resultSet.getString("hbaseCreateTableCurrentState");
-						String hbaseCreateTableComment =  resultSet.getString("hbaseCreateTableComment");
+					String hbaseCreateTable =  resultSet.getString("hbaseCreateTable");
+					String hbaseCreateTableCurrentState =  resultSet.getString("hbaseCreateTableCurrentState");
+					String hbaseCreateTableComment =  resultSet.getString("hbaseCreateTableComment");
 
-						String hbaseInsertRecordTable =  resultSet.getString("hbaseInsertRecordTable");
-						String hbaseInsertRecordTableMRJobURL =  resultSet.getString("hbaseInsertRecordTableMRJobURL");
-						String hbaseInsertTableCurrentState =  resultSet.getString("hbaseInsertTableCurrentState");
-						String hbaseInsertRecordTableComment =  resultSet.getString("hbaseInsertRecordTableComment");
+					String hbaseInsertRecordTable =  resultSet.getString("hbaseInsertRecordTable");
+					String hbaseInsertRecordTableMRJobURL =  resultSet.getString("hbaseInsertRecordTableMRJobURL");
+					String hbaseInsertTableCurrentState =  resultSet.getString("hbaseInsertTableCurrentState");
+					String hbaseInsertRecordTableComment =  resultSet.getString("hbaseInsertRecordTableComment");
 
-						String hbaseScanRecordTable =  resultSet.getString("hbaseScanRecordTable");
-						String hbaseScanRecordTableMRJobURL =  resultSet.getString("hbaseScanRecordTableMRJobURL");
-						String hbaseScanRecordTableCurrentState =  resultSet.getString("hbaseScanRecordTableCurrentState");
-						String hbaseScanRecordTableComment =  resultSet.getString("hbaseScanRecordTableComment");
+					String hbaseScanRecordTable =  resultSet.getString("hbaseScanRecordTable");
+					String hbaseScanRecordTableMRJobURL =  resultSet.getString("hbaseScanRecordTableMRJobURL");
+					String hbaseScanRecordTableCurrentState =  resultSet.getString("hbaseScanRecordTableCurrentState");
+					String hbaseScanRecordTableComment =  resultSet.getString("hbaseScanRecordTableComment");
 
-						String hbaseDeleteTable =  resultSet.getString("hbaseDeleteTable");
-						String hbaseDeleteTableCurrentState =  resultSet.getString("hbaseDeleteTableCurrentState");
-						String hbaseDeleteTableComment =  resultSet.getString("hbaseDeleteTableComment");
+					String hbaseDeleteTable =  resultSet.getString("hbaseDeleteTable");
+					String hbaseDeleteTableCurrentState =  resultSet.getString("hbaseDeleteTableCurrentState");
+					String hbaseDeleteTableComment =  resultSet.getString("hbaseDeleteTableComment");
 
-						String oozieVersion =  resultSet.getString("oozieVersion");
-						String oozieResult =  resultSet.getString("oozieResult");
-						String oozieCurrentState =  resultSet.getString("oozieCurrentState");
-						String oozieComments =  resultSet.getString("oozieComments");
+					String oozieVersion =  resultSet.getString("oozieVersion");
+					String oozieResult =  resultSet.getString("oozieResult");
+					String oozieCurrentState =  resultSet.getString("oozieCurrentState");
+					String oozieComments =  resultSet.getString("oozieComments");
 
-						String cleanup_outputResult = resultSet.getString("cleanup_outputResult");
-						String cleanup_outputCurrentState = resultSet.getString("cleanup_outputCurrentState");
-						String cleanup_outputMRJobURL = resultSet.getString("cleanup_outputMRJobURL");
-						String cleanup_outputComments  = resultSet.getString("cleanup_outputComments");
+					String cleanup_outputResult = resultSet.getString("cleanup_outputResult");
+					String cleanup_outputCurrentState = resultSet.getString("cleanup_outputCurrentState");
+					String cleanup_outputMRJobURL = resultSet.getString("cleanup_outputMRJobURL");
+					String cleanup_outputComments  = resultSet.getString("cleanup_outputComments");
 
-						String check_inputResult = resultSet.getString("check_inputResult");
-						String check_inputCurrentState = resultSet.getString("check_inputCurrentState");
-						String check_inputMRJobURL = resultSet.getString("check_inputMRJobURL");
-						String check_inputComments = resultSet.getString("check_inputComments");
+					String check_inputResult = resultSet.getString("check_inputResult");
+					String check_inputCurrentState = resultSet.getString("check_inputCurrentState");
+					String check_inputMRJobURL = resultSet.getString("check_inputMRJobURL");
+					String check_inputComments = resultSet.getString("check_inputComments");
 
-						String pig_abf_input_PageValidNewsResult = resultSet.getString("pig_abf_input_PageValidNewsResult");
-						String pig_abf_input_PageValidNewsCurrentState = resultSet.getString("pig_abf_input_PageValidNewsCurrentState");
-						String pig_abf_input_PageValidNewsMRJobURL = resultSet.getString("pig_abf_input_PageValidNewsMRJobURL");
-						String pig_abf_input_PageValidNewsComments = resultSet.getString("pig_abf_input_PageValidNewsComments");
+					String pig_abf_input_PageValidNewsResult = resultSet.getString("pig_abf_input_PageValidNewsResult");
+					String pig_abf_input_PageValidNewsCurrentState = resultSet.getString("pig_abf_input_PageValidNewsCurrentState");
+					String pig_abf_input_PageValidNewsMRJobURL = resultSet.getString("pig_abf_input_PageValidNewsMRJobURL");
+					String pig_abf_input_PageValidNewsComments = resultSet.getString("pig_abf_input_PageValidNewsComments");
 
-						String hive_storageResult = resultSet.getString("hive_storageResult");
-						String hive_storageCurrentState = resultSet.getString("hive_storageCurrentState");
-						String hive_storageMRJobURL = resultSet.getString("hive_storageMRJobURL");
-						String hive_storageComments = resultSet.getString("hive_storageComments");
+					String hive_storageResult = resultSet.getString("hive_storageResult");
+					String hive_storageCurrentState = resultSet.getString("hive_storageCurrentState");
+					String hive_storageMRJobURL = resultSet.getString("hive_storageMRJobURL");
+					String hive_storageComments = resultSet.getString("hive_storageComments");
 
-						String hive_verifyResult = resultSet.getString("hive_verifyResult");
-						String hive_verifyCurrentState = resultSet.getString("hive_verifyCurrentState");
-						String hive_verifyMRJobURL = resultSet.getString("hive_verifyMRJobURL");
-						String hive_verifyComments = resultSet.getString("hive_verifyComments");
-
-
-						String comments =  resultSet.getString("comments");
-						String result =  resultSet.getString("result");
-
-						if (isRecordAlreadyExists(dataSetName1) == false) {
+					String hive_verifyResult = resultSet.getString("hive_verifyResult");
+					String hive_verifyCurrentState = resultSet.getString("hive_verifyCurrentState");
+					String hive_verifyMRJobURL = resultSet.getString("hive_verifyMRJobURL");
+					String hive_verifyComments = resultSet.getString("hive_verifyComments");
+					String comments =  resultSet.getString("comments");
+					String result =  resultSet.getString("result");
+					
+					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
+							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
+							gdmVersion,gdmCurrentState,gdmResult,gdmComments,
+							pigVersion,pigComments,
+							tezVersion,tezCurrentState,tezMRJobURL,tezResult,tezComments,
+							hiveVersion,hiveCurrentState,hiveResult,hiveComment,
+							hiveDropTable,hiveDropTableCurrentState,hiveDropTableComment,
+							hiveCreateTable,hiveCreateTableCurrentState,hiveCreateTableComment,
+							hiveCopyDataToHive,hiveCopyDataToHiveMRJobURL,hiveCopyDataToHiveCurrentState,hiveCopyDataToHiveComment,
+							hiveLoadDataToTable,hiveLoadDataToTableComment,hiveLoadDataToTableCurrentState,
+							hcatVersion,hcatCurrentState,hcatResult,hcatMRJobURL,hcatComment,
+							hbaseVersion,hbaseCurrentState,hbaseResult,hbaseComment,
+							hbaseCreateTable,hbaseCreateTableCurrentState,hbaseCreateTableComment,
+							hbaseInsertRecordTable,hbaseInsertRecordTableMRJobURL,hbaseInsertTableCurrentState,hbaseInsertRecordTableComment,
+							hbaseScanRecordTable,hbaseScanRecordTableMRJobURL,hbaseScanRecordTableCurrentState,hbaseScanRecordTableComment,
+							hbaseDeleteTable,hbaseDeleteTableCurrentState,hbaseDeleteTableComment,
+							oozieVersion,oozieResult,oozieCurrentState,oozieComments,
+							cleanup_outputResult,cleanup_outputCurrentState,cleanup_outputMRJobURL,cleanup_outputComments,
+							check_inputResult,check_inputCurrentState,check_inputMRJobURL,check_inputComments,
+							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
+							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
+							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
+							comments, result));
+					
+					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
+					if(  (result.indexOf("PASS") > -1)  == false) {
+						isTestFailed = true;
+						TestSession.logger.info(" failed.........");
+						int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
+						if (recordCount == 0) {
+							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
+							insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
 							insertFinalResultIntoDB(
 									dataSetName1,date,
 									hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
@@ -314,20 +309,62 @@ public class AggIntResult {
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
 									comments, result
+									
 									);
-						} else {
-							TestSession.logger.info( dataSetName1 + "    already exists...!");
-						}						
+						}else {
+							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist.");
+						}
 					}
+					count++;
 				}
-
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		}
+		
+		if (isTestFailed == false) {
+			TestSession.logger.info("All components are passed.");
+			if (compVersion != null) {
+				int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
+				if (recordCount == 0) {
+					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
+					insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
+					if (dbTableColumnsReplicaList.size() > -1) {
+						DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
+						insertFinalResultIntoDB(
+								dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
+								dbTableColumnsReplicaObject.getHadoopVersion(),dbTableColumnsReplicaObject.getHadoopCurrentState(),dbTableColumnsReplicaObject.getHadoopResult(),dbTableColumnsReplicaObject.getHadoopComments(),
+								dbTableColumnsReplicaObject.getGdmVersion(),dbTableColumnsReplicaObject.getGdmCurrentState(),dbTableColumnsReplicaObject.getGdmResult(),dbTableColumnsReplicaObject.getGdmComments(),
+								dbTableColumnsReplicaObject.getPigVersion(),dbTableColumnsReplicaObject.getPigComments(),
+								dbTableColumnsReplicaObject.getTezVersion(),dbTableColumnsReplicaObject.getTezCurrentState(),dbTableColumnsReplicaObject.getTezMRJobURL(),dbTableColumnsReplicaObject.getTezResult(),dbTableColumnsReplicaObject.getTezComments(),
+								dbTableColumnsReplicaObject.getHiveVersion(),dbTableColumnsReplicaObject.getHiveCurrentState(),dbTableColumnsReplicaObject.getHiveResult(),dbTableColumnsReplicaObject.getHiveComment(),
+								dbTableColumnsReplicaObject.getHiveDropTable(),dbTableColumnsReplicaObject.getHiveDropTableCurrentState(),dbTableColumnsReplicaObject.getHiveDropTableComment(),
+								dbTableColumnsReplicaObject.getHiveCreateTable(),dbTableColumnsReplicaObject.getHiveCreateTableCurrentState(),dbTableColumnsReplicaObject.getHiveCreateTableComment(),
+								dbTableColumnsReplicaObject.getHiveCopyDataToHive(),dbTableColumnsReplicaObject.getHiveCopyDataToHiveMRJobURL(),dbTableColumnsReplicaObject.getHiveCopyDataToHiveCurrentState(),dbTableColumnsReplicaObject.getHiveCopyDataToHiveComment(),
+								dbTableColumnsReplicaObject.getHiveLoadDataToTable(),dbTableColumnsReplicaObject.getHiveLoadDataToTableComment(),dbTableColumnsReplicaObject.getHiveLoadDataToTableCurrentState(),
+								dbTableColumnsReplicaObject.getHcatVersion(),dbTableColumnsReplicaObject.getHcatCurrentState(),dbTableColumnsReplicaObject.getHcatResult(),dbTableColumnsReplicaObject.getHcatMRJobURL(),dbTableColumnsReplicaObject.getHcatComment(),
+								dbTableColumnsReplicaObject.getHbaseVersion(),dbTableColumnsReplicaObject.getHbaseCurrentState(),dbTableColumnsReplicaObject.getHbaseResult(),dbTableColumnsReplicaObject.getHbaseComment(),
+								dbTableColumnsReplicaObject.getHbaseCreateTable(),dbTableColumnsReplicaObject.getHbaseCreateTableCurrentState(),dbTableColumnsReplicaObject.getHbaseCreateTableComment(),
+								dbTableColumnsReplicaObject.getHbaseInsertRecordTable(),dbTableColumnsReplicaObject.getHbaseInsertRecordTableMRJobURL(),dbTableColumnsReplicaObject.getHbaseInsertTableCurrentState(),dbTableColumnsReplicaObject.getHbaseInsertRecordTableComment(),
+								dbTableColumnsReplicaObject.getHbaseScanRecordTable(),dbTableColumnsReplicaObject.getHbaseScanRecordTableMRJobURL(),dbTableColumnsReplicaObject.getHbaseScanRecordTableCurrentState(),dbTableColumnsReplicaObject.getHbaseScanRecordTableCurrentState(),
+								dbTableColumnsReplicaObject.getHbaseDeleteTable(),dbTableColumnsReplicaObject.getHbaseDeleteTableCurrentState(),dbTableColumnsReplicaObject.getHbaseDeleteTableComment(),
+								dbTableColumnsReplicaObject.getOozieVersion(),dbTableColumnsReplicaObject.getOozieResult(),dbTableColumnsReplicaObject.getOozieCurrentState(),dbTableColumnsReplicaObject.getOozieComments(),
+								dbTableColumnsReplicaObject.getCleanup_outputResult(),dbTableColumnsReplicaObject.getCleanup_outputCurrentState(),dbTableColumnsReplicaObject.getCleanup_outputMRJobURL(),dbTableColumnsReplicaObject.getCleanup_outputComments(),
+								dbTableColumnsReplicaObject.getCheck_inputResult(),dbTableColumnsReplicaObject.getCheck_inputCurrentState(),dbTableColumnsReplicaObject.getCheck_inputMRJobURL(),dbTableColumnsReplicaObject.getCheck_inputComments(),
+								dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsResult(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsCurrentState(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsMRJobURL(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsComments(),
+								dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
+								dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
+								dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult()
+							);
+					}
+				}else {
+					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
+				}
+			}
 		}
 	}
-
-	public void insertFinalResultIntoDB( String dataSetName1, String  date,
+	
+	public void insertFinalResultIntoDB( String dataSetName, String  date,
 			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
 			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
 			String  pigVersion, String  pigComments,
@@ -349,22 +386,10 @@ public class AggIntResult {
 			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
-			String  comments, String result ) {
-
-
-		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName)  " +  "values ( ? )";
-		String dsName = dataSetName1.substring(0, (dataSetName1.length() - 2));	
-		PreparedStatement pStatment ;
-		try {
-
-			pStatment = this.connection.prepareCall(INSERT_DATASET_INTO_ROW);
-			pStatment.setString(1, dsName);
-			boolean isRecordInserted = pStatment.execute();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
+			String  comments, String result ) {		
 
 		try {
+			String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 			this.dataBaseOperations.updateRecord(this.connection , "date" , date,
 					"hadoopVersion", hadoopVersion,
 					"hadoopCurrentState" , hadoopCurrentState,
@@ -461,7 +486,68 @@ public class AggIntResult {
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
 	}
+	
+	
+	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
+		String colName = componentName + "Version" ;
+		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date)  " +  "values ( ?,?,? )";
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
+		PreparedStatement pStatment ;
+		try {
+			pStatment = this.connection.prepareCall(INSERT_DATASET_INTO_ROW);
+			pStatment.setString(1, dsName);
+			pStatment.setString(2, version);
+			pStatment.setString(3, date);
+			boolean isRecordInserted = pStatment.execute();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	public ResultSet getResultSet( final String query ) {
+		java.sql.Statement statement = null;
+		java.sql.ResultSet resultSet = null;
+		try {
+			statement = this.connection.createStatement();
+			if (statement != null) {
+				resultSet = statement.executeQuery(query);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultSet;
+	}
 
+	public boolean isRecordAlreadyExists(String dataSetName) {
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
+		String 	QUERY = "select dataSetName from  " + DBCommands.FINAL_RESULT_TABLE_NAME + " where dataSetName = " + "\""  + dsName + "\"";
+		TestSession.logger.info("QUERY  = " + QUERY);
+		boolean flag = false;
+		try {
+			Statement statement = this.connection.createStatement();
+			if (statement != null) {
+				ResultSet resultSet = statement.executeQuery(QUERY);
+				if (resultSet != null) {
+					while (resultSet.next()) {
+						String dsName1 = resultSet.getString("dataSetName");
+						TestSession.logger.info("dsName1= " + dsName1);
+						if (dsName1.indexOf(dsName) > -1) {
+							flag = true;
+							TestSession.logger.info("found record");
+							break;
+						} else {
+							TestSession.logger.info("found not record");
+						}
+					}
+				}
+			}
+		} catch (SQLException e) {
+			TestSession.logger.error("exception arised - " + e);
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	
 	public void createTestReport(String dataSetName , String comments) {
 		int total = 0, fail = 0, pass = 0 , skipped = 0;
 		String absolutePath = new File("").getAbsolutePath();
@@ -508,7 +594,6 @@ public class AggIntResult {
 		}
 	}
 
-
 	public void getComponentResult(String... result) {
 		int pass = 0;
 		int fail = 0;
@@ -528,35 +613,4 @@ public class AggIntResult {
 		}
 		this.addResultToMap(componentName, total + ":" + pass + ":" + fail + ":" + skipped);
 	}
-
-	public boolean isRecordAlreadyExists(String dataSetName) {
-		String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
-		String 	QUERY = "select dataSetName from  " + DBCommands.FINAL_RESULT_TABLE_NAME + " where dataSetName = " + "\""  + dsName + "\"";
-		TestSession.logger.info("QUERY  = " + QUERY);
-		boolean flag = false;
-		try {
-			Statement statement = this.connection.createStatement();
-			if (statement != null) {
-				ResultSet resultSet = statement.executeQuery(QUERY);
-				if (resultSet != null) {
-					while (resultSet.next()) {
-						String dsName1 = resultSet.getString("dataSetName");
-						TestSession.logger.info("dsName1= " + dsName1);
-						if (dsName1.indexOf(dsName) > -1) {
-							flag = true;
-							TestSession.logger.info("found record");
-							break;
-						} else {
-							TestSession.logger.info("found not record");
-						}
-					}
-				}
-			}
-		} catch (SQLException e) {
-			TestSession.logger.error("exception arised - " + e);
-			e.printStackTrace();
-		}
-		return flag;
-	}
-
 }
