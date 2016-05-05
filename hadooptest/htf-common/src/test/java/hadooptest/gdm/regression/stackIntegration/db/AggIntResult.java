@@ -536,7 +536,7 @@ public class AggIntResult {
 							TestSession.logger.info("found record");
 							break;
 						} else {
-							TestSession.logger.info("found not record");
+							TestSession.logger.info("record not found.");
 						}
 					}
 				}
