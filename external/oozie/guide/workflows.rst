@@ -666,8 +666,8 @@ The following ``workflow.xml`` copies a bzipped file to a user's home directory.
              <value>${sourceNameNode}</value>
            </property>
          </configuration>
-         <arg>/tmp/dataset.bz2</arg>
-         <arg>/user/yhoo_star/</arg>
+         <arg>${sourceNameNode}/tmp/dataset.bz2</arg>
+         <arg>${nameNode}/user/yhoo_star/</arg>
        </distcp>
        <ok to="del_db_tables"/>
        <error to="kill"/>
