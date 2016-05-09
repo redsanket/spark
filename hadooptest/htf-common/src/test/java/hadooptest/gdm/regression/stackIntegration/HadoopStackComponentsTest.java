@@ -1,9 +1,12 @@
 package hadooptest.gdm.regression.stackIntegration;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.mail.MessagingException;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -11,7 +14,9 @@ import org.junit.Test;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
+import hadooptest.gdm.regression.stackIntegration.lib.SendIntegrationResultMail;
 
 public class HadoopStackComponentsTest extends TestSession {
 
@@ -62,8 +67,10 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	@Test
-	public void checkStackComponentsHealth() throws InterruptedException, ExecutionException, IOException {
+	public void checkStackComponentsHealth() throws InterruptedException, ExecutionException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException, MessagingException {
 		testStack();
+		SendIntegrationResultMail obj = new SendIntegrationResultMail();
+		obj.sendMail();
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
@@ -85,5 +92,7 @@ public class HadoopStackComponentsTest extends TestSession {
 				this.commonFunctionsObject.testStackComponent();
 			}
 		}
+		AggIntResult aggIntResultObj = new AggIntResult();
+		aggIntResultObj.finalResult();
 	}
 }
