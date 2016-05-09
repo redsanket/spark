@@ -431,6 +431,8 @@ public class CommonFunctions {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
+		AggIntResult aggIntResultObj = new AggIntResult();
+		aggIntResultObj.finalResult();
 	}
 	
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {

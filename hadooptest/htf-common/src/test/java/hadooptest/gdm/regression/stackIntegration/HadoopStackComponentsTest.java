@@ -92,7 +92,5 @@ public class HadoopStackComponentsTest extends TestSession {
 				this.commonFunctionsObject.testStackComponent();
 			}
 		}
-		AggIntResult aggIntResultObj = new AggIntResult();
-		aggIntResultObj.finalResult();
 	}
 }
