@@ -24,6 +24,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 
@@ -82,7 +83,8 @@ public class SendIntegrationResultMail {
 		MimeMessage message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(FROM));
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(TO));
-		message.setSubject("Integration test result for " + this.getTodaysDate());
+		String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+		message.setSubject(pipeLineName  + " Integration test result for " + this.getTodaysDate());
 		message.setContent(multipart);
 
 		// Send message
