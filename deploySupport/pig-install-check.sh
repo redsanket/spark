@@ -8,16 +8,16 @@
 # package is executed as root. This install does not need root and can 
 # be delivered directly to the component node from the RE node.
 #
-# inputs: cluster to install pig on and reference cluster
+# inputs: cluster to install pig on and reference version
 # returns: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster to install pig onto and reference cluster"
+  echo "ERROR: need the cluster to install pig onto and reference version"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_CLUSTER=$2
+REFERENCE_VERSION=$2
 
 PIGNODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.gateway)"`;
 if [ -z "$PIGNODE" ]; then
@@ -38,7 +38,7 @@ INSTALL_SCRIPT=pig-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $PIGNODE:/tmp/
   
-$SSH $PIGNODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $PIGNODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_VERSION"
 RC=$?
 
 if [ $RC -ne 0 ]; then

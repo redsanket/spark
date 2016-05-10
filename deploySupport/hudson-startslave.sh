@@ -289,14 +289,15 @@ done
 #
 ## stack component install settings
 #
-# component package version reference
-[ -z "$STACK_COMP_REFERENCE_CLUSTER" ] && export STACK_COMP_REFERENCE_CLUSTER=false
+# potential stack components to install
 #
-# potential component(s) to install
-[ -z "$STACK_COMP_INSTALL_HIVE" ] && export STACK_COMP_INSTALL_HIVE=false
-[ -z "$STACK_COMP_INSTALL_OOZIE" ] && export STACK_COMP_INSTALL_OOZIE=false
-[ -z "$STACK_COMP_INSTALL_PIG" ] && export STACK_COMP_INSTALL_PIG=false
+# these are jenkins version select controls, or 'none'
+[ -z "$STACK_COMP_VERSION_PIG" ] && export STACK_COMP_VERSION_PIG=none
+[ -z "$STACK_COMP_VERSION_HIVE" ] && export STACK_COMP_VERSION_HIVE=none
+[ -z "$STACK_COMP_VERSION_OOZIE" ] && export STACK_COMP_VERSION_OOZIE=none
+# spark is a boolean jenkins control
 [ -z "$STACK_COMP_INSTALL_SPARK" ] && export STACK_COMP_INSTALL_SPARK=false
+
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none
@@ -364,57 +365,65 @@ cp  manifest.txt ${WORKSPACE}/
 cat manifest.txt
 
 #################################################################################
-# CHECK IF NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY 
+# CHECK IF WE NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY
 #################################################################################
 # gridci-747 install pig on gw
-# gridci-916, use a reference cluster for component versions, else 'current' branch
+# gridci-1040, make component version selectable
 
-if [ "$STACK_COMP_INSTALL_PIG" == true ]; then
+if [ "$STACK_COMP_VERSION_PIG" == "none" ]; then
 
-  ./pig-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
+  echo "INFO: Not installing Pig component on Gateway"
+
+else
+
+  ./pig-install-check.sh $CLUSTER $STACK_COMP_VERSION_PIG
   if [ $? -ne 0 ]; then
     echo "ERROR: Pig component installer failed!"
   fi
 
-else
-  echo "INFO: Not installing Pig component on Gateway"
 fi
 
+
 #################################################################################
-# CHECK IF NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE 
+# CHECK IF WE NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE
 #################################################################################
 # gridci-481 install hive server and client
 # this relies on hive service keytab being generated and pushed out in the cluster configure portion
 # of cluster building (cluster-build/configure_cluster)
-# gridci-916, use a reference cluster for component versions, else 'current' branch
+# gridci-1040, make component version selectable
 
-if [ "$STACK_COMP_INSTALL_HIVE" == true ]; then
+if [ "$STACK_COMP_VERSION_HIVE" == "none" ]; then
 
-  ./hive-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
+  echo "INFO: Not installing Hive component"
+
+else
+
+  ./hive-install-check.sh $CLUSTER $STACK_COMP_VERSION_HIVE
   if [ $? -ne 0 ]; then
     echo "ERROR: Hive component installer failed!"
   fi
 
-else
-  echo "INFO: Not installing Hive component"
 fi
 
 #################################################################################
-# CHECK IF NEED TO RUN THE OOZIE INSTALL SCRIPT ON THE OOZIE NODE
+# CHECK IF WE NEED TO RUN THE OOZIE INSTALL SCRIPT ON THE OOZIE NODE
 #################################################################################
 # gridci-561 install yoozie server
-# this relies on oozie service keytab being generated and pushed out in the cluster 
+# this relies on oozie service keytab being generated and pushed out in the cluster
 # configure portion of cluster building (cluster-build/configure_cluster)
-# gridci-916, use a reference cluster for component versions, else 'current' branch
+# gridci-1040, make component version selectable
 
-if [ "$STACK_COMP_INSTALL_OOZIE" == true ]; then
-  ./oozie-install-check.sh $CLUSTER $STACK_COMP_REFERENCE_CLUSTER
+if [ "$STACK_COMP_VERSION_OOZIE" == "none" ]; then
+
+  echo "INFO: Not installing Oozie component"
+
+else
+
+  ./oozie-install-check.sh $CLUSTER $STACK_COMP_VERSION_OOZIE
   if [ $? -ne 0 ]; then
     echo "ERROR: Oozie component installer failed!"
   fi
 
-else
-  echo "INFO: Not installing Oozie component"
 fi
 
 
