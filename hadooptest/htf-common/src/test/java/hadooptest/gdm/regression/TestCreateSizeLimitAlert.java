@@ -132,7 +132,6 @@ public class TestCreateSizeLimitAlert extends TestSession {
         JSONObject alertObj =  (JSONObject) JSONSerializer.toJSON(res.toString());
         Object obj = alertObj.get("AlertEvents");
         if (obj instanceof JSONArray) {
-            TestSession.logger.info("its an array");
             JSONArray sizeLimitAlertArray = alertObj.getJSONArray("AlertEvents");
             Iterator iterator = sizeLimitAlertArray.iterator();
             while (iterator.hasNext()) {
@@ -148,7 +147,6 @@ public class TestCreateSizeLimitAlert extends TestSession {
                 }           
             }
         } else if ( obj instanceof JSONObject ) { // observed that if there is only one alert, then array is not created & testcase fails.
-            TestSession.logger.info("its an object");
             JSONObject AlertEventsObj = alertObj.getJSONObject("AlertEvents");
             String alterTypeName = AlertEventsObj.getString("name").trim(); 
             assertTrue("Expected alter name to be size-limit, but got  " + alterTypeName , alterTypeName.equals("size-limit"));
