@@ -67,14 +67,10 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_HIVE is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ]; then
-  PACKAGE_VERSION_HIVE=`yinst package -br current hive  | cut -d' ' -f1`
-  PACKAGE_VERSION_HIVE_CONF=`yinst package -br current hive_conf  | cut -d' ' -f1`
-  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br current hcat_server  | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "test" ]; then
-  PACKAGE_VERSION_HIVE=`yinst package -br test hive  | cut -d' ' -f1`
-  PACKAGE_VERSION_HIVE_CONF=`yinst package -br test hive_conf  | cut -d' ' -f1`
-  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br test hcat_server  | cut -d' ' -f1`
+if [ "$REFERENCE_VERSION" == "current" || "$REFERENCE_VERSION" == "test" ]; then
+  PACKAGE_VERSION_HIVE=`yinst package -br $REFERENCE_VERSION hive  | cut -d' ' -f1`
+  PACKAGE_VERSION_HIVE_CONF=`yinst package -br $REFERENCE_VERSION hive_conf  | cut -d' ' -f1`
+  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br $REFERENCE_VERSION hcat_server  | cut -d' ' -f1`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   yinst i hadoop_releases_utils
   RC=$?
@@ -129,17 +125,10 @@ yinst set hcat_server.keydb_passkey=dbpassword
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br current pig | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "test" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br test pig | cut -d' ' -f1`
+if [ "$REFERENCE_VERSION" == "current" || "$REFERENCE_VERSION" == "test" ]; then
+  PACKAGE_VERSION_PIG=`yinst package -br $REFERENCE_VERSION pig | cut -d' ' -f1`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  yinst i hadoop_releases_utils
-  RC=$?
-  if [ "$RC" -ne 0 ]; then
-    echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
-    exit 1
-  fi
+  # info, this needs hadoop_releases_utils, which was installed previously in this script
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
 else
   echo "ERROR: unknown reference component version: $REFERENCE_VERSION!!"

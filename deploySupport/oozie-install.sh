@@ -110,12 +110,9 @@ yinst i hadoopgplcompression-1.0.2.2.1209201519
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ]; then
-  PACKAGE_VERSION_OOZIE=`yinst package -br current yoozie  | cut -d' ' -f1`
-  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br current yoozie_client  | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "test" ]; then
-  PACKAGE_VERSION_OOZIE=`yinst package -br test yoozie  | cut -d' ' -f1`
-  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br test yoozie_client  | cut -d' ' -f1`
+if [ "$REFERENCE_VERSION" == "current" || "$REFERENCE_VERSION" == "test" ]; then
+  PACKAGE_VERSION_OOZIE=`yinst package -br $REFERENCE_VERSION yoozie  | cut -d' ' -f1`
+  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br $REFERENCE_VERSION yoozie_client  | cut -d' ' -f1`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   yinst i hadoop_releases_utils
   RC=$?
