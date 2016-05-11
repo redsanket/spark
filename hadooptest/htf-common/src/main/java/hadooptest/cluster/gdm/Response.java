@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import hadooptest.TestSession;
@@ -42,7 +43,8 @@ public class Response
         try {
             this.jsonUtil.setContent(this.responseBodyAsString);
         } catch (Exception ex) {
-            TestSession.logger.error(ex.toString());
+            // may not be json
+            TestSession.logger.debug(ex.toString());
         }
 
         // response may not be json
@@ -51,7 +53,7 @@ public class Response
         } catch (Exception e) {
             TestSession.logger.debug("Response was not JSON");
         }
-        TestSession.logger.info("Response jsonString: " + responseBodyAsString);
+        TestSession.logger.debug("Response jsonString: " + responseBodyAsString);
     }
 
     public Response(HttpMethod method, boolean isJSON) {

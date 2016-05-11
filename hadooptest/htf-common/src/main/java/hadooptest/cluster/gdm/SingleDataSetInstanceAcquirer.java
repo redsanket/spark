@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import hadooptest.Util;
@@ -78,7 +79,7 @@ public class SingleDataSetInstanceAcquirer {
     
     private void createFDIServer() throws Exception {
         // check if FDI server exists 
-        String dataSource = this.console.getDataSourcetXml(fdiServerName);
+        String dataSource = this.console.getDataSourceXml(fdiServerName);
         if (dataSource == null) {
             TestSession.logger.info(fdiServerName + " dataSource does not exist, creating");
             String dataSourceConfigFile = Util.getResourceFullPath("gdm/datasourceconfigs/FDI_DataSource_Template.xml");
@@ -89,7 +90,7 @@ public class SingleDataSetInstanceAcquirer {
             if (created == false) {
                 throw new Exception("Failed to create dataSource " + fdiServerName + " from xml: " + xmlFileContent);
             }
-            dataSource = this.console.getDataSourcetXml(fdiServerName);
+            dataSource = this.console.getDataSourceXml(fdiServerName);
             if (dataSource == null) {
                 throw new Exception("Failed to fetch dataSource " + fdiServerName);
             }

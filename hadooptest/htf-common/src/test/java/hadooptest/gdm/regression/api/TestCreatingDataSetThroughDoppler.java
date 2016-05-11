@@ -82,7 +82,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      */
     @Test
     public void testDataSetPathInstanceDateFormatMissing() throws Exception {
-    	SourcePath source = new SourcePath();
+        SourcePath source = new SourcePath();
         source.addSourcePath("/data/daqdev/data/").addSourcePath("/data/daqdev/count/%{date}").addSourcePath("/data/daqdev/schema/%{date}");
         
         CreateDataSet createDataSetObject = new CreateDataSet();
@@ -318,11 +318,11 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      * @param dataSetRequestJsonValue
      */
     private void executeMethod(String dataSetRequestJsonValue , final int HTTP_CODE) {
-    	TestSession.logger.info("dataset request: " + dataSetRequestJsonValue);
+        TestSession.logger.info("dataset request: " + dataSetRequestJsonValue);
         String url = this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/v1";
         com.jayway.restassured.response.Response response = given().cookie(this.cookie).param("format", "json").param("datasetRequest" ,dataSetRequestJsonValue ).post(url);
         String res = response.getBody().asString();
-        System.out.println(res);
+        TestSession.logger.info(res);
         this.consoleHandle.sleep(5000);
         assertTrue("Expected HTTP  code " + HTTP_CODE  + "  but got " + response.getStatusCode() , response.getStatusCode() == HTTP_CODE);      
     }

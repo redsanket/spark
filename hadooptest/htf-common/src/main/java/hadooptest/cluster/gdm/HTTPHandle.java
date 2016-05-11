@@ -62,7 +62,7 @@ public class HTTPHandle
                 TestSession.logger.info("****** QE or Dev test Environment ******** ");
                 this.baseURL = this.conf.getString("hostconfig.console.base_url");
             } else if (environmentType.equals("staging")) {
-                TestSession.logger.info("****** Staging test Environment ******** ");
+                TestSession.logger.debug("****** Staging test Environment ******** ");
                 this.baseURL = this.conf.getString("hostconfig.console.staging_console_url");
             } else  {
                 TestSession.logger.info("****** Specified invalid test environment ******** ");
@@ -130,16 +130,16 @@ public class HTTPHandle
         }
 
         localGetMethod.addRequestHeader(YBYCookieHeader);
-        TestSession.logger.info(new StringBuilder().append("Making a GET to ").append(str).toString());
+        TestSession.logger.debug(new StringBuilder().append("Making a GET to ").append(str).toString());
         try {
             this.httpClient.executeMethod(localGetMethod);
-            TestSession.logger.info(localGetMethod.getResponseBodyAsString());
+            TestSession.logger.debug(localGetMethod.getResponseBodyAsString());
         } catch (Exception localException2) {
             TestSession.logger.error(localException2);
         }
-        TestSession.logger.info(localGetMethod.getStatusLine().toString());
+        TestSession.logger.debug(localGetMethod.getStatusLine().toString());
         try {
-            TestSession.logger.info(localGetMethod.getResponseBodyAsString());
+            TestSession.logger.debug(localGetMethod.getResponseBodyAsString());
         } catch (Exception localException3) {
             TestSession.logger.error(localException3.toString());
         }
