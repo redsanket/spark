@@ -86,9 +86,9 @@ else
   exit 1
 fi
 
-yinst i $PACKAGE_VERSION_HIVE
-yinst i $PACKAGE_VERSION_HIVE_CONF
-yinst i $PACKAGE_VERSION_HCAT_SERVER
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER
 
 
 # hive yinst sets
@@ -135,7 +135,7 @@ else
   exit 1
 fi
 
-yinst install $PACKAGE_VERSION_PIG
+yinst install -same -live -downgrade  $PACKAGE_VERSION_PIG
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "Error: failed to install $PACKAGE_VERSION_PIG on $PIGNODE!"

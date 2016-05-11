@@ -37,7 +37,7 @@ fi
 #
 ## install pig
 #
-yinst install $PACKAGE_VERSION_PIG
+yinst install -same -live -downgrade  $PACKAGE_VERSION_PIG
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "Error: failed to install $PACKAGE_VERSION_PIG on $PIGNODE!"
