@@ -1,33 +1,37 @@
 # script to install pig on the cluster's gateway node
 #
-# inputs: cluster being installed, reference cluster 
+# inputs: cluster being installed, reference version 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference cluster"
+  echo "ERROR: need the cluster name and reference version"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_CLUSTER=$2
+REFERENCE_VERSION=$2
 
 PIGNODE=`hostname`
 PIGNODE_SHORT=`echo $PIGNODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Pig node being installed: $PIGNODE"
 
-# check if we need to use a reference cluster, else use 'current'
-echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
-if [ "$REFERENCE_CLUSTER" == "none" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br current pig | cut -d' ' -f1`
-else
+# check what comp version we need to use
+echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
+
+if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ]; then
+  PACKAGE_VERSION_PIG=`yinst package -br $REFERENCE_VERSION pig | cut -d' ' -f1`
+elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   yinst i hadoop_releases_utils
   RC=$?
   if [ "$RC" -ne 0 ]; then
     echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
     exit 1
   fi
-  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
+else
+  echo "ERROR: unknown reference component version" $REFERENCE_VERSION!!"
+  exit 1
 fi
 
 #

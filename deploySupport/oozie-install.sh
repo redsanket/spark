@@ -4,16 +4,16 @@
 # The oozie installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference cluster 
+# inputs: cluster being installed, reference version 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference cluster"
+  echo "ERROR: need the cluster name and reference version"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_CLUSTER=$2
+REFERENCE_VERSION=$2
 
 OOZIENODE=`hostname`
 OOZIENODE_SHORT=`echo $OOZIENODE | cut -d'.' -f1`
@@ -102,28 +102,33 @@ yinst i ygrid_cacert
 ## install oozie
 #
 
-# check if we need to use a reference cluster, else use 'current'
-echo "STACK_COMP_REFERENCE_CLUSTER is: $REFERENCE_CLUSTER"
-if [ "$REFERENCE_CLUSTER" == "none" ]; then
-  PACKAGE_VERSION_OOZIE=`yinst package -br current yoozie  | cut -d' ' -f1`
-  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br current yoozie_client  | cut -d' ' -f1`
-else
+# gridci-924, ygrid_sharelib pkg branches are being fiddled with...
+yinst i ygrid_sharelib -br current 
+yinst i hadoopgplcompression-1.0.2.2.1209201519
+
+
+# check what comp version we need to use
+echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_VERSION"
+
+if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ]; then
+  PACKAGE_VERSION_OOZIE=`yinst package -br $REFERENCE_VERSION yoozie  | cut -d' ' -f1`
+  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br $REFERENCE_VERSION yoozie_client  | cut -d' ' -f1`
+elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   yinst i hadoop_releases_utils
   RC=$?
-  if [ $RC -ne 0 ]; then
+  if [ "$RC" -ne 0 ]; then
     echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
     exit 1
   fi
-  PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
-  PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
+  PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b oozie -p yoozie`
+  PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b oozie -p yoozie_client`
+else
+  echo "ERROR: unknown reference component version: $REFERENCE_VERSION!!"
+  exit 1
 fi
 
 yinst i $PACKAGE_VERSION_OOZIE
 yinst i $PACKAGE_VERSION_OOZIE_CLIENT
-
-# gridci-924, ygrid_sharelib pkg branches are being fiddled with...
-yinst i ygrid_sharelib -br current 
-yinst i hadoopgplcompression-1.0.2.2.1209201519
 
 
 #
