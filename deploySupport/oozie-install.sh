@@ -127,8 +127,8 @@ else
   exit 1
 fi
 
-yinst i $PACKAGE_VERSION_OOZIE
-yinst i $PACKAGE_VERSION_OOZIE_CLIENT
+yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE
+yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE_CLIENT
 
 
 #
