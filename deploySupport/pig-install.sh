@@ -30,7 +30,7 @@ elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   fi
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
 else
-  echo "ERROR: unknown reference component version" $REFERENCE_VERSION!!"
+  echo "ERROR: unknown reference component version $REFERENCE_VERSION!!"
   exit 1
 fi
 
