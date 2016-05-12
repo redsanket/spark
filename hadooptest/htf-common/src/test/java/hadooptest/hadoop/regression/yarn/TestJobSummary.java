@@ -137,17 +137,17 @@ public class TestJobSummary extends YarnTestsBaseClass {
 		responsesInDoneAndDoneIntermediateFolder
 				.append(genericCliResponse.response);
 
-                // race condition when checking JHS, since we don't have a definite job "done"
-                // state to use, check JHS for job and break to the Assert if it's there, if not
-                // then we throw the Assert
+		// race condition when checking JHS, since we don't have a definite job "done"
+		// state to use, check JHS for job and break to the Assert if it's there, if not
+		// then we throw the Assert
                 if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
                         TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 60 seconds!!");
                 }
 
 
-                // gridci-1051, don't fail now, seeing intermittent cases where it takes longer than 60secs for the
-                // job's done files to transfer, Core Dev has said this is not a specific concern so we don't fail
-                // but will still log the warning
+		// gridci-1051, don't fail now, seeing intermittent cases where it takes longer than 60secs for the
+		// job's done files to transfer, Core Dev has said this is not a specific concern so we don't fail
+		// but will still log the warning
 		//Assert.assertTrue(
 				//"Not able to lookup:(" + jobId + ") "
 						//+ responsesInDoneAndDoneIntermediateFolder.toString(),
@@ -274,16 +274,16 @@ public class TestJobSummary extends YarnTestsBaseClass {
 				.toString());
 
 
-                // race condition when checking JHS, since we don't have a definite job "done"
-                // state to use, check JHS for job and break to the Assert if it's there, if not
-                // then we throw the Assert
+		// race condition when checking JHS, since we don't have a definite job "done"
+		// state to use, check JHS for job and break to the Assert if it's there, if not
+		// then we throw the Assert
                 if ( !checkJobInDonePath(jobId, responsesInDoneAndDoneIntermediateFolder) ) {
                         TestSession.logger.info("JobID " + jobId + " not found in historyserver done paths after 60 seconds!!");
                 }
 
-                // gridci-1051, don't fail now, seeing intermittent cases where it takes longer than 60secs for the
-                // job's done files to transfer, Core Dev has said this is not a specific concern so we don't fail
-                // but will still log the warning
+		// gridci-1051, don't fail now, seeing intermittent cases where it takes longer than 60secs for the
+		// job's done files to transfer, Core Dev has said this is not a specific concern so we don't fail
+		// but will still log the warning
 		//Assert.assertTrue(
 				//"Not able to lookup:(" + jobId + ") "
 						//+ responsesInDoneAndDoneIntermediateFolder.toString(),
