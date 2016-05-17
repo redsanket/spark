@@ -111,7 +111,7 @@
 		<pullOozieJobLength>$(PULL_OOZIE_JOB_LENGTH)</pullOozieJobLength> 
 		<nameNodeHostName>$(NAME_NODE_HOST_NAME)</nameNodeHostName>
 		<pigHostName>$(PIG_HOST_NAME)</pigHostName>
-		<hbaseClusterName>$(HBASE_CLUSTER_NAME)</hbaseClusterName>
+		<hbaseClusterName>$(HBASE_CLUSTERNAME)</hbaseClusterName>
 		<hbaseMasterHostName>$(HBASE_MASTER_HOST_NAME)</hbaseMasterHostName>
 		<hbaseMasterPort>$(HBASE_MASTER_PORT)</hbaseMasterPort>
 		<hbaseRegionalServerPort>$(HBASE_REGIONAL_SERVER_PORT)</hbaseRegionalServerPort>

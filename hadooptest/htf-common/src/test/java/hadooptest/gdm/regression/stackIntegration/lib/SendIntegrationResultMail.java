@@ -25,6 +25,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 
