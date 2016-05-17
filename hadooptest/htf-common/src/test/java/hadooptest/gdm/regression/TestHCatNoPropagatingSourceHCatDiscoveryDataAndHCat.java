@@ -17,7 +17,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
 
-public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSession{
+
+public class TestHCatNoPropagatingSourceHCatDiscoveryDataAndHCat extends TestSession {
+    
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster = "qe6blue";
     private static String targetCluster = "qe9blue";
@@ -37,7 +39,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     @Before
     public void setup() throws Exception{
         String suffix = String.valueOf(System.currentTimeMillis());
-        dataSetName = "TestHCatPropSrcHCatDiscMeta_" + suffix;
+        dataSetName = "TestHCatNoPropSrcHCatDiscMix_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
         tableName = "HTF_Test_" + suffix;
@@ -47,6 +49,10 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
+        
+        //since the source isn't being propagated 
+        //the target needs to have this table.
+        HCatDataHandle.createTableOnly(targetCluster,tableName);
         
         boolean isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(sourceCluster);
         if (!isHCatSupported) {
@@ -59,7 +65,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     }
     
     @Test 
-    public void testHcatPropSrcHCatDiscMeta() throws Exception{
+    public void testHcatNoPropSrcHCatDiscDataAndHCat() throws Exception{
         //create dataset
         createDataSet();
         
@@ -79,11 +85,14 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     public void createDataSet(){
         StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
         
-        //set replication to be metadata only
-        String pattern = "<HCatTargetType>Mixed</HCatTargetType>";
-        String replaceWith = "<HCatTargetType>HCatOnly</HCatTargetType>";
+        //set replication to be mixed
+        //template is mined type by default
+        
+        //set propagation type to be no propagation
+        String pattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
+        String replaceWith = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
         int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetBuilder.replace(indexOf,indexOf + pattern.length(),replaceWith);
         
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
@@ -106,5 +115,4 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         this.consoleHandle.sleep(5000);
         
     }
-    
 }

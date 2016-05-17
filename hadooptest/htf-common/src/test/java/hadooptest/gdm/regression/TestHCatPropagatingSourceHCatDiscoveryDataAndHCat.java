@@ -17,7 +17,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
 
-public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSession{
+public class TestHCatPropagatingSourceHCatDiscoveryDataAndHCat extends TestSession{
+    
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster = "qe6blue";
     private static String targetCluster = "qe9blue";
@@ -37,7 +38,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     @Before
     public void setup() throws Exception{
         String suffix = String.valueOf(System.currentTimeMillis());
-        dataSetName = "TestHCatPropSrcHCatDiscMeta_" + suffix;
+        dataSetName = "TestHCatPropSrcHCatDiscMixed_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
         tableName = "HTF_Test_" + suffix;
@@ -59,7 +60,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     }
     
     @Test 
-    public void testHcatPropSrcHCatDiscMeta() throws Exception{
+    public void testHcatPropSrcHCatDiscDataAndHCat() throws Exception{
         //create dataset
         createDataSet();
         
@@ -78,17 +79,11 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     
     public void createDataSet(){
         StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
-        
-        //set replication to be metadata only
-        String pattern = "<HCatTargetType>Mixed</HCatTargetType>";
-        String replaceWith = "<HCatTargetType>HCatOnly</HCatTargetType>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
-        
+          
         //replace dummy table name with correct table name
-        pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
-        replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        indexOf = dataSetBuilder.indexOf(pattern);
+        String pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
+        String replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
+        int indexOf = dataSetBuilder.indexOf(pattern);
         dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
         
         //replace dummy path with correct path
@@ -107,4 +102,5 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         
     }
     
+
 }

@@ -118,7 +118,7 @@
         </property>
         <property>
           <name>oozie.action.sharelib.for.hive</name>
-            <value>hive_current,hcat_current</value>
+            <value>hcat_current</value>
         </property>
       </configuration>
 

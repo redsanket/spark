@@ -17,7 +17,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
 
-public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSession{
+public class TestHCatPropagatingSourceHDFSDiscoveryMetadataOnly extends TestSession {
+    
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster = "qe6blue";
     private static String targetCluster = "qe9blue";
@@ -37,7 +38,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     @Before
     public void setup() throws Exception{
         String suffix = String.valueOf(System.currentTimeMillis());
-        dataSetName = "TestHCatPropSrcHCatDiscMeta_" + suffix;
+        dataSetName = "TestHCatPropSrcHDFSDiscMeta_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
         tableName = "HTF_Test_" + suffix;
@@ -59,7 +60,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     }
     
     @Test 
-    public void testHcatPropSrcHCatDiscMeta() throws Exception{
+    public void testHcatPropSrcHDFSDiscMeta() throws Exception{
         //create dataset
         createDataSet();
         
@@ -85,6 +86,12 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         int indexOf = dataSetBuilder.indexOf(pattern);
         dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
         
+        //set discovery interface to be HDFS
+        pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
+        replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
+        indexOf = dataSetBuilder.indexOf(pattern);
+        dataSetBuilder.replace(indexOf , indexOf + pattern.length(), replaceWith);
+        
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
@@ -107,4 +114,5 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         
     }
     
+
 }

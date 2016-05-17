@@ -7,7 +7,7 @@
 LOCAL_PROXY=$1
 REMOTE_PROXY=$2
 ADM_HOST=$3
-ADM_HOST=${ADM_HOST:='adm102.blue.ygrid.yahoo.com'}
+ADM_HOST=${ADM_HOST:='devadm102.blue.ygrid.yahoo.com'}
 
 if [ "$#" -lt 1 ]; then
     echo "USAGE: At least 1 parameter is required:"

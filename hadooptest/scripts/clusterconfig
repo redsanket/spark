@@ -57,7 +57,8 @@ SINGLE_HOST=""
 SSH="/usr/bin/ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SCP="/usr/bin/scp -p -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 OS_VERSION="6.4.1"
-REQ_OS="6.4";
+REQ_OS="6.4"
+adm_host="devadm102.blue.ygrid.yahoo.com"
 
 ###########################################
 # Function to backup cluster node content
@@ -378,7 +379,7 @@ for host in `cat $UPGRADE_NODES_FILE`; do
         # http://ybiip1-1-grd.ops.gq1.yahoo.com:9999/wrong.pl?h=$hostname
         date
         stty -echo
-        $SSH -t adm102.blue.ygrid.yahoo.com "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
+        $SSH -t $adm_host "sudo -u hadoopqa /home/y/bin/opsdb_update --host $host --clone=1 --os_name RHEL --os_version $OS_VERSION --os_arch 64 --profile ygrid_dn"
         stty echo
     fi
 
@@ -399,7 +400,7 @@ if [[ $IMAGE == 1 ]]; then
         echo "--> Reboot cluster node ($index/$NUM_UPGRADE_NODES) '$host' for cluster '$CLUSTER':";
         stty -echo
         set -x
-        $SSH -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
+        $SSH -t $adm_host sudo -u hadoopqa /home/y/bin/flubber_conutil -m reboot $host
 
         # If console is not working
         # $SSH -t $host "sudo reboot"
@@ -451,7 +452,7 @@ if [[ $VALIDATE == 1 ]]; then
                 fi;
             fi ; 
         else
-            echo "Host is down. To debug, run: ssh -t adm102.blue.ygrid.yahoo.com sudo -u hadoopqa /home/y/bin/flubber_conutil -m console $host";
+            echo "Host is down. To debug, run: ssh -t $adm_host sudo -u hadoopqa /home/y/bin/flubber_conutil -m console $host";
             echo "If problem persists (e.g. bad disk), file ticket against site-ops at http://portal.ops.yahoo.com:9999/srv_repRequest.php"
         fi
 

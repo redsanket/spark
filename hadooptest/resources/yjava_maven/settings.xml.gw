@@ -4,7 +4,7 @@
    		<proxy>
       		<active>true</active>
       		<protocol>http</protocol>
-      		<host>httppxy100-stg.blue.ygrid.yahoo.com</host>
+      		<host>httppxy-res.ygrid.vip.gq1.yahoo.com</host>
       		<port>4080</port>
     	</proxy>
   	</proxies>

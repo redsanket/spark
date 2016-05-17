@@ -57,7 +57,7 @@ sub execute {
 
 my $cluster="sam";
 my $started_time_begin;
-my $admin_host="adm102.blue.ygrid.yahoo.com";
+my $admin_host="devadm102.blue.ygrid.yahoo.com";
 
 my $workspace = "$Bin/..";
 my $username = getpwuid($<);

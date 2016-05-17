@@ -35,7 +35,7 @@ The options
         [ -spark                            ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
-        [ -a|--admin_host                   ] : The admin host to be used by the framework (adm102.blue.ygrid.yahoo.com is the default)
+        [ -a|--admin_host                   ] : The admin host to be used by the framework (devadm102.blue.ygrid.yahoo.com is the default)
         [ -h|--help                         ] : help
 
 Pass Through options
@@ -69,7 +69,7 @@ sub execute {
 my $cluster="sam";
 my $started_time_begin;
 my $job_name="Cloud-Hadoop-2.0-RHEL6-Deploy-RU-SCM";
-my $admin_host="adm102.blue.ygrid.yahoo.com";
+my $admin_host="devadm102.blue.ygrid.yahoo.com";
 
 my $tests="TestGenerateJobLoad";
 

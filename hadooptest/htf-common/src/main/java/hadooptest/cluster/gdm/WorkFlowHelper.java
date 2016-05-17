@@ -116,12 +116,14 @@ public class WorkFlowHelper {
             com.jayway.restassured.response.Response workFlowResponse = given().cookie(this.cookie).get(completedWorkFlowURL);
             String workFlowResult = checkWorkFlowStatus(workFlowResponse , "completedWorkflows" , instanceDate);
             if (workFlowResult.equals("completed") ) {
+                TestSession.logger.info("Workflow " + dataSetName + "/" + instanceDate + " for " + facetName + " completed.");
                 return true;
             }
             
             workFlowResponse = given().cookie(this.cookie).get(failedWorkFlowURL);
             workFlowResult = checkWorkFlowStatus(workFlowResponse , "failedWorkflows" , instanceDate);
             if (workFlowResult.equals("failed") ) {
+                TestSession.logger.info("Workflow " + dataSetName + "/" + instanceDate + " for " + facetName + " failed.");
                 return false;
             }
             
@@ -267,7 +269,7 @@ public class WorkFlowHelper {
 
         while (waitTime <= waitTimeForWorkflowPolling) {
             if ( isWorkFlowRunning == false) {
-                System.out.println("runningWorkFlowTestURL = " + runningWorkFlowTestURL);
+                TestSession.logger.info("runningWorkFlowTestURL = " + runningWorkFlowTestURL);
                 workFlowResponse = given().cookie(this.cookie).get(runningWorkFlowTestURL);
                 if (checkInstanceDate) {
                     String workFlowResult = checkWorkFlowStatus(workFlowResponse , "runningWorkflows" , instanceDate);
@@ -279,7 +281,7 @@ public class WorkFlowHelper {
                     isWorkFlowRunning = true;
                 }
             }  if (isWorkFlowCompleted == false) {
-                System.out.println("completedWorkFlowTestURL = "+ completedWorkFlowTestURL);
+                TestSession.logger.info("completedWorkFlowTestURL = "+ completedWorkFlowTestURL);
                 workFlowResponse = given().cookie(this.cookie).get(completedWorkFlowTestURL);
                 if (checkInstanceDate) {
                     String workFlowResult = checkWorkFlowStatus(workFlowResponse , "completedWorkflows" , instanceDate);
@@ -292,7 +294,7 @@ public class WorkFlowHelper {
                     break;
                 }
             }  if (isWorkFlowFailed == false) {
-                System.out.println("failedWorkFlowTestURL = " + failedWorkFlowTestURL);
+                TestSession.logger.info("failedWorkFlowTestURL = " + failedWorkFlowTestURL);
                 workFlowResponse = given().cookie(this.cookie).get(failedWorkFlowTestURL);
                 if (checkInstanceDate) {
                     String workFlowResult = checkWorkFlowStatus(workFlowResponse , "failedWorkflows" , instanceDate);
@@ -406,7 +408,7 @@ public class WorkFlowHelper {
 
     private String getStatus(JSONArray jsonArray , String...args) {
         String instanceDate = args[0];
-        System.out.println("****************** checking for instance " + instanceDate + " **********");
+        TestSession.logger.debug("****************** checking for instance " + instanceDate + " **********");
         String currentWorkFlowStatus = "";
         if (jsonArray.size() > 0) {
             Iterator iterator = jsonArray.iterator();
@@ -420,9 +422,9 @@ public class WorkFlowHelper {
                     if (!instanceDate.equals("-1")) {
                         String workFlowName = runningJsonObject.getString("WorkflowName");
                         String actualInstance = workFlowName.substring(workFlowName.lastIndexOf("/") + 1);
-                        System.out.println("************************** actualInstance = " + actualInstance);
+                        TestSession.logger.debug("************************** actualInstance = " + actualInstance);
                         if (actualInstance.equals(instanceDate)) {
-                            System.out.println("Instance file is found - " + actualInstance);
+                            TestSession.logger.debug("Instance file is found - " + actualInstance);
                             currentWorkFlowStatus = "completed";
                             break;
                         } 
@@ -434,9 +436,9 @@ public class WorkFlowHelper {
                     if (!instanceDate.equals("-1")) {
                         String workFlowName = runningJsonObject.getString("WorkflowName");
                         String actualInstance = workFlowName.substring(workFlowName.lastIndexOf("/") + 1);
-                        System.out.println("************************** actualInstance = " + actualInstance);
+                        TestSession.logger.debug("************************** actualInstance = " + actualInstance);
                         if (actualInstance.equals(instanceDate)) {
-                            System.out.println("Instance file is found - " + actualInstance);
+                            TestSession.logger.debug("Instance file is found - " + actualInstance);
                             currentWorkFlowStatus = "failed";
                             break;
                         } 
@@ -509,7 +511,7 @@ public class WorkFlowHelper {
         long count = 0;
         while (matcher.find()) {
             String match = matcher.group().trim();
-            System.out.println(match);
+            TestSession.logger.info(match);
             assertTrue("Failed : " + stringToSearch + " dn't match with  " +  match , stringToSearch.equals(match));
             count++;
         }
@@ -594,7 +596,7 @@ public class WorkFlowHelper {
         FileOutputStream outputFile = null;  
         try {
             outputFile = new FileOutputStream(aFile, true);
-            System.out.println("File stream created successfully.");
+            TestSession.logger.info("File stream created successfully.");
         } catch (FileNotFoundException e) {
             e.printStackTrace(System.err);
         }
@@ -1005,7 +1007,7 @@ public class WorkFlowHelper {
         assertTrue(workFlowName + " workflow name is not correct = " , isSpecifiedWorkFlowCorrect == true);
 
         String testURL = this.consoleHandle.getConsoleURL().replaceAll("9999", this.consoleHandle.getFacetPortNo(facetName)) + "/"+ facetName +"/api/workflows/" + workFlowName + "?exclude=false&joinType=innerJoin&datasetname=" + dataSetName;
-        System.out.println("testURL    - " + testURL);
+        TestSession.logger.info("testURL    - " + testURL);
         response = given().cookie(this.cookie).get(testURL);
         assertTrue("Failed to get the respons  " + response , (response != null ) );
 
@@ -1020,7 +1022,7 @@ public class WorkFlowHelper {
                 TestSession.logger.info("ExecutionID =  " + executionId);
 
                 String detailedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/"+ executionId + "/view?facet="+ fName +"&colo=gq1";
-                System.out.println("detailedWorkFlowURL  = " + detailedWorkFlowURL);
+                TestSession.logger.info("detailedWorkFlowURL  = " + detailedWorkFlowURL);
                 com.jayway.restassured.response.Response workFlowDetailedResponse = given().cookie(this.cookie).get(detailedWorkFlowURL);
                 String workFlowDetailsStr =  workFlowDetailedResponse.getBody().asString();
                 TestSession.logger.info("WorkFlowDetailedResponse   =  " + workFlowDetailsStr);

@@ -78,7 +78,7 @@ public final class ConsoleHandle
             this.username = this.conf.getString("auth.usr");
             this.passwd = this.conf.getString("auth.pp");
             this.httpHandle.logonToBouncer(this.username, this.passwd);
-            TestSession.logger.info("logon OK");
+            TestSession.logger.debug("logon OK");
         } catch (Exception ex) {
             TestSession.logger.error("Exception thrown", ex);
         }
@@ -113,7 +113,7 @@ public final class ConsoleHandle
                 TestSession.logger.info("****** QE or Dev test Environment ******** ");
                 this.consoleURL = this.conf.getString("hostconfig.console.base_url");
             } else if (this.environmentType.equals("staging")) {
-                TestSession.logger.info("****** Staging test Environment ******** ");
+                TestSession.logger.debug("****** Staging test Environment ******** ");
                 this.consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
                 this.acquisitionHostName = this.conf.getString("hostconfig.console.acquisitionHostName");
                 this.replicationHostName = this.conf.getString("hostconfig.console.replicationHostName");
@@ -123,7 +123,7 @@ public final class ConsoleHandle
                 System.exit(1);
             }
             this.crossColoConsoleURL = this.conf.getString("hostconfig.console.crossColo_url");
-            TestSession.logger.info("crossColoConsoleURL  = " + this.crossColoConsoleURL);
+            TestSession.logger.debug("crossColoConsoleURL  = " + this.crossColoConsoleURL);
             TestSession.logger.debug("Console Base URL: " + this.consoleURL);
             
             this.source1 = this.conf.getString("sources.source1");
@@ -306,9 +306,9 @@ public final class ConsoleHandle
         data.add(new CustomNameValuePair("resourceNames", "[{\"ResourceName\":\"" + dataSetName + "\"}]"));
 
         postMethod = this.httpHandle.makePOST(resource, data);
-        TestSession.logger.info("** Deactivating DataSet " + dataSetName);
+        TestSession.logger.info("Deactivating DataSet " + dataSetName);
         this.response = new Response(postMethod);
-        TestSession.logger.info(this.response.toString());
+        TestSession.logger.debug(this.response.toString());
 
         return this.response;
     }
@@ -511,8 +511,10 @@ public final class ConsoleHandle
         }
         String responseString = response.getResponseBodyAsString();
         if (StringUtils.isBlank(responseString)) {
+            TestSession.logger.info(path + " on " + grid + " does not exist");
             return false;
         } else {
+            TestSession.logger.info(path + " on " + grid + " exists");
             return true;
         }
     }
@@ -835,7 +837,7 @@ public final class ConsoleHandle
     public String createDataSetXmlFromConfig(String dataSetName, String configDataFile) {
         String xmlFileContent = GdmUtils.readFile(configDataFile);
         xmlFileContent = xmlFileContent.replaceAll("NEW_DATA_SET_NAME", dataSetName);
-        TestSession.logger.info("createDataSetFromConfig(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
+        TestSession.logger.debug("createDataSetFromConfig(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
         return xmlFileContent;
     }
 
@@ -851,10 +853,10 @@ public final class ConsoleHandle
         StringBuilder postBody = new StringBuilder();
         postBody.append("xmlFileContent=");
         postBody.append(xmlFileContent);
-        TestSession.logger.info("createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
-        TestSession.logger.info("** createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
+        TestSession.logger.debug("createDataSet(dataSetName=" + dataSetName + ", xmlFileContent=" + xmlFileContent);
         HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
         this.response = new Response(postMethod, false);
+        TestSession.logger.info("Created dataset " + dataSetName);
         return this.response;
     }
 
@@ -1065,9 +1067,9 @@ public final class ConsoleHandle
      * @param dataSetName
      * @return xml file as String
      */
-    public String getDataSourcetXml(String dataSourceName) {               
+    public String getDataSourceXml(String dataSourceName) {               
         String url = this.getConsoleURL() + "/console/query/config/datasource/"+dataSourceName;
-        TestSession.logger.info("url = " + url);
+        TestSession.logger.debug("url = " + url);
         return this.getXml(url);
     }
 
@@ -1076,52 +1078,66 @@ public final class ConsoleHandle
         com.jayway.restassured.response.Response response = RestAssured.given().cookie(httpHandle.cookie).get(query);
         if (response.getStatusCode() == 200) {
             xml = response.andReturn().asString();
-            TestSession.logger.info("dataset = " + xml);
+            TestSession.logger.debug("xml = " + xml);
             return xml;
         }
         return xml;
     }
 
     /**
-     * @return list of grid dataSource names containing unique version strings
+     * @return list of grid dataSource names on the console
      */
-    public List<String> getUniqueGrids() throws Exception {
-        List<String> grids = new ArrayList<String>();
-        String url = this.consoleURL + "/console/api/datasources/view";
-        String cookie = this.httpHandle.getBouncerCookie();
-        com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
-        if (response.getStatusCode() == 200) {
-            String dataSourceListing = response.andReturn().asString();
-            TestSession.logger.info("Received datasources listing: " + dataSourceListing);
-            // create a map of versions to grid names to get unique grids.  One node deploy contains duplicate grid dataSources.
-            Map<String, String> gridMap = new HashMap<String, String>();
-            JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
-            JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
-            if (dataSourceResult != null) {
-                Iterator iterator = dataSourceResult.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject dataSource = (JSONObject)iterator.next();
-                    if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
-                        // ignore inactive grids
-                        if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+    public List<String> getUniqueGrids() {
+        try {
+            List<String> grids = new ArrayList<String>();
+            String url = this.consoleURL + "/console/api/datasources/view";
+            String cookie = this.httpHandle.getBouncerCookie();
+            com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
+            if (response.getStatusCode() == 200) {
+                String dataSourceListing = response.andReturn().asString();
+                TestSession.logger.debug("Received datasources listing: " + dataSourceListing);
+                JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
+                JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
+                if (dataSourceResult != null) {
+                    Iterator iterator = dataSourceResult.iterator();
+                    while (iterator.hasNext()) {
+                        JSONObject dataSource = (JSONObject)iterator.next();
+                        if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
+                            
                             String name = dataSource.getString("DataSourceName");
-                            String version = dataSource.getString("Version");
-                            gridMap.put(version, name);
+                            
+                            // if the grid skips uploading jars, assume it is an S3 grid
+                            String dataSourceXml = this.getDataSourceXml(name);
+                            if (dataSourceXml.contains("skip.job.jars.upload")) {
+                                continue;
+                            }
+                            
+                            // ignore inactive grids
+                            if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                                grids.add(name);
+                            }
                         }
                     }
-
+                } else {
+                    throw new Exception("unable to find DataSourceResult");
                 }
             } else {
-                throw new Exception("unable to find DataSourceResult");
+                throw new Exception(url + " returned status code " + response.getStatusCode());
             }
-            // iterate the map and add to the grid set 
-            for (String grid : gridMap.values()) {
-                grids.add(grid);
+            
+            
+            String listString = "Unique grids are: ";
+            for (String s : grids) {
+                listString += s + "  ";
             }
-        } else {
-            throw new Exception(url + " returned status code " + response.getStatusCode());
+            TestSession.logger.info(listString);
+            
+            return grids;
+        } catch (Exception e) {
+            TestSession.logger.error("Unexpected exception", e);
+            Assert.fail("Unexpected exception - " + e.getMessage());
+            return null;
         }
-        return grids;
     }
     
     /**
@@ -1619,9 +1635,9 @@ public final class ConsoleHandle
     public JSONArray convertResponseToJSONArray(com.jayway.restassured.response.Response response , String jsonName) {
         JSONArray jsonArray =  null ;
         String res = response.getBody().asString();
-        TestSession.logger.info("response = " + res);
+        TestSession.logger.debug("response = " + res);
         JSONObject obj =  (JSONObject) JSONSerializer.toJSON(res.toString());
-        TestSession.logger.info("obj = " + obj.toString());
+        TestSession.logger.debug("obj = " + obj.toString());
         jsonArray = obj.getJSONArray(jsonName);
         return jsonArray;
     }
@@ -1717,38 +1733,6 @@ public final class ConsoleHandle
         List<String> datasetNames = jsonPath.getList("DatasetsResult.DatasetName");
         assertTrue("Failed to get the dataset name = "  , datasetNames != null && datasetNames.size() > 0);
         return datasetNames;
-    }
-
-    /**
-     * Get all the installed grid names
-     * @return grid names as List
-     */
-    public List<String> getAllInstalledGridName() {
-        List<String> grids = new ArrayList<String>();
-        String testURL = this.getConsoleURL() + "/console/api/datasources/view";
-        TestSession.logger.info("testURL = " + testURL);
-        String cookie = this.httpHandle.getBouncerCookie();
-        com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
-        String responseString = response.getBody().asString();
-        System.out.println("Response  : " + responseString);
-        JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
-        Object obj = versionObj.get("DataSourceResult");
-        if (obj instanceof JSONArray) {
-            JSONArray sizeLimitAlertArray = versionObj.getJSONArray("DataSourceResult");
-            Iterator iterator = sizeLimitAlertArray.iterator();
-            while (iterator.hasNext()) {
-                JSONObject jsonObject = (JSONObject) iterator.next();
-                String dataSourceName = jsonObject.getString("DataSourceName").trim();
-                String gridType = jsonObject.getString("Type");
-                if (gridType.equals("grid")) {
-                    if (! dataSourceName.startsWith("gdm") ) {
-                        System.out.println("dataSourceName  =  " + dataSourceName);
-                        grids.add(dataSourceName);
-                    }   
-                }
-            }
-        }
-        return grids;
     }
     
     /**
@@ -1858,7 +1842,7 @@ public final class ConsoleHandle
         TestSession.logger.info("testURL = " + testURL);        
         com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
         String responseString = response.getBody().asString();
-        System.out.println("Response  : " + responseString);
+        TestSession.logger.info("Response  : " + responseString);
         JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
         Object obj = versionObj.get("HadoopClusterVersions");
         if (obj instanceof JSONArray) {
@@ -1868,7 +1852,7 @@ public final class ConsoleHandle
                 JSONObject jsonObject = (JSONObject) iterator.next();
                 String dataSourceName = jsonObject.getString("DataStoreName").trim();
                 if (! dataSourceName.startsWith("gdm")) {
-                    System.out.println("dataSourceName  =  " + dataSourceName);
+                    TestSession.logger.info("dataSourceName  =  " + dataSourceName);
                     gridNames.add(dataSourceName);
                 }
             }
@@ -1883,8 +1867,8 @@ public final class ConsoleHandle
     public String getClusterNameNodeName(String clusterName) {
         String nameNodeName = null;
         
-        String xml = this.getDataSourcetXml(clusterName);
-        TestSession.logger.info("*****************xml = " + xml);
+        String xml = this.getDataSourceXml(clusterName);
+        TestSession.logger.debug("*****************xml = " + xml);
         XmlPath xmlPath = new XmlPath(xml);
         if(xmlPath == null)  {
             try {
@@ -1893,20 +1877,20 @@ public final class ConsoleHandle
                 e.printStackTrace();
             }
         }
-        TestSession.logger.info("*****" + xmlPath.prettyPrint());
+        TestSession.logger.debug("*****" + xmlPath.prettyPrint());
         xmlPath.setRoot("DataSource");
         String value = null;
         List<String>clusterNames = xmlPath.getList("Interface.Command.BaseUrl");
         assertTrue("Failed to get the name node name, please check whether "+ clusterName +" datasource specification file exists." , clusterNames.size() > 0);
         for (String n : clusterNames) {
-            TestSession.logger.info(n);
+            TestSession.logger.debug(n);
         }
         
         // remove protocol name like webhdfs, hdfs etc, just return only namenode name.
         String nn = clusterNames.get(0);
         int indexOf = nn.indexOf("//") + 2;
         nameNodeName = nn.substring(indexOf);
-        TestSession.logger.info(nameNodeName  + "  is the NameNode of  " + clusterName);
+        TestSession.logger.debug(nameNodeName  + "  is the NameNode of  " + clusterName);
         return nameNodeName;
     }
     

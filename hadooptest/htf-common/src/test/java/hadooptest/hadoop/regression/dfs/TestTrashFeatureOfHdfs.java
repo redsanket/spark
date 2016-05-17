@@ -566,13 +566,24 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 			cluster.hadoopDaemon(Action.START, aComponentToUpdate);
 
 		}
-		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+		// wait up to 5 minutes for NN to be out of safemode 
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
+		  genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
 				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
 				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
-				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+
+                  if (genericCliResponse.response.contains("Safe mode is OFF")) {
+                    TestSession.logger.info("NN is out of Safemode after " + (waitCounter*10) + " seconds"); 
+                    break; 
+                  } else if (waitCounter >= 30) {
+                    TestSession.logger.error("NN never left Safemode after " + (waitCounter*10) + " seconds!");
+                    Assert.fail(); 
+                  }
+                  else
+                  {
+                    Thread.sleep(10000);
+                  }
+                }
 
 		// copyFromLocal
 		genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
@@ -619,13 +630,26 @@ public class TestTrashFeatureOfHdfs extends DfsTestsBaseClass {
 			cluster.hadoopDaemon(Action.START, aComponentToUpdate);
 		}
 		skipRemovingDotTrashInAfterMethod = true;
-		// Get NN out of sademode
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
-				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-		dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
-				ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
-				SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+
+		// wait up to 5 minutes for NN to be out of safemode 
+                for (int waitCounter = 0; waitCounter < 30; waitCounter++) {
+                  genericCliResponse = dfsCliCommands.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+                                ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
+                                SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
+
+                  if (genericCliResponse.response.contains("Safe mode is OFF")) {
+                    TestSession.logger.info("NN is out of Safemode after " + (waitCounter*10) + " seconds");
+                    break;
+                  } else if (waitCounter >= 30) {
+                    TestSession.logger.error("NN never left Safemode after " + (waitCounter*10) + " seconds!");
+                    Assert.fail();
+                  }
+                  else
+                  {
+                    Thread.sleep(10000);
+                  }
+                }
+
 
 	}
 
