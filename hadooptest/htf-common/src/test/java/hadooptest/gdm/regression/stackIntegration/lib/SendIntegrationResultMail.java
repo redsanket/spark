@@ -34,7 +34,7 @@ public class SendIntegrationResultMail {
     
     private AggIntResult aggIntResultObject;
     private DataBaseOperations dbOperations ;
-    private static final String TO = "lawkp@yahoo-inc.com";
+    private static final String TO = "hadoop-hit@yahoo-inc.com";
     private static final String FROM = "hadoopqa@yahoo-inc.com";
     private static final String SMTP = "mtarelay.ops.yahoo.net";
 
@@ -84,7 +84,8 @@ public class SendIntegrationResultMail {
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(FROM));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(TO));
-        message.setSubject("Integration test result for " + this.getTodaysDate());
+        String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+        message.setSubject(pipeLineName + " Integration test result for " + this.getTodaysDate());
         message.setContent(multipart);
 
         // Send message
@@ -135,6 +136,7 @@ public class SendIntegrationResultMail {
                 tableBuilder.append("<thead>")
                 .append("<tr>")
                 .append("<th>").append("DataSetName").append("</th>")
+                .append("<th>").append("Date").append("</th>")
                 .append("<th>").append("HadoopVersion").append("</th>")
                 .append("<th>").append("GDM").append("</th>")
                 .append("<th>").append("PIG").append("</th>")
