@@ -138,7 +138,7 @@ public class TestHBaseInsertRecords {
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
 		
 		String command = "ssh " + getHbaseGateWayHostName() + "  \"export HBASE_PREFIX=/home/y/libexec/hbase;export PATH=$PATH:/home/y/share/pig:/home/y/libexec/hbase/bin:/tmp/integration_test_files/lib/*.jar;" 
-		+ KINIT + ";" + "export PIG_HOME=" + PIG_HOME + ";export PATH=$PATH:$PIG_HOME/bin/;pig -x mapreduce  " 
+		+ KINIT + getHbaseGateWayHostName() + ";" + "export PIG_HOME=" + PIG_HOME + ";export PATH=$PATH:$PIG_HOME/bin/;pig -x mapreduce  " 
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
 				+ "  "
 				+ "-param \"DATASET_NAME=" + dataSetName + "\""
