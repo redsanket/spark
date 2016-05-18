@@ -42,7 +42,7 @@ The options
         [ -hadoop27                         ] : use Hadoop dependencies for Hadoop 2.7 (Hadoop 2.5 dependencies are default)
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
-        [ -a|--adm_box                      ] : The admin box to be used by the framework (adm103.blue.ygrid.yahoo.com is the default)
+        [ -a|--adm_box                      ] : The admin box to be used by the framework (devadm102.blue.ygrid.yahoo.com is the default)
         [ -nk                               ] : No kinit
         [ -h|--help                         ] : help
 
@@ -117,7 +117,7 @@ my $sparkversionfull;
 my $sparkversion;
 my $sparkbranch;
 my $workspace = "$Bin/..";
-my $adm_box = "adm103.blue.ygrid.yahoo.com";
+my $adm_box = "devadm102.blue.ygrid.yahoo.com";
 my $nk = 0;
 my $username = getpwuid($<);
 my $nopasswd = ($username eq "hadoopqa") ? 1 : 0;

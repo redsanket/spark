@@ -34,7 +34,7 @@
 #
 # 4) The script can be run from a blessed machine on the corp side. For example,
 # your personal linux box will work.  However, it will not work running from
-# machines on the colo side (E.g. grid machines: gateway host, adm102, etc.
+# machines on the colo side (E.g. grid machines: gateway host, devadm102, etc.
 #
 #################################################################################
 # USAGE
