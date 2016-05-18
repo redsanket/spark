@@ -139,7 +139,6 @@ public class SendIntegrationResultMail {
                 .append("<th>").append("Date").append("</th>")
                 .append("<th>").append("HadoopVersion").append("</th>")
                 .append("<th>").append("GDM").append("</th>")
-                .append("<th>").append("PIG").append("</th>")
                 .append("<th>").append("Tez").append("</th>")
                 .append("<th>").append("Hive").append("</th>")
                 .append("<th>").append("HCatalog").append("</th>")
@@ -268,7 +267,7 @@ public class SendIntegrationResultMail {
                     String comments = resultSet.getString("comments");
 
                     tableBuilder.append("<td>").append(comments).append("</td>");
-                    tableBuilder.append("<tr>");
+                    tableBuilder.append("</tr>");
                 }
                 tableBuilder.append("</tbody>").append("</table>");
             } else {
