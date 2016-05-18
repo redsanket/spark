@@ -70,7 +70,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-ADMIN_HOST="adm103.blue.ygrid.yahoo.com"
+ADMIN_HOST="devadm102.blue.ygrid.yahoo.com"
 FILE_PREFIX="cluster"
 ROLES_FILE="/tmp/$FILE_PREFIX.$cluster.roles"
 

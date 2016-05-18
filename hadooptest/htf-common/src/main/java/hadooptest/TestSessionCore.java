@@ -207,7 +207,7 @@ public abstract class TestSessionCore {
 			conf.setProperty("ADM_BOX", admBox);
 		}
 		else {
-			conf.setProperty("ADM_BOX", "adm103.blue.ygrid.yahoo.com");
+			conf.setProperty("ADM_BOX", "devadm102.blue.ygrid.yahoo.com");
 		}
 		
         conf.setProperty("LOG_TASK_REPORT",
