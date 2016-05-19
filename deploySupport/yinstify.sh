@@ -10,18 +10,21 @@ die() {
 	exit 1
 }
 
-# set the home directory based on the openstack node's zone,
-# this is needed for the grid-backplane nodes because they use
-# 'home' instead of 'homes', and export this as HOMEDIR
-RM_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"`;
-NODE_DOMAIN=`echo $RM_NODE | cut -d'.' -f2-`
-if [[ "$NODE_DOMAIN" == "blue.ygrid.yahoo.com" ]]; then
-  export HOMEDIR="/home"
-elif [[ -n "$NODE_DOMAIN" ]]; then
-  export HOMEDIR="/homes"
-else
-  echo "Error: unable to determine NODE_DOMAIN, HOME_DIR is not set!"
-  exit 1
+# If HOMEDIR is not set or passed in via Jenkns job, set it.
+[ -z "$HOMEDIR" ]; then
+    # set the home directory based on the openstack node's zone,
+    # this is needed for the grid-backplane nodes because they use
+    # 'home' instead of 'homes', and export this as HOMEDIR
+    RM_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"`;
+    NODE_DOMAIN=`echo $RM_NODE | cut -d'.' -f2-`
+    if [[ "$NODE_DOMAIN" == "ygrid.yahoo.com" ]]; then
+        export HOMEDIR="/home"
+    elif [[ -n "$NODE_DOMAIN" ]]; then
+        export HOMEDIR="/homes"
+    else
+        echo "Error: unable to determine NODE_DOMAIN: HOMEDIR is not set!"
+        exit 1
+    fi
 fi
 export HOMEDIR=$HOMEDIR
 echo "export HOMEDIR=$HOMEDIR"
