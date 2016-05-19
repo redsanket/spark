@@ -11,9 +11,13 @@ then
         echo ${yrootHadoopMapred}/sbin/mr-jobhistory-daemon.sh --config $yroothome/conf/hadoop  stop historyserver | $SSH $jobtrackernode su - $MAPREDUSER
         echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop timelineserver | $SSH $jobtrackernode su - $MAPREDUSER
 
-  # removing su - $HDFSUSER as we might have started the jt as mapred/mapredqa users 
+        # removing su - $HDFSUSER as we might have started the jt as mapred/mapredqa users
 	echo "Step 1b: kill namenode, if running."
-	fanoutNN  "su - $HDFSUSER -c '${yrootHadoopCurrent}/sbin/hadoop-daemon.sh stop namenode  '"
+	fanoutNN  "su - $HDFSUSER -c '\
+export JAVA_HOME=$JAVA_HOME && \
+export HADOOP_PREFIX=${yroothome}/share/hadoop && \
+export HADOOP_CONF_DIR=${yroothome}/conf/hadoo && \
+${yrootHadoopCurrent}/sbin/hadoop-daemon.sh stop namenode '"
 
 	echo "Step 1c: stop data nodes, if running."
 	fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
