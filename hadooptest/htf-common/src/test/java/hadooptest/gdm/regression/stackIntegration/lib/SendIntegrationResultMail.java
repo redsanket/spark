@@ -94,11 +94,13 @@ public class SendIntegrationResultMail {
     }
 
     public String createHtmlPage() {
+    	String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+    	TestSession.logger.info("SendIntegrationResultMail - pipeLineName  = " + pipeLineName);
         java.util.List<String> versionList = this.aggIntResultObject.getToDaysResult();
         StringBuilder builder = new StringBuilder();
         if (versionList != null) {
             for (String version : versionList) {
-                String SELECT_QUERY = "select * from integrationFinalResult  where hadoopVersion like  "  + "\"" + version +  "\"";
+                String SELECT_QUERY = "select * from integrationFinalResult  where " + pipeLineName +"Version like  "  + "\"" + version +  "\"";
                 try {
                     builder.append(this.getRecords(SELECT_QUERY));
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException e) {
