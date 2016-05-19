@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import hadooptest.TestSession;
@@ -85,7 +86,7 @@ public class DataSetXmlGenerator {
             this.addRequiredAttribute(source, "switchovertype", "Standard");
             
             Element targets = this.appendRequiredElement(dataset, "Targets");
-            Element target = this.target.getElement(this.doc);
+            Element target = this.target.buildElement(this.doc);
             targets.appendChild(target);
             
             TransformerFactory tf = TransformerFactory.newInstance();

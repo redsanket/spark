@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.cluster.gdm;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class DataSetTarget {
      * Creates an XML element representing a dataset target
      * @param doc
      */
-    public Element getElement(Document doc) throws Exception {
+    public Element buildElement(Document doc) throws Exception {
         this.doc = doc;
         Element target = doc.createElement("Target");
         this.addRequiredAttribute(target, "name", this.name);
