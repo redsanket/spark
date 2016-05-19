@@ -368,8 +368,8 @@ public abstract class TestSession extends TestSessionCore {
             if (!output[0].equals("0")) {
                 TestSession.logger.info(
                         "Got unexpected non-zero exit code: " + output[0]);
-                TestSession.logger.info("stdout" + output[1]);
-                TestSession.logger.info("stderr" + output[2]);
+                TestSession.logger.info("stdout: " + output[1]);
+                TestSession.logger.info("stderr: " + output[2]);
             } else {
                 compNode = output[1].trim();
                 compURL = "http://" + compNode + ":" + compPort;
@@ -391,8 +391,8 @@ public abstract class TestSession extends TestSessionCore {
                     if (!output[0].equals("0")) {
                         TestSession.logger.info(
                                 "Got unexpected non-zero exit code: " + output[0]);
-                        TestSession.logger.info("stdout" + output[1]);
-                        TestSession.logger.info("stderr" + output[2]);
+                        TestSession.logger.info("stdout: " + output[1]);
+                        TestSession.logger.info("stderr: " + output[2]);
                     } else {
                         compNode = output[1].trim();
                         // Construct the component URL
