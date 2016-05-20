@@ -31,7 +31,9 @@ ssh  $jobtrackernode su - $MAPREDUSER
     tmpfile=/tmp/xx.$$
 
     JAVA_HOME="$GSHOME/java8/jdk64/current"
+
     (
+        echo "set -x"
         echo "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop"
         echo "export HADOOP_PREFIX=${yroothome}/share/hadoop"
         echo "export HADOOP_CONF_DIR=${yroothome}/conf/hadoop"
@@ -43,21 +45,27 @@ ssh  $jobtrackernode su - $MAPREDUSER
         echo "export JAVA_HOME=$JAVA_HOME"
      ) > $tmpfile
 
+    set -x
     (
         cat $tmpfile
         echo '$YARN_HOME/sbin/start-yarn.sh'
     )  | ssh $jobtrackernode su - $MAPREDUSER
+   set +x
 
-echo == starting up yarn JobHistoryServer.
+    echo == starting up yarn JobHistoryServer.
+    set -x
     (
         cat $tmpfile
         echo 'export YARN_OPTS="$YARN_OPTS -Dmapred.jobsummary.logger=INFO,JSA"'
         echo '$YARN_HOME/sbin/mr-jobhistory-daemon.sh start historyserver'
     )  | ssh $jobtrackernode su - $MAPREDUSER
+   set +x
 
-echo == starting up yarn TimelineServer.
+   echo == starting up yarn TimelineServer.
+   set -x
    (
 	cat $tmpfile
 	echo '$YARN_HOME/sbin/yarn-daemon.sh start timelineserver'
    )   | ssh $jobtrackernode su - $MAPREDUSER
+   set +x
 fi
