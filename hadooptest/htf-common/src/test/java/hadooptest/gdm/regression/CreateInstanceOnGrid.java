@@ -177,7 +177,10 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
 
     /*
      * Invoke run method and create the instance files on the specified cluster.
+     * 
+     * @deprecated  HadoopFileSystemHelper.createFile() should be used
      */
+    @Deprecated
     public void execute() throws IOException, InterruptedException {
         for (String aUser : this.supportingData.keySet()) {
             TestSession.logger.debug("aUser = " + aUser);

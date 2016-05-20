@@ -43,12 +43,15 @@ public class TopLevelDirTest {
     @Test
     public void runTest() throws Exception {
         // verify top level dir does not exist on target
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+        String dataPath = "/projects/" + this.dataSetName + "/data/";
+        Assert.assertFalse(targetHelper.exists("/projects/" + this.dataSetName));  
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE2));
         
         // create dataset and source instance
-        createDataSetInstance(this.sourceGrid, INSTANCE1);
+        HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.sourceGrid);
+        sourceHelper.createFile(dataPath + INSTANCE1 + "/testfile");
         createDataset();
         
         // allow dataset to propagate
@@ -59,34 +62,29 @@ public class TopLevelDirTest {
         Assert.assertFalse("Expected workflow to fail", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
         
         // create top level dir on target
-        createDataSetInstance(this.target, DUMMY_INSTANCE);
+        targetHelper.createFile(dataPath + DUMMY_INSTANCE);
         
         // now the top level dir should exist on the target, but no instances
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE2));
         
         // create new instance on source
-        createDataSetInstance(this.sourceGrid, INSTANCE2);
+        sourceHelper.createFile(dataPath + INSTANCE2 + "/testfile");
         
         // validate workflow succeeds
         Assert.assertTrue("Expected workflow to succeed", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
         
         // now instance2 should exist on the target, but not instance1
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE2));
     }
     
     @After
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
-    }
-    
-    private void createDataSetInstance(String grid, String instanceId) throws Exception {
-        CreateInstanceOnGrid createInstanceOnGridObj = new CreateInstanceOnGrid(grid, "/projects/" + this.dataSetName , "data/", instanceId);
-        createInstanceOnGridObj.execute();
     }
     
     private void createDataset() {
