@@ -12,11 +12,12 @@ then
         echo ${yrootHadoopMapred}/sbin/yarn-daemon.sh --config $yroothome/conf/hadoop  stop timelineserver | $SSH $jobtrackernode su - $MAPREDUSER
 
         # removing su - $HDFSUSER as we might have started the jt as mapred/mapredqa users
+        JAVA_HOME="$GSHOME/java8/jdk64/current"
 	echo "Step 1b: kill namenode, if running."
 	fanoutNN  "su - $HDFSUSER -c '\
 export JAVA_HOME=$JAVA_HOME && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
-export HADOOP_CONF_DIR=${yroothome}/conf/hadoo && \
+export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
 ${yrootHadoopCurrent}/sbin/hadoop-daemon.sh stop namenode '"
 
 	echo "Step 1c: stop data nodes, if running."
