@@ -148,8 +148,16 @@ base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
 # Initialize the nodes variables from rolesdb roles
 if [ -f ${base}/cluster-list.sh ]
 then
-	echo ". ${base}/cluster-list.sh"
-	. ${base}/cluster-list.sh
+    # TODO: Pass STACK_COMP_INSTALL settings to cluster-list.sh so they can be
+    # used to determine if component nodes should be added to the host list.
+    set -x
+    GDMVERSION=$GDMVERSION \
+HBASEVERSION=$HBASEVERSION \
+HCATVERSION=$HCATVERSION \
+HDFSPROXYVERSION=$HDFSPROXYVERSION \
+OOZIEVERSION=$OOZIEVERSION \
+. ${base}/cluster-list.sh
+    set +x
 else
 	echo "failure: cluster-list.sh is not in same directory as $0. Exiting." 1>&2
 	exit 1

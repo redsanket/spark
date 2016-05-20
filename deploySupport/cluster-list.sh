@@ -264,17 +264,48 @@ setGridParameters() {
        export confpkg=HadoopConfig${scriptnames}
        export localconfpkg=hadooplocalconfigs_openstack_large
 
-        # step 2e: Set up file-contents that the deploy-script needs.
+       # Just because stack component roles/nodes exist, it shouldn't
+       # automatically be added for deployment in the hostlist.
+       # They should only be added only if the stack component is being deployed.
+       # We should also let users if stack component nodes are being added to the
+       # hostlist from these stack component roles such as zookeeper, etc.
+       stack_comp_nodes=''
+       if [ -n "$GDMVERSION" ]; then
+           if [ -n "$daqnode" ]; then
+               echo "Adding daq node '$daqnode' to HOSTLIST"
+               stack_comp_nodes+="$daqnode "
+           fi
+       fi
+       if [ -n "$HBASEVERSION" ]; then
+           if [ -n "$zookeepernodes" ]; then
+               echo "Adding zookeeper nodes '$zookeepernodes' to HOSTLIST"
+               stack_comp_nodes+="$zookeepernodes "
+           fi
+       fi
+       if [ -n "$HCATVERSION" ]; then
+           if [ -n "$hcatservernode" ]; then
+               echo "Adding hcat server node '$hcatservernode' to HOSTLIST"
+               stack_comp_nodes+="$hcatservernode "
+           fi
+       fi
+       if [ -n "$HDFSPROXYVERSION" ]; then
+           if [ -n "$hdfsproxynode" ]; then
+               echo "Adding hdfsproxy node '$hdfsproxynode' to HOSTLIST"
+               stack_comp_nodes+="$hdfsproxynode "
+           fi
+       fi
+       if [ -n "$OOZIEVERSION" ]; then
+           if [ -n "$oozienode" ]; then
+               echo "Adding oozie node '$oozienode' to HOSTLIST"
+               stack_comp_nodes+="$oozienode "
+           fi
+       fi
+       # step 2e: Set up file-contents that the deploy-script needs.
        (
 			cat  allnamenodes.$cluster.txt
 			echo $jobtrackernode 
-			[ -n "$zookeepernodes" ] && echo $zookeepernodes | tr ' ' '\n' 
 			echo $gateway 
-			echo $hdfsproxynode 
-			echo $hcatservernode 
-			echo $daqnode 
-                        # hadooppf-8086, oozienode can have multiple members for component deploy
-			[ -n "$oozienode" ] && echo $oozienode | tr ' ' '\n' 
+			[ -n "$stack_comp_nodes" ] && echo $stack_comp_nodes | tr ' ' '\n' | sed '/^s*$/d'
 			cat hostlist.$cluster.txt
        ) | sort | uniq >  hostlist.$cluster.txt.1
        mv hostlist.$cluster.txt.1 hostlist.$cluster.txt

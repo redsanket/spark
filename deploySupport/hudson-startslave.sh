@@ -365,67 +365,51 @@ cp  manifest.txt ${WORKSPACE}/
 cat manifest.txt
 
 #################################################################################
-# CHECK IF WE NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY
-#################################################################################
-# gridci-747 install pig on gw
+# CHECK IF WE NEED TO INSTALL STACK COMPONENTS
+#
 # gridci-1040, make component version selectable
-
-if [ "$STACK_COMP_VERSION_PIG" == "none" ]; then
-
-  echo "INFO: Not installing Pig component on Gateway"
-
-else
-
-  ./pig-install-check.sh $CLUSTER $STACK_COMP_VERSION_PIG
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Pig component installer failed!"
-  fi
-
-fi
-
-
-#################################################################################
-# CHECK IF WE NEED TO RUN THE HIVE INSTALL SCRIPT ON THE HIVE NODE
-#################################################################################
-# gridci-481 install hive server and client
-# this relies on hive service keytab being generated and pushed out in the cluster configure portion
+#
+# PIG - gridci-747 install pig on gw
+#
+# HIVE - gridci-481 install hive server and client
+# this relies on hive service keytab being generated and pushed out in the
+# cluster configure portion
 # of cluster building (cluster-build/configure_cluster)
-# gridci-1040, make component version selectable
-
-if [ "$STACK_COMP_VERSION_HIVE" == "none" ]; then
-
-  echo "INFO: Not installing Hive component"
-
-else
-
-  ./hive-install-check.sh $CLUSTER $STACK_COMP_VERSION_HIVE
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Hive component installer failed!"
-  fi
-
-fi
-
+#
+# OOZIE - gridci-561 install yoozie server
+# this relies on oozie service keytab being generated and pushed out in the
+# cluster configure portion of cluster building (cluster-build/configure_cluster)
 #################################################################################
-# CHECK IF WE NEED TO RUN THE OOZIE INSTALL SCRIPT ON THE OOZIE NODE
-#################################################################################
-# gridci-561 install yoozie server
-# this relies on oozie service keytab being generated and pushed out in the cluster
-# configure portion of cluster building (cluster-build/configure_cluster)
-# gridci-1040, make component version selectable
+function deploy_stack() {
+    STACK_COMP=$1
+    STACK_COMP_VERSION=$2
+    STACK_COMP_SCRIPT=$3
 
-if [ "$STACK_COMP_VERSION_OOZIE" == "none" ]; then
+    start=`date +%s`
+    h_start=`date +%Y/%m/%d-%H:%M:%S`
+    echo "INFO: Install stack component ${STACK_COMP} on $h_start"
+    # CHECK IF WE NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY
+    if [ "$STACK_COMP_VERSION" == "none" ]; then
+        echo "INFO: Nothing to do since STACK_COMP_VERSION is set to 'none'"
+    else
+        set -x
+        time ./$STACK_COMP_SCRIPT $CLUSTER $STACK_COMP_VERSION
+        st=$?
+        set +x
+        if [ $st -ne 0 ]; then
+            echo "ERROR: component install for ${STACK_COMP} failed!"
+        fi
+    fi
+    end=`date +%s`
+    h_end=`date +%Y/%m/%d-%H:%M:%S`
+    runtime=$((end-start))
+    printf "%-124s : %.0f min (%.0f sec) : %s : %s : %s\n" $STACK_COMP_SCRIPT $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $artifacts_dir/timeline.log
+    cat $artifacts_dir/timeline.log
+}
 
-  echo "INFO: Not installing Oozie component"
-
-else
-
-  ./oozie-install-check.sh $CLUSTER $STACK_COMP_VERSION_OOZIE
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Oozie component installer failed!"
-  fi
-
-fi
-
+deploy_stack pig $STACK_COMP_VERSION_PIG pig-install-check.sh
+deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
+deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
