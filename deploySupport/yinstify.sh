@@ -11,7 +11,7 @@ die() {
 }
 
 # If HOMEDIR is not set or passed in via Jenkns job, set it.
-[ -z "$HOMEDIR" ]; then
+if [ -z "$HOMEDIR" ]; then
     # set the home directory based on the openstack node's zone,
     # this is needed for the grid-backplane nodes because they use
     # 'home' instead of 'homes', and export this as HOMEDIR
