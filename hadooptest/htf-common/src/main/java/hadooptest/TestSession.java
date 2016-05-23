@@ -381,6 +381,29 @@ public abstract class TestSession extends TestSessionCore {
                     TestSession.logger.info("Check for HA namenode:");
                     // default FS from core-site.html may or may not include
                     // the port number. We need to parse it out
+
+                    // Handle cross colo situations
+                    String adminHost = ;
+                    ArrayList<String> cmd = new ArrayList<String>();
+                    if (compNode.contains(".tan.ygrid.yahoo.com")) {
+                        // If going to tan node, need to going thru the blue
+                        // admin node with ACL opened to tan
+                        cmd.add("/usr/bin/ssh");
+                        cmd.add(HadoopCluster.ADMIN);
+                    }
+                    cmd.add("/usr/bin/ssh");
+                    cmd.add(compNode);
+                    cmd.add("grep -A 2 defaultFS");
+                    cmd.add("/home/gs/conf/current/core-site.xml");
+                    cmd.add("| tr '>' '\n'");
+                    cmd.add("| tr '<' '\n'");
+                    cmd.add("| grep com");
+                    cmd.add("| sed 's|hdfs://||'");
+                    cmd.add("| sed 's|:.*||'");
+                    String[] command = cmd.toArray(new String[0]);
+                    String[] output = TestSession.exec.runProcBuilderSecurity(command);
+
+                    /*
                     output = TestSession.exec.runProcBuilder(new String[] {
                             "/usr/bin/ssh", compNode,
                             "grep -A 2 defaultFS " +
@@ -388,6 +411,9 @@ public abstract class TestSession extends TestSessionCore {
                             "tr '>' '\n' | tr '<' '\n' | grep com | " +
                             "sed 's|hdfs://||' | " +
                             "sed 's|:.*||'" });
+                    */
+                    output = TestSession.exec.runProcBuilder(command);
+
                     if (!output[0].equals("0")) {
                         TestSession.logger.info(
                                 "Got unexpected non-zero exit code: " + output[0]);
