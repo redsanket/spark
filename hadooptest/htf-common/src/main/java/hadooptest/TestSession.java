@@ -383,7 +383,6 @@ public abstract class TestSession extends TestSessionCore {
                     // the port number. We need to parse it out
 
                     // Handle cross colo situations
-                    String adminHost = ;
                     ArrayList<String> cmd = new ArrayList<String>();
                     if (compNode.contains(".tan.ygrid.yahoo.com")) {
                         // If going to tan node, need to going thru the blue
