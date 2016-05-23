@@ -401,17 +401,6 @@ public abstract class TestSession extends TestSessionCore {
                     cmd.add("| sed 's|hdfs://||'");
                     cmd.add("| sed 's|:.*||'");
                     String[] command = cmd.toArray(new String[0]);
-                    output = TestSession.exec.runProcBuilderSecurity(command);
-
-                    /*
-                    output = TestSession.exec.runProcBuilder(new String[] {
-                            "/usr/bin/ssh", compNode,
-                            "grep -A 2 defaultFS " +
-                            "/home/gs/conf/current/core-site.xml | " +
-                            "tr '>' '\n' | tr '<' '\n' | grep com | " +
-                            "sed 's|hdfs://||' | " +
-                            "sed 's|:.*||'" });
-                    */
                     output = TestSession.exec.runProcBuilder(command);
 
                     if (!output[0].equals("0")) {
