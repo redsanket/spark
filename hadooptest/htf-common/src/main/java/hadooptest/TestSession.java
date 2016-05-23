@@ -401,7 +401,7 @@ public abstract class TestSession extends TestSessionCore {
                     cmd.add("| sed 's|hdfs://||'");
                     cmd.add("| sed 's|:.*||'");
                     String[] command = cmd.toArray(new String[0]);
-                    String[] output = TestSession.exec.runProcBuilderSecurity(command);
+                    output = TestSession.exec.runProcBuilderSecurity(command);
 
                     /*
                     output = TestSession.exec.runProcBuilder(new String[] {
