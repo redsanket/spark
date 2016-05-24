@@ -197,7 +197,7 @@ public class IntegrationEmitterTest  extends TestSession {
                     // Check whether _SUCCESS file exists.
                     String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName  + "/20130309/_SUCCESS";
                     HadoopFileSystemHelper fs = new HadoopFileSystemHelper(clusterName);
-                    if(! fs.exists(finalDataPath) ) {
+                    if(fs.exists(finalDataPath) == false ) {
                     	fail("failed to create success file - " + finalDataPath );
                     }
                 }
