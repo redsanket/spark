@@ -58,18 +58,9 @@ import hadooptest.Util;
 public class WorkFlowHelper {
 
     private ConsoleHandle consoleHandle;
-    private Response response;
-    private Configuration conf = null; 
 
     private static final int SUCCESS = 200;
-    private static final long waitTimeBeforeWorkflowPollingInMs =  180000L;
-    private static final long waitTimeBetweenWorkflowPollingInMs = 60000L;
-    private static final long timeoutInMs =  300000L;
     public static final String DISCOVERY_MONITOR = "/api/discovery/monitor";
-    private static final int PASS = 1;
-    private static final int FAIL = 0;
-    private final static String LOG_FILE = "/grid/0/yroot/var/yroots/FACET_NAME/home/y/libexec/yjava_tomcat/webapps/logs/FACET_NAME-application.log";
-    private String schema;
     private static String PROTOCOL = "hdfs://";
     private static String OWNER = "dfsload";
     private static String GROUP = "users";
@@ -85,18 +76,17 @@ public class WorkFlowHelper {
     private static final String LAST_STEP = "LAST_STEP";
     private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
     
-    private HTTPHandle httpHandle;
     private String cookie;
 
     public WorkFlowHelper() {
         this.consoleHandle = new ConsoleHandle();
-        httpHandle = new HTTPHandle();
+        HTTPHandle httpHandle = new HTTPHandle();
         this.cookie = httpHandle.getBouncerCookie();
     }
     
     public WorkFlowHelper(String userName , String passWord) {
         this.consoleHandle = new ConsoleHandle(userName, passWord);
-        httpHandle = new HTTPHandle(userName ,passWord);
+        HTTPHandle httpHandle = new HTTPHandle(userName ,passWord);
         this.cookie = httpHandle.getBouncerCookie();    
     }
     
@@ -468,56 +458,6 @@ public class WorkFlowHelper {
         TestSession.logger.info("========================================================================================================");
     }
 
-    /**
-     * Get all the grid or cluster that dn't support HCAT 
-     * @return
-     */
-    public List<String> getNonHCatSupportedGrids() {
-        List<String> grid = null;
-        String testURL = this.consoleHandle.getConsoleURL() + "/console/query/hadoop/versions";
-
-        JsonPath jsonPath = given().cookie(this.cookie).get(testURL).jsonPath();
-        TestSession.logger.info("Get all the Hcat enabled grid response = " + jsonPath.prettyPrint());
-        grid = jsonPath.getList("HadoopClusterVersions.findAll { ! it.HCatVersion.startsWith('hcat_common') }.ClusterName ");
-        if (grid == null) {
-            try {
-                throw new Exception("Failed to get hcatEnabled");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return grid;
-    }
-
-    /**
-     * Search the specified string in the facet application.log file.
-     * @param facetName - facet name to select the <facet>.application file
-     * @param stringToSearch  - actual string to be searched.
-     * @throws IOException
-     */
-    public void checkStringInLog(String facetName, String stringToSearch) throws IOException {
-        Pattern pattern = Pattern.compile(stringToSearch);
-
-        // read the log file.
-        String facetApplicationLogFile = LOG_FILE.replace("FACET_NAME", facetName);
-
-        // Read the facet application log file.
-        FileInputStream input = new FileInputStream(facetApplicationLogFile);
-        FileChannel channel = input.getChannel();
-
-        ByteBuffer bbuf = channel.map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size());
-        CharBuffer cbuf = Charset.forName("8859_1").newDecoder().decode(bbuf);
-        Matcher matcher = pattern.matcher(cbuf);
-        long count = 0;
-        while (matcher.find()) {
-            String match = matcher.group().trim();
-            TestSession.logger.info(match);
-            assertTrue("Failed : " + stringToSearch + " dn't match with  " +  match , stringToSearch.equals(match));
-            count++;
-        }
-        TestSession.logger.info("count = " + count);
-    }
-
 
     /**
      * Return JSONArray of discovery monitor for the given dataset.
@@ -673,107 +613,6 @@ public class WorkFlowHelper {
     }
     
     /**
-     * Gets the Progress value  from the running workflow details 
-     * @param dataSetName
-     * @param datasetActivationTime
-     * @param workflowType
-     * @return
-     */
-    public int getProgressValue(String dataSetName , String datasetActivationTime , String workflowType) {
-        return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Progress");
-    }
-    
-    /**
-     * Get the 'Effective Data Rate' value  from  running workflow details.
-     * @param dataSetName
-     * @param datasetActivationTime
-     * @param workflowType
-     * @return
-     */
-    public int getEffectiveDataRateValue(String dataSetName , String datasetActivationTime , String workflowType) {
-        return getWorkFlowProgressOREffectiveDataRate(dataSetName , datasetActivationTime , workflowType , "Effective Data Rate");
-    }
-    
-    /**
-     * Get the progress value or Effective Data Rate value from the running workflow json response
-     * @param dataSetName
-     * @param datasetActivationTime
-     * @param workflowType
-     * @param checkValueFor
-     * @return
-     */
-    public int getWorkFlowProgressOREffectiveDataRate(String dataSetName , String datasetActivationTime , String workflowType , String checkValueFor) {
-        String endTime = GdmUtils.getCalendarAsString();
-        JSONUtil jsonUtil = new JSONUtil();
-        JSONArray jsonArray = null;
-        boolean isDataSetRunning = false;
-        boolean isDataCompletedInCompletedState = false;
-        TestSession.logger.info("endTime = " + endTime);
-        String url =  this.consoleHandle.getConsoleURL() + "/console/api/workflows/running?datasetname="+ dataSetName +"&instancessince=F&joinType=innerJoin&facet=" + workflowType;
-        TestSession.logger.info("url = " + url);
-        com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
-        String res = response.getBody().asString();
-        TestSession.logger.info("response = " + res);
-
-        // convert string to jsonObject
-        JSONObject obj =  (JSONObject) JSONSerializer.toJSON(res.toString());
-        TestSession.logger.info("obj = " + obj.toString());
-        
-        if (workflowType.equals("running")) {
-            jsonArray = obj.getJSONArray("runningWorkflows");
-            isDataSetRunning = true;
-        } else if (workflowType.equals("completed")) {
-            jsonArray = obj.getJSONArray("completedWorkflows");
-            isDataCompletedInCompletedState = true;
-        }/* else if (workflowType.equals("failed")) {
-            jsonArray = obj.getJSONArray("failedWorkflows");
-        }*/
-
-        int returnValue = 0;
-        String currentStep = null;
-        
-        if (jsonArray.size() > 0 && jsonArray != null) {
-            Iterator iterator = jsonArray.iterator();
-            while (iterator.hasNext()) {
-                JSONObject jsonObject = (JSONObject) iterator.next();
-                TestSession.logger.info("failedJsonObject  = " + jsonObject.toString());
-                String fName = jsonObject.getString("FacetName");
-                String facetColo = jsonObject.getString("FacetColo");
-                String executionId = jsonObject.getString("ExecutionID");
-
-                // get steps for workflow 
-                String testURL =this.consoleHandle.getConsoleURL() +  "/console/api/workflows/" + executionId + "/view?facet=" + fName + "&colo=" + facetColo;
-                TestSession.logger.info("url = " + testURL);
-                response = given().cookie(this.cookie).get(testURL);
-                String res1 = response.getBody().asString();
-                TestSession.logger.info(" response = " + res1);
-                JSONObject detailsWorkFlowJSONObject =  (JSONObject) JSONSerializer.toJSON(res1.toString());
-                TestSession.logger.info("obj1 = " + detailsWorkFlowJSONObject.toString());
-
-                currentStep = detailsWorkFlowJSONObject.getString("CurrentStep").trim();
-                
-                if (currentStep.equals("data.load")  || currentStep.equals("data.transform")) {
-                    
-                    if (checkValueFor.equals("")) {
-                        returnValue =  Integer.parseInt( detailsWorkFlowJSONObject.getString("Progress") );
-                        TestSession.logger.info("Progress value = " + returnValue);
-                    } else if (checkValueFor.equals("")) {
-                        List<String> temp = Arrays.asList(detailsWorkFlowJSONObject.getString("Effective Data Rate").split(" "));
-                        int dataRate =  Integer.parseInt( temp.get(0) );
-                        returnValue = dataRate;
-                    }
-                }
-            }
-        } else if (isDataSetRunning ) {
-            TestSession.logger.info(dataSetName + " dataset is running, current step is  " + currentStep);
-        } else if (!isDataSetRunning) {
-            TestSession.logger.info(dataSetName + " dataset is not in running state, wait till the dataset comes to running state.");
-        }
-        return returnValue;
-
-    }
-    
-    /**
      * Check whether the given stepName and stepValue exists in jsonArray.
      * @param jsonArray  - array representing "Step Executions" in workflow
      * @param stepName  - stepName represents workflow steps example step name , Start Time etc
@@ -867,7 +706,6 @@ public class WorkFlowHelper {
 
         this.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,fileOwnerUserDetails);
         TestSession.logger.info("CHECK:" + this.supportingData);
-        this.schema = HadooptestConstants.Schema.HDFS;  
     }
 
     /**
@@ -1056,39 +894,6 @@ public class WorkFlowHelper {
         }
         return detailedStepJsonObject;
     }
-
-    /**
-     * Remove testcase created dataset(s) and datasource(s)
-     * @param dataSetNames
-     */
-    public void testCleanUp(List<String> dataSetNames) {
-        List<String> datasetList =  consoleHandle.getAllDataSetName();
-        for ( String datasetName : dataSetNames)  {
-            if (datasetList.contains(datasetName)) {
-
-                // deactivate the dataset
-                Response response = consoleHandle.deactivateDataSet(datasetName);
-                assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-                assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-                assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-            }
-
-            // get all target names of the dataset
-            List<String> dataSetSourceList = this.consoleHandle.getDataSource(datasetName, "target", "name");
-
-            // deactivate targets in dataset.
-            this.consoleHandle.deactivateTargetsInDataSet(datasetName);
-
-            // remove dataset
-            this.consoleHandle.removeDataSet(datasetName);
-
-            for ( String dataSourceName : dataSetSourceList) {
-
-                // deactivate and remove datasource
-                this.consoleHandle.removeDataSource(dataSourceName);
-            }
-        }
-    }
     
     /**
      * Execute a given command and return the output of the command.
@@ -1111,21 +916,6 @@ public class WorkFlowHelper {
             TestSession.logger.info("log = " + output);
         }
         return output;
-    }
-    
-    /**
-     * return the hostname of the specified facet
-     * @return
-     */
-    public String getFacetHostNameForStaging(String facetName) {
-        String tempConsoleHostName = Arrays.asList(this.consoleHandle.getConsoleURL().split(":")).get(1);
-        String consoleHostName = tempConsoleHostName.replaceAll("//", "");
-        String command = "ssh " + consoleHostName + "  " + "yinst set | grep " + facetName + "_end_point" ;
-        String output = this.executeCommand(command);
-        TestSession.logger.info("output = " + output);
-        String path = Arrays.asList(output.split(" ")).get(1).trim();
-        TestSession.logger.info("facet hostname = " + path);
-        return path;
     }
     
     /**
