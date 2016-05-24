@@ -13,7 +13,7 @@ import hadooptest.cluster.gdm.HCatHelper;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
-import hadooptest.gdm.regression.integration.CreateDoneFile;
+import hadooptest.gdm.regression.HadoopFileSystemHelper;
 import hadooptest.gdm.regression.integration.CreateIntegrationDataSet;
 import hadooptest.gdm.regression.integration.clusterHealth.CheckClusterHealth;
 
@@ -196,8 +196,10 @@ public class IntegrationEmitterTest  extends TestSession {
                     
                     // Check whether _SUCCESS file exists.
                     String finalDataPath = "/data/daqdev/abf/data/" + this.dataSetName  + "/20130309/_SUCCESS";
-                    CreateDoneFile createDoneFile = new CreateDoneFile( clusterName.trim() , finalDataPath);
-                    createDoneFile.execute();
+                    HadoopFileSystemHelper fs = new HadoopFileSystemHelper(clusterName);
+                    if(fs.exists(finalDataPath) == false ) {
+                    	fail("failed to create success file - " + finalDataPath );
+                    }
                 }
                 
                 // deactivate the dataset
