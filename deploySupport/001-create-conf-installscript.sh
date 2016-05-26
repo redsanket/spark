@@ -4,11 +4,13 @@ mkdir -p $t
 
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
+cp namenodehaalias.$cluster.txt /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 (
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/secondarynamenodes.$cluster.txt  /tmp/ "
+    # echo "scp  $ADMIN_HOST::tmp/namenodehaalias.$cluster.txt  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
     echo 'then'
@@ -21,6 +23,12 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo '      export  nn2=`hostname`'
     echo 'else'
     echo '      export  nn2=`head -1 '  /tmp/secondarynamenodes.$cluster.txt  '`'
+    echo 'fi'
+    echo 'if grep -q `hostname`  ' /tmp/namenodehaalias.$cluster.txt
+    echo 'then'
+    echo '      export  nnalias=`hostname`'
+    echo 'else'
+    echo '      export  nnalias=`head -1 '  /tmp/namenodehaalias.$cluster.txt  '`'
     echo 'fi'
     # # # # # 3 January 2011: need to add variable for Secondary NN, above,
     # # # # # in order to set yinst-vars for secondary also. Otherwise,
@@ -37,6 +45,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 
     echo 'export shortname=`echo  $nn | cut -f1 -d.` '
     echo 'export shortnamenn2=`echo  $nn2 | cut -f1 -d.` '
+    echo 'export nnaliasshortname=`echo  $nnalias | cut -f1 -d.` '
     shortjt=`expr  $jobtrackernode : '(' '\([^\.]*\)\..*$' ')'`
 
     clusternameopts="  -set $confpkg.TODO_HDFSCLUSTER_NAME=$cluster -set $confpkg.TODO_MAPREDCLUSTER_NAME=$cluster"
@@ -68,7 +77,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "  " -set $confpkg.TODO_COLOR=open \\
     echo "  " -set $confpkg.TODO_YGRID_CLUSTER=$cluster \\
     if [ "$ENABLE_HA" = true ]; then
-        echo "  " -set $confpkg.TODO_DFS_HA_LOGICAL_NAME=${cluster}-\$shortname \\
+        echo "  " -set $confpkg.TODO_DFS_HA_LOGICAL_NAME=\$nnaliasshortname \\
         echo "  " -set $confpkg.TODO_DFS_HA_SHARED_EDITS_DIR=file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/edits \\
         echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_ANN=\"file:///grid/2/hadoop/var/hdfs/name,file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name1\" \\
         echo "  " -set $confpkg.TODO_DFS_HA_NAME_DIR_SBN=\"file:///grid/2/hadoop/var/hdfs/name,file://$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_\$shortname/name2\" \\
@@ -79,27 +88,32 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "  " -set $confpkg.TODO_FIRST_HANN_SHORTNAME=\$shortname \\
         echo "  " -set $confpkg.TODO_SECOND_HANN_SHORTNAME=\$shortnamenn2 \\
         #echo "    -set $confpkg.TODO_ENABLE_DFS_HA='<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\"/>' \\"
+        echo "  " -set $confpkg.TODO_DFS_WEB_PRINCIPAL_INSTANCE=\$nnalias \\
     fi
 
     # The following is kept here to make old config work
-
     # GRIDCI-549 - defaultFS URL should not define the port number explicitly as
     # the value may change in the hadoop configuration. If it is not specified,
     # haddop fs will use the appropriate port number that's configured
     # internally. Also, depending on the protocol hdfs or webhdfs, the port
     # number may be different.
-    case "$HADOOPVERSION" in
-    2.[0-3])
-        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
-        ;;
-    2.[4-9])
-        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
-            ;;
-    *)
-        echo "Invalid Hadoop version $HADOOPVERSION"
-        exit 1
-        ;;
-    esac
+    if [ "$ENABLE_HA" = true ]; then
+        echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nnalias \\
+        echo "  " -set $confpkg.TODO_QE_CLUSTER_NN_ADDR=\$nnalias \\
+    else
+      case "$HADOOPVERSION" in
+      2.[0-3])
+          echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
+          ;;
+      2.[4-9])
+          echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
+              ;;
+      *)
+          echo "Invalid Hadoop version $HADOOPVERSION"
+          exit 1
+          ;;
+      esac
+    fi
 
     if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
         echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=/home/gs/gridre/yroot.${cluster}/conf/hadoop/EXAMPLE-local-capacity-scheduler.xml \\

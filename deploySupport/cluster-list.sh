@@ -62,6 +62,7 @@ roleExists() {
 # output:     environment/shell variables
 #				$namenode
 #				$secondarynamenode
+#                               $namenodehaalias
 #				$jobtrackernode
 #				$gateway
 #				$hdfsproxynode
@@ -107,6 +108,7 @@ setGridParameters() {
         export namenode=`tail -1 hostlist.$cluster.txt`
         export jobtrackernode=`tail -2 hostlist.$cluster.txt | sed -n 1p`
         export secondarynamenode=`tail -3 hostlist.$cluster.txt | sed -n 1p`
+        ## export namenodehaalias=`tail -1 hostlist.$cluster.txt`
         export gateway=gwbl2003.blue.ygrid.yahoo.com
         export hdfsproxynode=
         export hcatservernode=
@@ -136,6 +138,7 @@ setGridParameters() {
               then
                   $base/dumpMembershipList.sh $cluster.namenode   | sort | uniq > nn.$cluster.txt
                   $base/dumpMembershipList.sh $cluster.namenode2  | sort | uniq > sn.$cluster.txt
+                  $base/dumpMembershipList.sh $cluster.namenode_alias  | sort | uniq > namenodehaalias.$cluster.txt
                   # Ignore Federation setting when HA is enabled. They can coexist if Federation 
                   # was properly supported in config and deployment. Currently the federation
                   # config is generated during deployment using a script.
@@ -143,6 +146,7 @@ setGridParameters() {
                       echo Using only one set of namenodes since HA is enabled.
                       head -n 1 nn.$cluster.txt > namenodes.$cluster.txt
                       head -n 1 sn.$cluster.txt > secondarynamenodes.$cluster.txt
+                      #head -n 1 nnalias.$cluster.txt > namenodehaalias.$cluster.txt
                       rm -f nn.$cluster.txt sn.$cluster.txt
                   else
                       mv nn.$cluster.txt namenodes.$cluster.txt
@@ -150,6 +154,8 @@ setGridParameters() {
                   fi
                   export namenode=`cat  namenodes.$cluster.txt`
                   export secondarynamenode=`cat secondarynamenodes.$cluster.txt`
+                  export namenodehaalias=`cat namenodehaalias.$cluster.txt`
+                  echo "DEBUGME: namenodehaalias is: `cat namenodehaalias.$cluster.txt`"
               else
                   echo "Config error: namenode for $cluster exists, but no .namenode2 role." && \
                   exit 1
@@ -236,6 +242,7 @@ setGridParameters() {
        
        echo "namenode='$namenode'"
        echo "secondarynamenode='$secondarynamenode'"
+       echo "namenodehaalias='$namenodehaalias'"
        echo "jobtrackernode='$jobtrackernode'"
        echo "gateway='$gateway'"
        [ -n "$oozienode" ] && echo "oozienode='$oozienode'"

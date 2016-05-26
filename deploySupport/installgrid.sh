@@ -182,6 +182,7 @@ ALLNAMENODES=`cat namenodes.$cluster.txt`
 ALLSECONDARYNAMENODES=`cat secondarynamenodes.$cluster.txt`
 ALLNAMENODESAndSecondaries=`cat allnamenodes.$cluster.txt`
 NAMENODE_Primary=`head -1 namenodes.$cluster.txt`
+NAMENODEHAALIAS=`cat namenodehaalias.$cluster.txt`
 HOSTLISTNOGW1=`grep -v $gateway  hostlist.$1.txt`
 HOSTLISTNOGW=`echo $HOSTLISTNOGW1 | tr ' ' ,`
 
@@ -221,6 +222,7 @@ echo =====================================================
 echo "===  gateway='$gateway'"
 echo "===  namenode='$NAMENODE_Primary'"
 echo "===  namenodes='$ALLNAMENODES'"
+[ -n "$NAMENODEHAALIAS" ] && echo  "=== namenode_alias=$NAMENODEHAALIAS"
 #[ -n "$yroots" ] && echo "===  gateways/yroots='$yroots'"
 [ -n "$gateways" ] && echo "===  gateways/yroots='$gateways'"
 [ -n "$hitnodes" ] && echo "gateways/hit-yroots='$hitnodes'"
