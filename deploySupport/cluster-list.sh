@@ -155,7 +155,7 @@ setGridParameters() {
                   export namenode=`cat  namenodes.$cluster.txt`
                   export secondarynamenode=`cat secondarynamenodes.$cluster.txt`
                   export namenodehaalias=`cat namenodehaalias.$cluster.txt`
-                  echo "DEBUGME: namenodehaalias is: `cat namenodehaalias.$cluster.txt`"
+                  echo "DEBUG: namenodehaalias is: `cat namenodehaalias.$cluster.txt`"
               else
                   echo "Config error: namenode for $cluster exists, but no .namenode2 role." && \
                   exit 1

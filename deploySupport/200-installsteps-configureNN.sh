@@ -34,7 +34,7 @@ if [ "$ENABLE_HA" = true ];then
   # grid_re.clusters.$cluster.namenode2 is down.
   echo "Try to ifdown nn2..."
   fanoutSecondary "ifdown eth2:0"
-  RESULT_STANDBY=`pdsh -w $ALLSECONDARYNAMENODESLIST "ifconfig | grep eth2:0"` | grep eth2:0
+  RESULT_STANDBY=`pdsh -w $ALLSECONDARYNAMENODESLIST "ifconfig | grep eth2:0"`
   #echo RESULT_STANDBY is: $RESULT_STANDBY
   if [ -z $RESULT_STANDBY ]; then
     echo "Standby namenode eth2:0 is down"

@@ -99,7 +99,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     # number may be different.
     if [ "$ENABLE_HA" = true ]; then
         echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nnalias \\
-        echo "  " -set $confpkg.TODO_QE_CLUSTER_NN_ADDR=\$nnalias \\
+        # not finding and active use of this var, disable for now
+        # echo "  " -set $confpkg.TODO_QE_CLUSTER_NN_ADDR=\$nnalias \\
     else
       case "$HADOOPVERSION" in
       2.[0-3])
