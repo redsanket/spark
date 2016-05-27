@@ -1,3 +1,4 @@
+set -x
 currentDir=$1
 clusterName=$2
 tableName=$3
