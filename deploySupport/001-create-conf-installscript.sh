@@ -1,3 +1,5 @@
+set -x
+
 t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 [ -e $t ] && rm -rf  $t
 mkdir -p $t
@@ -10,7 +12,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/secondarynamenodes.$cluster.txt  /tmp/ "
-    # echo "scp  $ADMIN_HOST::tmp/namenodehaalias.$cluster.txt  /tmp/ "
+    # echo "scp  $ADMIN_HOST:/tmp/namenodehaalias.$cluster.txt  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
     echo 'then'
