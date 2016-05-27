@@ -84,8 +84,22 @@ public class AcqRepRetTest {
     }
     
     private void validateRetentionWorkflow() {
+        // make sure retention ran on replication target
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
         Assert.assertTrue("1 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "retention", INSTANCE1));
+        
+        // make sure retention step to the replication target occurs.  This may be a second workflow.
+        boolean retentionOccurred = false;
+        long sleepTime = 10 * 60 * 1000;
+        while (sleepTime > 0) {
+            retentionOccurred = workFlowHelper.doesStepExistInWorkFlowExecution(this.dataSetName, "retention", "completed", INSTANCE1, "retention." + this.targetGrid2);
+            if (retentionOccurred) {
+                return;
+            }
+            this.consoleHandle.sleep(5000);
+            sleepTime -= 5000;
+        }
+        Assert.fail("Retention step did not occur");
     }
     
     private void validateReplicationWorkflows() {
