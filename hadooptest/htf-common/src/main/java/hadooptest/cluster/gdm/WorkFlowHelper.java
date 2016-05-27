@@ -560,16 +560,21 @@ public class WorkFlowHelper {
     }
     
     /**
-     * Get the steps involved in workflow    
+     * Returns if the step exists in a workflow for the desired dataset and workflow type  
+     * 
+     * @param dataSetName
+     * @param workflowType - running, completed or failed
+     * @param instance
+     * @param stepValue
+     * @return  true if the step exists in the workflow, false otherwise
      */
-    public void checkStepExistsInWorkFlowExecutionSteps(String dataSetName , String datasetActivationTime , String workflowType , String stepName , String stepValue) {
+    public boolean doesStepExistInWorkFlowExecution(String dataSetName, String facet, String workflowType, String instance, String stepValue) {
 
         String endTime = GdmUtils.getCalendarAsString();
         JSONUtil jsonUtil = new JSONUtil();
         JSONArray jsonArray = null;
         TestSession.logger.info("endTime = " + endTime);
-        String url = this.consoleHandle.getConsoleURL() + "/console/api/workflows/" + workflowType   + "?exclude=false&starttime=" + datasetActivationTime + "&endtime=" + endTime +
-                "&joinType=innerJoin&datasetname=" +  dataSetName ;
+        String url = this.consoleHandle.getConsoleURL() + "/console/api/workflows/" + workflowType   + "?exclude=false&instancessince=F&joinType=innerJoin&datasetname=" +  dataSetName ;
         TestSession.logger.info("url = " + url);
         com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
         String res = response.getBody().asString();
@@ -578,38 +583,37 @@ public class WorkFlowHelper {
         // convert string to jsonObject
         JSONObject obj =  (JSONObject) JSONSerializer.toJSON(res.toString());
         TestSession.logger.info("obj = " + obj.toString());
-        if (workflowType.equals("running")) {
-            jsonArray = obj.getJSONArray("runningWorkflows");
-        } else if (workflowType.equals("completed")) {
-            jsonArray = obj.getJSONArray("completedWorkflows");
-        } else if (workflowType.equals("failed")) {
-            jsonArray = obj.getJSONArray("failedWorkflows");
-        }
+        jsonArray = obj.getJSONArray(workflowType + "Workflows");
 
         if ( jsonArray.size() > 0 ) {
             Iterator iterator = jsonArray.iterator();
             while (iterator.hasNext()) {
                 JSONObject jsonObject = (JSONObject) iterator.next();
-                TestSession.logger.info("failedJsonObject  = " + jsonObject.toString());
+                TestSession.logger.info("jsonObject  = " + jsonObject.toString());
+                
+                String workflowName = jsonObject.getString("WorkflowName");
                 String fName = jsonObject.getString("FacetName");
-                String facetColo = jsonObject.getString("FacetColo");
-                String executionId = jsonObject.getString("ExecutionID");
-
-                // get steps for workflow 
-                String testURL =this.consoleHandle.getConsoleURL() +  "/console/api/workflows/" + executionId + "/view?facet=" + fName + "&colo=" + facetColo;
-                TestSession.logger.info("url = " + testURL);
-                response = given().cookie(this.cookie).get(testURL);
-                String res1 = response.getBody().asString();
-                TestSession.logger.info(" response = " + res1);
-                JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(res1.toString());
-                TestSession.logger.info("obj1 = " + obj1.toString());
-                JSONObject workflowExecutionJsonObject = (JSONObject) obj1.get("WorkflowExecution");
-                JSONArray jsonArray1 = workflowExecutionJsonObject.getJSONArray("Step Executions");
-                boolean isStepExist = checkStepExists(jsonArray1 , stepName.trim() , stepValue.trim());
-                TestSession.logger.info(" result = " + isStepExist );
-                assertTrue("Failed, " +  stepValue + " is not present in " + stepName ,  isStepExist == true);
+                if (workflowName.contains(instance) && fName.equalsIgnoreCase(facet)) {
+                    // get steps for workflow 
+                    String executionId = jsonObject.getString("ExecutionID");
+                    
+                    String facetColo = jsonObject.getString("FacetColo");
+                    String testURL =this.consoleHandle.getConsoleURL() +  "/console/api/workflows/" + executionId + "/view?facet=" + fName + "&colo=" + facetColo;
+                    TestSession.logger.info("url = " + testURL);
+                    response = given().cookie(this.cookie).get(testURL);
+                    String res1 = response.getBody().asString();
+                    TestSession.logger.info(" response = " + res1);
+                    JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(res1.toString());
+                    TestSession.logger.info("obj1 = " + obj1.toString());
+                    JSONObject workflowExecutionJsonObject = (JSONObject) obj1.get("WorkflowExecution");
+                    JSONArray jsonArray1 = workflowExecutionJsonObject.getJSONArray("Step Executions");
+                    boolean doesStepExist = checkStepExists(jsonArray1 , "Step Name", stepValue.trim());
+                    TestSession.logger.info(" result = " + doesStepExist );
+                    return doesStepExist;
+                }
             }
         }
+        return false;
     }
     
     /**
@@ -619,7 +623,7 @@ public class WorkFlowHelper {
      * @param stepValue - 
      * @return
      */
-    public boolean checkStepExists(JSONArray jsonArray , String stepName , String stepValue) {
+    public boolean checkStepExists(JSONArray jsonArray , String stepName, String stepValue) {
         boolean exists = false;
         if (jsonArray.size() > 0) {
             Iterator iterator = jsonArray.iterator();
