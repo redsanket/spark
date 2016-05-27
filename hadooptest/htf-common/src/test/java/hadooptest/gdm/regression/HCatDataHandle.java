@@ -28,7 +28,8 @@ public class HCatDataHandle {
      * @param tableName -  name of the table to be created
      * @throws Exception
      */
-    static void createTable(String clusterName, String tableName)throws Exception{
+    static void createTable(String clusterName, String tableName) throws Exception {
+        TestSession.logger.info("Creating table " + tableName + " on HCat for cluster " + clusterName);
         String[] command = new String [5];
         command[0] = scriptsDirectory + DRIVER_SCRIPT;
         command[1] = scriptsDirectory;
