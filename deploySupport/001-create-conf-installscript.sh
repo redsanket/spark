@@ -100,6 +100,9 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     if [ "$ENABLE_HA" = true ]; then
         echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nnalias \\
         # not finding and active use of this var, disable for now
+        # original work is in bugzilla at:
+        #     http://bug.corp.yahoo.com/show_bug.cgi?id=6941236
+        #     http://bug.corp.yahoo.com/show_bug.cgi?id=6941110
         # echo "  " -set $confpkg.TODO_QE_CLUSTER_NN_ADDR=\$nnalias \\
     else
       case "$HADOOPVERSION" in
