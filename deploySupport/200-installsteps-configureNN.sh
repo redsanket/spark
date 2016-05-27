@@ -36,7 +36,7 @@ if [ "$ENABLE_HA" = true ];then
   fanoutSecondary "ifdown eth2:0"
   RESULT_STANDBY=`pdsh -w $ALLSECONDARYNAMENODESLIST "ifconfig | grep eth2:0"`
   #echo RESULT_STANDBY is: $RESULT_STANDBY
-  if [ -z $RESULT_STANDBY ]; then
+  if [ -z "$RESULT_STANDBY" ]; then
     echo "Standby namenode eth2:0 is down"
   else
     echo "ERROR: Standby namenode eth2:0 is not down"
@@ -44,9 +44,9 @@ if [ "$ENABLE_HA" = true ];then
 
   echo "Try to ifup nn..."
   fanoutNN "ifup eth2:0"
-  RESULT_ACTIVE=`pdsh -w $ALLNAMENODESLIST "ifconfig | grep eth2:0"` | grep eth2:0
+  RESULT_ACTIVE=`pdsh -w $ALLNAMENODESLIST "ifconfig | grep eth2:0"`
   echo RESULT_ACTIVE is: $RESULT_ACTIVE
-  if [ -n $RESULT_ACTIVE ]; then
+  if [ -n "$RESULT_ACTIVE" ]; then
     echo "Active namenode eth2:0 is up"
   else
     echo "ERROR: Active namenode eth2:0 is not up"
