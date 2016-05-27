@@ -50,4 +50,5 @@ if [ "$ENABLE_HA" = true ];then
     echo "Active namenode eth2:0 is up"
   else
     echo "ERROR: Active namenode eth2:0 is not up"
+  fi
 fi
