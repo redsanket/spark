@@ -13,6 +13,7 @@ import hadooptest.cluster.gdm.JSONUtil;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 import hadooptest.SerialTests;
+import hadooptest.Util;
 
 /**
  * 
@@ -35,7 +37,11 @@ public class PauseRetentionRestAPITest extends TestSession {
 	private String url;
 	private ConsoleHandle consoleHandle;
 	private JSONUtil jsonUtil;
-	public static final String DataSetPath = "/console/query/config/dataset/getDatasets";
+	private String sourceGrid;
+	private String target;
+	private String newDataSetName =  "TestDataSet_" + System.currentTimeMillis();
+	private static final String INSTANCE1 = "20151201";
+	public static final String DATA_SET_PATH = "/console/query/config/dataset/getDatasets";
 	private static final String PauseRetentionPath ="/console/rest/config/dataset/actions";
 	private List<String> datasetsResultList;
 	private String hostName;
@@ -55,10 +61,24 @@ public class PauseRetentionRestAPITest extends TestSession {
 		this.url = this.consoleHandle.getConsoleURL();
 		TestSession.logger.info("url = " + url);
 
-		// Invoke "/console/query/config/dataset/getDatasets" GDM REST API and select DatasetName element(s) from the response & store them in List
-		datasetsResultList = getDataSetListing(cookie , this.url + this.DataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+		datasetsResultList = getDataSetListing(cookie , this.url + this.DATA_SET_PATH).getBody().jsonPath().getList("DatasetsResult.DatasetName");
 		if (datasetsResultList == null) {
 			fail("Failed to get the datasets");
+		}
+
+		if (datasetsResultList.size() == 0) {
+			// create the dataset.
+
+			List<String> grids = this.consoleHandle.getUniqueGrids();
+			if (grids.size() < 2) {
+				Assert.fail("Only " + grids.size() + " of 2 required grids exist");
+			}
+			this.sourceGrid = grids.get(0);
+			this.target = grids.get(1);
+			createDataset();
+
+			datasetsResultList = getDataSetListing(cookie , this.url + this.DATA_SET_PATH).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+			assertTrue("Failed to get the newly created dataset name" , datasetsResultList.size() > 0);
 		}
 	}
 
@@ -99,9 +119,13 @@ public class PauseRetentionRestAPITest extends TestSession {
 	 */
 	@Test
 	public void testPauseRetentionDisabledOnSetOfDataset() {
-		String datasetName1 = datasetsResultList.get(0);
-		String datasetName2 = datasetsResultList.get(1);
-		List<String> dataNameList = Arrays.asList(datasetName1 , datasetName2);
+		List<String> dataNameList = new java.util.ArrayList<String>();
+		if (datasetsResultList.size() == 1) {
+			dataNameList.add(datasetsResultList.get(0));
+		} else if (datasetsResultList.size() > 1) {
+			dataNameList.add(datasetsResultList.get(0));
+			dataNameList.add(datasetsResultList.get(1));
+		}
 		String resource = jsonUtil.constructResourceNamesParameter(dataNameList);
 		Response response = given().cookie(cookie).param("resourceNames", resource).param("command","disableRetention").post(this.url + PauseRetentionPath);
 		assertTrue(this.hostName + this.PauseRetentionPath + " failed and got http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
@@ -120,9 +144,13 @@ public class PauseRetentionRestAPITest extends TestSession {
 	 */
 	@Test
 	public void testPauseRetentionEnabledOnSetOfDataset() {
-		String datasetName1 = datasetsResultList.get(0);
-		String datasetName2 = datasetsResultList.get(1);
-		List<String> dataNameList = Arrays.asList(datasetName1 , datasetName2);
+		List<String> dataNameList = new java.util.ArrayList<String>();
+		if (datasetsResultList.size() == 1) {
+			dataNameList.add(datasetsResultList.get(0));
+		} else if (datasetsResultList.size() > 1) {
+			dataNameList.add(datasetsResultList.get(0));
+			dataNameList.add(datasetsResultList.get(1));
+		}
 		String resource = jsonUtil.constructResourceNamesParameter(dataNameList);
 		Response response = given().cookie(cookie).param("resourceNames", resource).param("command","enableRetention").post(this.url + PauseRetentionPath);
 		assertTrue(this.hostName + this.PauseRetentionPath + " failed and got http response " + response.getStatusCode() , response.getStatusCode() == SUCCESS);
@@ -148,9 +176,30 @@ public class PauseRetentionRestAPITest extends TestSession {
 		assertTrue("Expected -1 but got " + jsonPath.getString("Response.ResponseId") , jsonPath.getString("Response.ResponseId").equals("-1"));
 		assertTrue("Expected failed. Error: ConfigStore Exception. But got " +jsonPath.getString("Response.ResponseMessage") , jsonPath.getString("Response.ResponseMessage").contains("failed. Error: ConfigStore Exception.") );
 	}
-	
+
 	private com.jayway.restassured.response.Response getDataSetListing(String cookie , String url)  {
 		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url );
 		return response;
+	}
+
+	private void createDataset() {
+		String basePath = "/projects/" + this.newDataSetName + "/data/%{date}";
+		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/BasicReplDataSet1Target.xml");
+		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.newDataSetName, dataSetConfigFile);
+		dataSetXml = dataSetXml.replaceAll("TARGET", this.target);
+		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.newDataSetName);
+		dataSetXml = dataSetXml.replaceAll("SOURCE", this.sourceGrid );
+		dataSetXml = dataSetXml.replaceAll("START_TYPE", "fixed" );
+		dataSetXml = dataSetXml.replaceAll("START_DATE", INSTANCE1);
+		dataSetXml = dataSetXml.replaceAll("END_TYPE", "offset");
+		dataSetXml = dataSetXml.replaceAll("END_DATE", "0");
+		dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", basePath);
+		dataSetXml = dataSetXml.replaceAll("CUSTOM_PATH_DATA", basePath);
+		hadooptest.cluster.gdm.Response response = this.consoleHandle.createDataSet(this.newDataSetName, dataSetXml);
+		if (response.getStatusCode() != org.apache.commons.httpclient.HttpStatus.SC_OK) {
+			Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+		}
+
+		this.consoleHandle.sleep(30000);
 	}
 }
