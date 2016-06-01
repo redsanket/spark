@@ -2,9 +2,11 @@ package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,6 +17,7 @@ import com.jayway.restassured.path.json.JsonPath;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
@@ -34,16 +37,19 @@ import net.sf.json.JSONArray;
  */
 
 @Category(SerialTests.class)
-//@RunWith(GDMGenerateReport.class)
 public class SearchDataSetByPathRestAPITest extends TestSession {
 
 	public static final String dataSetPath = "/console/query/config/dataset/getDatasets";
 	private static final String dataSetRestAPIPath = "/console/api/datasets/view";
+	private String sourceGrid;
+	private String target;
+	private String newDataSetName =  "TestDataSet_" + System.currentTimeMillis();
+	private static final String INSTANCE1 = "20151201";
 	private String cookie;
 	private String url;
 	private ConsoleHandle consoleHandle;
 	private JSONUtil jsonUtil;
-	private List<String>dataSetsResultList;
+	private List<String>datasetsResultList;
 	private com.jayway.restassured.response.Response response;
 
 	@BeforeClass
@@ -59,8 +65,26 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 		this.cookie = httpHandle.getBouncerCookie();
 		this.url = this.consoleHandle.getConsoleURL();
 
-		dataSetsResultList = given().cookie(cookie).get(this.url + dataSetPath ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
-		TestSession.logger.info("dataSetsResultList  = " + dataSetsResultList.toString());
+		datasetsResultList = given().cookie(cookie).get(this.url + dataSetPath ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+		if (datasetsResultList == null) {
+			fail("Failed to get the datasets");
+		}
+
+		if (datasetsResultList.size() == 0) {
+			// create the dataset.
+
+			List<String> grids = this.consoleHandle.getUniqueGrids();
+			if (grids.size() < 2) {
+				Assert.fail("Only " + grids.size() + " of 2 required grids exist");
+			}
+			this.sourceGrid = grids.get(0);
+			this.target = grids.get(1);
+			createDataset();
+
+			datasetsResultList = getDataSetListing(cookie , this.url + this.dataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+			assertTrue("Failed to get the newly created dataset name" , datasetsResultList.size() > 0);
+			TestSession.logger.info("dataSetsResultList  = " + datasetsResultList.toString());
+		}
 	}
 
 	@Test
@@ -77,7 +101,7 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 * atleast  we should get one dataset from the given path.
 	 */
 	public void testSearchDataSetByPartialPath() {
-		String dataSetPath = "/data/daqdev/data/";
+		String dataSetPath = "/data/";
 		response = given().cookie(cookie).get(this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath);
 		JsonPath jsonPath = response.jsonPath();
 		TestSession.logger.info("url = " + url + dataSetRestAPIPath + "?prefix=" + dataSetPath);
@@ -93,7 +117,7 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 * Test Scenario : Get all the dataset that matches the regular expression of the dataset path
 	 */
 	public void testSearchDataSetByPathUsingRegEx() {
-		String dataSetName = dataSetsResultList.get(0).trim();
+		String dataSetName = datasetsResultList.get(0).trim();
 		String searchString  = dataSetName.substring(0, 4);
 		String regEx = searchString + "*";
 		String dataSetPath = "/data/daqdev/data/" + regEx;
@@ -115,16 +139,16 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 * 
 	 */
 	public void testSearchDataSetByCompleteDataSetPath() {
-		String dataSetName = dataSetsResultList.get(0).trim();
+		String dataSetName = datasetsResultList.get(0).trim();
 		// get path for this dataset
 		String getDataSetByNameURL = this.url + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
 		response = given().cookie(cookie).get(getDataSetByNameURL);
-                String responseString = response.getBody().asString();
-                JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
-                jsonObject = jsonObject.getJSONObject("DataSet");
+		String responseString = response.getBody().asString();
+		JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
+		jsonObject = jsonObject.getJSONObject("DataSet");
 		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
 		String dataSetPath = (String)jsonArray.get(0);
-                
+
 		String testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
 		TestSession.logger.info("testURL = " + testURL);
 		response = given().cookie(cookie).get(testURL);
@@ -163,7 +187,33 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 		List<String> dataSetNamesList = jsonPath.getList("DatasetsResult.DatasetName");
 
 		// Assuming that atleast one dataset will get selected
-		assertTrue("Expected not null dataset but got " +dataSetNamesList.toString() , !dataSetsResultList.isEmpty());
+		assertTrue("Expected not null dataset but got " +dataSetNamesList.toString() , !datasetsResultList.isEmpty());
+	}
+
+	private void createDataset() {
+		String basePath = "/data/daqdev/" + this.newDataSetName + "/data/%{date}";
+		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/BasicReplDataSet1Target.xml");
+		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.newDataSetName, dataSetConfigFile);
+		dataSetXml = dataSetXml.replaceAll("TARGET", this.target);
+		dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.newDataSetName);
+		dataSetXml = dataSetXml.replaceAll("SOURCE", this.sourceGrid );
+		dataSetXml = dataSetXml.replaceAll("START_TYPE", "fixed" );
+		dataSetXml = dataSetXml.replaceAll("START_DATE", INSTANCE1);
+		dataSetXml = dataSetXml.replaceAll("END_TYPE", "offset");
+		dataSetXml = dataSetXml.replaceAll("END_DATE", "0");
+		dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", basePath);
+		dataSetXml = dataSetXml.replaceAll("CUSTOM_PATH_DATA", basePath);
+		hadooptest.cluster.gdm.Response response = this.consoleHandle.createDataSet(this.newDataSetName, dataSetXml);
+		if (response.getStatusCode() != org.apache.commons.httpclient.HttpStatus.SC_OK) {
+			Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+		}
+
+		this.consoleHandle.sleep(30000);
+	}
+
+	private com.jayway.restassured.response.Response getDataSetListing(String cookie , String url)  {
+		com.jayway.restassured.response.Response response = given().cookie(cookie).get(url );
+		return response;
 	}
 
 }
