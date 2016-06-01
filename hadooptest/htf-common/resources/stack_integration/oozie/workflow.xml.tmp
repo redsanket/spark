@@ -90,7 +90,7 @@
       <param>INPUTFILE=${my_srcFile}</param>
       <param>OUTPUTDIR=${my_outputDir}</param>
       <argument>-x</argument>
-      <argument>mapreduce</argument>
+      <argument>tez</argument>
 
     </pig>
     <ok to="hive_storage" />
