@@ -122,7 +122,7 @@ public class PauseRetentionRestAPITest extends TestSession {
 		List<String> dataNameList = new java.util.ArrayList<String>();
 		if (datasetsResultList.size() == 1) {
 			dataNameList.add(datasetsResultList.get(0));
-		} else if (datasetsResultList.size() >= 1) {
+		} else if (datasetsResultList.size() > 1) {
 			dataNameList.add(datasetsResultList.get(0));
 			dataNameList.add(datasetsResultList.get(1));
 		}
@@ -147,7 +147,7 @@ public class PauseRetentionRestAPITest extends TestSession {
 		List<String> dataNameList = new java.util.ArrayList<String>();
 		if (datasetsResultList.size() == 1) {
 			dataNameList.add(datasetsResultList.get(0));
-		} else if (datasetsResultList.size() >= 1) {
+		} else if (datasetsResultList.size() > 1) {
 			dataNameList.add(datasetsResultList.get(0));
 			dataNameList.add(datasetsResultList.get(1));
 		}
