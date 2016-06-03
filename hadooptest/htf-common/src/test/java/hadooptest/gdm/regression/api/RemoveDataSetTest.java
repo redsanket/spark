@@ -3,10 +3,13 @@ package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import hadooptest.Util;
 
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
@@ -14,6 +17,8 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
+
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,20 +36,24 @@ import com.jayway.restassured.path.json.JsonPath;
 @Category(SerialTests.class)
 public class RemoveDataSetTest extends TestSession {
 
-    private ConsoleHandle consoleHandle;
-    private String cookie;
-    private String url;
-    public static final String DataSetPath = "/console/query/config/dataset/getDatasets";
-    public static final String DataSourcePath = "/console/query/config/datasource";
-    private String originalDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange" ;
-    private List<String>dataSourceList;
-    private List<String>dataTargetList;
-    private static List<String>newDataSourceList = new ArrayList<String>();
-    private static List<String>newDataTargetList = new ArrayList<String>();
-    private static String newDataSetName;
-    private JSONUtil jsonUtil;
-    private static int SUCCESS = 200;
-    private static int SLEEP_TIME = 50000; 
+	private ConsoleHandle consoleHandle;
+	private String cookie;
+	private String url;
+	public static final String DATA_SET_PATH = "/console/query/config/dataset/getDatasets";
+	public static final String DataSourcePath = "/console/query/config/datasource";
+	private String originalDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange" ;
+	private List<String> dataSourceList;
+	private List<String> dataTargetList;
+	private List<String> datasetsResultList;
+	private static List<String>newDataSourceList = new ArrayList<String>();
+	private static List<String>newDataTargetList = new ArrayList<String>();
+	private static String newDataSetName  =  "TestDataSet_" + System.currentTimeMillis();
+	private JSONUtil jsonUtil;
+	private static int SUCCESS = 200;
+	private static int SLEEP_TIME = 50000; 
+	private String sourceGrid;
+	private String target;
+	private static final String INSTANCE1 = "20151201";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -53,12 +62,38 @@ public class RemoveDataSetTest extends TestSession {
 
     @Before
     public void setUp() throws NumberFormatException, Exception {
-        HTTPHandle httpHandle = new HTTPHandle();
-        jsonUtil = new JSONUtil();
-        consoleHandle = new ConsoleHandle();
-        cookie = httpHandle.getBouncerCookie();
-        this.url = this.consoleHandle.getConsoleURL();
-        TestSession.logger.info("url = " + url);
+    	HTTPHandle httpHandle = new HTTPHandle();
+    	jsonUtil = new JSONUtil();
+    	consoleHandle = new ConsoleHandle();
+    	cookie = httpHandle.getBouncerCookie();
+    	this.url = this.consoleHandle.getConsoleURL();
+    	TestSession.logger.info("url = " + url);
+
+
+    	datasetsResultList = given().cookie(cookie).get(this.url + DATA_SET_PATH ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+    	if (datasetsResultList == null) {
+    		fail("Failed to get the datasets");
+    	}
+
+    	if (datasetsResultList.size() == 0) {
+    		// create the dataset.
+
+    		List<String> grids = this.consoleHandle.getUniqueGrids();
+    		if (grids.size() < 2) {
+    			Assert.fail("Only " + grids.size() + " of 2 required grids exist");
+    		}
+    		this.sourceGrid = grids.get(0);
+    		this.target = grids.get(1);
+    		createDataset();
+
+    		originalDataSetName = newDataSetName;
+
+    		datasetsResultList = given().cookie(cookie).get(this.url + DATA_SET_PATH ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
+    		assertTrue("Failed to get the newly created dataset name" , datasetsResultList.size() > 0);
+    		TestSession.logger.info("dataSetsResultList  = " + datasetsResultList.toString());
+    	} else if (datasetsResultList.size() > 0) {
+    		originalDataSetName = datasetsResultList.get(0);
+    	}
     }
 
     @Test
@@ -174,9 +209,11 @@ public class RemoveDataSetTest extends TestSession {
         String actionName = jsonPath.getString("Response.ActionName");
         String responseId = jsonPath.getString("Response.ResponseId");
         assertTrue("Expected update action name , but found " + actionName , actionName.equals("update"));
-        assertTrue("Expected 0, but found " + responseId , responseId.equals("0"));
+        
+        // since last target can't be removed from dataset, trying to remove will fail.
+        assertTrue("Expected -1, but found " + responseId , responseId.equals("-1"));
         String responseMessage = jsonPath.getString("Response.ResponseMessage");
-        boolean flag = responseMessage.contains(this.newDataSetName) && responseMessage.contains("successful");
+        boolean flag = responseMessage.contains(this.newDataSetName);
         assertTrue("failed to get the correct message, but found " + responseMessage , flag == true);
     }
 
@@ -363,6 +400,30 @@ public class RemoveDataSetTest extends TestSession {
         // Create a new dataset
         Response response = this.consoleHandle.createDataSet(this.newDataSetName, dataSetXml);
         assertTrue("Failed to create a dataset " +this. newDataSetName , response.getStatusCode() == SUCCESS);
+    }
+    
+    /**
+     * Create a dataset.
+     */
+    private void createDataset() {
+    	String basePath = "/data/daqdev/" + this.newDataSetName + "/data/%{date}";
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/BasicReplDataSet1Target.xml");
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.newDataSetName, dataSetConfigFile);
+    	dataSetXml = dataSetXml.replaceAll("TARGET", this.target);
+    	dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.newDataSetName);
+    	dataSetXml = dataSetXml.replaceAll("SOURCE", this.sourceGrid );
+    	dataSetXml = dataSetXml.replaceAll("START_TYPE", "fixed" );
+    	dataSetXml = dataSetXml.replaceAll("START_DATE", INSTANCE1);
+    	dataSetXml = dataSetXml.replaceAll("END_TYPE", "offset");
+    	dataSetXml = dataSetXml.replaceAll("END_DATE", "0");
+    	dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", basePath);
+    	dataSetXml = dataSetXml.replaceAll("CUSTOM_PATH_DATA", basePath);
+    	hadooptest.cluster.gdm.Response response = this.consoleHandle.createDataSet(this.newDataSetName, dataSetXml);
+    	if (response.getStatusCode() != org.apache.commons.httpclient.HttpStatus.SC_OK) {
+    		Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+    	}
+
+    	this.consoleHandle.sleep(30000);
     }
 
 }
