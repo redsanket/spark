@@ -12,7 +12,7 @@ kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.C
 
 result=`/home/y/bin/hive -e 'use gdm; show tables;'`
 exists=`echo $result | grep -io "${tableName}$\|${tableName} "`
-if [ "$exists" = "" ]
+if [ "$exists" == "" ]
 then
   exit 1
 else
