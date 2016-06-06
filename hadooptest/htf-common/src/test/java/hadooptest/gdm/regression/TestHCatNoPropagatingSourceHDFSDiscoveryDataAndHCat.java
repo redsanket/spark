@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import hadooptest.Util;
@@ -43,6 +44,13 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         dataSetName = "TestHCatNoPropSrcHDFSDiscMix_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
+        List<String> allGrids = this.consoleHandle.getHCatEnabledGrid();
+        if (allGrids.size() < 2) {
+        	 throw new Exception("Unable to run test: 2 hcat enabled grid datasources are required.");
+        }
+        sourceCluster=allGrids.get(0);
+        targetCluster=allGrids.get(1);
+        
         tableName = "HTF_Test_" + suffix;
         //create table
         HCatDataHandle.createTable(sourceCluster, tableName);
