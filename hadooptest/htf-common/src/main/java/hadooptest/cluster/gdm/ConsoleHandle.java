@@ -1075,7 +1075,51 @@ public final class ConsoleHandle {
         }
     }
     
-    
+    /**
+     * @return list of S3 grid dataSource names on the console
+     */
+    public List<String> getS3Grids() {
+    	try {
+            List<String> grids = new ArrayList<String>();
+            
+            JSONArray dataSourceResult = this.getDataSources();
+            if (dataSourceResult != null) {
+                Iterator iterator = dataSourceResult.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject dataSource = (JSONObject)iterator.next();
+                    if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
+                        
+                        String name = dataSource.getString("DataSourceName");
+                        
+                        // if the grid skips uploading jars, assume it is an S3 grid
+                        String dataSourceXml = this.getDataSourceXml(name);
+                        if (!dataSourceXml.contains("skip.job.jars.upload")) {
+                            continue;
+                        }
+                        
+                        // ignore inactive grids
+                        if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                            grids.add(name);
+                        }
+                    }
+                }
+            } else {
+                throw new Exception("unable to find DataSourceResult");
+            }
+            
+            String listString = "Unique S3 grids are: ";
+            for (String s : grids) {
+                listString += s + "  ";
+            }
+            TestSession.logger.info(listString);
+            
+            return grids;
+        } catch (Exception e) {
+            TestSession.logger.error("Unexpected exception", e);
+            Assert.fail("Unexpected exception - " + e.getMessage());
+            return null;
+        }
+    }
     
     private JSONArray getDataSources() throws Exception {
         String url = this.consoleURL + "/console/api/datasources/view";
