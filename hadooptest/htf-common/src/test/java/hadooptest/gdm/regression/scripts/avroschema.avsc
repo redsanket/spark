@@ -1,0 +1,8 @@
+{
+     "type": "record",
+     "namespace": "gdm.test",
+     "name": "sample_avro",
+     "fields": [
+       { "name": "last", "type": "string" }
+     ]
+} 

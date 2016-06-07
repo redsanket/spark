@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSession {
     
     private static String baseDataSetName = "HCat_Test_Template";
-    private static String sourceCluster = "qe6blue";
-    private static String targetCluster = "qe9blue";
+    private static String sourceCluster;
+    private static String targetCluster;
     private static final int SUCCESS = 200;
     private String dsActivationTime; 
     private String dataSetName; 
@@ -46,11 +46,10 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         workFlowHelperObj = new WorkFlowHelper();
         List<String> allGrids = this.consoleHandle.getHCatEnabledGrid();
         if (allGrids.size() < 2) {
-        	 throw new Exception("Unable to run test: 2 hcat enabled grid datasources are required.");
+            throw new Exception("Unable to run test: 2 hcat enabled grid datasources are required.");
         }
         sourceCluster=allGrids.get(0);
         targetCluster=allGrids.get(1);
-        
         tableName = "HTF_Test_" + suffix;
         //create table
         HCatDataHandle.createTable(sourceCluster, tableName);
@@ -62,15 +61,6 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         //since the source isn't being propagated 
         //the target needs to have this table.
         HCatDataHandle.createTableOnly(targetCluster,tableName);
-        
-        boolean isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(sourceCluster);
-        if (!isHCatSupported) {
-            this.consoleHandle.modifyDataSource(sourceCluster, "HCatSupported", "FALSE", "TRUE");
-        }
-        isHCatSupported = this.consoleHandle.isHCatEnabledForDataSource(targetCluster);
-        if (!isHCatSupported) {
-            this.consoleHandle.modifyDataSource(targetCluster, "HCatSupported", "FALSE", "TRUE");
-        }
     }
     
     @Test 
@@ -93,7 +83,7 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     
     public void createDataSet(){
     	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
-    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+    	StringBuilder dataSetXml = new StringBuilder(this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile));
         
         TestSession.logger.info("before dataSet  = " + dataSetXml);
         
@@ -103,28 +93,49 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         //set propagation type to be no propagation
         String pattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
         String replaceWith = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
-        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //set discovery interface to HDFS
         pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
         replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        dataSetXml =  dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //replace dummy path with correct path
-        dataSetXml = dataSetXml.replaceAll("dummy_path", tableName);
+        replaceAll(dataSetXml,"dummy_path", tableName);
         
-
+        //update source with current source
+        int offset = dataSetXml.indexOf("<Source ");
+        int indexOne = dataSetXml.indexOf("name=", offset) + "name=".length() +1;
+        int indexTwo = dataSetXml.indexOf("\"",indexOne);
+        dataSetXml.replace(indexOne, indexTwo, sourceCluster);
+        
+        //update target with current target
+        offset = dataSetXml.indexOf("<Target ");
+        indexOne = dataSetXml.indexOf("name=", offset) + "name=".length() +1;
+        indexTwo = dataSetXml.indexOf("\"",indexOne);
+        dataSetXml.replace(indexOne, indexTwo, targetCluster);
+        
         // replace basedatasetName with the new datasetname
-        dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
-        TestSession.logger.info("dataSetXml  = " + dataSetXml);
-        Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
+        replaceAll(dataSetXml,this.baseDataSetName, this.dataSetName);
+        TestSession.logger.info("dataSetXml  = " + dataSetXml.toString());
+        Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml.toString());
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
+    }
+    
+    private void replaceAll(StringBuilder sBuilder, String pattern, String replaceWith){
+        int index = sBuilder.indexOf(pattern);
+        while (index != -1)
+        {
+            sBuilder.replace(index, index + pattern.length(), replaceWith);
+            index += replaceWith.length();
+            index = sBuilder.indexOf(pattern, index);
+        }
     }
 
 }
