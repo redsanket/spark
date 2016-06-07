@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="HTF_test" description="htf hcat test"
+    name="HCat_Test_Template"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>FALSE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>NORMAL</Priority>
+    <Contact/>
+    <Comments/>
+    <UGI group="users" owner="dfsload" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>21600</DiscoveryFrequency>
+    <DiscoveryInterface>HCAT</DiscoveryInterface>
+    <SmallestExpectedInstanceSize/>
+    <LargestExpectedInstanceSize/>
+    <Paths>
+        <Path
+            location="/data/daqdev/data/dummy_path/instancedate=%{date}" type="data"/>
+    </Paths>
+    <Parameters/>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey/>
+        <PartitionKey/>
+        <DataPathMask/>
+        <AddFields/>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>3</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>16</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="1234" name="qe6blue" switchovertype="Standard">
+            <HCatSourceRetention>FALSE</HCatSourceRetention>
+        </Source>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="1234" name="qe9blue" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20220131"/>
+                <StartDate type="Fixed" value="20110101"/>
+            </DateRange>
+            <HCatTargetType>Mixed</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="instanceDate(instancelist, instance) > 23" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="1" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatDatabaseName>gdm</HCatDatabaseName>
+        <HCatForceExternalTables>FALSE</HCatForceExternalTables>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatRunTargetFilter>FALSE</HCatRunTargetFilter>
+        <HCatTableName>dummy_tablename</HCatTableName>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+    <ExtendedState>
+        <History>Last edited by mmukhi (2016/2/25 22:22:55)</History>
+    </ExtendedState>
+    <Project/>
+    <Tags/>
+    <ReplicationOptions>
+        <Validation>FALSE</Validation>
+    </ReplicationOptions>
+    <SchemaVersion>5</SchemaVersion>
+</DataSet>

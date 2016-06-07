@@ -4,8 +4,10 @@ clusterName=$2
 tableName=$3
 command=$4
 hcatServer=`yinst range -ir "(@grid_re.clusters.${clusterName}.hive)"`
+echo "hcatServer = " $hcatServer  "   clusterName =   " $clusterName
 ssh ${hcatServer} "rm -r /tmp/gdm_hcat_test"
 ssh ${hcatServer} "mkdir /tmp/gdm_hcat_test"
+ssh ${hcatServer} "chmod -R 777 /tmp/gdm_hcat_test"
 case $command in
   create)
     echo "Creating this hcat table : " $tableName "on server : " $hcatServer  
