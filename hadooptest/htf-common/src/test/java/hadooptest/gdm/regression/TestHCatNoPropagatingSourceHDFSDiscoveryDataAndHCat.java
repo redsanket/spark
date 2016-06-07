@@ -83,7 +83,7 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     
     public void createDataSet(){
     	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
-    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+    	StringBuilder dataSetXml = new StringBuilder(this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile));
         
         TestSession.logger.info("before dataSet  = " + dataSetXml);
         
@@ -93,40 +93,49 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         //set propagation type to be no propagation
         String pattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
         String replaceWith = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
-        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //set discovery interface to HDFS
         pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
         replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        dataSetXml =  dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
+        replaceAll(dataSetXml,pattern, replaceWith);
         
         //replace dummy path with correct path
-        dataSetXml = dataSetXml.replaceAll("dummy_path", tableName);
+        replaceAll(dataSetXml,"dummy_path", tableName);
         
         //update source with current source
-        int offset = dataSetBuilder.indexOf("<Source ");
-        int indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        int indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, sourceCluster);
+        int offset = dataSetXml.indexOf("<Source ");
+        int indexOne = dataSetXml.indexOf("name=", offset) + "name=".length() +1;
+        int indexTwo = dataSetXml.indexOf("\"",indexOne);
+        dataSetXml.replace(indexOne, indexTwo, sourceCluster);
         
         //update target with current target
-        offset = dataSetBuilder.indexOf("<Target ");
-        indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, targetCluster);
+        offset = dataSetXml.indexOf("<Target ");
+        indexOne = dataSetXml.indexOf("name=", offset) + "name=".length() +1;
+        indexTwo = dataSetXml.indexOf("\"",indexOne);
+        dataSetXml.replace(indexOne, indexTwo, targetCluster);
         
-        String dataSetXml = dataSetBuilder.toString();
         // replace basedatasetName with the new datasetname
-        dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
-        TestSession.logger.info("dataSetXml  = " + dataSetXml);
-        Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
+        replaceAll(dataSetXml,this.baseDataSetName, this.dataSetName);
+        TestSession.logger.info("dataSetXml  = " + dataSetXml.toString());
+        Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml.toString());
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
+    }
+    
+    private void replaceAll(StringBuilder sBuilder, String pattern, String replaceWith){
+        int index = sBuilder.indexOf(pattern);
+        while (index != -1)
+        {
+            sBuilder.replace(index, index + pattern.length(), replaceWith);
+            index += replaceWith.length();
+            index = sBuilder.indexOf(pattern, index);
+        }
     }
 
 }
