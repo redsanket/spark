@@ -19,6 +19,7 @@ public class DataSetTarget {
     private String hcatType;
     private Map<String,String> paths = new HashMap<String,String>();
     private String numInstances;
+    private String replicationStrategy = "HFTPDistributedCopy";
     
     public DataSetTarget() {
     }
@@ -60,6 +61,8 @@ public class DataSetTarget {
         String condition = "numberOfInstances(instancelist, instance) > " + this.numInstances;
         this.addRequiredAttribute(policy, "condition", condition);
         this.addRequiredAttribute(policy, "type", "retention");
+        
+        this.appendRequiredElement(target, "ReplicationStrategy", this.replicationStrategy);
         
         Element resource = this.appendRequiredElement(target, "Resource");
         this.addRequiredAttribute(resource, "capacity", "10");
@@ -139,6 +142,10 @@ public class DataSetTarget {
     
     public void setNumInstances(String numInstances) {
         this.numInstances = numInstances;
+    }
+    
+    public void setReplicationStrategy(String replicationStrategy) {
+        this.replicationStrategy = replicationStrategy;
     }
 }
 

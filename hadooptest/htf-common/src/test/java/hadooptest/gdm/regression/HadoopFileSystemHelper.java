@@ -16,13 +16,14 @@ import org.apache.hadoop.security.UserGroupInformation;
 public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String> {
     
     public enum CommandEnum {
-        CreateDir, CreateFile, FileExists, NumFiles
+        CreateDir, CreateFile, FileExists, NumFiles, GetFileStatus
     }
     
     private Configuration configuration;
     private String fullPath;
     private UserGroupInformation ugi;
     private CommandEnum command = CommandEnum.CreateDir;
+    private FileStatus fileStatus;
     
     
     /**
@@ -78,6 +79,13 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         }
     }
     
+    public FileStatus getFileStatus(String fullPath) throws IOException, InterruptedException {
+        this.fullPath = fullPath;
+        this.command = CommandEnum.GetFileStatus;
+        this.ugi.doAs(this);
+        return this.fileStatus;
+    }
+    
     /**
      * Gets the number of files for a specified path
      * 
@@ -117,6 +125,9 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
             break;
         case NumFiles:
             result = runNumFilesCommand();
+            break;
+        case GetFileStatus:
+            runGetFileStatus();
             break;
         default: 
             throw new IOException("Unsupported operation - " + this.command);
@@ -171,6 +182,12 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         }
         fsDataOutPutStream.write(data);
         fsDataOutPutStream.close(); 
+    }
+    
+    private void runGetFileStatus() throws IOException {
+        FileSystem fs = FileSystem.get(this.configuration);
+        Path path = new Path(this.fullPath);
+        this.fileStatus = fs.getFileStatus(path);
     }
     
     private Configuration getConfiguration(String gridName) {

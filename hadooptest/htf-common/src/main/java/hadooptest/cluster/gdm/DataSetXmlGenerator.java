@@ -36,6 +36,10 @@ public class DataSetXmlGenerator {
     private String source;
     private DataSetTarget target;
     private Map<String,String> sourcePaths = new HashMap<String,String>();
+    private Map<String,String> parameters = new HashMap<String,String>();
+    private String owner = "dfsload";
+    private String group = "users";
+    private String permission = "755";
     
     public DataSetXmlGenerator() {
     }
@@ -61,8 +65,9 @@ public class DataSetXmlGenerator {
             this.appendRequiredElement(dataset, "RetentionEnabled", this.retentionEnabled);
             this.appendRequiredElement(dataset, "Priority", this.priority);
             Element ugi = this.appendRequiredElement(dataset, "UGI");
-            this.addRequiredAttribute(ugi, "group", "users");
-            this.addRequiredAttribute(ugi, "permission", "755");
+            this.addRequiredAttribute(ugi, "owner", this.owner);
+            this.addRequiredAttribute(ugi, "group", this.group);
+            this.addRequiredAttribute(ugi, "permission", this.permission);
             
             this.appendRequiredElement(dataset, "Frequency", this.frequency);
             this.appendRequiredElement(dataset, "DiscoveryFrequency", this.discoveryFrequency);
@@ -76,6 +81,16 @@ public class DataSetXmlGenerator {
                 this.addRequiredAttribute(path, "location", (String)entry.getValue());
                 this.addRequiredAttribute(path, "type", (String)entry.getKey());
                 sourcePathIterator.remove();
+            }
+            
+            Element parametersElement = this.appendRequiredElement(dataset, "Parameters");
+            Iterator parameterIterator = parameters.entrySet().iterator();
+            while (parameterIterator.hasNext()) {
+                Map.Entry entry = (Map.Entry)parameterIterator.next();
+                Element attribute = this.appendRequiredElement(parametersElement, "attribute");
+                this.addRequiredAttribute(attribute, "name", (String)entry.getKey());
+                this.addRequiredAttribute(attribute, "value", (String)entry.getValue());
+                parameterIterator.remove();
             }
             
             Element sources = this.appendRequiredElement(dataset, "Sources");
@@ -183,6 +198,25 @@ public class DataSetXmlGenerator {
         this.target = target;
     }
     
+    /**
+     * Add a parameter to the dataset
+     * @param key
+     * @param value
+     */
+    public void addParameter(String key, String value) {
+        this.parameters.put(key, value);
+    }
     
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+    
+    public void setGroup(String group) {
+        this.group = group;
+    }
+    
+    public void setPermission(String permission) {
+        this.permission = permission;
+    } 
 }
 

@@ -52,11 +52,9 @@ public class GetDatasetsApiTest extends TestSession {
         
         //read console url 
         this.url =  this.consoleHandle.getConsoleURL();
-        TestSession.logger.info("url  = " + this.url);
+        TestSession.logger.debug("url  = " + this.url);
         HTTPHandle httpHandle = new HTTPHandle();
-        
         cookie = httpHandle.getBouncerCookie();
-        TestSession.logger.info("url = " + url);
          
         datasetsResultList = getDataSetListing(cookie , this.url + this.dataSetPath).getBody().jsonPath().getList("DatasetsResult.DatasetName");
         if(datasetsResultList == null){
