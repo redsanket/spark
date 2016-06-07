@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import hadooptest.Util;
+
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
@@ -18,7 +20,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
 
-public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSession{
+public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSession {
     
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster;
@@ -37,7 +39,7 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     }
     
     @Before
-    public void setup() throws Exception{
+    public void setup() throws Exception {
         String suffix = String.valueOf(System.currentTimeMillis());
         dataSetName = "TestHCatNoPropSrcHDFSDiscMix_" + suffix;
         consoleHandle = new ConsoleHandle();
@@ -62,7 +64,7 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     }
     
     @Test 
-    public void testHcatNoPropSrcHDFSDiscDataAndHCat() throws Exception{
+    public void testHcatNoPropSrcHDFSDiscDataAndHCat() throws Exception {
         //create dataset
         createDataSet();
         
@@ -80,7 +82,10 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     }
     
     public void createDataSet(){
-        StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+        
+        TestSession.logger.info("before dataSet  = " + dataSetXml);
         
         //set replication to be mixed
         //template is mined type by default
@@ -88,26 +93,20 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         //set propagation type to be no propagation
         String pattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
         String replaceWith = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf,indexOf + pattern.length(),replaceWith);
+        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
         
         //set discovery interface to HDFS
         pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
         replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml =  dataSetXml.replaceAll(pattern, replaceWith);
         
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
         
         //replace dummy path with correct path
-        pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
-        replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll("dummy_path", tableName);
         
         //update source with current source
         int offset = dataSetBuilder.indexOf("<Source ");
@@ -128,7 +127,6 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
-        
     }
 
 }
