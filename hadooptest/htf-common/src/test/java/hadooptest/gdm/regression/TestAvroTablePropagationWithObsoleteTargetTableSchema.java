@@ -16,10 +16,11 @@ import org.junit.Test;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestSession{
     
-    private static String baseDataSetName = "avro_replication";
+    private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster;
     private static String targetCluster;
     private static final int SUCCESS = 200;
@@ -55,10 +56,11 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
         partition = dateFormat.format(date);
         //create avro table on source with data and default value for schema
         HCatDataHandle.createAvroTable(sourceCluster, tableName,partition);
-        //create avro table on target without data and default value for schema
-        //this value will be updated after replication since GDM will create a directory 
-        //under table directory and copy the schema from source there, everytime. 
-        HCatDataHandle.createAvroTableWithoutData(targetCluster, tableName);
+        //create avro table on target with obsolete schema
+        HCatDataHandle.createObsoleteAvroTable(targetCluster, tableName);
+        TestSession.logger.info("Making sure that target has obsolete schema");
+        boolean status = HCatDataHandle.isAvroSchemaCorrect(sourceCluster, tableName, targetCluster);
+        assertFalse("At this point the source and target tables should have different schemas",status);
     }
     
     public void createDataSet(){
@@ -100,7 +102,7 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
     }
     
     @Test 
-    public void testHcatPropSrcHCatDiscDataAndHCat() throws Exception{
+    public void testAvroTablePropagationWithObsoleteTargetSchema() throws Exception{
         //create dataset
         createDataSet();
         
@@ -116,8 +118,12 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
         assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
                 " to " + targetCluster + ".",status);
         
-        //check if the target table has correct avro schema
+        //check if the avro schema is set on target
         status = HCatDataHandle.isAvroSchemaSet(targetCluster, tableName);
+        assertTrue("The "+ tableName +" doesn't have avro schema set on target cluster " + targetCluster + ".",status);
+        
+        //check if the target table has correct avro schema
+        status = HCatDataHandle.isAvroSchemaCorrect(sourceCluster, tableName,targetCluster);
         assertTrue("The "+ tableName +" doesn't have the expected avro schema on target cluster " + targetCluster + ".",status);
     }
 

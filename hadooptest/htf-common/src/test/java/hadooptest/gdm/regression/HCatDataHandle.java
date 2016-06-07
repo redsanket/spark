@@ -15,7 +15,9 @@ public class HCatDataHandle {
     private static final String CREATE_TABLE_ONLY_COMMAND = "create_table_only";
     private static final String DRIVER_SCRIPT = "HCatDataDriver.sh";
     private static final String CREATE_AVRO_COMMAND = "create_avro";
+    private static final String CREATE_OBSOLETE_AVRO_COMMAND = "create_obsolete_avro";
     private static final String IS_AVRO_SCHEMA_SET = "is_avro_schema_set";
+    private static final String IS_AVRO_SCHEMA_CORRECT = "is_avro_schema_correct";
     private static final String CREATE_AVRO_WITHOUT_DATA_COMMAND = "create_avro_without_data";
     private static String scriptsDirectory;
     static{
@@ -53,7 +55,7 @@ public class HCatDataHandle {
             }     
             stderrReader.close();
             stdoutReader.close();
-            throw new Exception("Error while running shell script: " + output);
+            TestSession.logger.info("Error while running shell script: " + output);
         }
         return exitStatus;
     }
@@ -80,6 +82,14 @@ public class HCatDataHandle {
         createAvroTable(clusterName,tableName,"");
     }
     
+    static void createObsoleteAvroTable(String clusterName, String tableName) throws Exception {
+        createObsoleteAvroTable(clusterName,tableName,"");
+    }
+    
+    static void createObsoleteAvroTable(String clusterName,String tableName, String partition) throws Exception {
+        runCommand(clusterName, tableName, CREATE_OBSOLETE_AVRO_COMMAND,partition);
+    }
+    
     static void createAvroTableWithoutData(String clusterName, String tableName) throws Exception {
         runCommand(clusterName,tableName,CREATE_AVRO_WITHOUT_DATA_COMMAND,"");
     }
@@ -87,6 +97,10 @@ public class HCatDataHandle {
     static boolean isAvroSchemaSet(String clusterName, String tableName) throws Exception {
         int status = runCommand(clusterName,tableName,IS_AVRO_SCHEMA_SET,"");
         return (status == 0)? true:false;
+    }
+    
+    static boolean isAvroSchemaCorrect(String sourceCluster, String tableName, String targetCluster)throws Exception {
+        return (runCommand(sourceCluster,tableName,IS_AVRO_SCHEMA_CORRECT,targetCluster) == 0)? true:false; 
     }
     
     static void createTableOnly(String clusterName, String tableName) throws Exception{

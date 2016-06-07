@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestAvroTablePropagationWithAbsentTargetTable extends TestSession{
     
-    private static String baseDataSetName = "avro_replication";
+    private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster;
     private static String targetCluster;
     private static final int SUCCESS = 200;
@@ -95,7 +95,7 @@ public class TestAvroTablePropagationWithAbsentTargetTable extends TestSession{
     }
     
     @Test 
-    public void testHcatPropSrcHCatDiscDataAndHCat() throws Exception{
+    public void testAvroTablePropagationWithAbsenttargetTable() throws Exception{
         //create dataset
         createDataSet();
         
@@ -110,9 +110,11 @@ public class TestAvroTablePropagationWithAbsentTargetTable extends TestSession{
         boolean status = HCatDataHandle.doesPartitionExist(targetCluster, tableName, partition);
         assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
                 " to " + targetCluster + ".",status);
-        
-        //check if the target table has correct avro schema
+        //check if the avro schema is set on target
         status = HCatDataHandle.isAvroSchemaSet(targetCluster, tableName);
+        assertTrue("The "+ tableName +" doesn't have avro schema set on target cluster " + targetCluster + ".",status);
+        //check if the target table has correct avro schema
+        status = HCatDataHandle.isAvroSchemaCorrect(sourceCluster, tableName,targetCluster);
         assertTrue("The "+ tableName +" doesn't have the expected avro schema on target cluster " + targetCluster + ".",status);
     }
 

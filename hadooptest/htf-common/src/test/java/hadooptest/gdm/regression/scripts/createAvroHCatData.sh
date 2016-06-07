@@ -18,10 +18,14 @@ export JAVA_HOME=/home/gs/java/jdk
 export PATH=/home/gs/hadoop/current/bin:/home/y/bin:${PATH}
 
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
-
+hadoop fs -rm /user/hadoopqa/avroschema.avsc
 hadoop fs -put /tmp/gdm_hcat_test/avroschema.avsc /user/hadoopqa/avroschema.avsc
 
 /home/y/bin/hive -e 'use gdm;create table '"${TABLE}"' partitioned by (instanceDate string) row format serde "org.apache.hadoop.hive.serde2.avro.AvroSerDe" stored as inputformat "org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat" outputformat "org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat" location "hdfs:/data/daqdev/data/'"${TABLE}"'" tblproperties ("avro.schema.url"="/user/hadoopqa/avroschema.avsc");'
+
+hadoop fs -mkdir /data/daqdev/data/${TABLE}/_avro_schema
+hadoop fs -cp /user/hadoopqa/avroschema.avsc /data/daqdev/data/${TABLE}/_avro_schema/avroschema.avsc
+/home/y/bin/hive -e 'use gdm;alter table '"${TABLE}"' set tblproperties ("avro.schema.url"="/data/daqdev/data/'"${TABLE}"'/_avro_schema/avroschema.avsc");'
 
 /home/y/bin/hive -e 'use gdm; describe '"${TABLE}"';'
 
