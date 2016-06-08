@@ -38,8 +38,7 @@ import com.jayway.restassured.path.xml.XmlPath;
 
 import hadooptest.Util;
 
-public final class ConsoleHandle
-{
+public final class ConsoleHandle {
     private static final String WORKFLOW_COMPLETED_EXECUTION_STATUS = "COMPLETED";
     private static final String WORKFLOW_COMPLETED_EXIT_STATUS = "COMPLETED";
     private static final String WORKFLOW_FAILED_EXIT_STATUS = "FAILED";
@@ -137,14 +136,6 @@ public final class ConsoleHandle
     }
     
     /**
-     * return the execution environment type ( either oneNode or staging)
-     * @return
-     */
-    public String getTestExecutionEnvironmentType() {
-        return this.environmentType.trim();
-    }
-
-    /**
      * return the acquisition hostname
      * @return
      */
@@ -198,14 +189,8 @@ public final class ConsoleHandle
      */
     public String getRestAPI(String restApiType , String facetName ) {
         String api = this.getAPI(restApiType);
-        String url = null; 
-        if (this.getTestExecutionEnvironmentType().equals("oneNode")) {
-            StringBuffer buffer = new StringBuffer(this.getConsoleURL().replaceAll("9999", this.getFacetPortNo(facetName))).append("/" + facetName).append(api);
-            url = buffer.toString();
-        } else if (this.getTestExecutionEnvironmentType().equals("staging")) {
-            StringBuffer buffer = new StringBuffer("http://").append(this.getFacetHostName(facetName)).append(":9999/").append(facetName).append(api);
-            url = buffer.toString();
-        }
+        StringBuffer buffer = new StringBuffer("http://").append(this.getFacetHostName(facetName)).append(":9999/").append(facetName).append(api);
+        String url = buffer.toString();
         return url;
     }
     
@@ -389,7 +374,7 @@ public final class ConsoleHandle
         TestSession.logger.info(this.response.toString());
         return this.response;
     }
-
+    
     public Response getFailedJobsForDataSet(String startTime, String endTime, String dataSetName, String instancesSince)
     {
         String resource = this.conf.getString("hostconfig.console.workflows.failed.resource");
@@ -409,6 +394,7 @@ public final class ConsoleHandle
         TestSession.logger.info(String.valueOf(this.response.getStatusCode()));
         return this.response;
     }
+
 
     public Response getWorkflowStepExecution(String executionId, String facetName, String facetColo)
     {
@@ -494,12 +480,15 @@ public final class ConsoleHandle
     }
     
     /**
-     * Returns true if files exist on the specified grid path, false otherwise
+     * Returns true if files exist on the specified grid path, false otherwise.
      *
      * @param grid  a grid datastore name
      * @param path   the path to check
      * @return true if files exist for the path, false otherwise
+     * 
+     * @deprecated  HadoopFileSystemHelper.exists() should be used
      */
+    @Deprecated
     public boolean filesExist(String grid, String path) {
         ArrayList params = new ArrayList();
         params.add(new CustomNameValuePair("dataSource", grid));
@@ -568,45 +557,6 @@ public final class ConsoleHandle
 
         TestSession.logger.info(this.response.toString());
         return this.response;
-    }
-
-    public Response getWorkflowDetails(String executionId, String facetName, String colo)
-    {
-        return null;
-    }
-
-    public String pingWorkflow(String dataSetName, String feedSubmisionTime, long waitTimeInSec)
-    {
-        long waitTimeForAnIteration = waitTimeInSec / 20L;
-        TestSession.logger.debug("Total poll time: " + waitTimeForAnIteration / 60L + "(s)");
-        String searchingFor = "";
-        for (int i = 0; i < 20; i++) {
-            String now = GdmUtils.getCalendarAsString();
-
-            TestSession.logger.debug("Polling for the workflow completion(completed/failed). Iteration#" + i + ", checking for " + searchingFor);
-            if (i % 2 == 0) {
-                this.response = getCompletedJobsForDataSet(feedSubmisionTime, now, dataSetName);
-                searchingFor = "completion";
-                if (Integer.valueOf(this.response.getElementAtPath("/completedWorkflows/[:size]/").toString()).intValue() > 0)
-                    return "COMPLETED";
-            }
-            else
-            {
-                this.response = getFailedJobsForADataSet(feedSubmisionTime, now, dataSetName);
-                searchingFor = "failure";
-                if (Integer.valueOf(this.response.getElementAtPath("/failedWorkflows/[:size]/").toString()).intValue() > 0) {
-                    return "FAILED";
-                }
-            }
-
-            try
-            {
-                Thread.sleep(waitTimeForAnIteration);
-            } catch (InterruptedException ex) {
-                TestSession.logger.error(ex.toString());
-            }
-        }
-        return "UNKNOWN";
     }
 
     public String pingWorkflowExecution(String dataSetName, String feedSubmisionTime, long waitTimeInSec) {
@@ -688,16 +638,11 @@ public final class ConsoleHandle
         TestSession.logger.debug("After waiting for so long (" + waitTimeInSec + " sec.), the workflow is still in RUNNING state.");
         return "RUNNING";
     }
-
-    public Response getFailedJobsForADataSet(String startTime, String endTime, String dataSetName)
-    {
+    
+    public Response getFailedJobsForADataSet(String startTime, String endTime, String dataSetName) {
         return getFailedJobsForDataSet(startTime, endTime, dataSetName, null);
     }
 
-    public Response getWorkflowList(String dataConfigName)
-    {
-        return null;
-    }
 
     public boolean isWorkflowCompleted(Response response, String facet){
         boolean result = false;
@@ -1090,41 +1035,31 @@ public final class ConsoleHandle
     public List<String> getUniqueGrids() {
         try {
             List<String> grids = new ArrayList<String>();
-            String url = this.consoleURL + "/console/api/datasources/view";
-            String cookie = this.httpHandle.getBouncerCookie();
-            com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
-            if (response.getStatusCode() == 200) {
-                String dataSourceListing = response.andReturn().asString();
-                TestSession.logger.debug("Received datasources listing: " + dataSourceListing);
-                JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
-                JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
-                if (dataSourceResult != null) {
-                    Iterator iterator = dataSourceResult.iterator();
-                    while (iterator.hasNext()) {
-                        JSONObject dataSource = (JSONObject)iterator.next();
-                        if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
-                            
-                            String name = dataSource.getString("DataSourceName");
-                            
-                            // if the grid skips uploading jars, assume it is an S3 grid
-                            String dataSourceXml = this.getDataSourceXml(name);
-                            if (dataSourceXml.contains("skip.job.jars.upload")) {
-                                continue;
-                            }
-                            
-                            // ignore inactive grids
-                            if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
-                                grids.add(name);
-                            }
+            
+            JSONArray dataSourceResult = this.getDataSources();
+            if (dataSourceResult != null) {
+                Iterator iterator = dataSourceResult.iterator();
+                while (iterator.hasNext()) {
+                    JSONObject dataSource = (JSONObject)iterator.next();
+                    if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
+                        
+                        String name = dataSource.getString("DataSourceName");
+                        
+                        // if the grid skips uploading jars, assume it is an S3 grid
+                        String dataSourceXml = this.getDataSourceXml(name);
+                        if (dataSourceXml.contains("skip.job.jars.upload")) {
+                            continue;
+                        }
+                        
+                        // ignore inactive grids
+                        if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                            grids.add(name);
                         }
                     }
-                } else {
-                    throw new Exception("unable to find DataSourceResult");
                 }
             } else {
-                throw new Exception(url + " returned status code " + response.getStatusCode());
+                throw new Exception("unable to find DataSourceResult");
             }
-            
             
             String listString = "Unique grids are: ";
             for (String s : grids) {
@@ -1141,38 +1076,90 @@ public final class ConsoleHandle
     }
     
     /**
-     * @return list of active warehouse datastores
-     * @throws Exception
+     * @return list of S3 grid dataSource names on the console
      */
-    public List<String> getWarehouseDatastores() throws Exception {
-        List<String> datastores = new ArrayList<String>();
-        String url = this.consoleURL + "/console/api/datasources/view";
-        String cookie = this.httpHandle.getBouncerCookie();
-        com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
-        if (response.getStatusCode() == 200) {
-            String dataSourceListing = response.andReturn().asString();
-            TestSession.logger.info("Received datasources listing: " + dataSourceListing);
+    public List<String> getS3Grids() {
+    	try {
+            List<String> grids = new ArrayList<String>();
             
-            JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
-            JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
+            JSONArray dataSourceResult = this.getDataSources();
             if (dataSourceResult != null) {
                 Iterator iterator = dataSourceResult.iterator();
                 while (iterator.hasNext()) {
                     JSONObject dataSource = (JSONObject)iterator.next();
-                    if (dataSource.getString("Type").equalsIgnoreCase("warehouse")) {
+                    if (dataSource.getString("Type").equalsIgnoreCase("grid")) {
+                        
+                        String name = dataSource.getString("DataSourceName");
+                        
+                        // if the grid skips uploading jars, assume it is an S3 grid
+                        String dataSourceXml = this.getDataSourceXml(name);
+                        if (!dataSourceXml.contains("skip.job.jars.upload")) {
+                            continue;
+                        }
+                        
                         // ignore inactive grids
                         if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
-                            String name = dataSource.getString("DataSourceName");
-                            datastores.add(name);
+                            grids.add(name);
                         }
                     }
                 }
             } else {
                 throw new Exception("unable to find DataSourceResult");
             }
+            
+            String listString = "Unique S3 grids are: ";
+            for (String s : grids) {
+                listString += s + "  ";
+            }
+            TestSession.logger.info(listString);
+            
+            return grids;
+        } catch (Exception e) {
+            TestSession.logger.error("Unexpected exception", e);
+            Assert.fail("Unexpected exception - " + e.getMessage());
+            return null;
+        }
+    }
+    
+    private JSONArray getDataSources() throws Exception {
+        String url = this.consoleURL + "/console/api/datasources/view";
+        String cookie = this.httpHandle.getBouncerCookie();
+        com.jayway.restassured.response.Response response = RestAssured.given().cookie(cookie).get(url);
+        if (response.getStatusCode() == 200) {
+            String dataSourceListing = response.andReturn().asString();
+            TestSession.logger.debug("Received datasources listing: " + dataSourceListing);
+            JSONObject json = (JSONObject)JSONSerializer.toJSON(dataSourceListing);
+            JSONArray dataSourceResult = (JSONArray)json.get("DataSourceResult");
+            return dataSourceResult;
         } else {
             throw new Exception(url + " returned status code " + response.getStatusCode());
         }
+    }
+    
+    /**
+     * @return list of active warehouse datastores
+     * @throws Exception
+     */
+    public List<String> getWarehouseDatastores() throws Exception {
+        List<String> datastores = new ArrayList<String>();
+        
+        JSONArray dataSourceResult = this.getDataSources();
+        if (dataSourceResult != null) {
+            Iterator iterator = dataSourceResult.iterator();
+            while (iterator.hasNext()) {
+                JSONObject dataSource = (JSONObject)iterator.next();
+                if (dataSource.getString("Type").equalsIgnoreCase("warehouse")) {
+                    // ignore inactive grids
+                    if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                        String name = dataSource.getString("DataSourceName");
+                        datastores.add(name);
+                    }
+                }
+            }
+        } else {
+            throw new Exception("unable to find DataSourceResult");
+        }
+        
         return datastores;
     }
 
@@ -1612,23 +1599,6 @@ public final class ConsoleHandle
         return attributeValue;
     }
 
-    /**
-     * Get the HCat information about the given dataset.
-     * @param dataSourceName
-     * @param dataSetName
-     * @return
-     */
-    public com.jayway.restassured.response.Response getHCatTableDetailsForDataSet(String dataSourceName , String dataSetName) {
-        String HCatList = "/acquisition/api/admin/hcat/table/list";
-        String dbName = "gdm";
-        this.sleep(40000);
-        String hcatListURL =  this.getConsoleURL().replace("9999", "4080") + HCatList +"?dataSource=" + dataSourceName + "&dbName="+ dbName + "&dataSet=" + dataSetName;
-        TestSession.logger.info("hcatListURL  = "  + hcatListURL);
-        com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(hcatListURL);
-        assertTrue("Failed to get the response for " + hcatListURL , (response != null || response.toString() != "") );
-        return response;
-    }
-
     /*
      * Convert com.jayway.restassured.response.Response to jsonArray
      */
@@ -1700,26 +1670,6 @@ public final class ConsoleHandle
     }
 
     /**
-     * returns HCat Partition values for a given dataSet
-     * @param dataSetName  - 
-     * @param dataSource
-     * @return
-     */
-    public List<List<String>> checkHCatParitionValues(String dataSetName , String dataSource , String facetName) {
-        String cookie = this.httpHandle.getBouncerCookie();
-        String HCatParition = "/api/admin/hcat/partition/list";
-        String hcatPartition = this.getConsoleURL().replace("9999", this.getFacetPortNo(facetName)) + "/"  + facetName + HCatParition +"?dataSource=" + dataSource + "&dataSet=" + dataSetName;
-        TestSession.logger.info("hcatPartition  url =  " + hcatPartition);
-        com.jayway.restassured.response.Response response = given().cookie(cookie).get(hcatPartition);
-        JsonPath jsonPath = response.getBody().jsonPath();
-        TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
-
-        List<List<String>>partitions = jsonPath.getList("Partitions.Values.Value");
-        TestSession.logger.info("partitions  = " + partitions.toString() );
-        return partitions;
-    }
-
-    /**
      *  Get all the dataset name
      * @return - all the dataset names as List<String>
      */
@@ -1775,61 +1725,6 @@ public final class ConsoleHandle
         JSONArray filesJSONArray = jsonObject.getJSONArray("Files");
         TestSession.logger.info("filesJSONArray  = " + filesJSONArray.size());
         return filesJSONArray;
-    }
-    
-    
-    public int getInstanceFilesExistsOnHDFSSearchByDataSetName(String dataSourceName , String dataSetName) {
-        JSONArray instanceFilesJSONArray = this.getDataSetInstanceFilesDetailsByDataSetName(dataSourceName , dataSetName);
-        TestSession.logger.info("instanceFilesJSONArray  = " + instanceFilesJSONArray.size());
-        List<String> filesNames = new ArrayList<String>();
-        int fileCount = 0;
-        // select only the files
-        if (instanceFilesJSONArray.size() > 0) {
-            Iterator iterator = instanceFilesJSONArray.iterator();
-            while (iterator.hasNext()) {
-                JSONObject jsonObject = (JSONObject) iterator.next();
-                TestSession.logger.info("Instance files details  = " + jsonObject.toString());
-                
-                String directory = jsonObject.getString("Directory");
-                if (directory.equals("no")) {
-                    String path = jsonObject.getString("Path").trim();
-                    filesNames.add(path);
-                }
-            }
-        }
-        
-        // check for data files only , we can discard schema and  count files
-        for (String fileName : filesNames) {
-            if (! (fileName.contains("schema")) || (fileName.contains("count")) ) {
-                if (fileName.contains("part-")) {
-                    fileCount ++;
-                }
-            }
-        }
-        TestSession.logger.info("There are " + fileCount + " data files for " + dataSetName);
-        return fileCount;
-    }
-    
-    
-    public JsonPath getAcquiredFilesFromHDFS(String dataSetName, String targetName, String path) {
-        JsonPath acqJsonPath = getHDSFFileInfo(dataSetName,targetName,path);
-        return acqJsonPath;
-    }
-
-    public void getReplicationFilesFromHDFS(String dataSetName, String targetName, String path) {
-        JsonPath repJsonPath = getHDSFFileInfo(dataSetName,targetName,path);
-    }
-   
-    public JsonPath getHDSFFileInfo(String dataSetName , String targetName , String path) {
-        String hadoopLSCommand = "/console/api/admin/hadoopls";
-        String hadoopLsURL = "http://" + TestSession.conf.getProperty("GDM_CONSOLE_NAME") + ":" + Integer.parseInt(TestSession.conf.getProperty("GDM_CONSOLE_PORT")) +
-                        hadoopLSCommand + "?format=json&dataSource="+targetName + "&path="+path + dataSetName;
-        TestSession.logger.info("hadoopLsURL = " + hadoopLsURL);
-                com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(hadoopLsURL);
-                JsonPath jsonPath = response.getBody().jsonPath();
-                //List<String> hdfsPath = jsonPath.getList("Files.Path");
-                TestSession.logger.info("haoopLs = " + jsonPath.prettyPrint());
-                return jsonPath;
     }
     
     /**

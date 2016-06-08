@@ -2,7 +2,6 @@ package gdm.regression;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -18,7 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
 
-public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSession{
+public class TestAvroTablePropagationWithAbsentTargetTable extends TestSession{
     
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster;
@@ -39,7 +38,7 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
     @Before
     public void setup() throws Exception{
         String suffix = String.valueOf(System.currentTimeMillis());
-        dataSetName = "TestHCatPropSrcHDFSDiscMixed_" + suffix;
+        dataSetName = "AvroReplicationWithAbsentTargetTable_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
         List<String> allGrids = this.consoleHandle.getHCatEnabledGrid();
@@ -48,54 +47,29 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
         }
         sourceCluster=allGrids.get(0);
         targetCluster=allGrids.get(1);
-        tableName = "HTF_Test_" + suffix;
+        tableName = "HTF_Test_Avro" + suffix;
         //create table
-        HCatDataHandle.createTable(sourceCluster, tableName);
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
-        
-    }
-    
-    @Test 
-    public void testHcatPropSrcHDFSDiscDataAndHCat() throws Exception{
-        //create dataset
-        createDataSet();
-        
-        //activate dataset
-        consoleHandle.checkAndActivateDataSet(this.dataSetName);
-        dsActivationTime = GdmUtils.getCalendarAsString();
-        
-        //check for workflow
-        workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
-        
-        //check if data got replicated
-        boolean status = HCatDataHandle.doesPartitionExist(targetCluster, tableName, partition);
-        assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
-                " to " + targetCluster + ".",status);
+        HCatDataHandle.createAvroTable(sourceCluster, tableName,partition);
     }
     
     public void createDataSet(){
         StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
-        
-        //set discovery
-        String pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
-        String replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
-        
+          
         //replace dummy table name with correct table name
-        pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
-        replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        indexOf = dataSetBuilder.indexOf(pattern);
+        String pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
+        String replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
+        int indexOf = dataSetBuilder.indexOf(pattern);
         dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
         
         //replace dummy path with correct path
         pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
         replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
         indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);        
         
         //update source with current source
         int offset = dataSetBuilder.indexOf("<Source ");
@@ -111,7 +85,8 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
         
         String dataSetXml = dataSetBuilder.toString();
         // replace basedatasetName with the new datasetname
-        dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
+        dataSetXml = dataSetXml.replaceAll(baseDataSetName, this.dataSetName);
+        
         TestSession.logger.info("dataSetXml  = " + dataSetXml);
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
@@ -119,5 +94,28 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
         
     }
     
+    @Test 
+    public void testAvroTablePropagationWithAbsenttargetTable() throws Exception{
+        //create dataset
+        createDataSet();
+        
+        //activate dataset
+        consoleHandle.checkAndActivateDataSet(this.dataSetName);
+        dsActivationTime = GdmUtils.getCalendarAsString();
+        
+        //check for workflow
+        workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
+        
+        //check if data got replicated
+        boolean status = HCatDataHandle.doesPartitionExist(targetCluster, tableName, partition);
+        assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
+                " to " + targetCluster + ".",status);
+        //check if the avro schema is set on target
+        status = HCatDataHandle.isAvroSchemaSet(targetCluster, tableName);
+        assertTrue("The "+ tableName +" doesn't have avro schema set on target cluster " + targetCluster + ".",status);
+        //check if the target table has correct avro schema
+        status = HCatDataHandle.isAvroSchemaCorrect(sourceCluster, tableName,targetCluster);
+        assertTrue("The "+ tableName +" doesn't have the expected avro schema on target cluster " + targetCluster + ".",status);
+    }
 
 }

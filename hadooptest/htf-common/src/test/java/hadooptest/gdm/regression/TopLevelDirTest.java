@@ -4,7 +4,8 @@ package hadooptest.gdm.regression;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
-import hadooptest.cluster.gdm.GdmUtils;
+import hadooptest.cluster.gdm.DataSetTarget;
+import hadooptest.cluster.gdm.DataSetXmlGenerator;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 import java.util.List;
@@ -42,12 +43,15 @@ public class TopLevelDirTest {
     @Test
     public void runTest() throws Exception {
         // verify top level dir does not exist on target
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+        String dataPath = "/projects/" + this.dataSetName + "/data/";
+        Assert.assertFalse(targetHelper.exists("/projects/" + this.dataSetName));  
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE2));
         
         // create dataset and source instance
-        createDataSetInstance(this.sourceGrid, INSTANCE1);
+        HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.sourceGrid);
+        sourceHelper.createFile(dataPath + INSTANCE1 + "/testfile");
         createDataset();
         
         // allow dataset to propagate
@@ -58,23 +62,23 @@ public class TopLevelDirTest {
         Assert.assertFalse("Expected workflow to fail", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
         
         // create top level dir on target
-        createDataSetInstance(this.target, DUMMY_INSTANCE);
+        targetHelper.createFile(dataPath + DUMMY_INSTANCE);
         
         // now the top level dir should exist on the target, but no instances
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE2));
         
         // create new instance on source
-        createDataSetInstance(this.sourceGrid, INSTANCE2);
+        sourceHelper.createFile(dataPath + INSTANCE2 + "/testfile");
         
         // validate workflow succeeds
         Assert.assertTrue("Expected workflow to succeed", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE2));
         
         // now instance2 should exist on the target, but not instance1
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName));
-        Assert.assertFalse(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE1));
-        Assert.assertTrue(this.consoleHandle.filesExist(this.target, "/projects/" + this.dataSetName + "/data/" + INSTANCE2));
+        Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE2));
     }
     
     @After
@@ -83,26 +87,34 @@ public class TopLevelDirTest {
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
     }
     
-    private void createDataSetInstance(String grid, String instanceId) throws Exception {
-        CreateInstanceOnGrid createInstanceOnGridObj = new CreateInstanceOnGrid(grid, "/projects/" + this.dataSetName , "data/", instanceId);
-        createInstanceOnGridObj.execute();
-    }
-    
     private void createDataset() {
-        String basePath = "/projects/" + this.dataSetName + "/data/%{date}";
-        String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/BasicReplDataSet1Target.xml");
-        String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
-        dataSetXml = dataSetXml.replaceAll("TARGET", this.target);
-        dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.dataSetName);
-        dataSetXml = dataSetXml.replaceAll("SOURCE", this.sourceGrid );
-        dataSetXml = dataSetXml.replaceAll("START_TYPE", "fixed" );
-        dataSetXml = dataSetXml.replaceAll("START_DATE", INSTANCE1);
-        dataSetXml = dataSetXml.replaceAll("END_TYPE", "offset");
-        dataSetXml = dataSetXml.replaceAll("END_DATE", "0");
-        dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", basePath);
-        dataSetXml = dataSetXml.replaceAll("CUSTOM_PATH_DATA", basePath);
+        DataSetXmlGenerator generator = new DataSetXmlGenerator();
+        generator.setName(this.dataSetName);
+        generator.setDescription(this.getClass().getSimpleName());
+        generator.setCatalog(this.getClass().getSimpleName());
+        generator.setActive("TRUE");
+        generator.setRetentionEnabled("TRUE");
+        generator.setPriority("NORMAL");
+        generator.setFrequency("daily");
+        generator.setDiscoveryFrequency("10");
+        generator.setDiscoveryInterface("HDFS");
+        generator.addSourcePath("data", "/projects/" + this.dataSetName + "/data/%{date}");
+        generator.setSource(this.sourceGrid);
+                
+        DataSetTarget target = new DataSetTarget();
+        target.setName(this.target);
+        target.setDateRangeStart(true, "20151201");
+        target.setDateRangeEnd(false, "0");
+        target.setHCatType("DataOnly");
+        target.addPath("data", "/projects/" + this.dataSetName + "/data/%{date}");
+        target.setNumInstances("5");
+        generator.setTarget(target);
+        
+        String dataSetXml = generator.getXml();
+        
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
+            TestSession.logger.error("Failed to create dataset, xml: " + dataSetXml);
             Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
         }
     }

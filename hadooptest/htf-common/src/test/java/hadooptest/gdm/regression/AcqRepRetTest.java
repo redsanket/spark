@@ -66,25 +66,40 @@ public class AcqRepRetTest {
         this.consoleHandle.setRetentionPolicyToAllDataSets(this.dataSetName, "1");
     }
     
-    private void validateAcquisitionFiles() {
+    private void validateAcquisitionFiles() throws Exception {
         validateInstanceFiles(this.targetGrid1, INSTANCE1, true);
         validateInstanceFiles(this.targetGrid1, INSTANCE2, true);
     }
     
-    private void validateReplicationFiles() {
+    private void validateReplicationFiles() throws Exception {
         validateInstanceFiles(this.targetGrid2, INSTANCE1, false);  // deleted
         validateInstanceFiles(this.targetGrid2, INSTANCE2, true);
     }
     
-    private void validateInstanceFiles(String grid, String instance, boolean exists) {
-        Assert.assertEquals(exists, this.consoleHandle.filesExist(grid, "/data/daqdev/data/" + dataSetName + "/" + instance));
-        Assert.assertEquals(exists, this.consoleHandle.filesExist(grid, "/data/daqdev/count/" + dataSetName + "/" + instance));
-        Assert.assertEquals(exists, this.consoleHandle.filesExist(grid, "/data/daqdev/schema/" + dataSetName + "/" + instance));
+    private void validateInstanceFiles(String grid, String instance, boolean exists) throws Exception {
+        HadoopFileSystemHelper helper = new HadoopFileSystemHelper(grid);
+        Assert.assertEquals(exists, helper.exists("/data/daqdev/data/" + dataSetName + "/" + instance));
+        Assert.assertEquals(exists, helper.exists("/data/daqdev/count/" + dataSetName + "/" + instance));
+        Assert.assertEquals(exists, helper.exists("/data/daqdev/schema/" + dataSetName + "/" + instance));
     }
     
     private void validateRetentionWorkflow() {
+        // make sure retention ran on replication target
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
         Assert.assertTrue("1 Expected workflow to pass", workFlowHelper.workflowPassed(this.dataSetName, "retention", INSTANCE1));
+        
+        // make sure retention step to the replication target occurs.  This may be a second workflow.
+        boolean retentionOccurred = false;
+        long sleepTime = 10 * 60 * 1000;
+        while (sleepTime > 0) {
+            retentionOccurred = workFlowHelper.doesStepExistInWorkFlowExecution(this.dataSetName, "retention", "completed", INSTANCE1, "retention." + this.targetGrid2);
+            if (retentionOccurred) {
+                return;
+            }
+            this.consoleHandle.sleep(5000);
+            sleepTime -= 5000;
+        }
+        Assert.fail("Retention step did not occur");
     }
     
     private void validateReplicationWorkflows() {
@@ -114,8 +129,8 @@ public class AcqRepRetTest {
     }
     
     private void createTopLevelDirOnReplTarget() throws Exception {
-        CreateInstanceOnGrid createInstanceOnGridObj = new CreateInstanceOnGrid(this.targetGrid2 , "/data", "daqdev", "bogus_" + this.dataSetName);
-        createInstanceOnGridObj.execute();
+        HadoopFileSystemHelper helper = new HadoopFileSystemHelper(this.targetGrid2);
+        helper.createFile("/data/daqdev/bogus_" + this.dataSetName);
     }
     
     @After

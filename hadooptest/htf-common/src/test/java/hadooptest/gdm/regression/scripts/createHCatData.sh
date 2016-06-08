@@ -19,5 +19,5 @@ kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.C
 
 /home/y/bin/hive -e 'use gdm; describe '"${TABLE}"';'
 
-/home/y/bin/hive -e 'use gdm; load data local inpath "/tmp/part-0000" into table '"${TABLE}"' partition (instanceDate='"${INSTANCE}"');'
+/home/y/bin/hive -e 'use gdm; load data local inpath "/tmp/gdm_hcat_test/part-0000" into table '"${TABLE}"' partition (instanceDate='"${INSTANCE}"');'
 
