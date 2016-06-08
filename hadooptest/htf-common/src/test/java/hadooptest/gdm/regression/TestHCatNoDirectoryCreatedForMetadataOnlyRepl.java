@@ -2,7 +2,6 @@ package gdm.regression;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -12,13 +11,16 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
+import hadooptest.gdm.regression.HadoopFileSystemHelper;
 
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import static org.junit.Assert.assertTrue;
 
-public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSession{
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class TestHCatNoDirectoryCreatedForMetadataOnlyRepl extends TestSession {
     private static String baseDataSetName = "HCat_Test_Template";
     private static String sourceCluster;
     private static String targetCluster;
@@ -29,6 +31,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     private WorkFlowHelper workFlowHelperObj = null;
     private String tableName;
     private String partition;
+    private String dataCommitPath;
     
     @BeforeClass
     public static void startTestSession() {
@@ -38,7 +41,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
     @Before
     public void setup() throws Exception{
         String suffix = String.valueOf(System.currentTimeMillis());
-        dataSetName = "TestHCatPropSrcHCatDiscMeta_" + suffix;
+        dataSetName = "TestHCatNoDirCreatedForMetadataOnlyRepl_" + suffix;
         consoleHandle = new ConsoleHandle();
         workFlowHelperObj = new WorkFlowHelper();
         List<String> allGrids = this.consoleHandle.getHCatEnabledGrid();
@@ -48,6 +51,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         sourceCluster=allGrids.get(0);
         targetCluster=allGrids.get(1);
         tableName = "HTF_Test_" + suffix;
+        dataCommitPath = "/data/daqdev/data/"+ tableName;
         //create table
         HCatDataHandle.createTable(sourceCluster, tableName);
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -55,24 +59,6 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         Date date = new Date();
         partition = dateFormat.format(date);
         
-    }
-    
-    @Test 
-    public void testHcatPropSrcHCatDiscMeta() throws Exception{
-        //create dataset
-        createDataSet();
-        
-        //activate dataset
-        consoleHandle.checkAndActivateDataSet(this.dataSetName);
-        dsActivationTime = GdmUtils.getCalendarAsString();
-        
-        //check for workflow
-        workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
-        
-        //check if data got replicated
-        boolean status = HCatDataHandle.doesPartitionExist(targetCluster, tableName, partition);
-        assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
-                " to " + targetCluster + ".",status);
     }
     
     public void createDataSet(){
@@ -92,7 +78,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         
         //replace dummy path with correct path
         pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
-        replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
+        replaceWith = "location=\"" + dataCommitPath +"/instancedate=%{date}\" type=\"data\"/>";
         indexOf = dataSetBuilder.indexOf(pattern);
         dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
         
@@ -118,4 +104,23 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         
     }
     
+    @Test 
+    public void testHcatPropSrcHCatDiscMeta() throws Exception{
+        //create dataset
+        createDataSet();
+        
+        //activate dataset
+        consoleHandle.checkAndActivateDataSet(this.dataSetName);
+        dsActivationTime = GdmUtils.getCalendarAsString();
+        
+        //check for workflow
+        workFlowHelperObj.checkWorkFlow(this.dataSetName , "replication", this.dsActivationTime);
+        
+        HadoopFileSystemHelper sourceFSHandler = new HadoopFileSystemHelper(sourceCluster);
+        assertTrue("Path: "+ dataCommitPath +" doesn't exist on source cluster " + sourceCluster ,
+                sourceFSHandler.exists(dataCommitPath));
+        HadoopFileSystemHelper targetFSHandler = new HadoopFileSystemHelper(targetCluster);
+        assertFalse("Path: "+ dataCommitPath + "created on target cluster" + targetCluster, 
+                targetFSHandler.exists(dataCommitPath) );
+    }
 }
