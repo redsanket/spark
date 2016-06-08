@@ -12,7 +12,7 @@ then
   if [ $dirCount -gt 0 ]
   then
      #isDirDeleted=`rm -rf $CLEAN_UP_PATH/*`
-     find /path/to/base/dir/* -type d -ctime +10 -exec rm -rf {} \;
+     find $CLEAN_UP_PATH/* -type d -ctime +10 -exec rm -rf {} \;
      if [ $? -eq 0 ]; then
          echo "cleaning is done..." 
      else
