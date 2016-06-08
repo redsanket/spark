@@ -42,6 +42,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 	private static String TT_HOSTS_FILE = "TT_hosts";
 	private static String EMPTY_FILE = "empty.file";
 	private static String customConfDir = "/homes/hadoopqa/tmp/CustomConfDir";
+	private static String SSH_OPTS = " -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "; 
 
 	@Rule
 	public TemporaryFolder testFolder = new TemporaryFolder();
@@ -392,7 +393,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 				.getNodeNames(HadoopCluster.RESOURCE_MANAGER);
 		FullyDistributedExecutor fde = new FullyDistributedExecutor();
 		StringBuilder sb = new StringBuilder();
-		sb.append("scp " + fileContainingHostsToIgnore.getAbsolutePath()
+		sb.append("scp " + SSH_OPTS + fileContainingHostsToIgnore.getAbsolutePath()
 				+ " hadoopqa@" + rmHostnames[0] + ":" + customConfDir
 				+ "/mapred.exclude");
 		String command = sb.toString();
@@ -405,7 +406,7 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 				.getNodeNames(HadoopCluster.RESOURCE_MANAGER);
 		FullyDistributedExecutor fde = new FullyDistributedExecutor();
 		StringBuilder sb = new StringBuilder();
-		sb.append("scp " + anEmptyFile.getAbsolutePath() + " hadoopqa@"
+		sb.append("scp " + SSH_OPTS + anEmptyFile.getAbsolutePath() + " hadoopqa@"
 				+ rmHostnames[0] + ":" + customConfDir + "/mapred.exclude");
 		String command = sb.toString();
 		fde.runProcBuilder(command.split("\\s+"));
