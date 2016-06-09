@@ -58,7 +58,7 @@ public class TestHCatPropagatingSourceHCatDiscoveryMetadataOnly extends TestSess
         
        //since the source isn't being propagated 
        //the target needs to have this table.
-    //   HCatDataHandle.createTable(targetCluster, tableName);
+        HCatDataHandle.createTable(targetCluster, tableName);
     }
     
     @Test 

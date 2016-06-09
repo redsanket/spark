@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
@@ -48,14 +49,14 @@ public class TestHCatPropagatingSourceHDFSDiscoveryMetadataOnly extends TestSess
         }
         sourceCluster=allGrids.get(0);
         targetCluster=allGrids.get(1);
-        tableName = "HTF_Test_" + suffix;
+        tableName = "HTF_Test_" + suffix;      
+		
         //create table
         HCatDataHandle.createTable(sourceCluster, tableName);
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
-        
     }
     
     @Test 
@@ -77,53 +78,34 @@ public class TestHCatPropagatingSourceHDFSDiscoveryMetadataOnly extends TestSess
     }
     
     public void createDataSet(){
-        StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
-        
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+    	
         //set replication to be metadata only
         String pattern = "<HCatTargetType>Mixed</HCatTargetType>";
         String replaceWith = "<HCatTargetType>HCatOnly</HCatTargetType>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
         
         //set discovery interface to be HDFS
         pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
         replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf , indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
         
         //replace dummy table name with correct table name
-        pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
-        replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll("dummy_tablename" , tableName);
+        dataSetXml = dataSetXml.replaceAll("dummy_path" , tableName);
+        dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster);
+        dataSetXml = dataSetXml.replaceAll("TARGET_NAME", this.targetCluster);
         
-        //replace dummy path with correct path
-        pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
-        replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        pattern = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
+        String replacePattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
+        dataSetXml = dataSetXml.replaceAll(pattern, replacePattern);
         
-        //update source with current source
-        int offset = dataSetBuilder.indexOf("<Source ");
-        int indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        int indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, sourceCluster);
-        
-        //update target with current target
-        offset = dataSetBuilder.indexOf("<Target ");
-        indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, targetCluster);
-        
-        String dataSetXml = dataSetBuilder.toString();
         // replace basedatasetName with the new datasetname
         dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
         TestSession.logger.info("dataSetXml  = " + dataSetXml);
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
-        
     }
-    
-
 }

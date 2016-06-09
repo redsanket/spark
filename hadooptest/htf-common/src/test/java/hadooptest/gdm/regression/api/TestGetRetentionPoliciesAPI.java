@@ -82,8 +82,6 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 			dataSetList =  given().cookie(this.cookie).get(url + this.dataSetPath ).getBody().jsonPath().getList("DatasetsResult.DatasetName");;
 			assertTrue("Failed to get the newly created dataset name" , dataSetList.size() > 0);
 			TestSession.logger.info("dataSetsResultList  = " + dataSetList.toString());
-
-			this.baseDataSetName = newDataSetName;
 		} else if (dataSetList.size() > 0){
 			this.baseDataSetName = dataSetList.get(0);
 		}
@@ -700,6 +698,8 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 		}
 
 		this.consoleHandle.sleep(30000);
+		
+		this.baseDataSetName = this.newDataSetName;
 	}
 
 
