@@ -104,7 +104,7 @@ public class TestHCatNoPropagatingSourceHCatDiscoveryDataAndHCat extends TestSes
         dataSetXml = dataSetXml.replaceAll("dummy_tablename",tableName );
         
         //replace dummy path with correct path
-     //   dataSetXml = dataSetXml.replaceAll("dummy_path", tableName);
+        dataSetXml = dataSetXml.replaceAll("dummy_path", tableName);
         
         //update source with current source
         dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster);
