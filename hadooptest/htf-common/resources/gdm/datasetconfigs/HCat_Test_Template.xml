@@ -11,7 +11,7 @@
     <UGI group="users" owner="dfsload" permission="755"/>
     <RunAsOwner/>
     <Frequency>daily</Frequency>
-    <DiscoveryFrequency>21600</DiscoveryFrequency>
+    <DiscoveryFrequency>30</DiscoveryFrequency>
     <DiscoveryInterface>HCAT</DiscoveryInterface>
     <SmallestExpectedInstanceSize/>
     <LargestExpectedInstanceSize/>
@@ -43,13 +43,13 @@
         <PartsPerPartition>16</PartsPerPartition>
     </WorkflowStrategy>
     <Sources>
-        <Source latency="1234" name="qe6blue" switchovertype="Standard">
+        <Source latency="1234" name="SOURCE_NAME" switchovertype="Standard">
             <HCatSourceRetention>FALSE</HCatSourceRetention>
         </Source>
     </Sources>
     <DataFlow/>
     <Targets>
-        <Target latency="1234" name="qe9blue" status="active">
+        <Target latency="1234" name="TARGET_NAME" status="active">
             <DateRange>
                 <EndDate type="Fixed" value="20220131"/>
                 <StartDate type="Fixed" value="20110101"/>
