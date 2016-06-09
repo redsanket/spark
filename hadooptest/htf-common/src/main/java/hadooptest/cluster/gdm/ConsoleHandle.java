@@ -46,7 +46,6 @@ public final class ConsoleHandle {
     public static final String HCAT_LIST_REST_API = "/api/admin/hcat/table/list?dataSource=";
     public static final String RUNNING_WORKFLOW = "/api/workflows/running?exclude=false&joinType=innerJoin";
     public static final String KILL_WORKFLOW = "/api/admin/proxy/workflows";
-    public static final String HCAT_TABLE_PROPAGATION = "replication/api/admin/hcat/table/propagate";
     public static final String HCAT_TABLE_PARTITION = "replication/api/admin/hcat/partition/list?";
     
     public HTTPHandle httpHandle = null;
@@ -92,14 +91,11 @@ public final class ConsoleHandle {
         init();
         this.httpHandle = new HTTPHandle(userName,passWord);
         this.httpHandle.logonToBouncer(userName,passWord);
-        TestSession.logger.info("logon OK");
+        TestSession.logger.debug("logon OK");
     }
     
     public HTTPHandle getHttpHandle() {
-        if (this.httpHandle != null) {
-            return this.httpHandle; 
-        }
-        return null;
+        return this.httpHandle;
     }
     
     private void init() {
@@ -108,10 +104,7 @@ public final class ConsoleHandle {
             String configPath = Util.getResourceFullPath("gdm/conf/config.xml");
             this.conf = new XMLConfiguration(configPath);
             this.environmentType = this.conf.getString("hostconfig.console.test_environment_type");
-            if (this.environmentType.equals("oneNode")) {
-                TestSession.logger.info("****** QE or Dev test Environment ******** ");
-                this.consoleURL = this.conf.getString("hostconfig.console.base_url");
-            } else if (this.environmentType.equals("staging")) {
+            if (this.environmentType.equals("staging")) {
                 TestSession.logger.debug("****** Staging test Environment ******** ");
                 this.consoleURL = this.conf.getString("hostconfig.console.staging_console_url");
                 this.acquisitionHostName = this.conf.getString("hostconfig.console.acquisitionHostName");
@@ -148,6 +141,9 @@ public final class ConsoleHandle {
      * @return
      */
     private String getReplicationHostName() {
+        if (this.replicationHostName == null) {
+            Assert.fail("replicationHostName is not defined");
+        }
         return this.replicationHostName;
     }
 
@@ -494,6 +490,37 @@ public final class ConsoleHandle {
         params.add(new CustomNameValuePair("dataSource", grid));
         params.add(new CustomNameValuePair("path", path));
         HttpMethod getMethod = this.httpHandle.makeGET(this.consoleURL, "/console/api/admin/hadoopls", params);
+        Response response = new Response(getMethod);
+        if (response.getStatusCode() != SUCCESS) {
+            Assert.fail("filesExist check for file " + path + " on datastore " + grid + " failed with status " + response.getStatusCode());
+        }
+        String responseString = response.getResponseBodyAsString();
+        if (StringUtils.isBlank(responseString)) {
+            TestSession.logger.info(path + " on " + grid + " does not exist");
+            return false;
+        } else {
+            TestSession.logger.info(path + " on " + grid + " exists");
+            return true;
+        }
+    }
+    
+    /**
+     * Returns true if files exist on the specified grid path, false otherwise.
+     *
+     * @param grid  a grid datastore name
+     * @param path   the path to check
+     * @param dataSetName   dataset to be used for S3 parameters
+     * @return true if files exist for the path, false otherwise
+     * 
+     */
+    // TODO: currently not working as headless user is not an admin on replication
+    public boolean s3FilesExist(String grid, String path, String dataSetName) {
+        ArrayList params = new ArrayList();
+        params.add(new CustomNameValuePair("dataSource", grid));
+        params.add(new CustomNameValuePair("path", path));
+        params.add(new CustomNameValuePair("paramsDataSet", dataSetName));
+        String endpoint = "http://" + this.getReplicationHostName() + ":4080";
+        HttpMethod getMethod = this.httpHandle.makeGET(endpoint, "/replication/api/admin/hadoopls", params);
         Response response = new Response(getMethod);
         if (response.getStatusCode() != SUCCESS) {
             Assert.fail("filesExist check for file " + path + " on datastore " + grid + " failed with status " + response.getStatusCode());
@@ -1079,7 +1106,7 @@ public final class ConsoleHandle {
      * @return list of S3 grid dataSource names on the console
      */
     public List<String> getS3Grids() {
-    	try {
+        try {
             List<String> grids = new ArrayList<String>();
             
             JSONArray dataSourceResult = this.getDataSources();

@@ -121,7 +121,6 @@ public class HTTPHandle
 
     public HttpMethod makeGET(String paramString1, String paramString2, ArrayList<CustomNameValuePair> paramArrayList) {
         String str = constructFinalURL(paramString1, paramString2, paramArrayList);
-        str = new StringBuilder().append(str).append("&joinType=innerJoin").toString();
         GetMethod localGetMethod = null;
         try {
             localGetMethod = new GetMethod(str);
@@ -130,14 +129,13 @@ public class HTTPHandle
         }
 
         localGetMethod.addRequestHeader(YBYCookieHeader);
-        TestSession.logger.debug(new StringBuilder().append("Making a GET to ").append(str).toString());
+        TestSession.logger.info(new StringBuilder().append("Making a GET to ").append(str).toString());
         try {
             this.httpClient.executeMethod(localGetMethod);
             TestSession.logger.debug(localGetMethod.getResponseBodyAsString());
         } catch (Exception localException2) {
             TestSession.logger.error(localException2);
         }
-        TestSession.logger.debug(localGetMethod.getStatusLine().toString());
         try {
             TestSession.logger.debug(localGetMethod.getResponseBodyAsString());
         } catch (Exception localException3) {

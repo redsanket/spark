@@ -1,3 +1,4 @@
+// Copyright 2016, Yahoo Inc.
 package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -82,32 +83,6 @@ public class HadoopLSRestApiTest extends TestSession {
 			}
 		}
 		assertTrue("There is no data available for the given path = " + this.dataPath + this.dataSet  +  " on " +  this.dataSource  +  " grid" , filesJSONArray.toString().contains("[]") == true);
-	}
-	
-	/**
-	 * Test Scenario : Verify whether 
-	 */
-	//@Test
-	public void testHadoopLSWithWrongDataSource() {
-		String testURL = url  + this.hadoopLSCommand + "?dataSource=" + "UNKNOW_DATASOURCE" + "&path=" +  this.dataPath + this.dataSet + "&format=json";
-		TestSession.logger.info("testurl = " + testURL ) ;
-		com.jayway.restassured.response.Response response = given().cookie(cookie).get(testURL);
-		
-		String responseString = response.getBody().asString();
-		TestSession.logger.info("Response : " + responseString);
-		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(responseString);
-		
-		JSONObject responseObject = jsonObject.getJSONObject("Response");
- 		
-		// check for action name
-		String actionName = responseObject.getString("ActionName").trim();
-		assertTrue("Expected hadoopls, but got " + actionName , actionName.equals("hadoopls"));
-		
-		String responseId = responseObject.getString("ResponseId").trim();
-		assertTrue("Expected -2 , but got " + responseId , responseId.equals("-2"));
-		
-		String responseMessage = responseObject.getString("ResponseMessage").trim();
-		assertTrue("Expeced DataSource UNKNOW_DATASOURCE does not exist , but got " + responseMessage , responseMessage.contains("DataSource UNKNOW_DATASOURCE does not exist"));
 	}
 	
 	private String getDataSet() {
