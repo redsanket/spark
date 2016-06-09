@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
@@ -64,41 +65,20 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
     }
     
     public void createDataSet(){
-        StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
-          
-        //replace dummy table name with correct table name
-        String pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
-        String replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
-        
-        //replace dummy path with correct path
-        pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
-        replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);        
-        
-        //update source with current source
-        int offset = dataSetBuilder.indexOf("<Source ");
-        int indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        int indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, sourceCluster);
-        
-        //update target with current target
-        offset = dataSetBuilder.indexOf("<Target ");
-        indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, targetCluster);
-        
-        String dataSetXml = dataSetBuilder.toString();
-        // replace basedatasetName with the new datasetname
-        dataSetXml = dataSetXml.replaceAll(baseDataSetName, this.dataSetName);
-        
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+        dataSetXml = dataSetXml.replaceAll("dummy_tablename" , tableName);
+        dataSetXml = dataSetXml.replaceAll("dummy_path" , tableName);
+        dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster);
+        String pattern = "<HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>";
+        String replacePattern = "<HCatTablePropagationEnabled>TRUE</HCatTablePropagationEnabled>";
+        dataSetXml = dataSetXml.replaceAll(pattern, replacePattern);
+        dataSetXml = dataSetXml.replaceAll("TARGET_NAME", this.targetCluster);
+        dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
         TestSession.logger.info("dataSetXml  = " + dataSetXml);
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
-        this.consoleHandle.sleep(5000);
-        
+        this.consoleHandle.sleep(5000);   
     }
     
     @Test 

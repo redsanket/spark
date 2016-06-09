@@ -86,9 +86,6 @@ public class TestHCatPropagatingSourceHCatDiscoveryDataAndHCat extends TestSessi
         String pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         String replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
         dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
-       
-        pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
-        replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
         dataSetXml = dataSetXml.replaceAll("dummy_tablename" , tableName);
         dataSetXml = dataSetXml.replaceAll("dummy_path" , tableName);
         dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster);

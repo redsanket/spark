@@ -70,6 +70,7 @@
         <HCatRunTargetFilter>FALSE</HCatRunTargetFilter>
         <HCatTableName>dummy_tablename</HCatTableName>
         <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+        <HCatSchemaLocked>FALSE</HCatSchemaLocked>
     </HCat>
     <SelfServe>
         <RequireGroupAdmin>FALSE</RequireGroupAdmin>
