@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.Response;
@@ -49,13 +50,16 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
         sourceCluster=allGrids.get(0);
         targetCluster=allGrids.get(1);
         tableName = "HTF_Test_" + suffix;
-        //create table
+        //create table on source
         HCatDataHandle.createTable(sourceCluster, tableName);
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
         
+        //since the source isn't being propagated 
+        //the target needs to have this table.
+        HCatDataHandle.createTable(targetCluster, tableName);
     }
     
     @Test 
@@ -77,47 +81,33 @@ public class TestHCatPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSessi
     }
     
     public void createDataSet(){
-        StringBuilder dataSetBuilder = new StringBuilder(this.consoleHandle.getDataSetXml(this.baseDataSetName));
+    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/HCat_Test_Template.xml");
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
         
         //set discovery
         String pattern = "<DiscoveryInterface>HCAT</DiscoveryInterface>";
         String replaceWith = "<DiscoveryInterface>HDFS</DiscoveryInterface>";
-        int indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll(pattern, replaceWith);
         
         //replace dummy table name with correct table name
         pattern = "<HCatTableName>dummy_tablename</HCatTableName>";
         replaceWith = "<HCatTableName>"+ tableName +"</HCatTableName>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll("dummy_tablename" , tableName);
+        
         
         //replace dummy path with correct path
-        pattern = "location=\"/data/daqdev/data/dummy_path/instancedate=%{date}\" type=\"data\"/>";
-        replaceWith = "location=\"/data/daqdev/data/"+ tableName +"/instancedate=%{date}\" type=\"data\"/>";
-        indexOf = dataSetBuilder.indexOf(pattern);
-        dataSetBuilder.replace(indexOf, indexOf + pattern.length(), replaceWith);
+        dataSetXml = dataSetXml.replaceAll("dummy_path" , tableName);
         
         //update source with current source
-        int offset = dataSetBuilder.indexOf("<Source ");
-        int indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        int indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, sourceCluster);
+        dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceCluster);
+        dataSetXml = dataSetXml.replaceAll("TARGET_NAME", this.targetCluster);
         
-        //update target with current target
-        offset = dataSetBuilder.indexOf("<Target ");
-        indexOne = dataSetBuilder.indexOf("name=", offset) + "name=".length() +1;
-        indexTwo = dataSetBuilder.indexOf("\"",indexOne);
-        dataSetBuilder.replace(indexOne, indexTwo, targetCluster);
-        
-        String dataSetXml = dataSetBuilder.toString();
         // replace basedatasetName with the new datasetname
         dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
         TestSession.logger.info("dataSetXml  = " + dataSetXml);
         Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
-        
     }
-    
 
 }

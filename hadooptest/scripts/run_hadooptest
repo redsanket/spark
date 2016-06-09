@@ -520,7 +520,10 @@ if ($use_mvn) {
             "TEZ_VERSION=$tez_version " .
             "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8");
     }
-
+  print "clean up.. \n";
+  system("sh" , "./scripts/htf_cleanup.sh");   
+  print "-------------------------------------------------------------------------------------------------- \n"; 
+ 
     ############################################################################
     # Execute the tests.
     ############################################################################
