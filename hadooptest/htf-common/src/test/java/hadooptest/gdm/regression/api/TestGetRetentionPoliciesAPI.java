@@ -442,6 +442,9 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 	 * Test Scenario : Verify whether setting the target policy numberOfInstances to 100 and getting the policy is same.
 	 */
 	public void testSetAndGetRetentionPolicyIsCorrectForNumberOfInstance() {
+		
+		// create a new dataset with the given dataset name.
+		this.dataSetName = "testSetAndGetRetentionPolicy_" + System.currentTimeMillis();
 
 		List<String> dataTargetList = this.consoleHandle.getDataSource(this.baseDataSetName , "target" ,"name");
 		String dataSetXml = this.consoleHandle.getDataSetXml(this.baseDataSetName);
