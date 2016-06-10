@@ -74,6 +74,9 @@ public class TestGDMHealthCheckup extends TestSession {
 
 			testHCatDisabledOnAcquisitionFacet();
 			testHCatDisabledOnReplicationFacet();
+			
+			enableHCatOnDataSource(this.targetGrid1);		
+
 		} else {
 			TestSession.logger.info("There is no hive installed on any cluster, please install hive and run the testcase.");
 		}
@@ -189,10 +192,5 @@ public class TestGDMHealthCheckup extends TestSession {
 		}
 		return applicationSummary;
 	}
-	
-	@AfterClass
-	public void tearDown() {
-		// since the test disabled the hcat on the target hcat testcases were failing. so enabling the hcat since this testcase disabled it.
-		enableHCatOnDataSource(this.targetGrid1);		
-	}
+
 }
