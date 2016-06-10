@@ -96,7 +96,6 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 		testGetRetentionPolicyForGivenDataSetAndTarget(); 
 		testGetAllSourceAndTargetsRetentionPolicies();
 		testGetRetentionPolicyWhenOnlyDataSetIsSpecified();
-		testSetAndGetRetentionPolicyIsCorrectForNumberOfInstance();
 		testMultipleResourceName();
 	}
 
@@ -436,106 +435,6 @@ public class TestGetRetentionPoliciesAPI  extends TestSession {
 			}
 		}
 	}
-
-
-	/**
-	 * Test Scenario : Verify whether setting the target policy numberOfInstances to 100 and getting the policy is same.
-	 */
-	public void testSetAndGetRetentionPolicyIsCorrectForNumberOfInstance() {
-		
-		// create a new dataset with the given dataset name.
-		this.dataSetName = "testSetAndGetRetentionPolicy_" + System.currentTimeMillis();
-
-		List<String> dataTargetList = this.consoleHandle.getDataSource(this.baseDataSetName , "target" ,"name");
-		String dataSetXml = this.consoleHandle.getDataSetXml(this.baseDataSetName);
-		TestSession.logger.info("dataSetXml  = " + dataSetXml);
-
-		// replace basedatasetName with the new datasetname
-		dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
-		TestSession.logger.info("after changing the dataset name    = " + dataSetXml);
-
-		// Create a new dataset
-		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
-		assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
-
-		this.consoleHandle.sleep(60000);
-
-		String resourceName = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(this.dataSetName));
-		List<String> arguments = new ArrayList<String>();
-		for (String target : dataTargetList) {
-			arguments.add("numberOfInstances:100:" + target.trim());
-			TestSession.logger.info("grid = " + target);
-		}
-		String args = constructPoliciesArguments(arguments , "updateRetention");
-		TestSession.logger.info("args = "+args);
-		TestSession.logger.info("test url = " + this.testURL);
-		com.jayway.restassured.response.Response res = given().cookie(this.cookie).param("resourceNames", resourceName).param("command","update").param("args", args)
-				.post(this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/actions");
-
-		TestSession.logger.info("Response code = " + res.getStatusCode());
-		assertTrue("Failed to modify or set the retention policy for " + this.dataSetName , res.getStatusCode() == SUCCESS);
-
-		String resString = res.getBody().asString();
-		TestSession.logger.info("resString = " + resString);
-
-		this.consoleHandle.sleep(30000);
-
-		// get the retention policy on the same target and chech whether the value is same
-		resourceName = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(this.dataSetName));
-		TestSession.logger.info("resourceName  = "  + resourceName);
-
-		com.jayway.restassured.response.Response response1 = given().cookie(this.cookie).param("resourceNames", resourceName).post(this.testURL);
-		String responseString = response1.getBody().asString();
-		TestSession.logger.info("response = " + responseString);
-
-		// Navigate the response and check the results
-		JSONArray jsonArray =  (JSONArray) JSONSerializer.toJSON(responseString);
-
-		int daysCount = 100;
-		int targetCount = 0;
-		if ( jsonArray.size() > 0 ) {
-			Iterator iterator = jsonArray.iterator();   
-			while (iterator.hasNext()) {
-				JSONObject jsonObject = (JSONObject) iterator.next();
-				String resName = jsonObject.getString("resourceName");
-				TestSession.logger.info("Response resource name =  " + resName);
-				assertTrue(resName + " in response is not matching with the actual request resource name = " + this.dataSetName , resName.equals(this.dataSetName));
-
-				// get the message for succesful or unsuccessful 
-				String message = jsonObject.getString("message");
-				TestSession.logger.info("message = " + message);
-				assertTrue(message + " is wrong" , message.equals("Successful") == true);
-
-				// navigate all the policies jsonArray
-				JSONArray policies = jsonObject.getJSONArray("policies");
-				int policySize = policies.size() - 1;
-				assertTrue("Request target size and response policies target size is not matching" , dataTargetList.size() == policySize);
-
-				int sourceCount = 0;
-				Iterator policyIterator = policies.iterator();
-				while ( policyIterator.hasNext()){
-					JSONObject policy = (JSONObject) policyIterator.next();
-					boolean hisTargetElementExists = policy.has("target");
-					if (hisTargetElementExists) {
-						String resposeTargetName = policy.getString("target").trim();
-						String requestTargetName = dataTargetList.get(targetCount).trim();
-						TestSession.logger.info("resposeTargetName = " + resposeTargetName   + "   requestTargetName = " + requestTargetName);
-						assertTrue("Request target name " + requestTargetName  +  "   dn't match with response name = " + resposeTargetName   , resposeTargetName.equals(requestTargetName));
-
-						String policyType = policy.getString("policyType");
-						TestSession.logger.info("policyType = " + policyType);
-						assertTrue("policyType dn't match, policy type was set to numberOfInstances, but got " + policyType , policyType.equals("numberOfInstances"));
-
-						String responseDays = policy.getString("days");
-						TestSession.logger.info("responseDays = " + responseDays);
-						assertTrue("Days dn't match setted days is 100 and got " + responseDays , responseDays.equals("100"));
-						targetCount++;
-					}
-				}
-			}
-		}
-	}
-
 
 	/**
 	 * Test Scenario : Verify whether getRetentionPolicies REST API accepts multiple resourceName and gives all 

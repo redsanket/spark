@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -187,5 +188,11 @@ public class TestGDMHealthCheckup extends TestSession {
 			applicationSummary.put(keys.get(i), values.get(i));
 		}
 		return applicationSummary;
+	}
+	
+	@AfterClass
+	public void tearDown() {
+		// since the test disabled the hcat on the target hcat testcases were failing. so enabling the hcat since this testcase disabled it.
+		enableHCatOnDataSource(this.targetGrid1);		
 	}
 }
