@@ -289,10 +289,11 @@ public class TestMetrics extends DfsTestsBaseClass {
     public int getJMXPropertyValue(String pid)
 	throws Exception {
 
-	String workspace = TestSession.conf.getProperty("WORKSPACE");
+	// String workspace = TestSession.conf.getProperty("WORKSPACE");
+	String workspace = System.getenv("WORKSPACE");
 	TestSession.logger.info("Workspace directory: " + workspace);
 	
-	String[] cmd = { "/usr/bin/scp", SSH_OPTS_1, SSH_OPTS_2, workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar ", namenodeHostname + ":/tmp/"} ;
+	String[] cmd = { "/usr/bin/scp", SSH_OPTS_1, SSH_OPTS_2, workspace + "/hadooptest/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar ", namenodeHostname + ":/tmp/"} ;
 	
 	TestSession.logger.info("Command is: " + cmd);
 	String[] output = TestSession.exec.runProcBuilder(cmd);
