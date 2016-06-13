@@ -54,7 +54,6 @@ public class IntegrationEmitterTest  extends TestSession {
     private int frequency;
     private String freq;
     private List<String> feedList;
-    private String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
     private WorkFlowHelper workFlowHelper;
     private CreateIntegrationDataSet createIntegrationDataSetObj;
     private HCatHelper hcatHelperObject = null;
@@ -62,7 +61,6 @@ public class IntegrationEmitterTest  extends TestSession {
     private static final String TARGET_START_TYPE_MIXED = "Mixed";
     private static final String TARGET_START_TYPE_DATAONLY = "DataOnly";
     private static final int SUCCESS = 200;
-    private static final String SOURCE_NAME= "qe9blue";
     private final static String HADOOP_LS_PATH = "/console/api/admin/hadoopls?dataSource=";
     private final static String ABF_DATA_PATH = "/data/SOURCE_ABF/ABF_Daily/";
     private static final String DATABASE_NAME = "gdm";
@@ -270,7 +268,7 @@ public class IntegrationEmitterTest  extends TestSession {
     public List<String> getInstanceFileDates() {
         JSONArray jsonArray = null;
         List<String> instanceDates = new ArrayList<String>();
-        String testURL = this.consoleHandle.getConsoleURL() + this.HADOOP_LS_PATH + this.SOURCE_NAME + "&path=" + ABF_DATA_PATH + "&format=json";
+        String testURL = this.consoleHandle.getConsoleURL() + this.HADOOP_LS_PATH + this.sourceCluster + "&path=" + ABF_DATA_PATH + "&format=json";
         TestSession.logger.info("Test url = " + testURL);
         com.jayway.restassured.response.Response res = given().cookie(this.cookie).get(testURL);
         assertTrue("Failed to get the response  " + res , (res != null ) );
