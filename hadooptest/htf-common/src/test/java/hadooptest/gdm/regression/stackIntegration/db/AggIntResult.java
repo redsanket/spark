@@ -99,7 +99,8 @@ public class AggIntResult {
 	}
 	
 	public java.util.List<String> getToDaysResult() {
-		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion  from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\"";
+		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion  from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\""  
+						+ " group by  " + this.getCurrentPipeLineName() + "Version";
 		TestSession.logger.info("query - " + query);
 		java.sql.ResultSet resultSet = this.getResultSet(query);
 		java.util.List<String> compondentVersionList = new java.util.ArrayList<>();
@@ -283,7 +284,7 @@ public class AggIntResult {
 						TestSession.logger.info(" failed.........");
 						int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
 						if (recordCount == 0) {
-							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
+							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version"  + "  = " + compVersion + " does not exist, inserting a new record.");
 							insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
 							insertFinalResultIntoDB(
 									dataSetName1,date,
@@ -309,8 +310,7 @@ public class AggIntResult {
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
 									comments, result
-									
-									);
+								);
 						}else {
 							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist.");
 						}
