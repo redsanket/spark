@@ -145,6 +145,7 @@ public class DataSetJSONTest {
         CreateDataSet datasetCreator = new CreateDataSet();     
         datasetCreator.dataSetName(this.getDataSetName(retentionPolicy))
         .description("Testing dataset creation")
+        .requestJSONVersion("2")
         .projectName("apollo")
         .sourceCluster(this.sourceGrid)
         .uGIGroup("aporeport")

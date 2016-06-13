@@ -24,13 +24,16 @@ public class CreateDataSet {
     private String publisherContact;
     private String comments;
     private String doneFilePath;
+    private String requestJSONVersion;
     private JSONArray targets;
     private int targetsCount;
+    private JSONArray sources;
     private JSONArray sourcesPath;
     private JSONObject datasetRequest;
     private JSONObject newDataFeedRequest;
 
     public CreateDataSet() {
+    	this.sources = new JSONArray();
         this.targetsCount = 0;
         this.targets = new JSONArray();
         this.datasetRequest = new JSONObject();
@@ -41,6 +44,12 @@ public class CreateDataSet {
         this.dataSetName = dataSetName;
         this.datasetRequest.put("DataSetName", this.dataSetName);
         return this;
+    }
+    
+    public CreateDataSet requestJSONVersion(String requestJSONVersion) {
+    	this.requestJSONVersion = requestJSONVersion;
+    	this.newDataFeedRequest.put("RequestJSONVersion" , requestJSONVersion);
+    	return this;
     }
     
     public String getDataSetName() {
@@ -105,9 +114,16 @@ public class CreateDataSet {
         return this.projectName;
     }
 
-    public CreateDataSet sourceCluster(String sourceClusterName) {
-        this.sourceCluster = sourceClusterName;
-        this.datasetRequest.put("SourceCluster", this.sourceCluster);
+    public CreateDataSet sourceCluster(String... sourceClusterName) {
+    	if (this.sources == null ) {
+    		this.sources = new JSONArray();
+    	} 
+    	for (String cName : sourceClusterName) {
+    		JSONObject sourceJsonObject = new JSONObject();
+    		sourceJsonObject.put("SourceCluster", cName);
+    		this.sources.add(sourceJsonObject);
+    	}
+    	this.datasetRequest.put("Sources", this.sources.toString());
         return this;
     }
     
