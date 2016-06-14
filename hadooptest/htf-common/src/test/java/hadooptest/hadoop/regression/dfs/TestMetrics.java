@@ -14,6 +14,7 @@ import java.util.Collection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.runners.Parameterized.Parameters;
 
@@ -56,8 +57,12 @@ public class TestMetrics extends DfsTestsBaseClass {
     @Test public void test_FilesInGetListingOps2_none() throws Exception { test_FilesInGetListingOps2(""); }
     @Test public void test_FilesInGetListingOps2_hdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.HDFS); }
     
+    // gridci-1161, still getting false negatives due to jmx metrics noise
+        @Ignore
 	@Test public void test_FilesInGetListingOps4_webhdfs() throws Exception { test_FilesInGetListingOps4(HadooptestConstants.Schema.WEBHDFS); }
+    @Ignore
     @Test public void test_FilesInGetListingOps4_none() throws Exception { test_FilesInGetListingOps4(""); }
+    @Ignore
     @Test public void test_FilesInGetListingOps4_hdfs() throws Exception { test_FilesInGetListingOps4(HadooptestConstants.Schema.HDFS); }
     
     @Test public void test_FilesInGetListingOps5_webhdfs() throws Exception { test_FilesInGetListingOps5(HadooptestConstants.Schema.WEBHDFS); }
