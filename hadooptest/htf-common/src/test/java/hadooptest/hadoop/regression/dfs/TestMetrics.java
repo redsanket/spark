@@ -292,13 +292,7 @@ public class TestMetrics extends DfsTestsBaseClass {
 	String workspace = TestSession.conf.getProperty("WORKSPACE");
 	TestSession.logger.info("Workspace directory: " + workspace);
 	
-	TestSession.logger.info("The jar file being copied is: " + workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar");
-	String[] jar_cmd = {"ls", "-l", workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar"};
-	TestSession.logger.info("Running ls -l on gateway: ");
-	String[] output_ls = TestSession.exec.runProcBuilder(jar_cmd);
-	
-	// String[] cmd = { "/usr/bin/scp", SSH_OPTS_1, SSH_OPTS_2, workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar ", namenodeHostname + ":/tmp/"} ;
-	String[] cmd = { "/usr/bin/scp", workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar", namenodeHostname + ":/tmp/"} ;
+	String[] cmd = { "/usr/bin/scp", SSH_OPTS_1, SSH_OPTS_2, workspace + "/htf-common/resources/misc/jmxterm-1.0-SNAPSHOT-uber.jar", namenodeHostname + ":/tmp/"} ;
 	TestSession.logger.info("Command is: " + cmd);
 	String[] output = TestSession.exec.runProcBuilder(cmd);
 	
