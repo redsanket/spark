@@ -240,8 +240,6 @@ public class WorkFlowHelper {
             minSystemLoad = tempSystemLoad;
             maxSystemLoad  = tempSystemLoad;
         }
-        TestSession.logger.info("Waiting for "+ facetName + " workflow to start before checking workflow status");
-        this.consoleHandle.sleep(60000);
 
         boolean isWorkFlowRunning = false , isWorkFlowCompleted = false, isWorkFlowFailed = false;
         com.jayway.restassured.response.Response workFlowResponse = null;
