@@ -1198,24 +1198,20 @@ public final class ConsoleHandle {
      * @return console response from submitting dataSet
      */
     public Response createDataSource(String oldDataSetName, String newDataSetName, String xmlFileContent) {
-        String resource = this.conf.getString("hostconfig.console.datasource.clone.resource") + "?action=Create&operation=1";
+    	String resource = this.conf.getString("hostconfig.console.datasource.clone.resource") + "?action=Create&operation=1";
 
-        xmlFileContent = xmlFileContent.replaceAll(oldDataSetName, newDataSetName);
-        xmlFileContent = xmlFileContent.replace("HadoopConfig" + newDataSetName, "HadoopConfig" + oldDataSetName);
-        xmlFileContent = xmlFileContent.replace("<ClusterDistTag>" + newDataSetName + "_current</ClusterDistTag>",
-                                "<ClusterDistTag>" + oldDataSetName + "_current</ClusterDistTag>");
-        xmlFileContent = xmlFileContent.replace("<ClusterTag>"+ newDataSetName +"</ClusterTag>", "<ClusterTag>"+ oldDataSetName +"</ClusterTag>");
-        TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
-
-        StringBuilder postBody = new StringBuilder();
-        postBody.append("xmlFileContent=");
-        postBody.append(xmlFileContent);
-        TestSession.logger.info("createDataSet(dataSetName=" + newDataSetName + ", xmlFileContent=" + xmlFileContent);
-        HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
-        this.response = new Response(postMethod, false);
-        return this.response;
+    	// just change the name attribute, remaining be the same
+    	xmlFileContent = xmlFileContent.replaceFirst(oldDataSetName, newDataSetName);
+    	TestSession.logger.info("xmlFileContent  = "+xmlFileContent);
+    	StringBuilder postBody = new StringBuilder();
+    	postBody.append("xmlFileContent=");
+    	postBody.append(xmlFileContent);
+    	TestSession.logger.info("createDataSet(dataSetName=" + newDataSetName + ", xmlFileContent=" + xmlFileContent);
+    	HttpMethod postMethod = this.httpHandle.makePOST(resource, postBody.toString());
+    	this.response = new Response(postMethod, false);
+    	return this.response;
     }
-
+    
     /**
      * Modify the specified tag value of the specified datasource
      * @param dataSourceName  - datasource name 
@@ -1988,4 +1984,5 @@ public final class ConsoleHandle {
         }
         return version;
     }
+    
 }

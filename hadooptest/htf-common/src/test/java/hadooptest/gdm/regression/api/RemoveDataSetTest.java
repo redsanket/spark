@@ -41,7 +41,7 @@ public class RemoveDataSetTest extends TestSession {
 	private String url;
 	public static final String DATA_SET_PATH = "/console/query/config/dataset/getDatasets";
 	public static final String DataSourcePath = "/console/query/config/datasource";
-	private String originalDataSetName = "VerifyAcqRepRetWorkFlowExecutionDateRange" ;
+	private String originalDataSetName ;
 	private List<String> dataSourceList;
 	private List<String> dataTargetList;
 	private List<String> datasetsResultList;
@@ -69,31 +69,14 @@ public class RemoveDataSetTest extends TestSession {
     	this.url = this.consoleHandle.getConsoleURL();
     	TestSession.logger.info("url = " + url);
 
-
-    	datasetsResultList = given().cookie(cookie).get(this.url + DATA_SET_PATH ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
-    	if (datasetsResultList == null) {
-    		fail("Failed to get the datasets");
+    	List<String> grids = this.consoleHandle.getUniqueGrids();
+    	if (grids.size() < 2) {
+    		Assert.fail("Only " + grids.size() + " of 2 required grids exist");
     	}
-
-    	if (datasetsResultList.size() == 0) {
-    		// create the dataset.
-
-    		List<String> grids = this.consoleHandle.getUniqueGrids();
-    		if (grids.size() < 2) {
-    			Assert.fail("Only " + grids.size() + " of 2 required grids exist");
-    		}
-    		this.sourceGrid = grids.get(0);
-    		this.target = grids.get(1);
-    		createDataset();
-
-    		originalDataSetName = newDataSetName;
-
-    		datasetsResultList = given().cookie(cookie).get(this.url + DATA_SET_PATH ).getBody().jsonPath().getList("DatasetsResult.DatasetName");
-    		assertTrue("Failed to get the newly created dataset name" , datasetsResultList.size() > 0);
-    		TestSession.logger.info("dataSetsResultList  = " + datasetsResultList.toString());
-    	} else if (datasetsResultList.size() > 0) {
-    		originalDataSetName = datasetsResultList.get(0);
-    	}
+    	this.sourceGrid = grids.get(0);
+    	this.target = grids.get(1);
+    	this.originalDataSetName = "TestRemoveBaseDataSet_"  + System.currentTimeMillis();
+    	this.createDataset(originalDataSetName);
     }
 
     @Test
@@ -188,7 +171,6 @@ public class RemoveDataSetTest extends TestSession {
      * Test Scenario : Verify whether user is able to remove all the targets from the dataset, except the last one
      */
     public void testRemoveTargetsFromDataSet() {
-
         String resource = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(this.newDataSetName));
         TestSession.logger.info("resource = "+this.jsonUtil.formatString(resource));
         int size = newDataTargetList.size();
@@ -221,7 +203,6 @@ public class RemoveDataSetTest extends TestSession {
      * Test Scenario : Deactivate & remove dataset
      */
     public void testDeactivateAndRemoveDataSet() {
-
         // deactivate dataset
         Response response = this.consoleHandle.deactivateDataSet(this.newDataSetName);
         assertTrue("Failed to deactivate the dataset " +this.newDataSetName , response.getStatusCode() == SUCCESS);
@@ -254,7 +235,6 @@ public class RemoveDataSetTest extends TestSession {
      * Test Scenario : Remove datasource, if there is no dataset reference for this datasource
      */
     public void testRemoveDataSource() {
-
         String resource = this.jsonUtil.constructResourceNamesParameter(this.newDataSourceList);
 
         // Deactivate datasource
@@ -296,7 +276,6 @@ public class RemoveDataSetTest extends TestSession {
     }
 
     public void testRemoveDataTargets() {
-
         String resource = this.jsonUtil.constructResourceNamesParameter(newDataTargetList);
         TestSession.logger.info("response *****"+this.jsonUtil.formatString(resource));
 
@@ -405,12 +384,12 @@ public class RemoveDataSetTest extends TestSession {
     /**
      * Create a dataset.
      */
-    private void createDataset() {
-    	String basePath = "/data/daqdev/" + this.newDataSetName + "/data/%{date}";
+    private void createDataset(String baseDataSetName) {
+    	String basePath = "/data/daqdev/" + baseDataSetName + "/data/%{date}";
     	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/BasicReplDataSet1Target.xml");
-    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.newDataSetName, dataSetConfigFile);
+    	String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(baseDataSetName, dataSetConfigFile);
     	dataSetXml = dataSetXml.replaceAll("TARGET", this.target);
-    	dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", this.newDataSetName);
+    	dataSetXml = dataSetXml.replaceAll("NEW_DATA_SET_NAME", baseDataSetName);
     	dataSetXml = dataSetXml.replaceAll("SOURCE", this.sourceGrid );
     	dataSetXml = dataSetXml.replaceAll("START_TYPE", "fixed" );
     	dataSetXml = dataSetXml.replaceAll("START_DATE", INSTANCE1);
@@ -418,12 +397,11 @@ public class RemoveDataSetTest extends TestSession {
     	dataSetXml = dataSetXml.replaceAll("END_DATE", "0");
     	dataSetXml = dataSetXml.replaceAll("REPLICATION_DATA_PATH", basePath);
     	dataSetXml = dataSetXml.replaceAll("CUSTOM_PATH_DATA", basePath);
-    	hadooptest.cluster.gdm.Response response = this.consoleHandle.createDataSet(this.newDataSetName, dataSetXml);
+    	hadooptest.cluster.gdm.Response response = this.consoleHandle.createDataSet(baseDataSetName, dataSetXml);
     	if (response.getStatusCode() != org.apache.commons.httpclient.HttpStatus.SC_OK) {
     		Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
     	}
 
     	this.consoleHandle.sleep(30000);
     }
-
 }
