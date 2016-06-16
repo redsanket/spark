@@ -321,28 +321,6 @@ public class GetDatasetsApiTest extends TestSession {
     
     /**
      * Verify whether a  dataset(s) are selected for a given regular expression
-     * Note : Matches 0 or more occurrences of preceding regular expression. 
-     */
-    @Test
-    public void testGetDataSet_WithAstrictTarget() {
-        String targetName = dataTargetList.get(0);
-        String regex =  targetName.substring(0, 3)+"*" ;
-        TestSession.logger.info("regular expression = "+regex);
-        Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
-        List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
-        TestSession.logger.info("res  = "+res);
-        if (res.size() > 0) {
-            String ds = res.get(0);
-            TestSession.logger.info("ds = "+ds);
-            String name = getDataSource(ds, "target" );
-            TestSession.logger.info("name  = "+name);
-            boolean flag = dataTargetList.contains(name);
-            assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
-        }
-    }
-    
-    /**
-     * Verify whether a  dataset(s) are selected for a given regular expression
      * Note : Matches end of line regular expression 
      */
     @Test
