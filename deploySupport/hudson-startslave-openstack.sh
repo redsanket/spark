@@ -125,7 +125,7 @@ fi
 
 if [ ! -z "$TEZ_DIST_TAG" ]
 then
-    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -c11-28`
+    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
 
 if [ ! -z "$SPARK_DIST_TAG" ]
