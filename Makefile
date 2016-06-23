@@ -1,9 +1,32 @@
 ROOT=/home/y
-YAHOO_CFG=$(ROOT)/share/yahoo_cfg
+MVN=/home/y/bin/mvn
+
+SRCTOP = .
+YAHOO_CFG=/home/y/share/yahoo_cfg
+include $(YAHOO_CFG)/Make.defs
+# YAHOO_CFG=$(ROOT)/share/yahoo_cfg
 
 -include $(YAHOO_CFG)/screwdriver/Make.rules
 
-screwdriver: cleanHTF compileHTF
+ifndef HTF_VERSION
+TIMESTAMP := $(shell date +%y%m%d%H%M)
+export HTF_VERSION := 1.0.0.${TIMESTAMP}
+endif
+
+# Rules has to be included after vars are set, or it thinks you didn't set PACKAGE_CONFIG or whatever, and makes it *.yicf.
+include $(YAHOO_CFG)/Make.rules
+
+.PHONY: screwdriver
+
+cleanplatforms::
+
+platforms:: releaseHTF cleanHTF compileHTF
+
+screwdriver: releaseHTF cleanHTF compileHTF
+
+releaseHTF:
+	@echo "Creating HTF version"
+	@echo ${HTF_VERSION} > ${WORKSPACE}/app_root/RELEASE
 
 cleanHTF:
 	@echo "Cleaning HTF"
