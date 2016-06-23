@@ -16,7 +16,7 @@ shared:
     triggers:
     - "http://re101.ygrid.corp.gq1.yahoo.com:9999/yhudson/job/Hadoop-Cluster-Deploy-Grid-VM/"
     params:
-        CLUSTER: openqe30blue
+        CLUSTER: openqe43blue
 jobs:
    component:
       order: [init, install-jdk, clean]
