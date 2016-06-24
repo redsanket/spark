@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -33,6 +35,7 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
+import hadooptest.gdm.regression.stackIntegration.db.StackComponentAggResult;
 import hadooptest.gdm.regression.stackIntegration.db.DBCommands;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GDMHealthCheckUp;
@@ -425,14 +428,26 @@ public class CommonFunctions {
 		}
 		
 		String overAllResult = null;
-		if ( ( isHealth == true) && (overAllExecutionResult == true)) {
+		if ( ( isHealth == true) && (overAllExecutionResult == true) ) {
 			overAllResult = "PASS";
 		} else  {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
-		AggIntResult aggIntResultObj = new AggIntResult();
-		aggIntResultObj.finalResult();
+		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
+			AggIntResult aggIntResultObj = new AggIntResult();
+			aggIntResultObj.finalResult();
+			SendIntegrationResultMail obj = new SendIntegrationResultMail();
+			try {
+				obj.sendMail();
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException
+					| MessagingException e) {
+				e.printStackTrace();
+			}
+		} else {
+			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+			stackComponentAggResultObj.test();
+		}
 	}
 	
 	public Map<String,StackComponent> getStackComponentHealthCheckUp() throws InterruptedException, ExecutionException {
