@@ -13,21 +13,40 @@ mvn clean package
 Jars are located in <project-root>/target.  Two jars will be created in <project-root>/target, one jar packaged with all dependencies:
 
 ```
-spark-starter-1.0-SNAPSHOT-jar-with-dependencies.jar
+spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 and another packaged with just the example code:
 
 ```
-spark-starter-1.0-SNAPSHOT.jar
+spark-starter-2.0-SNAPSHOT.jar
 ```
 
 Example of how to run on grid:
+
+> Ensure that ```SPARK_HOME``` and ```SPARK_CONF_DIR``` are set on the gateway or launcher box.
+
+* Running word count example in java. 
 ```
 spark-submit --class com.yahoo.spark.starter.SparkPi \
-       --master yarn --deploy-mode cluster  --executor-memory 3g  --queue default --num-executors 3 --driver-memory 3g \
-       $SPARK_STARTER_HOME/target/spark-starter-1.0-SNAPSHOT-jar-with-dependencies.jar
+--master yarn \
+--deploy-mode cluster  \
+--executor-memory 3g  \
+--queue default \
+--num-executors 3 \
+--driver-memory 3g \
+$SPARK_STARTER_HOME/target/spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar
 ```
+
+* Running word count example in scala which writes output to provided uri.
+```
+spark-submit --class com.yahoo.spark.starter.ScalaWordCount \
+--master yarn \
+--deploy-mode cluster \
+--queue default \
+--driver-memory 5g \
+$SPARK_STARTER_HOME/target/spark-starter-2.0-SNAPSHOT.jar  largeRandomText/chunk[1-3]/*  largeRandomText/output/
+``` 
 
 For more details please reference 
 
