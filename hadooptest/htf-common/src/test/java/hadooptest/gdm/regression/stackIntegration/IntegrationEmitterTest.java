@@ -160,6 +160,11 @@ public class IntegrationEmitterTest  extends TestSession {
 				fail("failed to 	 success file - " + finalDataPath );
 			}
 		}
+		/**
+		 * If every thing goes well, dataset is eligible is delete.
+		 * If either workflow is failed or _SUCCESS  file is missing. the following statement is not executed.
+		 */
+		isDataSetEligibleForDelete = true;
 	}
 
 	/**
