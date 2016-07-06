@@ -11,6 +11,7 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.HCatHelper;
 import hadooptest.cluster.gdm.HTTPHandle;
+import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
@@ -30,12 +31,15 @@ import java.util.TimeZone;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.jayway.restassured.path.json.JsonPath;
 
 /**
  * Integration emitter code that does a GDM replication.
@@ -62,6 +66,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	private CreateIntegrationDataSet createIntegrationDataSetObj;
 	private HCatHelper hcatHelperObject = null;
 	private String HCAT_TYPE =  "DataOnly" ;
+	private JSONUtil jsonUtil;
 	private static final String TARGET_START_TYPE_MIXED = "Mixed";
 	private static final String TARGET_START_TYPE_DATAONLY = "DataOnly";
 	private static final int SUCCESS = 200;
@@ -135,7 +140,7 @@ public class IntegrationEmitterTest  extends TestSession {
 			TestSession.logger.info(this.getDataSetName() + " dataSet already exists...");
 		}
 
-		String datasetActivationTime = GdmUtils.getCalendarAsString();  
+		 String datasetActivationTime = GdmUtils.getCalendarAsString();  
 
 		// check for replication workflow is success for each instance
 		for (String date : dates ) {
@@ -153,9 +158,6 @@ public class IntegrationEmitterTest  extends TestSession {
 				fail("failed to 	 success file - " + finalDataPath );
 			}
 		}
-
-		// deactivate the dataset
-		this.tearDown();
 	}
 
 	/**
@@ -253,12 +255,38 @@ public class IntegrationEmitterTest  extends TestSession {
 		}
 	}
 
+	@After
 	public void tearDown() {
+
 		// make dataset inactive
 		Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
 		assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
 		assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
 		assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
 		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+
+		// remove dataset
+		this.removeDataSet();
+	}
+
+	/**
+	 * Remove the current dataset.
+	 */
+	public void removeDataSet() {
+		this.jsonUtil = new JSONUtil();
+		String resource = this.jsonUtil.constructResourceNamesParameter(Arrays.asList(this.dataSetName));
+		String consoleUrl = this.consoleHandle.getConsoleURL();
+		com.jayway.restassured.response.Response res = given().cookie(cookie).param("resourceNames", resource).param("command","remove").
+				post(consoleUrl + "/console/rest/config/dataset/actions");
+
+		String resString = res.asString();
+		TestSession.logger.info("response after trying to remove the active dataset - " + this.jsonUtil.formatString(resString));
+
+		JsonPath jsonPath = new JsonPath(resString);
+		String actionName = jsonPath.getString("Response.ActionName");
+		String responseId = jsonPath.getString("Response.ResponseId");
+		String responseMessage = jsonPath.getString("Response.ResponseMessage");
+		TestSession.logger.info("actionName = "+actionName  + "   ResponseId = "  +responseId + "    responseMessage = "+responseMessage);
+		assertTrue("Expected remove action name , but found " + actionName , actionName.equals("remove"));
 	}
 }

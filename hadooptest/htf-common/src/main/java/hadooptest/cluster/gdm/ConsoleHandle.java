@@ -1701,8 +1701,6 @@ public final class ConsoleHandle {
         String url = this.getConsoleURL() + "/console/api/datasets/view";
         com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
         JsonPath jsonPath = response.getBody().jsonPath();
-        TestSession.logger.info("response = " + jsonPath.prettyPrint());
-
         List<String> datasetNames = jsonPath.getList("DatasetsResult.DatasetName");
         assertTrue("Failed to get the dataset name = "  , datasetNames != null && datasetNames.size() > 0);
         return datasetNames;
