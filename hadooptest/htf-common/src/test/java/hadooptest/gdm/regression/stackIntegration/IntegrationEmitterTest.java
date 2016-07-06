@@ -60,6 +60,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	private int duration;
 	private int noOfFeeds;
 	private int frequency;
+	private boolean isDataSetEligibleForDelete = true;
 	private String freq;
 	private List<String> feedList;
 	private WorkFlowHelper workFlowHelper;
@@ -155,6 +156,7 @@ public class IntegrationEmitterTest  extends TestSession {
 
 			HadoopFileSystemHelper fs = new HadoopFileSystemHelper(clusterName);
 			if (fs.exists(finalDataPath) == false ) {
+				isDataSetEligibleForDelete = false;
 				fail("failed to 	 success file - " + finalDataPath );
 			}
 		}
@@ -257,16 +259,19 @@ public class IntegrationEmitterTest  extends TestSession {
 
 	@After
 	public void tearDown() {
+		
+		if ( isDataSetEligibleForDelete ) {
+			// make dataset inactive
+			Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
+			assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
+			assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
+			assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
+			assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
 
-		// make dataset inactive
-		Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
-		assertEquals("ResponseCode - Deactivate DataSet", 200, response.getStatusCode());
-		assertEquals("ActionName.", "terminate", response.getElementAtPath("/Response/ActionName").toString());
-		assertEquals("ResponseId", "0", response.getElementAtPath("/Response/ResponseId").toString());
-		assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());
+			// remove dataset
+			this.removeDataSet();			
+		}
 
-		// remove dataset
-		this.removeDataSet();
 	}
 
 	/**
