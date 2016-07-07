@@ -117,7 +117,7 @@ public class CreateIntegrationDataSet {
         for ( int x = 0; x < nodes.getLength(); x++ ) {
             Node node = nodes.item(x);
             String nodeName  = node.getNodeName();
-            TestSession.logger.info("node name -  " + nodeName);
+            TestSession.logger.debug("node name -  " + nodeName);
             if (node.getNodeName().equalsIgnoreCase(tagName)) {
                 return node;
             }
@@ -162,7 +162,6 @@ public class CreateIntegrationDataSet {
         String dSName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
         this.setDataSetName(dSName);
         String newDataSetXml = absoultePath + "/resources/gdm/datasetconfigs/" + this.getDataSetName() + ".xml";
-        TestSession.logger.info("newDataSetXml  = " + newDataSetXml);
         File newFile = new File(newDataSetXml);
         if (newFile.exists()) {
             newFile.delete();
@@ -241,7 +240,7 @@ public class CreateIntegrationDataSet {
     public static void main(String... args) {
     	CreateIntegrationDataSet obj = new CreateIntegrationDataSet();
         Document doc = obj.getDocument();
-        TestSession.logger.info(doc.toString());
+        TestSession.logger.debug(doc.toString());
         Document document = obj.getDocument();
         NodeList nodeList = obj.getBaseDataSetNodeList();
         Node targetsNode = obj.getNode("Targets" , nodeList);
