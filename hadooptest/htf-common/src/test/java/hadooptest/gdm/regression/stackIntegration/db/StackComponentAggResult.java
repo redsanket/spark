@@ -172,7 +172,7 @@ public class StackComponentAggResult {
 					int count = this.getRecordCount(recordCountQuery);
 
 					TestSession.logger.info("Record count -  " + count);
-					if (count == 0 ) {   
+					if (count == 0 ) {
 						// if record is zero, then you insert the record into DBCommands.FINAL_RESULT_TABLE_NAME from DBCommands.TABLE_NAME 
 						String countQuery = "SELECT * FROM  " + DBCommands.TABLE_NAME   + "  where date  like  "  + "\"" + getCurrentDate() + "\""
 								+ "  and gdmVersion=" + "\"" + this.getGdmVersion() + "\"" + "  and hadoopVersion="  + "\"" + this.getHadoopVersion() + "\""
@@ -241,6 +241,9 @@ public class StackComponentAggResult {
 					String gdmComments =  resultSet.getString("gdmComments");
 
 					String pigVersion =  resultSet.getString("pigVersion");
+					String pigCurrentState =  resultSet.getString("pigCurrentState");
+					String pigMRJobURL =  resultSet.getString("pigMRJobURL");
+					String pigResult =  resultSet.getString("pigResult");
 					String pigComments =  resultSet.getString("pigComments");
 
 					String tezVersion =  resultSet.getString("tezVersion");
@@ -335,7 +338,8 @@ public class StackComponentAggResult {
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
 							gdmVersion,gdmCurrentState,gdmResult,gdmComments,
-							pigVersion,pigComments,
+							//pigVersion,pigComments,
+							pigVersion,pigCurrentState,pigMRJobURL,pigResult,pigComments,
 							tezVersion,tezCurrentState,tezMRJobURL,tezResult,tezComments,
 							hiveVersion,hiveCurrentState,hiveResult,hiveComment,
 							hiveDropTable,hiveDropTableCurrentState,hiveDropTableComment,
@@ -365,7 +369,8 @@ public class StackComponentAggResult {
 								dataSetName1,date,
 								hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
 								gdmVersion,gdmCurrentState,gdmResult,gdmComments,
-								pigVersion,pigComments,
+								//pigVersion,pigComments,
+								pigVersion,pigCurrentState,pigMRJobURL,pigResult,pigComments,
 								tezVersion,tezCurrentState,tezMRJobURL,tezResult,tezComments,
 								hiveVersion,hiveCurrentState,hiveResult,hiveComment,
 								hiveDropTable,hiveDropTableCurrentState,hiveDropTableComment,
@@ -403,7 +408,11 @@ public class StackComponentAggResult {
 						dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
 						dbTableColumnsReplicaObject.getHadoopVersion(),dbTableColumnsReplicaObject.getHadoopCurrentState(),dbTableColumnsReplicaObject.getHadoopResult(),dbTableColumnsReplicaObject.getHadoopComments(),
 						dbTableColumnsReplicaObject.getGdmVersion(),dbTableColumnsReplicaObject.getGdmCurrentState(),dbTableColumnsReplicaObject.getGdmResult(),dbTableColumnsReplicaObject.getGdmComments(),
-						dbTableColumnsReplicaObject.getPigVersion(),dbTableColumnsReplicaObject.getPigComments(),
+						dbTableColumnsReplicaObject.getPigVersion(),
+						dbTableColumnsReplicaObject.getPigCurrentState(),
+						dbTableColumnsReplicaObject.getPigMRJobURL(),
+						dbTableColumnsReplicaObject.getPigResult(),
+						dbTableColumnsReplicaObject.getPigComments(),
 						dbTableColumnsReplicaObject.getTezVersion(),dbTableColumnsReplicaObject.getTezCurrentState(),dbTableColumnsReplicaObject.getTezMRJobURL(),dbTableColumnsReplicaObject.getTezResult(),dbTableColumnsReplicaObject.getTezComments(),
 						dbTableColumnsReplicaObject.getHiveVersion(),dbTableColumnsReplicaObject.getHiveCurrentState(),dbTableColumnsReplicaObject.getHiveResult(),dbTableColumnsReplicaObject.getHiveComment(),
 						dbTableColumnsReplicaObject.getHiveDropTable(),dbTableColumnsReplicaObject.getHiveDropTableCurrentState(),dbTableColumnsReplicaObject.getHiveDropTableComment(),
@@ -431,7 +440,7 @@ public class StackComponentAggResult {
 	public void insertFinalResultIntoDB( String dataSetName, String  date,
 			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
 			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
-			String  pigVersion, String  pigComments,
+			String pigVersion, String pigCurrentState, String pigMRJobURL, String pigResult, String pigComments,
 			String  tezVersion, String  tezCurrentState, String  tezMRJobURL, String tezResult, String  tezComments,
 			String  hiveVersion, String  hiveCurrentState, String  hiveResult, String  hiveComment,
 			String  hiveDropTable, String  hiveDropTableCurrentState, String  hiveDropTableComment,
@@ -464,7 +473,10 @@ public class StackComponentAggResult {
 					"gdmResult" , gdmResult,
 					"gdmComments" , gdmComments,
 					"pigVersion" , pigVersion,
-					"pigComments" , pigComments , 
+					"pigCurrentState", pigCurrentState,
+					"pigMRJobURL",pigMRJobURL,
+					"pigResult",pigResult,
+					"pigComments" , pigComments ,
 					"tezVersion" , tezVersion,
 					"tezCurrentState" , tezCurrentState,
 					"tezMRJobURL",tezMRJobURL,
