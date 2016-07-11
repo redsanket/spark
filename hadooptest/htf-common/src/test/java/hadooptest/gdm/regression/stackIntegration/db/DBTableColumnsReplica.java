@@ -98,7 +98,7 @@ public class DBTableColumnsReplica {
 	public DBTableColumnsReplica(String dataSetName, String date, String hadoopVersion, String hadoopCurrentState,
 			String hadoopResult, String hadoopComments, String gdmVersion, String gdmCurrentState, String gdmResult,
 			String gdmComments, 
-			String pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
+			String pigVersion,String pigCurrentState,String pigMRJobURL,String pigResult, String pigComments, 
 			String tezVersion, String tezCurrentState,
 			String tezMRJobURL, String tezResult, String tezComments, String hiveVersion, String hiveCurrentState,
 			String hiveResult, String hiveComment, String hiveDropTable, String hiveDropTableCurrentState,
