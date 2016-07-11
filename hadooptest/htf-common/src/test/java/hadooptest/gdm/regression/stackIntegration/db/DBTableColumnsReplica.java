@@ -19,6 +19,9 @@ public class DBTableColumnsReplica {
 	String gdmResult;
 	String gdmComments;
 	String pigVersion;
+	String pigCurrentState;
+	String pigMRJobURL;
+	String pigResult;
 	String pigComments;
 	String tezVersion;
 	String tezCurrentState;
@@ -94,7 +97,9 @@ public class DBTableColumnsReplica {
 	
 	public DBTableColumnsReplica(String dataSetName, String date, String hadoopVersion, String hadoopCurrentState,
 			String hadoopResult, String hadoopComments, String gdmVersion, String gdmCurrentState, String gdmResult,
-			String gdmComments, String pigVersion, String pigComments, String tezVersion, String tezCurrentState,
+			String gdmComments, 
+			String pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
+			String tezVersion, String tezCurrentState,
 			String tezMRJobURL, String tezResult, String tezComments, String hiveVersion, String hiveCurrentState,
 			String hiveResult, String hiveComment, String hiveDropTable, String hiveDropTableCurrentState,
 			String hiveDropTableComment, String hiveCreateTable, String hiveCreateTableCurrentState,
@@ -129,6 +134,9 @@ public class DBTableColumnsReplica {
 		this.gdmResult = gdmResult;
 		this.gdmComments = gdmComments;
 		this.pigVersion = pigVersion;
+		this.pigCurrentState = pigCurrentState;
+		this.pigMRJobURL = pigMRJobURL;
+		this.pigResult = pigResult;
 		this.pigComments = pigComments;
 		this.tezVersion = tezVersion;
 		this.tezCurrentState = tezCurrentState;
@@ -209,6 +217,30 @@ public class DBTableColumnsReplica {
 
 	public void setDataSetName(String dataSetName) {
 		this.dataSetName = dataSetName;
+	}
+	
+	public String getPigCurrentState() {
+		return pigCurrentState;
+	}
+
+	public void setPigCurrentState(String pigCurrentState) {
+		this.pigCurrentState = pigCurrentState;
+	}
+
+	public String getPigMRJobURL() {
+		return pigMRJobURL;
+	}
+
+	public void setPigMRJobURL(String pigMRJobURL) {
+		this.pigMRJobURL = pigMRJobURL;
+	}
+
+	public String getPigResult() {
+		return pigResult;
+	}
+
+	public void setPigResult(String pigResult) {
+		this.pigResult = pigResult;
 	}
 
 	public String getDate() {
@@ -866,8 +898,4 @@ public class DBTableColumnsReplica {
 	public void setResult(String result) {
 		this.result = result;
 	}
-	
-	
-	
-	
 }
