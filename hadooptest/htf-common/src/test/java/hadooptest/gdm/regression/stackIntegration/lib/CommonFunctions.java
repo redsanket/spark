@@ -50,6 +50,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp
 import hadooptest.gdm.regression.stackIntegration.tests.hbase.TestIntHBase;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
 import hadooptest.gdm.regression.stackIntegration.tests.oozie.TestIntOozie;
+import hadooptest.gdm.regression.stackIntegration.tests.pig.TestPig;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 
@@ -365,6 +366,17 @@ public class CommonFunctions {
 			}
 		}
 		
+		
+		if (currentStackTestComponent.contains("pig")) {
+			StackComponent tezStackComponent = stackComponentMap.get("pig");
+			Callable<String> testPigComponent = null;
+			if (tezStackComponent != null ) {
+				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  pigStackComponent = " + tezStackComponent.toString());
+				testPigComponent = new  TestPig(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath() );
+				testList.add(testPigComponent);
+			}
+		}
+		
 		if (currentStackTestComponent.contains("hive")) {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
@@ -434,7 +446,10 @@ public class CommonFunctions {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
-		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
+	}
+	
+	public void sendMail() {
+		if ( ( (this.getPipeLineName().indexOf("hadoop") > -1) == true ) || ( (this.getPipeLineName().indexOf("tez") > -1) == true) ) {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			aggIntResultObj.finalResult();
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
@@ -501,8 +516,8 @@ public class CommonFunctions {
 			pigFlag = true;
 		}else {
 			// since tez is executed using pig, so skipping this
-			//unTestedComponentListString.append("pig").append(",");
-			;	
+			unTestedComponentListString.append("pig").append(",");
+			this.updateDB(this.getDataSetName(), "pigResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hive")) {

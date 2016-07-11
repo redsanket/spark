@@ -26,6 +26,9 @@ public interface DBCommands {
 				
 				// pig
 				+ "pigVersion VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "pigCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
+				+ "pigMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
+				+ "pigResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "pigComments TEXT   , "
 				
 				// tez
