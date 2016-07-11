@@ -14,10 +14,7 @@ import org.junit.Test;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
-import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
-import hadooptest.gdm.regression.stackIntegration.db.StackComponentAggResult;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
-import hadooptest.gdm.regression.stackIntegration.lib.SendIntegrationResultMail;
 
 public class HadoopStackComponentsTest extends TestSession {
 
