@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.jayway.restassured.http.ContentType;
@@ -60,7 +61,24 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 			JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
 			String oozieVersion = jsonPath.getString("buildVersion");
 			this.stackComponent.setHealth(true);
-			this.stackComponent.setStackComponentVersion(oozieVersion);	
+			
+			// since webservice dn't give the full version (timestamp is missing ). 
+			String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + "   \"yinst ls | grep oozie | head -1 | cut -d\'-\' -f2 \"";
+			TestSession.logger.info("command - " + command);
+			String commandOutput = this.commonFunctionsObj.executeCommand(command);
+			List<String> logOutputList = Arrays.asList(commandOutput.split("\n"));
+			boolean flag = false;
+			for ( String log : logOutputList) {
+				if (log.startsWith(oozieVersion) == true) {
+					TestSession.logger.info("oozie version = " + log.trim());
+					this.stackComponent.setStackComponentVersion(log.trim());
+					flag = true;
+					break;
+				}
+			}
+			if (flag == false) {
+				this.stackComponent.setStackComponentVersion(oozieVersion.trim());
+			}
 		} else {
 			this.stackComponent.setHealth(false);
 			this.stackComponent.setStackComponentVersion("0.0");
