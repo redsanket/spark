@@ -122,9 +122,14 @@ public class TestPig implements Callable<String> {
 			this.stackComponent.setCurrentState("COMPLETED");
 			this.stackComponent.setResult(testResult);
 			this.stackComponent.setCurrentMRJobLink(mrJobURL);
-		}
+			return this.stackComponent.getStackComponentName() + "-" + flag;
+		} 
+		
+		// in case pig execution failed.
+		this.stackComponent.setCurrentState("COMPLETED");
+		this.stackComponent.setResult("FAIL");
 		TestSession.logger.info("---------------------------------------------------------------TestPig  end ------------------------------------------------------------------------");
-		return this.stackComponent.getStackComponentName() + "-" + flag;
+		return this.stackComponent.getStackComponentName() + "-" + "FAIL";
 	}
 
 	@Override
