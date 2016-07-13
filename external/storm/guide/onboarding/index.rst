@@ -1,44 +1,62 @@
 ===========
-On-Boarding 
+On-Boarding
 ===========
 
-.. Status: second draft. (The Dopplr form section may need to be removed or altered.
-   Currently, I've been told that the form is not to be used, but by the time
-   the documentation is finished, the team may be using the form again, but a
-   different version, so I've left the section in the documentation for the time being (09/21/14).
-
-In this chapter, we'll show you how to on-board to the 
+In this chapter, we'll show you how to on-board to the
 non-production environment for Storm. After you're done, we
 also direct you on how to on-board for production.
- 
+
 The process of on-boarding may take several days based on your request and
 the response of the Grid team. In the future, the on-boarding
 process to Storm will be automated, and thus, automatic.
 
-.. _onboarding-create:
+Storm Onboarding for Real Users
+===============================
+
+One-click access for all Yahoo grids, including Hadoop, HBase, and Storm
+clusters is available for real users via `Doppler <http://yo/doppler>`_.
+Once access has been requested, it takes approximately four hours for
+propagation to complete across all clusters. This will grant you access
+to the free pool on any Storm cluster. If you require access for your
+own user for experimentation to get started using Storm, no additional
+Doppler requests are required. Once you are ready to do real work, you
+will need a headless user. Read on for instructions on getting headless
+users onboarded to Storm.
+
+Storm Onboarding for Headless Users
+===================================
+
+For Production environments, topologies must be run by headless users, and headless
+users are still encouraged on Non-Production environments.  Given the long running
+nature of Storm topologies, use of a headless user allows multiple team members and
+SE to kill and relaunch topologies.
 
 Creating a Storm Project
-========================
+------------------------
 
-#. Go to the `Grid Support Shop <http://yo/supportshop>`_.
-#. From the **Grid Support Shop**, click **Storm Onboarding**. 
-#. You'll be taken to a Doppler form to create a Storm project. Click **Create a new project**
-   and then confirm by clicking **New Project** in the pop-up confirmation window.
-#. In the **New Storm Project** page, enter a project name in the **Project Name** text field, 
+You may or may not require a new Storm project. Please see the Doppler document
+`Do I need to create a new Storm project <http://yo/doppler-storm-new-project-q>`_.
+If you do require a new project, read on. If not, skip to the instructions for
+creating a new project environment.
+
+#. Go to `Storm on Doppler <http://yo/doppler-storm>`_.
+#. Click **Create a new project** and then confirm by clicking **New Project** in the pop-up
+   confirmation window.
+#. In the **New Storm Project** page, enter a project name in the **Project Name** text field,
    a unique headless user (use your own user name if you don't have a headless user) in the
    **Unique Headless User** text field, and a short project description indicating that this
    is a test project.
 #. From the **Contact Info** section of the page, select **Real User** from the **Contact Type** menu,
    your role (use **Technical Lead** if you're not sure) from the **Role** menu, and enter your
-   Yahoo user name for the **User ID** text field. 
+   Yahoo user name for the **User ID** text field.
 #. Click **Submit New Project**. You'll be taken to a confirmation page. The turnover rate varies,
-   but generally, you'll be on-boarded within a few business days. 
-   
+   but generally, you'll be on-boarded within a few business days.
+
 .. http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
-.. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm  
+.. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm
 
 Create a New Project Environment
-================================
+--------------------------------
 
 The topology you are creating in this section is not the Storm topology defined as a *graph of computation*.
 Instead, you are requesting an instance in a cluster for running your Storm topology. For instance,
@@ -46,8 +64,13 @@ your Storm topology might include two spouts and two bolts, so you request an in
 to run your topology. To request an instance, you create a topology in Dopplr. We know that this is confusing
 and plan on changing the nomenclature soon.
 
-#. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you 
+#. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you
    a member of or have selected as a favorite. Click the project name to open your project page.
+#. From your project page, scroll to the **Environments** panel.
+
+   - If the cluster you require is already listed, please proceed to the Adding a User to an Existing Environment
+     section.
+   - If the cluster you require is not listed, please proceed to the next step.
 #. From your project page, click the **New Environment** button under the label **Environments**.
 #. From the **New Environment** page, enter the following information in the form:
 
@@ -76,11 +99,17 @@ and plan on changing the nomenclature soon.
 #. The Grid SEs will review your request before approving it. You also may need to answer questions.
    The entire process can take from three to five working days.
 
+Adding a User to an Existing Environment
+----------------------------------------
+
+Please see the Doppler document `How do I add a new user to my Storm project <http://yo/doppler-storm-add-user-q>`_
+for instructions on adding a user to an existing Storm environment.
+
 Next Step
 =========
 
 Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_tutorials-counting>`_
-or on-board to the production environment by following the same steps above but selecting 
+or on-board to the production environment by following the same steps above but selecting
 **Production** and specifying your capacity needs:
 
 - number of servers
