@@ -10,6 +10,8 @@ The process of on-boarding may take several days based on your request and
 the response of the Grid team. In the future, the on-boarding
 process to Storm will be automated, and thus, automatic.
 
+-.. _onboarding-create:
+
 Storm Onboarding for Real Users
 ===============================
 
@@ -36,21 +38,18 @@ Creating a Storm Project
 
 You may or may not require a new Storm project. Please see the Doppler document
 `Do I need to create a new Storm project <http://yo/doppler-storm-new-project-q>`_.
-If you do require a new project, read on. If not, skip to the instructions for
-creating a new project environment.
+If you do require a new project, read on. If not, skip to the instructions to
+"`Create a New Project Environment`_".
 
 #. Go to `Storm on Doppler <http://yo/doppler-storm>`_.
 #. Click **Create a new project** and then confirm by clicking **New Project** in the pop-up
    confirmation window.
-#. In the **New Storm Project** page, enter a project name in the **Project Name** text field,
-   a unique headless user (use your own user name if you don't have a headless user) in the
-   **Unique Headless User** text field, and a short project description indicating that this
-   is a test project.
+#. In the **New Storm Project** page, enter a project name in the **Project Name** text field
+   and a short project description.
 #. From the **Contact Info** section of the page, select **Real User** from the **Contact Type** menu,
    your role (use **Technical Lead** if you're not sure) from the **Role** menu, and enter your
    Yahoo user name for the **User ID** text field.
-#. Click **Submit New Project**. You'll be taken to a confirmation page. The turnover rate varies,
-   but generally, you'll be on-boarded within a few business days.
+#. Click **Submit New Project**. You will be taken to the project page for your newly created project.
 
 .. http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
 .. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm
@@ -58,17 +57,14 @@ creating a new project environment.
 Create a New Project Environment
 --------------------------------
 
-The topology you are creating in this section is not the Storm topology defined as a *graph of computation*.
-Instead, you are requesting an instance in a cluster for running your Storm topology. For instance,
-your Storm topology might include two spouts and two bolts, so you request an instance on a Storm cluster
-to run your topology. To request an instance, you create a topology in Dopplr. We know that this is confusing
-and plan on changing the nomenclature soon.
+For an explanation of Project Environments in Storm, please see the Doppler document `Intro to
+Storm Environments in Doppler <http://yo/doppler-storm2-intro>`_.
 
 #. From your the **Storm Project** page, you'll see your project name listed as one of the projects that you
    a member of or have selected as a favorite. Click the project name to open your project page.
 #. From your project page, scroll to the **Environments** panel.
 
-   - If the cluster you require is already listed, please proceed to the Adding a User to an Existing Environment
+   - If the cluster you require is already listed, please proceed to the "`Adding a User to an Existing Environment`_"
      section.
    - If the cluster you require is not listed, please proceed to the next step.
 #. From your project page, click the **New Environment** button under the label **Environments**.
