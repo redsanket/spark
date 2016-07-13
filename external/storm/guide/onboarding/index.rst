@@ -52,7 +52,7 @@ If you do require a new project, read on. If not, skip to the instructions to
 #. Click **Submit New Project**. You will be taken to the project page for your newly created project.
 
 .. http://ebonyred-ni.red.ygrid.yahoo.com:9999@grid.red.ebony.supervisor/
-.. https://supportshop.cloud.corp.yahoo.com:4443/doppler/#/storm
+.. https://supportshop.cloud.corp.yahoo.com:4443/doppler/storm
 
 Create a New Project Environment
 --------------------------------
