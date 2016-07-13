@@ -37,7 +37,7 @@ Creating a Storm Project
 ------------------------
 
 You may or may not require a new Storm project. Please see the Doppler document
-`Do I need to create a new Storm project <http://yo/doppler-storm-new-project-q>`_.
+`Do I need to create a new Storm project <http://yo/doppler-howto-new-storm-project>`_.
 If you do require a new project, read on. If not, skip to the
 "`Create a New Project Environment`_"  section.
 
@@ -58,7 +58,7 @@ Create a New Project Environment
 --------------------------------
 
 Please see the Doppler document `How do I onboard in existing project onto a new
-cluster? <http://yo/doppler-storm-new-env-q>`_ for instructions on creating a new
+cluster? <http://yo/doppler-howto-new-storm-env>`_ for instructions on creating a new
 Project Environment.
 
 For an explanation of Project Environments in Storm, please see the Doppler document `Intro to
@@ -67,7 +67,7 @@ Storm Environments in Doppler <http://yo/doppler-storm2-intro>`_.
 Adding a User to an Existing Environment
 ----------------------------------------
 
-Please see the Doppler document `How do I add a new user to my Storm project <http://yo/doppler-storm-add-user-q>`_
+Please see the Doppler document `How do I add a new user to my Storm project <http://yo/doppler-howto-add-storm-user>`_
 for instructions on adding a user to an existing Storm environment.
 
 Next Step
