@@ -19,11 +19,10 @@ One-click access for all Yahoo grids, including Hadoop, HBase, and Storm
 clusters is available for real users via `Doppler <http://yo/doppler>`_.
 Once access has been requested, it takes approximately four hours for
 propagation to complete across all clusters. This will grant you access
-to the free pool on any Storm cluster. If you require access for your
-own user for experimentation to get started using Storm, no additional
-Doppler requests are required. Once you are ready to do real work, you
-will need a headless user. Read on for instructions on getting headless
-users onboarded to Storm.
+to the free pool on any Storm cluster. If you are asking for access to do experiments
+with Storm using your own user, you do not need anything further from Doppler.
+However, you must use a headless user id if you are going to use Storm for production,
+staging, or CI/CD. Read on to learn how to set that up.
 
 Storm Onboarding for Headless Users
 ===================================
