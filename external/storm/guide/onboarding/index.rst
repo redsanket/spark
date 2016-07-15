@@ -10,7 +10,7 @@ The process of on-boarding may take several days based on your request and
 the response of the Grid team. In the future, the on-boarding
 process to Storm will be automated, and thus, automatic.
 
--.. _onboarding-create:
+.. _onboarding-create:
 
 Storm Onboarding for Real Users
 ===============================
