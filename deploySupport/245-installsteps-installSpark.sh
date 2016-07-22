@@ -85,4 +85,6 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    fanoutSparkUI "$cmd"
    st=$?
    [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSparkUI: Install spark jars to sharelib <<<<<<<<<<" && exit $st
+   echo "Spark installation completed!"
+   ### Note: a && b && c returns 1; This breaks the script. Add echo at the end to mask the return value.
 fi
