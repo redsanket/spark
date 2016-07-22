@@ -15,15 +15,17 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    echo "INFO: Spark node being installed: $gateway"
    echo "INFO: Spark version being installed: $SPARKVERSION"
 
+   echo "INFO: Installing yspark_yarn-$SPARKVERSION"
    spark_install_cmd="yinst i yspark_yarn_install -br current \
    -set yspark_yarn_install.DOT_SIX=yspark_yarn-$SPARKVERSION \
    -set yspark_yarn_install.LATEST=yspark_yarn-$SPARKVERSION \
    -same -live"
    fanoutSpark "$spark_install_cmd"
    st=$?
-   [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSpark <<<<<<<<<<" && exit $st
+   [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSpark: Install yspark_yarn-$SPARKVERSION <<<<<<<<<<" && exit $st
 
    # Install Spark history server
+   echo "INFO: Installing yspark_yarn_history_server-$SPARK_HISTORY_VERSION to hdfs://mapred/sparkhistory/"
    cmd="export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
    export SPARK_HOME=/home/gs/spark/latest ; \
    export HADOOP_HOME=$GSHOME/hadoop/current ; \
@@ -48,9 +50,10 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
 
    fanoutSparkUI "$cmd"
    st=$?
-   [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSparkUI <<<<<<<<<<" && exit $st
+   [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSparkUI: Install spark history server <<<<<<<<<<" && exit $st
 
    # Install sharelib/v1/spark
+   echo "INFO: Installing yspark_yarn-$SPARK_HISTORY_VERSION jars to hdfs://sharelib/v1/spark/"
    cmd="$spark_install_cmd ;\
    export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
    export SPARK_HOME=/home/gs/spark/latest ; \
@@ -80,4 +83,6 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/"
 
    fanoutSparkUI "$cmd"
+   st=$?
+   [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSparkUI: Install spark jars to sharelib <<<<<<<<<<" && exit $st
 fi
