@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.cluster.gdm.HTTPHandle;
@@ -19,6 +20,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,15 +33,19 @@ import org.junit.Test;
 public class TestArchivalWorkFlow extends TestSession {
 
 	private String cookie;
-	private ConsoleHandle consoleHandle;
 	private String consoleURL;
-	private String dataSetName;
 	private String datasetActivationTime;
 	private WorkFlowHelper workFlowHelper;
 	private HTTPHandle httpHandle ;
-	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
-	private static final String HCAT_ENABLED = "FALSE";
-	private static final int SUCCESS = 200;
+	private static final String baseDataSetName = "AcqReplArchivalDataSet.xml";
+	private static String INSTANCE1 = "20130725";
+	private static String INSTANCE2 = "20130726";
+	private ConsoleHandle consoleHandle = new ConsoleHandle();
+	private String dataSetName = "AcqRepArchivalTest_" + System.currentTimeMillis();
+	private String sourceFDI;
+	private String targetGrid1;
+	private String targetGrid2;
+	private String archivalTargetName;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -47,16 +54,32 @@ public class TestArchivalWorkFlow extends TestSession {
 
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
-		this.httpHandle = new HTTPHandle();
-		this.consoleHandle = new ConsoleHandle();
-		this.consoleURL = this.consoleHandle.getConsoleURL();
-		this.cookie = this.httpHandle.getBouncerCookie();
 		this.workFlowHelper = new WorkFlowHelper();
 		this.dataSetName = "TestArchival_WorkFlow_DataSet_" + System.currentTimeMillis();
+
+		List<String> datastores = this.consoleHandle.getUniqueGrids();
+		if (datastores.size() < 2) {
+			Assert.fail("Only " + datastores.size() + " of 2 required grids exist");
+		}
+		this.targetGrid1 = datastores.get(0);
+		this.targetGrid2 = datastores.get(1);
+
+		datastores = this.consoleHandle.getWarehouseDatastores();
+		if (datastores.size() < 1) {
+			Assert.fail("No warehouse datastores");
+		}
+		this.sourceFDI = datastores.get(0);
+
+		datastores = this.consoleHandle.getArchivalDataStores();
+		if (datastores.size() < 1) {
+			Assert.fail("No Archival warehouse datastore(s)");
+		}
+		this.archivalTargetName = datastores.get(0);
 	}
 
 	@Test
 	public void testArchival() {
+		// create dataset
 		createArchivalDataSetAndActivate();
 
 		// check for acquisition workflow
@@ -72,22 +95,19 @@ public class TestArchivalWorkFlow extends TestSession {
 	/**
 	 * 	create a archival dataset.
 	 */
-	public void createArchivalDataSetAndActivate() {
-
-		String dataSetXml = this.consoleHandle.getDataSetXml(this.baseDataSetName);
-		dataSetXml = dataSetXml.replaceAll(this.baseDataSetName, this.dataSetName);
-
-		// activate the archival target. by default archival target is inactive.
-		dataSetXml = dataSetXml.replaceAll("inactive" , "active");
+	private void createArchivalDataSetAndActivate() {
+		String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/AcqReplArchivalDataSet.xml");
+		String dataSetXml = this.consoleHandle.createDataSetXmlFromConfig(this.dataSetName, dataSetConfigFile);
+		dataSetXml = dataSetXml.replaceAll("DATASET_NAME", dataSetName);
+		dataSetXml = dataSetXml.replaceAll("SOURCE_NAME", this.sourceFDI);
+		dataSetXml = dataSetXml.replaceAll("TARGET_1", this.targetGrid1);
+		dataSetXml = dataSetXml.replaceAll("TARGET_2", this.targetGrid2);
+		dataSetXml = dataSetXml.replaceAll("ARCHIVAL_TARGET_NAME", this.archivalTargetName);
 
 		Response response = this.consoleHandle.createDataSet(this.dataSetName, dataSetXml);
-		assertTrue("Failed to create a dataset " +this.dataSetName , response.getStatusCode() == 200);
-
-		// activate the dataset
-		response = this.consoleHandle.activateDataSet(dataSetName);
-		assertTrue("Failed to activate dataset " + dataSetName , response.getStatusCode() == SUCCESS);
-		this.consoleHandle.sleep(30000);
-		this.datasetActivationTime = GdmUtils.getCalendarAsString();
+		if (response.getStatusCode() != HttpStatus.SC_OK) {
+			Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
+		}
 	}
 
 	/**
@@ -101,6 +121,9 @@ public class TestArchivalWorkFlow extends TestSession {
 		String completedWorkFlowURL = this.consoleHandle.getConsoleURL() + "/console/api/workflows/completed?datasetname=" + this.dataSetName + "&instancessince=F&joinType=innerJoin&facet=" + facetName ;
 		TestSession.logger.info("completedWorkFlowURL  = " + completedWorkFlowURL);
 		this.consoleHandle.sleep(30000);
+
+		HTTPHandle httpHandle = new HTTPHandle();
+		this.cookie = httpHandle.getBouncerCookie();
 
 		com.jayway.restassured.response.Response completedResponse =  given().cookie(this.cookie).get(completedWorkFlowURL);
 		JSONArray jsonArray = this.consoleHandle.convertResponseToJSONArray(completedResponse, "completedWorkflows");
@@ -150,5 +173,5 @@ public class TestArchivalWorkFlow extends TestSession {
 			assertTrue("Failed : Archival workflow failed or Dn't run." , isArchivalWorkFlowCompletd == true);
 		}
 	}
-	
+
 }

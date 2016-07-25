@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="gdm-catalog" description="Template for Acquisition,Replication and Archival dataset"
+    name="DATASET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>HIGHEST</Priority>
+    <Contact consumer="gdm-dev@yahoo-inc.com"
+        owner="gdm-dev@yahoo-inc.com" publisher="gdm-dev@yahoo-inc.com"/>
+    <Comments>GDM automated test dataset built by deploy scripts.</Comments>
+    <UGI group="users" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>FDI</DiscoveryInterface>
+    <Paths>
+        <Path location="/data/daqdev/data/${DataSetName}/%{date}" type="data"/>
+        <Path location="/data/daqdev/count/${DataSetName}/%{date}" type="count"/>
+        <Path location="/data/daqdev/schema/${DataSetName}/%{date}" type="schema"/>
+    </Paths>
+    <Parameters>
+        <attribute name="feed" value="gdm-dataset-gdm_dev_one"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value="gdm-dataset-mmukhi_Aug_stats"/>
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey>mrkt_sid</SortKey>
+        <PartitionKey/>
+        <DataPathMask>$9/$8/$7/$6/$5/$4/$3/$2/$datestamp/$1</DataPathMask>
+        <AddFields>datestamp=$datestamp</AddFields>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>0</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>4</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="720" name="SOURCE_NAME" switchovertype="Standard">
+        </Source>
+    </Sources>
+ <DataFlow/>
+    <Targets>
+        <Target latency="1440" name="TARGET_1" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20220131"/>
+                <StartDate type="Fixed" value="20130725"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="1440" name="TARGET_2" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20220131"/>
+                <StartDate type="Fixed" value="20130725"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 1" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+         <Target latency="1440" name="ARCHIVAL_TARGET_NAME" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20220131"/>
+                <StartDate type="Fixed" value="20130725"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 1" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatForceExternalTables>FALSE</HCatForceExternalTables>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatRunTargetFilter>FALSE</HCatRunTargetFilter>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+    <ExtendedState>
+        <History>Last edited by agresch (2016/2/3 20:7:37)</History>
+    </ExtendedState>
+    <Project/>
+    <Tags/>
+    <ReplicationOptions>
+        <Validation>FALSE</Validation>
+    </ReplicationOptions>
+    <SchemaVersion>5</SchemaVersion>
+</DataSet>
+
