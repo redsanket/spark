@@ -1189,6 +1189,32 @@ public final class ConsoleHandle {
         
         return datastores;
     }
+    
+    /**
+     * @return list of active archival datastores
+     * @throws Exception 
+     */
+    public List<String> getArchivalDataStroes() throws Exception {
+        List<String> datastores = new ArrayList<String>();
+        
+        JSONArray dataSourceResult = this.getDataSources();
+        if (dataSourceResult != null) {
+            Iterator iterator = dataSourceResult.iterator();
+            while (iterator.hasNext()) {
+                JSONObject dataSource = (JSONObject)iterator.next();
+                if (dataSource.getString("Type").equalsIgnoreCase("hiosink")) {
+                    // ignore inactive grids
+                    if (dataSource.getString("IsActive").equalsIgnoreCase("true")) { 
+                        String name = dataSource.getString("DataSourceName");
+                        datastores.add(name);
+                    }
+                }
+            }
+        } else {
+            throw new Exception("unable to find DataSourceResult");
+        }
+        return datastores;    	
+    }
 
     /**
      * Creates a dataSet config from an Xml source and submits it to the console
