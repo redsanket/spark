@@ -1194,7 +1194,7 @@ public final class ConsoleHandle {
      * @return list of active archival datastores
      * @throws Exception 
      */
-    public List<String> getArchivalDataStroes() throws Exception {
+    public List<String> getArchivalDataStores() throws Exception {
         List<String> datastores = new ArrayList<String>();
         
         JSONArray dataSourceResult = this.getDataSources();

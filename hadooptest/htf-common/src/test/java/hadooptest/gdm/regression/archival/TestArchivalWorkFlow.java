@@ -70,7 +70,7 @@ public class TestArchivalWorkFlow extends TestSession {
 		}
 		this.sourceFDI = datastores.get(0);
 
-		datastores = this.consoleHandle.getArchivalDataStroes();
+		datastores = this.consoleHandle.getArchivalDataStores();
 		if (datastores.size() < 1) {
 			Assert.fail("No Archival warehouse datastore(s)");
 		}
