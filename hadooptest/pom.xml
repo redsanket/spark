@@ -2338,7 +2338,8 @@
                     <artifactId>system-htrace-core</artifactId>
                     <version>0.9.2</version>
                     <scope>system</scope>
-                    <systemPath>${HADOOP_SHARE}/tools/lib/htrace-core-3.1.0-incubating.jar</systemPath>
+                    <!--systemPath>${HADOOP_SHARE}/tools/lib/htrace-core-3.1.0-incubating.jar</systemPath-->
+                    <systemPath>${HADOOP_SHARE}/tools/lib/htrace-core4-4.0.1-incubating.jar</systemPath>
                 </dependency>
 
                 <!-- HBase -->
