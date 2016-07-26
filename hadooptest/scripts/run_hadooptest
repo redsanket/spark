@@ -106,6 +106,7 @@ my $spark = 0;
 my $tez = 0;
 my $hadoop26 = 0;
 my $hadoop27 = 0;
+my $hadoop28 = 0;
 my $pig = 0;
 my $spark12 = 0;
 my $spark13 = 0;
@@ -142,6 +143,7 @@ GetOptions(\%options,
     "tez"                => \$tez,
     "hadoop26"           => \$hadoop26,
     "hadoop27"           => \$hadoop27,
+    "hadoop28"           => \$hadoop28,
     "pig"                => \$pig,
     "spark"              => \$spark,
     "spark12"            => \$spark12,
@@ -246,6 +248,13 @@ if ($hadoop27) {
     copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
 }
 
+if ($hadoop28) {
+    # Copy a hadoop 2.8+ specific capacity-scheduler.xml over the existing one to support a change
+    # in yarn.scheduler.capacity.maximum-am-resource-percent from 0.1 to 0.3 in hadoop 2.8 
+    note("copy updated capacity-scheduler.xml for hadoop 2.8 over existing single-queue capacity-scheduler.xml:");
+    copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
+}
+
 # If the user has provided the -spark option to the script, install the Spark
 # corresponding spark package so that we can run tests against the Spark jars.
 if ($sparkversion) {
@@ -336,6 +345,10 @@ elsif ($storm090) {
 }
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
+}
+
+elsif ($hadoop28) {
+    $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }
 
 elsif ($hadoop27) {

@@ -1980,6 +1980,434 @@
             </dependencies>
         </profile>
 
+        <!-- BASE PROFILE FOR HADDOP 2.8 -->
+        <!-- When Hadoop is used, this profile must be called before profile-ci
+			or any other profile. If another profile is used first, the dependency jars
+			from that profile might have Hadoop configuration or classes that will upset
+			the classpath assembled by maven, and can lead to unexpected configuration
+			or classes ending up in the classpath before the necessary Hadoop support.
+			By putting profile-hadoop first in the maven profile order, it ensures that
+			Hadoop API calls and configuration will be using the deployed Hadoop jars. -->
+        <profile>
+            <id>profile-hadoop-2-8</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system-protobuf</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/lib/protobuf-java-2.5.0.jar</systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system-snappy-java</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/lib/snappy-java-1.0.4.1.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system32</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/hadoop-common-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system_commons_cli</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/lib/commons-cli-1.2.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system34</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/lib/hadoop-auth-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system35</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system36</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/hadoop-gpl-compression.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system37</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system40</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-client-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system41</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system42</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system1</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-common-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system2</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-hdfs-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system3</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-auth-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system4</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-shuffle-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system5</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-plugins-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system6</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/lib/hadoop-annotations-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system7</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-common-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system8</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-examples-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system9</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-hs-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system10</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-jobclient-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system11</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-app-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system12</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/mapreduce/hadoop-mapreduce-client-core-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system14</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-api-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system15</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-nodemanager-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system16</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-applications-distributedshell-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system18</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-web-proxy-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system19</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-common-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system20</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-common-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system21</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar
+                    </systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system22</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system23</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-archives-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system24</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-distcp-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system25</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-extras-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system26</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-datajoin-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system27</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-mapreduce-test.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system28</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-rumen-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system29</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system30</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-streaming.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system31</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/hadoop-gridmix-${HADOOP_VERSION}.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system33</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/common/lib/commons-codec-1.4.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system-htrace-core</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>${HADOOP_SHARE}/tools/lib/htrace-core-3.1.0-incubating.jar</systemPath>
+                </dependency>
+
+                <!-- HBase -->
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>hbase-client</artifactId>
+                    <version>${hbase.version}</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-client.jar
+                    </systemPath>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>cloudera-htrace-protocol</artifactId>
+                    <version>${hbase.version}</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/htrace-core-2.04.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>hbase-protocol</artifactId>
+                    <version>${hbase.version}</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-protocol.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>hbase-common</artifactId>
+                    <version>${hbase.version}</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-common.jar
+                    </systemPath>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>hbase-hadoop2-compat</artifactId>
+                    <version>${hbase.version}</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/hbase_fetch/libexec/hbase/lib/hbase-hadoop2-compat.jar
+                    </systemPath>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
         <!-- TEZ RUNTIME DEPENDENCIES, CONSUMED ONLY BY TEZ HTF TESTS-->
         <profile>
             <id>profile-tez</id>
