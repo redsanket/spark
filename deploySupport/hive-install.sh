@@ -67,7 +67,7 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_HIVE is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ]; then
+if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
   PACKAGE_VERSION_HIVE=`yinst package -br $REFERENCE_VERSION hive  | cut -d' ' -f1`
   PACKAGE_VERSION_HIVE_CONF=`yinst package -br $REFERENCE_VERSION hive_conf  | cut -d' ' -f1`
   PACKAGE_VERSION_HCAT_SERVER=`yinst package -br $REFERENCE_VERSION hcat_server  | cut -d' ' -f1`
