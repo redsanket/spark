@@ -348,7 +348,7 @@ elsif ($tez){
 }
 
 elsif ($hadoop28) {
-    $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-all";
+    $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }
 
 elsif ($hadoop27) {
