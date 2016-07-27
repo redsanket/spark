@@ -125,7 +125,7 @@ yinst set hcat_server.keydb_passkey=dbpassword
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ]; then
+if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
   PACKAGE_VERSION_PIG=`yinst package -br $REFERENCE_VERSION pig | cut -d' ' -f1`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   # info, this needs hadoop_releases_utils, which was installed previously in this script
