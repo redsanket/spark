@@ -238,16 +238,16 @@ public class GetDatasetsApiTest extends TestSession {
      */
     @Test
     public void testGetDataSetWithAstrictSource() {
-        String sourceName = "gdm-fdi-source-patw02";
-        String regex =  sourceName.substring(0, 3)+"*"  ;
+        List<String> dsNameList = this.consoleHandle.getAllDataSetName();
+        String temp = dsNameList.get(0);
+        String regex =  temp.substring(0, 3) + "*"  ;
         TestSession.logger.info("regex = "+regex);
-        Response response = given().cookie(cookie).get(url + dataSetPath +"?source="+regex);
+        Response response = given().cookie(cookie).get(url + dataSetPath + "?dataset=" + regex);
         List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
         TestSession.logger.info("res  = "+res);
         if (res.size() > 0) {
             String ds = res.get(0);
-            String name = getDataSource(ds, "source" );
-            boolean flag = dataSourceList.contains(name);
+            boolean flag = ds.startsWith(temp.substring(0, 3));
             assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
         }
     }
@@ -260,9 +260,9 @@ public class GetDatasetsApiTest extends TestSession {
     public void testGetDataSetDollarSource() {
         List<String> grids = this.consoleHandle.getUniqueGrids();
         String sourceName = grids.get(0);
-        String regex =  sourceName.substring(sourceName.length() - 1) +"$";
+        String regex =  sourceName.substring(0,sourceName.length() - 1) +"$";
         TestSession.logger.info("regex = "+regex);
-        Response response = given().cookie(cookie).get(url + dataSetPath +"?source="+regex);
+        Response response = given().cookie(cookie).get(url + dataSetPath +"?dataset="+regex);
         List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
         TestSession.logger.info("res  = "+res);
         if (res.size() > 0) {
