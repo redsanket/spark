@@ -58,7 +58,7 @@ public class TestAvroTablePropagationWithAbsentTargetTableOnStaging extends Test
 		}
 		sourceCluster=allGrids.get(0);
 		targetCluster=allGrids.get(1);
-		tableName = "HTF_Test_Avro" + suffix;	        
+		tableName = "HTF_StagingTestingAvroWithMultiplePartition_" + suffix;	        
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
