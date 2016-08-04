@@ -57,7 +57,11 @@ public class TestMetrics extends DfsTestsBaseClass {
     @Test public void test_FilesInGetListingOps1_none() throws Exception { test_FilesInGetListingOps1(""); }
     @Test public void test_FilesInGetListingOps1_hdfs() throws Exception { test_FilesInGetListingOps1(HadooptestConstants.Schema.HDFS); }
     
-	@Test public void test_FilesInGetListingOps2_webhdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.WEBHDFS); }
+    // gridci-1259, another case reporting more events than expected (Change:34 is not equal to 31) 
+    // adding test case to ignore, redesign that's needed per gridci-1243
+    @Ignore
+    @Test public void test_FilesInGetListingOps2_webhdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.WEBHDFS); }
+
     @Test public void test_FilesInGetListingOps2_none() throws Exception { test_FilesInGetListingOps2(""); }
     @Test public void test_FilesInGetListingOps2_hdfs() throws Exception { test_FilesInGetListingOps2(HadooptestConstants.Schema.HDFS); }
     

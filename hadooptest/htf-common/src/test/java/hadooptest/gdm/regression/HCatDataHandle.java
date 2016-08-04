@@ -1,4 +1,4 @@
-package hadooptest.gdm.regression;
+package gdm.regression;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -74,7 +74,7 @@ public class HCatDataHandle {
        runCommand(clusterName,tableName,CREATE_COMMAND,"");
     }
     
-    public static void createAvroTable(String clusterName,String tableName, String partition) throws Exception {
+    static void createAvroTable(String clusterName,String tableName, String partition) throws Exception {
         runCommand(clusterName, tableName, CREATE_AVRO_COMMAND,partition);
     }
     
@@ -94,12 +94,12 @@ public class HCatDataHandle {
         runCommand(clusterName,tableName,CREATE_AVRO_WITHOUT_DATA_COMMAND,"");
     }
     
-    public static boolean isAvroSchemaSet(String clusterName, String tableName) throws Exception {
+    static boolean isAvroSchemaSet(String clusterName, String tableName) throws Exception {
         int status = runCommand(clusterName,tableName,IS_AVRO_SCHEMA_SET,"");
         return (status == 0)? true:false;
     }
     
-    public static boolean isAvroSchemaCorrect(String sourceCluster, String tableName, String targetCluster)throws Exception {
+    static boolean isAvroSchemaCorrect(String sourceCluster, String tableName, String targetCluster)throws Exception {
         return (runCommand(sourceCluster,tableName,IS_AVRO_SCHEMA_CORRECT,targetCluster) == 0)? true:false; 
     }
     
@@ -112,7 +112,7 @@ public class HCatDataHandle {
         return (status == 0)?true:false;
     }
     
-    public static boolean doesPartitionExist(String clusterName, String tableName, String partitionValue) throws Exception{
+    static boolean doesPartitionExist(String clusterName, String tableName, String partitionValue) throws Exception{
         int status = runCommand(clusterName,tableName,DOES_PARTITION_EXIST_COMMAND,partitionValue);
         return (status == 0)?true:false;
     }
