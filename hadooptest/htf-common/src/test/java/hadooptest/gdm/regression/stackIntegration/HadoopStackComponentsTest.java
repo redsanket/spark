@@ -76,7 +76,7 @@ public class HadoopStackComponentsTest extends TestSession {
 
 			// check component health
 			this.commonFunctionsObject.checkClusterHealth();
-			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName() , this.getClusterName());
+			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName());
 
 			// check for data avaiable for the current hr 
 			boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();

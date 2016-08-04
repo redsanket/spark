@@ -185,7 +185,7 @@ public class IntegrationEmitterTest  extends TestSession {
 		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
 		feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
-		String dSName = this.targetClusterList.get(0) + "_Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
+		String dSName = "Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
 		return dSName;
 	}
 
