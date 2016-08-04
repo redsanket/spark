@@ -10,6 +10,7 @@ public class TestIntHive implements java.util.concurrent.Callable<String> {
 	private CommonFunctions commonFunctions;
 	private String hostName;
 	private String scriptLocation;
+	private String clusterName;
 	private String dataSetName;
 	private String hiveInitCommand;
 	private String nameNodeName;
@@ -22,18 +23,27 @@ public class TestIntHive implements java.util.concurrent.Callable<String> {
 	public static final String PIG_HOME = "export PIG_HOME=/home/y/share/pig";
 	private final static String PATH_COMMAND = "export PATH=$PATH:";
 
-	public TestIntHive(StackComponent stackComponent , String hostName , String nameNodeName , String dataSetName) {
+	public TestIntHive(StackComponent stackComponent , String hostName , String nameNodeName , String dataSetName , String clusterName) {
 		this.stackComponent = stackComponent;
 		TestSession.logger.info("component name - " + this.stackComponent.getStackComponentName() +
 				"  hostname - " + this.stackComponent.getHostName()
 				+ "  dataSetName = " + this.stackComponent.getScriptLocation() 
 				+ " nameNodeName =  " + nameNodeName);
-		this.commonFunctions = new CommonFunctions();
+		this.setClusterName(clusterName);
+		this.commonFunctions = new CommonFunctions(this.getClusterName());
 		this.setHostName(hostName);
 		this.setDataSetName(dataSetName);
 		this.setNameNodeName(nameNodeName);
 	}
 	
+	public String getClusterName() {
+		return clusterName;
+	}
+
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+	}
+
 	public String getNameNodeName() {
 		return nameNodeName;
 	}
@@ -86,12 +96,13 @@ public class TestIntHive implements java.util.concurrent.Callable<String> {
 
 		TestDropHiveTable testDropHiveTable = new TestDropHiveTable( hiveInitCommand + "," +   this.stackComponent.getScriptLocation());
 		TestCreateHiveTable testCreateHiveTable = new TestCreateHiveTable(hiveInitCommand + "," +   this.stackComponent.getScriptLocation());
-		TestCopyDataToHive testCopyDataToHive = new TestCopyDataToHive(this.stackComponent ,  this.stackComponent.getHostName() , this.getNameNodeName() ,  this.getDataSetName() ,hiveInitCommand );
+		TestCopyDataToHive testCopyDataToHive = new TestCopyDataToHive(this.stackComponent , this.stackComponent.getHostName() , this.getNameNodeName() , 
+				this.getDataSetName() ,hiveInitCommand,this.getClusterName() );
 		
 		if ((isTableDropped = testDropHiveTable.execute()) == true) {
 			
 			TestSession.logger.info("Hive table dropped successfully");
-			commonFunctions.updateDB(currentDataSetName , "hiveDropTable" , "PASS");
+			commonFunctions.updateDB(currentDataSetName , "hiveDropTable" , "PASS"); 
 			
 			if ((isTableCreated = testCreateHiveTable.execute()) == true) {
 				

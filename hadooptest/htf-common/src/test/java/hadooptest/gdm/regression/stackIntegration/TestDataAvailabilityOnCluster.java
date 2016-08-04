@@ -47,18 +47,28 @@ public class TestDataAvailabilityOnCluster {
     private String currentStatus;
     private String nameNode;
     private String currentHour;
+    private String clusterName;
     private String dataSetName;
     public FileSystem hdfsFileSystem ;
     private CommonFunctions commonFunctionObject;
     private Configuration configuration;
 
-    public TestDataAvailabilityOnCluster(String nameNodeName) throws IOException {
-        this.commonFunctionObject = new CommonFunctions();
+    public TestDataAvailabilityOnCluster(String nameNodeName , String clusterName) throws IOException {
+    	this.setClusterName(clusterName);
+        this.commonFunctionObject = new CommonFunctions(this.getClusterName());
         this.setNameNode(nameNodeName);
         this.setCurrentHour(this.commonFunctionObject.getCurrentHourPath());
     }
     
-    public String getDataSetName() {
+    public String getClusterName() {
+		return clusterName;
+	}
+
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+	}
+
+	public String getDataSetName() {
         return dataSetName;
     }
 

@@ -72,11 +72,11 @@ public class HadoopStackComponentsTest extends TestSession {
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
 		for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
 			String currentDataSetName = this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
-			this.commonFunctionsObject.setDataSetName(currentDataSetName);
+			this.commonFunctionsObject.setDataSetName(currentDataSetName); 
 
 			// check component health
 			this.commonFunctionsObject.checkClusterHealth();
-			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName());
+			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName() , this.getClusterName());
 
 			// check for data avaiable for the current hr 
 			boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();
