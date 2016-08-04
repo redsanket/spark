@@ -17,7 +17,6 @@ public class TestCopyDataToHive {
 	private StackComponent stackComponent;
 	private CommonFunctions commonFunctions;
 	private String hostName;
-	private String clusterName;
 	private String nameNodeName;
 	private String currentMinute;
 	private String errorMessage;
@@ -35,14 +34,6 @@ public class TestCopyDataToHive {
 
 	public String getHdfsHivePath() {
 		return hdfsHivePath;
-	}
-	
-	public String getClusterName() {
-		return clusterName;
-	}
-
-	public void setClusterName(String clusterName) {
-		this.clusterName = clusterName;
 	}
 
 	public void setHdfsHivePath(String hdfsHivePath) {
@@ -102,10 +93,9 @@ public class TestCopyDataToHive {
 	public TestCopyDataToHive() {
 	}
 	
-	public TestCopyDataToHive(StackComponent stackComponent , String hostName , String nameNodeName, String dataSetName , String initCommand , String clusterName) {
+	public TestCopyDataToHive(StackComponent stackComponent , String hostName , String nameNodeName, String dataSetName , String initCommand) {
 		this.stackComponent = stackComponent;
-		this.setClusterName(clusterName);
-		this.commonFunctions = new CommonFunctions(this.getClusterName());
+		this.commonFunctions = new CommonFunctions();
 		this.setNameNodeName(nameNodeName);
 		this.setHostName(hostName);
 		this.setDataSetName(dataSetName);

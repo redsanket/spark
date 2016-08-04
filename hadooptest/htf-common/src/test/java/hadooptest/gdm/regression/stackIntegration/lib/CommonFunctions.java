@@ -208,9 +208,7 @@ public class CommonFunctions {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String cName = this.getClusterName();
-		TestSession.logger.info("cName - " + cName);
-		currentHrPath =  cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		currentHrPath = "Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
 		TestSession.logger.info("currentHrPath  = " + currentHrPath);
 		return currentHrPath;
 	}
@@ -313,7 +311,7 @@ public class CommonFunctions {
 	public void preInit() {
 		try {
 			Map<String,String> hostsNames = this.getAllStackComponentHostNames();
-			ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() ,hostsNames.get("jobTracker") , hostsNames.get("oozie") , PATH + this.getCurrentHourPath() , this.getClusterName());
+			ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() ,hostsNames.get("jobTracker") , hostsNames.get("oozie") , PATH + this.getCurrentHourPath() );
 			modifyStackComponentsScripts.execute();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
@@ -382,7 +380,7 @@ public class CommonFunctions {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
-				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation() , this.getClusterName());
+				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
 				testList.add(testIntHive);	
 			}
 		}

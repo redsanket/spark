@@ -1,4 +1,4 @@
-package hadooptest.gdm.regression;
+package gdm.regression;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
