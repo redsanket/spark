@@ -26,27 +26,38 @@ public class ModifyStackComponentsScripts {
     private String jobTracker;
     private String oozieHostName;
     private String dataPath;
+    private String clusterName;
     private String pipeLineName;
-    private CommonFunctions commonFunctiions;
+    private CommonFunctions commonFunctions;
     private static final int THREAD_SIZE = 1;
     
-    public ModifyStackComponentsScripts(String nameNodeName , String dataPath) {
+    public ModifyStackComponentsScripts(String nameNodeName , String dataPath , String clusterName) {
         this.setNameNodeName(nameNodeName);
         this.setDataPath(dataPath);
+        this.setClusterName(clusterName);
         this.setResourceAbsolutePath(new File("").getAbsolutePath());
-        this.commonFunctiions = new CommonFunctions();
+        this.commonFunctions = new CommonFunctions(this.getClusterName());
     }
     
-    public ModifyStackComponentsScripts(String nameNodeName, String jobTracker, String oozieHostName, String dataPath ) {
+    public ModifyStackComponentsScripts(String nameNodeName, String jobTracker, String oozieHostName, String dataPath , String clusterName) {
         this.setNameNodeName(nameNodeName);
         this.setDataPath(dataPath);
+        this.setClusterName(clusterName);
         this.setResourceAbsolutePath(new File("").getAbsolutePath());
-        this.commonFunctiions = new CommonFunctions();
+        this.commonFunctions = new CommonFunctions(this.getClusterName());
         this.setJobTracker(jobTracker);
         this.setOozieHostName(oozieHostName);
     }
     
-    public String getJobTracker() {
+    public String getClusterName() {
+		return clusterName;
+	}
+
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
+	}
+
+	public String getJobTracker() {
         return jobTracker;
     }
 
@@ -118,7 +129,7 @@ public class ModifyStackComponentsScripts {
             boolean hbaseCreateTableScriptFlag = false;
             File hbaseCreateTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable.txt");
             String hbaseCreateTableScriptFileContent = new String(readAllBytes(get(hbaseCreateTableFilePath.toString())));
-            hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getDataSetName());
+            hbaseCreateTableScriptFileContent = hbaseCreateTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctions.getPipeLineName() + "_" + this.commonFunctions.getDataSetName());
 
             // create new file
             File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/createHBaseIntegrationTable_temp.txt");
@@ -133,7 +144,7 @@ public class ModifyStackComponentsScripts {
             boolean hbaseDeleteTableScriptFlag = false;
             File hbaseDeleteTableFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable.txt");
             String hbaseDeleteTableScriptFileContent = new String(readAllBytes(get(hbaseDeleteTableFilePath.toString())));
-            hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctiions.getPipeLineName() + "_" + this.commonFunctiions.getDataSetName());
+            hbaseDeleteTableScriptFileContent = hbaseDeleteTableScriptFileContent.replaceAll("integration_test_table",  this.commonFunctions.getPipeLineName() + "_" + this.commonFunctions.getDataSetName());
 
             // create new file
             File file = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/hbase/deleteHBaseIntegrationTable_temp.txt");
@@ -152,7 +163,7 @@ public class ModifyStackComponentsScripts {
             
             File oozieJobPropertiesFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/job.properties.tmp");
             String oozieJobPropertiesFileContent = new String(readAllBytes(get(oozieJobPropertiesFilePath.toString())));
-            oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_INPUT_PATH", "/data/daqdev/abf/data/" + this.commonFunctiions.getCurrentHourPath() + "/20130309/PAGE/Valid/News/part*");
+            oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_INPUT_PATH", "/data/daqdev/abf/data/" + this.commonFunctions.getCurrentHourPath() + "/20130309/PAGE/Valid/News/part*");
             oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_DATE_TIME", currentHR + "00");
             oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_PATH", "/tmp/integration-testing/oozie/" + currentHR);
             oozieJobPropertiesFileContent = oozieJobPropertiesFileContent.replaceAll("ADD_INSTANCE_OUTPUT_PATH", "/tmp/integration-testing/oozie/" + currentHR + "/outputDir/"  );  // TODO create the folder when running the testcase
@@ -174,7 +185,7 @@ public class ModifyStackComponentsScripts {
         
         Callable<String> oozieModifyWorkFlowScript = () -> {
             boolean oozieModifyWorkFlowFlag = false;
-            String currentJobName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctiions.getDataSetName();
+            String currentJobName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctions.getDataSetName();
             File oozieWorkFlowFilePath = new File(this.getResourceAbsolutePath() + "/resources/stack_integration/oozie/workflow.xml.tmp");
             String oozieWorkFlowFileContent = new String(readAllBytes(get(oozieWorkFlowFilePath.toString())));
             oozieWorkFlowFileContent = oozieWorkFlowFileContent.replaceAll("stackint_oozie_RawInputETL",  currentJobName );

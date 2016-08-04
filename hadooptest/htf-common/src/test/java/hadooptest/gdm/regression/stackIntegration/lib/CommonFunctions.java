@@ -95,7 +95,8 @@ public class CommonFunctions {
 	}
 
 	public CommonFunctions(String clusterName) {
-		this.clusterName = clusterName;
+		this.setClusterName(clusterName);
+		//this.clusterName = clusterName;
 		this.consoleHandle = new ConsoleHandle();
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
@@ -208,7 +209,8 @@ public class CommonFunctions {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		currentHrPath = "Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		String cName = this.getClusterName();
+		currentHrPath = cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
 		TestSession.logger.info("currentHrPath  = " + currentHrPath);
 		return currentHrPath;
 	}
@@ -311,7 +313,8 @@ public class CommonFunctions {
 	public void preInit() {
 		try {
 			Map<String,String> hostsNames = this.getAllStackComponentHostNames();
-			ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() ,hostsNames.get("jobTracker") , hostsNames.get("oozie") , PATH + this.getCurrentHourPath() );
+			ModifyStackComponentsScripts modifyStackComponentsScripts = new ModifyStackComponentsScripts(this.getNameNodeName() ,hostsNames.get("jobTracker") , hostsNames.get("oozie") , 
+					PATH + this.getCurrentHourPath() , this.getClusterName());
 			modifyStackComponentsScripts.execute();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
@@ -380,7 +383,7 @@ public class CommonFunctions {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
-				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation());
+				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation() , this.getClusterName());
 				testList.add(testIntHive);	
 			}
 		}
