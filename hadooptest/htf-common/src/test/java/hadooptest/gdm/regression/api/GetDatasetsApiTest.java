@@ -32,7 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(SerialTests.class)
-//@RunWith(GDMGenerateReport.class)
 public class GetDatasetsApiTest extends TestSession {
     
     private String cookie;
@@ -281,8 +280,9 @@ public class GetDatasetsApiTest extends TestSession {
      */
     @Test
     public void testGetDataSetMatcherDotTarget() {
-        String targetName = dataTargetList.get(0);
-        String regex = "."+targetName.substring(1);
+      	List<String> tempGridList = this.consoleHandle.getUniqueGrids();
+        String targetName = tempGridList.get(0);
+        String regex = "." + targetName.substring(1);
         TestSession.logger.info("regex = "+regex);
         Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
         List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
@@ -292,7 +292,7 @@ public class GetDatasetsApiTest extends TestSession {
             TestSession.logger.info("ds = "+ds);
             String name = getDataSource(ds, "target");
             TestSession.logger.info("name  = "+name);
-            boolean flag = dataTargetList.contains(name);
+            boolean flag = tempGridList.contains(name);
             assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
         }
     }
@@ -303,7 +303,8 @@ public class GetDatasetsApiTest extends TestSession {
      */
     @Test
     public void testGetDataSetMatcherCapTarget() {
-        String targetName = dataTargetList.get(0);
+      	List<String> tempGridList = this.consoleHandle.getUniqueGrids();
+        String targetName = tempGridList.get(0);
         String regex = "^"+ targetName  ;
         TestSession.logger.info("regex = "+regex);
         Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
@@ -314,7 +315,7 @@ public class GetDatasetsApiTest extends TestSession {
             TestSession.logger.info("ds = "+ds);
             String name = getDataSource(ds, "target" );
             TestSession.logger.info("name  = "+name);
-            boolean flag = dataTargetList.contains(name);
+            boolean flag = tempGridList.contains(name);
             assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
         }
     }
@@ -325,7 +326,8 @@ public class GetDatasetsApiTest extends TestSession {
      */
     @Test
     public void testGetDataSetDollarTarget() {
-        String targetName = dataTargetList.get(0);
+    	List<String> tempGridList = this.consoleHandle.getUniqueGrids();
+        String targetName = tempGridList.get(0);
         String regex =  targetName.substring(targetName.length() - 1) +"$";
         TestSession.logger.info("regular expression = "+regex);
         Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
@@ -336,7 +338,7 @@ public class GetDatasetsApiTest extends TestSession {
             TestSession.logger.info("ds = "+ds);
             String name = getDataSource(ds, "target" );
             TestSession.logger.info("name  = "+name);
-            boolean flag = dataTargetList.contains(name);
+            boolean flag = tempGridList.contains(name);
             assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
         }
     }
