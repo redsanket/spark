@@ -206,7 +206,7 @@ public class CommonFunctions {
 	
 	public String getCurrentHourPath() {
 		String currentHrPath = null;
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHH");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String cName = this.getClusterName();
