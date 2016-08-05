@@ -182,7 +182,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	 */
 	public String getDataSetName() {
 		Calendar dataSetCal = Calendar.getInstance();
-		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
+		SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMdd");
 		feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
 		String cName = this.targetClusterList.get(0).trim();

@@ -156,7 +156,7 @@ public class CreateIntegrationDataSet {
         String absoultePath = new File("").getAbsolutePath();
         
         Calendar dataSetCal = Calendar.getInstance();
-        SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMdd");
         feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
         String cName = this.getTargeList().get(0);
