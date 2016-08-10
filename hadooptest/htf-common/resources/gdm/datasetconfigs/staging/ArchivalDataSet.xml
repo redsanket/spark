@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSet catalog="DATASET_NAME"
+    description="staging testing archival dataset"
+    name="DATASET_NAME"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dataset.xsd">
+    <Active>TRUE</Active>
+    <RetentionEnabled>TRUE</RetentionEnabled>
+    <VerificationInstance/>
+    <Priority>NORMAL</Priority>
+    <Contact/>
+    <Comments/>
+    <UGI group="users" owner="dfsload" permission="755"/>
+    <RunAsOwner/>
+    <Frequency>daily</Frequency>
+    <DiscoveryFrequency>10</DiscoveryFrequency>
+    <DiscoveryInterface>HDFS</DiscoveryInterface>
+    <SmallestExpectedInstanceSize/>
+    <LargestExpectedInstanceSize/>
+    <Paths>
+        <Path location="/user/hitusr_1/test/%{date}" type="data"/>
+    </Paths>
+    <Parameters>
+        <attribute name="feed" value="DATASET_NAME"/>
+        <attribute name="frequency" value="daily"/>
+        <attribute name="bucket" value="0-998"/>
+        <attribute name="statsfeed" value="DATASET_NAME_stats"/>
+        <attribute name="instancepattern" value="yyyyMMdd"/>
+        <attribute name="retentionPeriod" value="390"/>
+    </Parameters>
+    <DataDefinition>
+        <StaticSchemaPath/>
+        <RecordDelimiter/>
+        <FieldDelimiter/>
+        <InputFormat>Text</InputFormat>
+        <OutputFormat>Sequence</OutputFormat>
+        <SkipCommentsInData>false</SkipCommentsInData>
+        <SortKey/>
+        <PartitionKey/>
+        <DataPathMask/>
+        <AddFields/>
+        <RemoveFields/>
+        <SelectRecords/>
+    </DataDefinition>
+    <WorkflowStrategy>
+        <LoadStrategy>Default</LoadStrategy>
+        <RetryCount>3</RetryCount>
+        <SkipDataCommit>false</SkipDataCommit>
+        <SkipVerify>false</SkipVerify>
+        <NoOfParts>1</NoOfParts>
+        <PartsPerPartition>16</PartsPerPartition>
+    </WorkflowStrategy>
+    <Sources>
+        <Source latency="100" name="SOURCE_NAME" switchovertype="Standard">
+            <HCatSourceRetention>FALSE</HCatSourceRetention>
+        </Source>
+    </Sources>
+    <DataFlow/>
+    <Targets>
+        <Target latency="200" name="TARGET" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20160721"/>
+                <StartDate type="Fixed" value="20160719"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Paths>
+                <Path
+                    location="/data/daqdev/data/DATASET_NAME/%{date}" type="data"/>
+            </Paths>
+            <Policies>
+                <Policy
+                    condition="numberOfInstances(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+        <Target latency="200" name="ARCHIVAL_CLUSTER_NAME" status="active">
+            <DateRange>
+                <EndDate type="Fixed" value="20160721"/>
+                <StartDate type="Fixed" value="20160719"/>
+            </DateRange>
+            <HCatTargetType>DataOnly</HCatTargetType>
+            <Policies>
+                <Policy
+                    condition="instanceDate(instancelist, instance) > 5" type="retention"/>
+            </Policies>
+            <ReplicationStrategy>HFTPDistributedCopy</ReplicationStrategy>
+            <Resource capacity="10" name="bandwidth"/>
+        </Target>
+    </Targets>
+    <HCat>
+        <HCatForceExternalTables>FALSE</HCatForceExternalTables>
+        <HCatInstanceKey>instancedate</HCatInstanceKey>
+        <HCatRunTargetFilter>FALSE</HCatRunTargetFilter>
+        <HCatTablePropagationEnabled>FALSE</HCatTablePropagationEnabled>
+    </HCat>
+    <SelfServe>
+        <RequireGroupAdmin>FALSE</RequireGroupAdmin>
+        <SelfServeEnabled>FALSE</SelfServeEnabled>
+        <UseOpsdbGroup>FALSE</UseOpsdbGroup>
+    </SelfServe>
+    <ExtendedState>
+        <History>Last updated by lawkp at 2016.08.09 14:30</History>
+    </ExtendedState>
+    <Project/>
+    <Tags/>
+    <ReplicationOptions>
+        <Validation>FALSE</Validation>
+    </ReplicationOptions>
+    <SchemaVersion>5</SchemaVersion>
+    <DataClassification>PUBLIC</DataClassification>
+</DataSet>
