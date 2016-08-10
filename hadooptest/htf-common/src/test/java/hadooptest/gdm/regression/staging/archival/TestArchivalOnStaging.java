@@ -67,7 +67,7 @@ public class TestArchivalOnStaging  extends TestSession {
 	}
 
 	@Test
-	public void  testReplication() throws IOException, InterruptedException {
+	public void  testArchivalOnStaging() throws IOException, InterruptedException {
 
 		// create a new dataset
 		createArchivalDataSet();
