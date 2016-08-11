@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<!-- local-capacity-scheduler.xml -->
+<configuration>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.capacity</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.supports-priority</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.minimum-user-limit-percent</name>
+    <value>100</value>
+  </property>
+  <property>
+    <name>mapred.scheduler.capacity.queue.default.maximum-initialized-jobs-per-user</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>mapred.scheduler.capacity.init-worker-threads</name>
+    <value>10</value>
+    <description>Number of worker threads which would be used by
+    Initialization poller to initialize jobs in a set of queue.
+    If number mentioned in property is equal to number of job queues
+    then a single thread would initialize jobs in a queue. If lesser
+    then a thread would get a set of queues assigned. If the number
+    is greater then number of threads would be equal to number of 
+    job queues.
+    </description>
+  </property>
+
+  <!--
+  <property>
+    <name>yarn.resourcemanager.recovery.enabled</name>
+    <value>true</value>
+    <description>
+    The YARN Resource Manager (RM) supports application recovery across restarts (YARN-128). 
+    Recovery is off by default, but by setting yarn.resourcemanager.recovery.enabled to true 
+    any YARN apps (including MR jobs) that were running on the cluster 
+    will be recovered after the RM is restarted. 
+    This is the first step in providing HA for the RM (YARN-149).
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.store.class</name>
+    <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore</value>
+    <description>
+    Enable RM to recover state after starting. If true, then yarn.resourcemanager.store.class must be specified
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.fs.state-store.uri</name>
+    <value>${hadoop.tmp.dir}/yarn/system/rmstore</value>
+    <description>
+    URI pointing to the location of the FileSystem path where RM state will be stored. 
+    This must be supplied when using org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore 
+    as the value for yarn.resourcemanager.store.class
+    </description>
+  </property>
+  -->
+
+<!-- YARN CAPACITY SCHEDULER PROPERTIES BEGINS HERE -->
+
+     <!-- GRIDCI-1374, need to set vcore and mem allocations else defaults are too low -->
+     <property>
+       <name>yarn.scheduler.maximum-allocation-mb</name>
+       <value>8192</value>
+     </property>
+     <property>
+       <name>yarn.scheduler.maximum-allocation-vcores</name>
+       <!-- each core is 10 vcore units, so 80 == 8 cores -->
+       <value>80</value>
+     </property>
+
+     <property>
+         <name>yarn.scheduler.capacity.root.queues</name>
+         <value>default</value>
+     </property>
+
+     <property>
+         <name>yarn.scheduler.capacity.root.capacity</name>
+         <value>100</value>
+     </property>
+
+     <property>
+         <name>yarn.scheduler.capacity.root.default.capacity</name>
+         <value>100</value>
+     </property>
+     
+     <property>
+         <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+         <value>0.3</value>
+     </property>
+
+
+</configuration>
