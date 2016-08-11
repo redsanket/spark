@@ -252,7 +252,7 @@ if ($hadoop28) {
     # Copy a hadoop 2.8+ specific capacity-scheduler.xml over the existing one to support a change
     # in yarn.scheduler.capacity.maximum-am-resource-percent from 0.1 to 0.3 in hadoop 2.8 
     note("copy updated capacity-scheduler.xml for hadoop 2.8 over existing single-queue capacity-scheduler.xml:");
-    copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop27plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
+    copy("$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml.hadoop28plus","$workspace/conf/SingleQueueConf/single-queue-capacity-scheduler.xml");
 }
 
 # If the user has provided the -spark option to the script, install the Spark
