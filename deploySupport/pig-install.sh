@@ -19,8 +19,9 @@ echo "INFO: Pig node being installed: $PIGNODE"
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br $REFERENCE_VERSION pig | cut -d' ' -f1`
+if [ "$REFERENCE_VERSION" == "test" ]; then
+  # need to use dist_tag to get pig test version per Rohini
+  PACKAGE_VERSION_PIG=`dist_tag list  pig_0_14_test | grep pig- |cut -d' ' -f1`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
   yinst i hadoop_releases_utils
   RC=$?
