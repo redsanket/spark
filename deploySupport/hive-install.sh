@@ -5,16 +5,16 @@
 # The hive installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference version 
+# inputs: cluster being installed, reference cluster name 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name, and reference version"
+  echo "ERROR: need the cluster name, and reference cluster"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_VERSION=$2
+REFERENCE_CLUSTER=$2
 
 HIVENODE=`hostname`
 HIVENODE_SHORT=`echo $HIVENODE | cut -d'.' -f1`
@@ -65,24 +65,27 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 #
 
 # check what comp version we need to use
-echo "STACK_COMP_VERSION_HIVE is: $REFERENCE_VERSION"
+echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
-  PACKAGE_VERSION_HIVE=`yinst package -br $REFERENCE_VERSION hive  | cut -d' ' -f1`
-  PACKAGE_VERSION_HIVE_CONF=`yinst package -br $REFERENCE_VERSION hive_conf  | cut -d' ' -f1`
-  PACKAGE_VERSION_HCAT_SERVER=`yinst package -br $REFERENCE_VERSION hcat_server  | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  yinst i hadoop_releases_utils
-  RC=$?
-  if [ "$RC" -ne 0 ]; then
-    echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
-    exit 1
-  fi
-  PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b hive -p hive`
-  PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b hive -p hive_conf_${REFERENCE_VERSION}`
-  PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b hive -p hcat_server`
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
+  exit 1
+fi
+
+# get Artifactory URI and log it
+ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
+echo "Artifactory URI with most recent versions:"
+echo $ARTI_URI
+
+# get component version to use from Artifactory
+if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+  PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+  PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
+  PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
-  echo "ERROR: unknown reference component version: $REFERENCE_VERSION!!"
+  echo "ERROR: unsupported reference cluster: $REFERENCE_CLUSTER!!"
   exit 1
 fi
 
@@ -122,35 +125,12 @@ yinst set hcat_server.keydb_passkey=dbpassword
 ## install pig
 #
 
-# check what comp version we need to use
-echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
-
-if [ "$REFERENCE_VERSION" == "test" ]; then
-  # need to use dist_tag to get pig test version per Rohini
-  PACKAGE_VERSION_PIG=`dist_tag list  pig_0_14_test | grep pig- |cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  # info, this needs hadoop_releases_utils, which was installed previously in this script
-  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
-else
-  echo "ERROR: unknown reference component version: $REFERENCE_VERSION!!"
-  exit 1
-fi
-
-yinst install -same -live -downgrade  $PACKAGE_VERSION_PIG
+./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
 RC=$?
 if [ $RC -ne 0 ]; then
-  echo "Error: failed to install $PACKAGE_VERSION_PIG on $PIGNODE!"
+  echo "Error: failed to install $PACKAGE_VERSION_PIG on $HIVENODE!"
   exit 1
 fi
-
-yinst set pig.PIG_HOME=/home/y/share/pig
-
-#
-# make the grid links for pig
-PIGVERSION=`yinst ls | grep pig-`
-echo PIGVERSION=$PIGVERSION
-
-yinst install ygrid_pig_multi -br current -set ygrid_pig_multi.CURRENT=$PIGVERSION -same -live
 
 
 yinst restart hcat_server

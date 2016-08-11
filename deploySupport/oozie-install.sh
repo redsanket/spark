@@ -4,16 +4,16 @@
 # The oozie installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference version 
+# inputs: cluster being installed, reference cluster name 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference version"
+  echo "ERROR: need the cluster name and reference cluster name"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_VERSION=$2
+REFERENCE_CLUSTER=$2
 
 OOZIENODE=`hostname`
 OOZIENODE_SHORT=`echo $OOZIENODE | cut -d'.' -f1`
@@ -108,22 +108,26 @@ yinst i hadoopgplcompression-1.0.2.2.1209201519
 
 
 # check what comp version we need to use
-echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_VERSION"
+echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_CLUSTER"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
-  PACKAGE_VERSION_OOZIE=`yinst package -br $REFERENCE_VERSION yoozie  | cut -d' ' -f1`
-  PACKAGE_VERSION_OOZIE_CLIENT=`yinst package -br $REFERENCE_VERSION yoozie_client  | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  yinst i hadoop_releases_utils
-  RC=$?
-  if [ "$RC" -ne 0 ]; then
-    echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
-    exit 1
-  fi
-  PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b oozie -p yoozie`
-  PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b oozie -p yoozie_client`
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils on $OOZIENODE!"
+  exit 1
+fi
+
+# get Artifactory URI and log it
+ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
+echo "Artifactory URI with most recent versions:"
+echo $ARTI_URI
+
+# get component version to use from Artifactory
+if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+  PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
+  PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 else
-  echo "ERROR: unknown reference component version: $REFERENCE_VERSION!!"
+  echo "ERROR: unsupported reference cluster: $REFERENCE_CLUSTER!!"
   exit 1
 fi
 

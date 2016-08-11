@@ -1,15 +1,15 @@
 # script to install pig on the cluster's gateway node
 #
-# inputs: cluster being installed, reference version 
+# inputs: cluster being installed, reference cluster name 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference version"
+  echo "ERROR: need the cluster name and reference cluster"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_VERSION=$2
+REFERENCE_CLUSTER=$2
 
 PIGNODE=`hostname`
 PIGNODE_SHORT=`echo $PIGNODE | cut -d'.' -f1`
@@ -17,21 +17,29 @@ echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Pig node being installed: $PIGNODE"
 
 # check what comp version we need to use
-echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
+echo "STACK_COMP_VERSION_PIG is: $REFERENCE_CLUSTER"
 
-if [ "$REFERENCE_VERSION" == "test" ]; then
-  # need to use dist_tag to get pig test version per Rohini
-  PACKAGE_VERSION_PIG=`dist_tag list  pig_0_14_test | grep pig- |cut -d' ' -f1`
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
+  exit 1
+fi
+
+# get Artifactory URI and log it
+ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
+echo "Artifactory URI with most recent versions:"
+echo $ARTI_URI
+
+# get component version to use from Artifactory
+if [ "$REFERENCE_VERSION" == "LATEST" ]; then
+  # look up pig version for LATEST in artifactory 
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  yinst i hadoop_releases_utils
-  RC=$?
-  if [ "$RC" -ne 0 ]; then
-    echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
-    exit 1
-  fi
-  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
+  # look up pig version for AR in artifactory 
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
 else
-  echo "ERROR: unknown reference component version $REFERENCE_VERSION!!"
+  echo "ERROR: unsupported reference cluster $REFERENCE_CLUSTER!!"
   exit 1
 fi
 
