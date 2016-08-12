@@ -80,7 +80,7 @@ fi
 PIG_INSTALL_SCRIPT=pig-install.sh
 
 # copy the installer to the target node and run it
-$SCP $PIG_INSTALL_SCRIPT  $OOZIENODE:/tmp/
+$SCP $PIG_INSTALL_SCRIPT  $HIVENODE:/tmp/
 
 $SSH $HIVENODE "cd /tmp/ && /tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
@@ -90,8 +90,8 @@ if [ $RC -ne 0 ]; then
 fi
 
 # Clean up pig install
-echo "INFO: remove $OOZIENODE:/tmp/$PIG_INSTALL_SCRIPT"
-$SSH $OOZIENODE "rm  /tmp/$PIG_INSTALL_SCRIPT"
+echo "INFO: remove $HIVENODE:/tmp/$PIG_INSTALL_SCRIPT"
+$SSH $HIVENODE "rm  /tmp/$PIG_INSTALL_SCRIPT"
 
 
 ##
