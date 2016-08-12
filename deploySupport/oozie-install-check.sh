@@ -13,16 +13,17 @@
 # package is executed as root. This install does not need root and can 
 # be delivered directly to the component node from the RE node.
 #
-# inputs: cluster to install oozie on and reference version
+# inputs: cluster to install oozie on and reference cluster name,
+# note that LATEST is a virtual cluster for latest push to artifactory 
 # returns: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster to install oozie onto and reference version"
+  echo "ERROR: need the cluster to install oozie onto and reference cluster name"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_VERSION=$2
+REFERENCE_CLUSTER=$2
 
 OOZIENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"`;
 if [ -z "$OOZIENODE" ]; then
@@ -48,7 +49,7 @@ HIVE_INSTALL_SCRIPT=hive-install.sh
 # copy the installer to the target node and run it
 $SCP $HIVE_INSTALL_SCRIPT  $OOZIENODE:/tmp/
 
-$SSH $OOZIENODE "cd /tmp/ && /tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_VERSION"
+$SSH $OOZIENODE "cd /tmp/ && /tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 
 if [ $RC -ne 0 ]; then
@@ -69,7 +70,7 @@ INSTALL_SCRIPT=oozie-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $OOZIENODE:/tmp/
   
-$SSH $OOZIENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_VERSION"
+$SSH $OOZIENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 
 if [ $RC -ne 0 ]; then

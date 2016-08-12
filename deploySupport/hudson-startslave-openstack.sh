@@ -400,6 +400,8 @@ fetch_artifacts
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
 #
 # gridci-1040, make component version selectable
+# gridci-1300, use cluster names passed in from jenkins, to lookup component 
+#              versions from artifactory
 #
 # PIG - gridci-747 install pig on gw
 #
@@ -420,7 +422,6 @@ function deploy_stack() {
     start=`date +%s`
     h_start=`date +%Y/%m/%d-%H:%M:%S`
     echo "INFO: Install stack component ${STACK_COMP} on $h_start"
-    # CHECK IF WE NEED TO RUN THE PIG INSTALL SCRIPT ON THE GATEWAY
     if [ "$STACK_COMP_VERSION" == "none" ]; then
         echo "INFO: Nothing to do since STACK_COMP_VERSION is set to 'none'"
     else

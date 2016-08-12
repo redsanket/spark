@@ -1,15 +1,15 @@
 # script to install pig on the cluster's gateway node
 #
-# inputs: cluster being installed, reference version 
+# inputs: cluster being installed, reference cluster name 
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference version"
+  echo "ERROR: need the cluster name and reference cluster"
   exit 1
 fi
 
 CLUSTER=$1
-REFERENCE_VERSION=$2
+REFERENCE_CLUSTER=$2
 
 PIGNODE=`hostname`
 PIGNODE_SHORT=`echo $PIGNODE | cut -d'.' -f1`
@@ -17,20 +17,30 @@ echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Pig node being installed: $PIGNODE"
 
 # check what comp version we need to use
-echo "STACK_COMP_VERSION_PIG is: $REFERENCE_VERSION"
+echo "STACK_COMP_VERSION_PIG is: $REFERENCE_CLUSTER"
 
-if [ "$REFERENCE_VERSION" == "current" ] || [ "$REFERENCE_VERSION" == "test" ] || [ "$REFERENCE_VERSION" == "nightly" ]; then
-  PACKAGE_VERSION_PIG=`yinst package -br $REFERENCE_VERSION pig | cut -d' ' -f1`
-elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  yinst i hadoop_releases_utils
-  RC=$?
-  if [ "$RC" -ne 0 ]; then
-    echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
-    exit 1
-  fi
-  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_VERSION -b pig -p pig_current`
+# make sure we have tools to talk to artifactory
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils on $PIGNODE!"
+  exit 1
+fi
+
+# check we got a valid reference cluster
+RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+RC=$?
+if [ $RC -eq 0 ]; then 
+  # get Artifactory URI and log it
+  ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+  echo "Artifactory URI with most recent versions:"
+  echo $ARTI_URI
+
+  # look up pig version for AR in artifactory
+  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
+
 else
-  echo "ERROR: unknown reference component version $REFERENCE_VERSION!!"
+  echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
   exit 1
 fi
 
