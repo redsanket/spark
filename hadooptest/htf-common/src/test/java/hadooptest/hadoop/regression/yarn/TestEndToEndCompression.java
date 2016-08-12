@@ -343,6 +343,13 @@ public class TestEndToEndCompression extends TestSession {
 		jobArgs.add(sortOutput);
 		String[] args = jobArgs.toArray(new String[0]);
 		HadoopConfiguration conf = TestSession.getCluster().getConf();
+
+                // getting NPE from ToolRunner (gridci-1395), adding debugging
+                TestSession.logger.debug("XXXXXXXXXXXXX  DEBUGGING for gridci-1395 XXXXXXXXXXXXXXXXXX");
+                if ( conf instanceof HadoopConfiguration )  TestSession.logger.debug("conf is instanceof HadoopConfiguration"); 
+                TestSession.logger.debug("args is: " + Arrays.toString(args));
+                TestSession.logger.debug("XXXXXXXXXXXXX  calling ToolRunner XXXXXXXXXXXXXXXXXX");
+
 		int rc = ToolRunner.run(conf, new SortValidator(), args);
 		if (rc != 0) {
 			TestSession.logger.error("SortValidator failed!!!");
