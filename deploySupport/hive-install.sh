@@ -133,11 +133,15 @@ yinst set hcat_server.keydb_passkey=dbpassword
 # different version if a different cluster is selected by the
 # user 
 #
+echo "Install pig on $HIVENODE since hive requires it, note that"
+echo "this is different than the Jenkins pig selection, which installs"
+echo "pig on gateway and may be a different version if a different"
+echo "cluster is selected" 
 
 ./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
 RC=$?
 if [ $RC -ne 0 ]; then
-  echo "Error: failed to install $PACKAGE_VERSION_PIG on $HIVENODE!"
+  echo "Error: pig-install-check.sh reported fail!!" 
   exit 1
 fi
 
