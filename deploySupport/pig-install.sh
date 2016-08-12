@@ -40,7 +40,7 @@ if [ $RC -eq 0 ]; then
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
 
 else
-  echo "ERROR: fetching reference cluster responded with: $RESULT" 
+  echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
   exit 1
 fi
 
