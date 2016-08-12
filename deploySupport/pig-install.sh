@@ -27,20 +27,19 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get component version to use from Artifactory
-if [ "$REFERENCE_VERSION" == "LATEST" ]; then
+# check we got a valid reference cluster
+RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
   # get Artifactory URI and log it
   ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
   echo "Artifactory URI with most recent versions:"
   echo $ARTI_URI
 
-  # look up pig version for LATEST in artifactory 
+  # look up pig version for AR in artifactory
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
-elif [ "$REFERENCE_VERSION" == "axonitered" ]; then
-  # look up pig version for AR in artifactory 
-  PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_current`
+
 else
-  echo "ERROR: unsupported reference cluster $REFERENCE_CLUSTER!!"
+  echo "ERROR: Unknown reference cluster $REFERENCE_CLUSTER!!"
   exit 1
 fi
 

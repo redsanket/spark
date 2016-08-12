@@ -75,18 +75,20 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get component version to use from Artifactory
-if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+# check we got a valid reference cluster 
+RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
   # get Artifactory URI and log it
   ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
   echo "Artifactory URI with most recent versions:"
   echo $ARTI_URI
 
+  # get component version to use from Artifactory
   PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
   PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
-  echo "ERROR: unsupported reference cluster: $REFERENCE_CLUSTER!!"
+  echo "ERROR: Unknown reference cluster: $REFERENCE_CLUSTER!!"
   exit 1
 fi
 

@@ -118,17 +118,19 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get component version to use from Artifactory
-if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+# check we got a valid reference cluster
+RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
   # get Artifactory URI and log it
   ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
   echo "Artifactory URI with most recent versions:"
   echo $ARTI_URI
 
+  # get component version to use from Artifactory
   PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
   PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 else
-  echo "ERROR: unsupported reference cluster: $REFERENCE_CLUSTER!!"
+  echo "ERROR: Unknown reference cluster: $REFERENCE_CLUSTER!!"
   exit 1
 fi
 
