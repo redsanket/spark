@@ -138,7 +138,7 @@ echo "this is different than the Jenkins pig selection, which installs"
 echo "pig on gateway and may be a different version if a different"
 echo "cluster is selected" 
 
-./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
+${WORKSPACE}/deploySupport/pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "Error: pig-install-check.sh reported fail!!" 
