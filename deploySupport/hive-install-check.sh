@@ -82,7 +82,7 @@ PIG_INSTALL_SCRIPT=pig-install.sh
 # copy the installer to the target node and run it
 $SCP $PIG_INSTALL_SCRIPT  $HIVENODE:/tmp/
 
-$SSH $HIVENODE "cd /tmp/ && /tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $HIVENODE "/tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "ERROR: Pig install to Hive node failed!"
@@ -102,7 +102,7 @@ INSTALL_SCRIPT=hive-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $HIVENODE:/tmp/
   
-$SSH $HIVENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $HIVENODE "/tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 
 if [ $RC -ne 0 ]; then

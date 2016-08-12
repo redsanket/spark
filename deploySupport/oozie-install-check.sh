@@ -54,14 +54,14 @@ HIVE_INSTALL_SCRIPT=hive-install.sh
 $SCP $PIG_INSTALL_SCRIPT  $OOZIENODE:/tmp/
 $SCP $HIVE_INSTALL_SCRIPT  $OOZIENODE:/tmp/
 
-$SSH $OOZIENODE "cd /tmp/ && /tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $OOZIENODE "/tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "ERROR: Pig install to Oozie node failed!"
   exit 1
 fi
 
-$SSH $OOZIENODE "cd /tmp/ && /tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $OOZIENODE "/tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "ERROR: Hive install to Oozie node failed!"
@@ -81,7 +81,7 @@ INSTALL_SCRIPT=oozie-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $OOZIENODE:/tmp/
   
-$SSH $OOZIENODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $OOZIENODE "/tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 
 if [ $RC -ne 0 ]; then
