@@ -52,7 +52,7 @@ echo "GRANT ALL PRIVILEGES ON hivemetastoredb.* TO 'hive'@'$HIVENODE' WITH GRANT
 echo "flush privileges;" >> /tmp/sql_setup.sql
 
 # apply sql script to DB
-mysql -u root < sql_setup.sql
+mysql -u root < /tmp/sql_setup.sql
 
 # install supporting packages
 yinst install hbase
