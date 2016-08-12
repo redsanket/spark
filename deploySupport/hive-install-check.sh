@@ -6,6 +6,9 @@
 # hadoopqa and dfsload, dfsload is kinited by the installed when
 # needed.
 #
+# This will also copy over pig-install.sh and install pig since pig
+# is needed by hive.
+#
 # The hive installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
@@ -70,6 +73,30 @@ else
 fi
 
 
+##
+# install pig on the hive node
+##
+
+PIG_INSTALL_SCRIPT=pig-install.sh
+
+# copy the installer to the target node and run it
+$SCP $PIG_INSTALL_SCRIPT  $OOZIENODE:/tmp/
+
+$SSH $HIVENODE "cd /tmp/ && /tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "ERROR: Pig install to Hive node failed!"
+  exit 1
+fi
+
+# Clean up pig install
+echo "INFO: remove $OOZIENODE:/tmp/$PIG_INSTALL_SCRIPT"
+$SSH $OOZIENODE "rm  /tmp/$PIG_INSTALL_SCRIPT"
+
+
+##
+# install hive
+##
 INSTALL_SCRIPT=hive-install.sh
 
 # copy the installer to the target node and run it

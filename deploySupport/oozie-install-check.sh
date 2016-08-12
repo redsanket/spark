@@ -5,6 +5,9 @@
 # to install hive and pig on the oozie node since oozie requires
 # these components 
 #
+# This will also copy over pig-install.sh and hive-install.sh to install 
+# pig and hive, since these are needed by oozie 
+#
 # The oozie installation relies on keytabs which are generated in
 # the Configure job.
 #
@@ -44,22 +47,30 @@ SCP="scp $SSH_OPT"
 # install hive and pig on the oozie node
 ##
 
+PIG_INSTALL_SCRIPT=pig-install.sh
 HIVE_INSTALL_SCRIPT=hive-install.sh
 
-# copy the installer to the target node and run it
+# copy the installers to the target node and run them
+$SCP $PIG_INSTALL_SCRIPT  $OOZIENODE:/tmp/
 $SCP $HIVE_INSTALL_SCRIPT  $OOZIENODE:/tmp/
+
+$SSH $OOZIENODE "cd /tmp/ && /tmp/$PIG_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "ERROR: Pig install to Oozie node failed!"
+  exit 1
+fi
 
 $SSH $OOZIENODE "cd /tmp/ && /tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
-
 if [ $RC -ne 0 ]; then
   echo "ERROR: Hive install to Oozie node failed!"
   exit 1
 fi
 
-# Clean up hive install
-echo "INFO: remove $OOZIENODE:/tmp/$HIVE_INSTALL_SCRIPT"
-$SSH $OOZIENODE "rm /tmp/$HIVE_INSTALL_SCRIPT"
+# Clean up hive and pig install
+echo "INFO: remove $OOZIENODE:/tmp/$HIVE_INSTALL_SCRIPT and $OOZIENODE:/tmp/$PIG_INSTALL_SCRIPT"
+$SSH $OOZIENODE "rm /tmp/$HIVE_INSTALL_SCRIPT /tmp/$PIG_INSTALL_SCRIPT"
 
 ##
 # install oozie

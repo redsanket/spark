@@ -125,27 +125,6 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
 yinst set hcat_server.keydb_passkey=dbpassword
 
-#
-## install pig
-# installs pig on HIVENODE since hive requires it, note that
-# this is a different pig install than selected from jenkins,
-# pig from jenkins selection install on gateway and may be a
-# different version if a different cluster is selected by the
-# user 
-#
-echo "Install pig on $HIVENODE since hive requires it, note that"
-echo "this is different than the Jenkins pig selection, which installs"
-echo "pig on gateway and may be a different version if a different"
-echo "cluster is selected" 
-
-${WORKSPACE}/deploySupport/pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER
-RC=$?
-if [ $RC -ne 0 ]; then
-  echo "Error: pig-install-check.sh reported fail!!" 
-  exit 1
-fi
-
-
 yinst restart hcat_server
 
 #
