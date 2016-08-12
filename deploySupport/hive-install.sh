@@ -67,6 +67,7 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 
+# make sure we have tools to talk to artifactory
 yinst i hadoop_releases_utils
 RC=$?
 if [ "$RC" -ne 0 ]; then
@@ -74,13 +75,13 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get Artifactory URI and log it
-ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
-echo "Artifactory URI with most recent versions:"
-echo $ARTI_URI
-
 # get component version to use from Artifactory
 if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+  # get Artifactory URI and log it
+  ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+  echo "Artifactory URI with most recent versions:"
+  echo $ARTI_URI
+
   PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
   PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
@@ -123,6 +124,11 @@ yinst set hcat_server.keydb_passkey=dbpassword
 
 #
 ## install pig
+# installs pig on HIVENODE since hive requires it, note that
+# this is a different pig install than selected from jenkins,
+# pig from jenkins selection install on gateway and may be a
+# different version if a different cluster is selected by the
+# user 
 #
 
 ./pig-install-check.sh $CLUSTER $REFERENCE_CLUSTER

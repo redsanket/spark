@@ -19,6 +19,7 @@ echo "INFO: Pig node being installed: $PIGNODE"
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_PIG is: $REFERENCE_CLUSTER"
 
+# make sure we have tools to talk to artifactory
 yinst i hadoop_releases_utils
 RC=$?
 if [ "$RC" -ne 0 ]; then
@@ -26,13 +27,13 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get Artifactory URI and log it
-ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
-echo "Artifactory URI with most recent versions:"
-echo $ARTI_URI
-
 # get component version to use from Artifactory
 if [ "$REFERENCE_VERSION" == "LATEST" ]; then
+  # get Artifactory URI and log it
+  ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+  echo "Artifactory URI with most recent versions:"
+  echo $ARTI_URI
+
   # look up pig version for LATEST in artifactory 
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
 elif [ "$REFERENCE_VERSION" == "axonitered" ]; then

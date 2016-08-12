@@ -110,6 +110,7 @@ yinst i hadoopgplcompression-1.0.2.2.1209201519
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_CLUSTER"
 
+# make sure we have tools to talk to artifactory
 yinst i hadoop_releases_utils
 RC=$?
 if [ "$RC" -ne 0 ]; then
@@ -117,13 +118,13 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-# get Artifactory URI and log it
-ARTI_URI=`/home/y/bin/query_releases -c axonitered  -v | grep downloadUri |cut -d\' -f4`
-echo "Artifactory URI with most recent versions:"
-echo $ARTI_URI
-
 # get component version to use from Artifactory
 if [ "$REFERENCE_CLUSTER" == "LATEST" || "$REFERENCE_CLUSTER" == "axonitered" ]; then
+  # get Artifactory URI and log it
+  ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+  echo "Artifactory URI with most recent versions:"
+  echo $ARTI_URI
+
   PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
   PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 else

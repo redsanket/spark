@@ -8,12 +8,12 @@
 # package is executed as root. This install does not need root and can 
 # be delivered directly to the component node from the RE node.
 #
-# inputs: cluster to install pig on and reference cluster version,
+# inputs: cluster to install pig on and reference cluster name,
 # note that LATEST is a virtual cluster for latest push to artifactory
 # returns: 0 on success
 
 if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster to install pig onto and reference cluster version"
+  echo "ERROR: need the cluster to install pig onto and reference cluster name"
   exit 1
 fi
 
