@@ -77,7 +77,8 @@ fi
 
 # check we got a valid reference cluster 
 RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
-if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
+RC=$?
+if [ $RC -eq 0 ]; then 
   # get Artifactory URI and log it
   ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
   echo "Artifactory URI with most recent versions:"
@@ -88,7 +89,7 @@ if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
   PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
-  echo "ERROR: Unknown reference cluster: $REFERENCE_CLUSTER!!"
+  echo "ERROR: Artifactory responded with: $RESULT" 
   exit 1
 fi
 

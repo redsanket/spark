@@ -29,7 +29,8 @@ fi
 
 # check we got a valid reference cluster
 RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
-if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
+RC=$?
+if [ $RC -eq 0 ]; then 
   # get Artifactory URI and log it
   ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
   echo "Artifactory URI with most recent versions:"
@@ -39,7 +40,7 @@ if [ ! "$RESULT" ~= "ERROR: Did not find cluster" ]; then
   PACKAGE_VERSION_PIG=pig-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b pig -p pig_latest`
 
 else
-  echo "ERROR: Unknown reference cluster $REFERENCE_CLUSTER!!"
+  echo "ERROR: Artifactory responded with: $RESULT" 
   exit 1
 fi
 
