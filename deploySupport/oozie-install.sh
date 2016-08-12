@@ -131,7 +131,7 @@ if [ $RC -eq 0 ]; then
   PACKAGE_VERSION_OOZIE=yoozie-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie`
   PACKAGE_VERSION_OOZIE_CLIENT=yoozie_client-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b oozie -p yoozie_client`
 else
-  echo "ERROR: Artifactory responded with: $RESULT" 
+  echo "ERROR: fetching reference cluster responded with: $RESULT" 
   exit 1
 fi
 

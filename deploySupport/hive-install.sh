@@ -89,7 +89,7 @@ if [ $RC -eq 0 ]; then
   PACKAGE_VERSION_HIVE_CONF=hive_conf-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
-  echo "ERROR: Artifactory responded with: $RESULT" 
+  echo "ERROR: fetching reference cluster responded with: $RESULT" 
   exit 1
 fi
 
