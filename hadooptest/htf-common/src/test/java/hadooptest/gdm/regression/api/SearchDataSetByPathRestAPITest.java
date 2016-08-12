@@ -139,25 +139,50 @@ public class SearchDataSetByPathRestAPITest extends TestSession {
 	 * 
 	 */
 	public void testSearchDataSetByCompleteDataSetPath() {
-		String dataSetName = datasetsResultList.get(0).trim();
-		// get path for this dataset
-		String getDataSetByNameURL = this.url + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
-		response = given().cookie(cookie).get(getDataSetByNameURL);
-		String responseString = response.getBody().asString();
-		JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
-		jsonObject = jsonObject.getJSONObject("DataSet");
-		JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
-		String dataSetPath = (String)jsonArray.get(0);
+		
+		List<String> dataSourceList = this.consoleHandle.getUniqueGrids();
+		List<String> dataSetNameList;
+		String dataSetName=null;
+		
+		// loop through the datastore until you get one dataset
+		for (String dataStore : dataSourceList) {
+			String testURL =  this.url + "/console/api/datasets/view?source=" + dataStore.trim();
+			TestSession.logger.info("testURL = " + testURL);
+			response = given().cookie(cookie).get(testURL);
+			if (response != null) {
+				dataSetNameList = response.jsonPath().getList("DatasetsResult.DatasetName");
+				if (dataSetNameList.size() > 0) {
+					dataSetName = dataSetNameList.get(0);
+					
+					//get SourcePaths for in dataset
+					String getDataSetByNameURL = this.url + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
+					TestSession.logger.info("getDataSetByNameURL - " + getDataSetByNameURL);
+					response = given().cookie(cookie).get(getDataSetByNameURL);
+					String responseString = response.getBody().asString();
+					TestSession.logger.info("responseString = "  +  responseString);
+					JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON(responseString);
+					
+					// check whether response contains DataSet field
+					assertTrue(jsonObject.toString() + " does not contain DataSet field " , jsonObject.containsKey("DataSet") == true);
+					jsonObject = jsonObject.getJSONObject("DataSet");
+					assertTrue("DataSetName key does not exists in reponse." , jsonObject.containsKey("SourcePaths") == true);
+					
+					JSONArray jsonArray = jsonObject.getJSONArray("SourcePaths");
+					String dataSetPath = (String)jsonArray.get(0);
 
-		String testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
-		TestSession.logger.info("testURL = " + testURL);
-		response = given().cookie(cookie).get(testURL);
-		JsonPath jsonPath = response.jsonPath();
-		TestSession.logger.info("Response = " + jsonPath.prettyPrint());
-		List<String> dataSetNamesList = jsonPath.getList("DatasetsResult.DatasetName");
-		assertTrue("Expected " + dataSetName + " dataset but found " + dataSetNamesList.toString() , dataSetNamesList.get(0).trim().equals(dataSetName));
+					testURL = this.url + dataSetRestAPIPath + "?prefix=" + dataSetPath;
+					TestSession.logger.info("testURL = " + testURL);
+					response = given().cookie(cookie).get(testURL);
+					JsonPath jsonPath = response.jsonPath();
+					TestSession.logger.info("Response = " + jsonPath.prettyPrint());
+					List<String> dataSetNamesList = jsonPath.getList("DatasetsResult.DatasetName");
+					assertTrue("Expected " + dataSetName + " dataset but found " + dataSetNamesList.toString() , dataSetNamesList.get(0).trim().equals(dataSetName));
+					
+					break;
+				}
+			}
+		}		
 	}
-
 
 	/**
 	 * Test Scenario : Verify whether searching for a non-existence data path dn't return any dataset. 
