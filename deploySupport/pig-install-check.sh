@@ -39,7 +39,7 @@ INSTALL_SCRIPT=pig-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $PIGNODE:/tmp/
   
-$SSH $PIGNODE "cd /tmp/ && /tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $PIGNODE "/tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
 RC=$?
 
 if [ $RC -ne 0 ]; then
