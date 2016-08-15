@@ -1,12 +1,40 @@
 #!/bin/bash
 
-export scriptnames=openstacklargedisk
-export confpkg=HadoopConfigopenstacklargedisk
-export localconfpkg=hadooplocalconfigsopenstacklarge
+# hudson startslave script
+# 	The first script called by Hudson. It massages the arguments
+# 	given, then creates a yinst-package of the scripts needed (by
+# 	calling yinstify.sh), then copies that package to the destination
+# 	machine and runs it, which runs installgrid.sh on ADMIN_HOST.
+
+case "$CLUSTER" in
+   *Fill*in*your*cluster*)
+      echo ====================================================
+      echo ERROR: CLUSTER was not defined.  Exiting.
+      echo Please make sure you specify CLUSTER from hudson UI
+      echo ====================================================
+      exit 1
+      ;;
+   open*)
+      export scriptnames=openstacklargedisk
+      export confpkg=HadoopConfig${scriptnames}
+      export localconfpkg=hadooplocalconfigsopenstacklarge
+      ;;
+   dense*)
+      export scriptnames=generic10node12disk
+      export confpkg=HadoopConfig${scriptnames}blue
+      export localnames=12disk
+      export localconfpkg=hadooplocalconfigs
+      ;;
+   *)
+      export scriptnames=generic10node
+      export confpkg=HadoopConfig${scriptnames}blue
+      export localconfpkg=hadooplocalconfigs
+      ;;
+esac
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 
 echo =========================================
-echo Beginning of Openstack deployment job.
+echo Beginning of Hudson-driven deployment job.
 echo hostname = `hostname`
 echo "PATH='$PATH'"
 echo date = `TZ=PDT8PDT date `
@@ -214,7 +242,12 @@ fi
 [ -z "$RUNSIMPLETEST" ] && export RUNSIMPLETEST=true
 [ -z "$STARTYARN" ] && export STARTYARN=true
 [ -z "$CONFIGUREJOBTRACKER" ] && export CONFIGUREJOBTRACKER=true
-for i in monsters
+if [[ "$HADOOP_27" == "true" ]]; then
+    CLUSTER_LIST="monsters hbasedev"
+else
+    CLUSTER_LIST="monsters adhoc2"
+fi
+for i in $CLUSTER_LIST
 do
     if [ $i = $CLUSTER ]; then
         export CONFIGUREJOBTRACKER=false
@@ -229,13 +262,15 @@ done
 [ -z "$STARTNAMENODE" ] && export STARTNAMENODE=true
 [ -z "$INSTALLLOCALSAVE" ] && export INSTALLLOCALSAVE=true
 
+[ -z "HIT_DEPLOY" ] && export HIT_DEPLOY=false
+[ -z "KEEP_HIT_YROOT" ] && export KEEP_HIT_YROOT=false
 [ -z "$HITVERSION" ] && export HITVERSION=none
 [ -z "$INSTALL_HIT_TEST_PACKAGES" ] && export INSTALL_HIT_TEST_PACKAGES=false
 [ -z "$EXCLUDE_HIT_TESTS" ] && export EXCLUDE_HIT_TESTS=none
 [ -z "$RUN_HIT_TESTS" ] && export RUN_HIT_TESTS=false
-[ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$INSTALL_TEZ" ] && export INSTALL_TEZ=false
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
+[ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$SPARKVERSION" ] && export SPARKVERSION=none
 [ -z "$SPARK_HISTORY_VERSION" ] && export SPARK_HISTORY_VERSION=none
 [ -z "$SPARK_QUEUE" ] && export SPARK_QUEUE=default
@@ -247,6 +282,7 @@ done
 [ -z "$HIVE_SERVER2_VERSION" ] && export HIVE_SERVER2_VERSION=none
 [ -z "$STARLINGVERSION" ] && export STARLINGVERSION=none
 [ -z "$NOVAVERSION" ] && export NOVAVERSION=none
+[ -z "$GDM_PKG_NAME" ] && export GDM_PKG_NAME=none
 [ -z "$GDMVERSION" ] && export GDMVERSION=none
 [ -z "$HCATVERSION" ] && export HCATVERSION=none
 [ -z "$HBASEVERSION" ] && export HBASEVERSION=none
@@ -266,10 +302,10 @@ done
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
 #
-## stack component install settings
+# stack component install settings
 # potential stack components to install
-#
 # these are jenkins version select controls, or 'none'
+#
 [ -z "$STACK_COMP_VERSION_PIG" ] && export STACK_COMP_VERSION_PIG=none
 [ -z "$STACK_COMP_VERSION_HIVE" ] && export STACK_COMP_VERSION_HIVE=none
 [ -z "$STACK_COMP_VERSION_OOZIE" ] && export STACK_COMP_VERSION_OOZIE=none
@@ -375,13 +411,12 @@ cd /tmp/ && /usr/local/bin/yinst install -root $ADMIN_WORKSPACE -yes /tmp/$filel
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
 "
-st=$?;
+st=$?
 set +x
 echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
 if [ "$st" -ne 0 ]
 then
     echo "Exit on non-zero yinst exit status: $st"
-    get_cluster_exit_status
     exit $st
 fi
 
@@ -400,7 +435,7 @@ fetch_artifacts
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
 #
 # gridci-1040, make component version selectable
-# gridci-1300, use cluster names passed in from jenkins, to lookup component 
+# gridci-1300, use cluster names passed in from jenkins, to lookup component
 #              versions from artifactory
 #
 # PIG - gridci-747 install pig on gw

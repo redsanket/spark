@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# hudson-startslave.sh
+# hudson startslave script
 # 	The first script called by Hudson. It massages the arguments
 # 	given, then creates a yinst-package of the scripts needed (by
 # 	calling yinstify.sh), then copies that package to the destination
@@ -14,14 +14,23 @@ case "$CLUSTER" in
       echo ====================================================
       exit 1
       ;;
+   open*)
+      export scriptnames=openstacklargedisk
+      export confpkg=HadoopConfig${scriptnames}
+      export localconfpkg=hadooplocalconfigsopenstacklarge
+      ;;
    dense*)
       export scriptnames=generic10node12disk
+      export confpkg=HadoopConfig${scriptnames}blue
       export localnames=12disk
+      export localconfpkg=hadooplocalconfigs
       ;;
-   *) export scriptnames=generic10node ;;
+   *)
+      export scriptnames=generic10node
+      export confpkg=HadoopConfig${scriptnames}blue
+      export localconfpkg=hadooplocalconfigs
+      ;;
 esac
-export confpkg=HadoopConfig${scriptnames}blue
-export localconfpkg=hadooplocalconfigsopenstacklarge
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 
 echo =========================================
@@ -31,10 +40,15 @@ echo "PATH='$PATH'"
 echo date = `TZ=PDT8PDT date `
 echo date = `TZ= date`
 echo =========================================
-echo
 
 export DATESTRING=`date +%y%m%d%H%M`
 
+# Setup and cleanup artifacts directory
+artifacts_dir="${WORKSPACE}/artifacts"
+if [[ -d $artifacts_dir ]]; then
+    rm -rf $artifacts_dir
+fi
+mkdir -p $artifacts_dir
 
 # echo environment follows:
 # /bin/env
@@ -47,6 +61,7 @@ cd deploySupport
 [ -z "$LOCAL_CONFIG_PKG_NAME" ] && export LOCAL_CONFIG_PKG_NAME=$localconfpkg
 
 # Check if dist_tag is valid. If not, exit.
+# dist could be slow, so echo it so the user is aware of it.
 cmd="dist_tag list $HADOOP_RELEASE_TAG"
 echo "$cmd"
 DIST_TAG_LIST=`eval "$cmd"`
@@ -108,19 +123,19 @@ else
         # - HadoopConfiggeneric10nodeblue
         # - HadoopConfiggeneric500nodeblue
         tag=$HIT_DEPLOYMENT_TAG
-        export HADOOP_CONFIG_INSTALL_STRING=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg- | cut -d ' ' -f 1`
+        export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg- | cut -d ' ' -f 1`
         for i in $HADOOP_CORE_PKGS
         do
-            export HADOOP_INSTALL_STRING_PKG=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $i- | cut -d ' ' -f 1`
+            export HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $i- | cut -d ' ' -f 1`
             export HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
         done
         for i in $HADOOP_MVN_PKGS
         do
-            export HADOOP_MVN_INSTALL_STRING_PKG=`dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
+            export HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
             export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
         done
-        export HADOOP_CORETREE_INSTALL_STRING=`dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
-        export LOCAL_CONFIG_INSTALL_STRING=`dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+        export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
+        export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
 
 
         # now constructing the following variables based on HIT_DEPLOYMENT_TAG
@@ -138,7 +153,7 @@ fi
 
 if [ ! -z "$TEZ_DIST_TAG" ]
 then
-    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -c11-28`
+    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
 
 if [ ! -z "$SPARK_DIST_TAG" ]
@@ -287,11 +302,10 @@ done
 [ -z "$OOZIEIGORTAG" ] && export OOZIEIGORTAG=none
 
 #
-## stack component install settings
-#
+# stack component install settings
 # potential stack components to install
-#
 # these are jenkins version select controls, or 'none'
+#
 [ -z "$STACK_COMP_VERSION_PIG" ] && export STACK_COMP_VERSION_PIG=none
 [ -z "$STACK_COMP_VERSION_HIVE" ] && export STACK_COMP_VERSION_HIVE=none
 [ -z "$STACK_COMP_VERSION_OOZIE" ] && export STACK_COMP_VERSION_OOZIE=none
@@ -315,6 +329,49 @@ done
 [ -z "$HADOOPCORE_TEST_PKG" ] && export HADOOPCORE_TEST_PKG=none
 ## HIT test pkg
 
+# Fetch build artifacts from the admin box
+function fetch_artifacts() {
+    set -x
+    scp $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
+    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
+    cat $artifacts_dir/manifest.txt
+
+    # Add to the build artifact handy references to the NN and RM webui
+    webui_file="$artifacts_dir/webui.html"
+    echo "<Pre>" > $webui_file;
+
+    echo "Get the namenode and resourcemanager"
+    namenode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)"|head -1`;
+    URL="http://$namenode:50070/dfshealth.html"
+    echo "WEBUI: $cluster NN $URL"
+    printf "%-12s %s %s %s\n" "$CLUSTER" "NN" "-" "<a href=$URL>$URL</a>" >> $webui_file;
+
+    rm=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"|tr -s '\n' ','|sed -e  's/,$//'`;
+    URL="http://$rm:8088/cluster"
+    echo "WEBUI: $cluster RM $URL"
+    printf "%-12s %s %s %s\n" "$CLUSTER" "RM" "-" "<a href=$URL>$URL</a>"  >> $webui_file;
+
+    # if hive was selected, add the hive node's thrift URI
+    if [ "$STACK_COMP_VERSION_HIVE" != "none" ]; then
+      hivenode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"|head -1`;
+      URL="thrift://$hivenode:9080/"
+      echo "WEBUI: $cluster Hive $URL"
+      printf "%-12s %s %s %s\n" "$CLUSTER" "Hive" "-" "<a href=$URL>$URL</a>" >> $webui_file;
+    fi
+
+    # if oozie was selected, add the oozie node's GUI URI
+    if [ "$STACK_COMP_VERSION_OOZIE" != "none" ]; then
+      oozienode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"|head -1`;
+      URL="http://$oozienode:4080/oozie"
+      echo "WEBUI: $cluster Oozie $URL"
+      printf "%-12s %s %s %s\n" "$CLUSTER" "Oozie" "-" "<a href=$URL>$URL</a>" >> $webui_file;
+    fi
+
+    echo "</Pre>" >> $webui_file;
+
+    set +x
+}
+
 #################################################################################
 # The 'set -e' option will cause the script to terminate immediately on error.
 # The intent is to exit when the first build errors occurs.
@@ -325,44 +382,54 @@ set -e
 function error_handler {
    LASTLINE="$1"
    echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+   fetch_artifacts
 }
 trap 'error_handler ${LINENO}' ERR
 
-export DATESTRING=`date +%y%m%d%H%M`
-sh yinstify.sh  -v 0.0.1.${CLUSTER}.$DATESTRING
-filelist=`ls  *.${CLUSTER}.*.tgz`
+export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
+echo "$BUILD_DESC"
 
+#################################################################################
+# RUN THE INSTALL SCRIPT ON THE ADM HOST
 # From above: "then copies that package to the destination machine and runs it..."
-
+#################################################################################
+export DATESTRING=`date +%y%m%d%H%M`
+# GRIDCI-426: component name cannot exceed 10 characters.
+component=${CLUSTER:0:10}
+set -x
+sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
+set +x
+filelist=`ls  *.${component}.*.tgz`
 scp $filelist  $ADMIN_HOST:/tmp/
-ssh $ADMIN_HOST "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist -set root.propagate_start_failures=1"
-ssh $ADMIN_HOST "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
-# (
-# echo "cd /tmp/ && /usr/local/bin/yinst  install  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING -yes /tmp/$filelist "
-# echo "/usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
-# echo 'finalstatus=$?'
-# echo 'echo finalstatus=$finalstatus'
-# echo 'exit $finalstatus'
-# )| ssh $ADMIN_HOST
 
+# Install and start the deployment package on the adm admin box to commence
+# deployment as root.
+ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
+set -x
+ssh $ADMIN_HOST "\
+cd /tmp/ && /usr/local/bin/yinst install -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
+/usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
+"
 st=$?
-echo finalstatus=$st
-echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst  start  -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout status: $st"
-
+set +x
+echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
 if [ "$st" -ne 0 ]
 then
+    echo "Exit on non-zero yinst exit status: $st"
     exit $st
 fi
 
-(
-echo "/usr/local/bin/yinst  remove -all -live   -root /tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING  hadoopgridrollout"
-echo "cd /tmp && rm -rf $filelist"
-)| ssh $ADMIN_HOST
+# Clean up hadoopgridrollout
+CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
+if [ "$CLEANUP_ON_EXIT" = "true" ]; then
+    (
+        echo "/usr/local/bin/yinst  remove -all -live -root $ADMIN_WORKSPACE hadoopgridrollout"
+        echo "cd /tmp && rm -rf $filelist"
+    )| ssh $ADMIN_HOST
+fi
 
-scp $ADMIN_HOST:/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING/manifest.txt  manifest.txt
-
-cp  manifest.txt ${WORKSPACE}/
-cat manifest.txt
+fetch_artifacts
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
