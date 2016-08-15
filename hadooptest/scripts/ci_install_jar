@@ -50,10 +50,10 @@ then
   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
 else
-  if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-1.2.0.0_2.6.0.1.1411101121_1412171547" ]
+  if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-1.6.2.0_2.8.0.1.1608041516_1608052051" ]
   then
   rm -rf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch
-  /usr/local/bin/yinst fetch yspark_yarn-1.2.0.0_2.6.0.1.1411101121_1412171547 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
+  /usr/local/bin/yinst fetch yspark_yarn-1.6.2.0_2.8.0.1.1608041516_1608052051 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz -br quarantine
   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
   fi

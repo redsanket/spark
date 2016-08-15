@@ -1,5 +1,16 @@
 <configuration>
 
+  <!-- GRIDCI-1374, need to set vcore and mem allocations else defaults are too low -->
+  <property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+    <!-- each core is 10 vcore units, so 80 == 8 cores -->
+    <value>80</value>
+  </property>
+
   <property>
     <name>yarn.scheduler.capacity.root.queues</name>
     <value>a,b,c</value>
