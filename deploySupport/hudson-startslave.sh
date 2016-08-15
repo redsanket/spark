@@ -6,6 +6,15 @@
 # 	calling yinstify.sh), then copies that package to the destination
 # 	machine and runs it, which runs installgrid.sh on ADMIN_HOST.
 
+# Set the CLUSTER value using the first command line argument if it is passed in.
+# Otherwise, CLUSTER will default to the environment variable value.
+if [ $# -gt 0 ]; then
+    CLUSTER=$1
+fi
+
+# Remove spaces in cluster name
+CLUSTER=`echo $CLUSTER|tr -d ' '`
+
 case "$CLUSTER" in
    *Fill*in*your*cluster*)
       echo ====================================================
@@ -35,10 +44,10 @@ export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:
 
 echo =========================================
 echo Beginning of Hudson-driven deployment job.
-echo hostname = `hostname`
-echo "PATH='$PATH'"
-echo date = `TZ=PDT8PDT date `
-echo date = `TZ= date`
+echo "Date = `TZ=PDT8PDT date` (`TZ= date`)"
+echo "hostname = '`hostname`'"
+echo "CLUSTER = '$CLUSTER'"
+echo "PATH = '$PATH'"
 echo =========================================
 
 export DATESTRING=`date +%y%m%d%H%M`
@@ -205,9 +214,6 @@ export RUNSIMPLETEST=true
 #		side note: this removes any leftover cruft from a previous run. Hudson does not start 'clean'.
 
 rm -f *.tgz > /dev/null 2>&1
-
-# Remove spaces in cluster name
-CLUSTER=`echo $CLUSTER|tr -d ' '`
 
 # Make sure rocl is installed on all nodes
 PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
