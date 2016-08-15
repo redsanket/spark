@@ -9,8 +9,11 @@ echo "WARNING: This script $0 has been deprecated as of 8/15/2016."
 echo "WARNING: Please call hudson-startslave.sh directly in the future!!!"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 command="$SCRIPT_DIR/hudson-startslave.sh"
-echo "Run $command:"
+if [ $# -gt 0 ]; then
+    command+=" $@"
+fi
+echo "Run '$command':"
 $command
 EC=$?
-echo "Finished running $command: exit code='$EC'."
+echo "Finished running '$command': exit code='$EC'."
 exit $EC
