@@ -9,10 +9,19 @@ Authentication/Authorization
 Oozie provides two different ways of authentication: Kerberos and YCA.
 You need to do some setting up for Kerberos and YCA.
 
+
+.. _oozie_client:
+
+Oozie Client
+------------
+
+
 .. _auth-kerberos:
 
+
 Kerberos Authentication
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Yahoo Oozie is bundled with a custom Oozie command-line tool that adds Kerberos 
 authentication. The ``-auth`` option can take the argument ``kerberos`` to authenticate 
@@ -54,7 +63,7 @@ authentication.
 .. _kerberos-client_API:
 
 Client API Example of Kerberos Authentication
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++++++++++++++
 
 #. Include the JAR ``/home/y/var/yoozieclient/lib/*jar`` in your ``CLASSPATH``.
 #. Create the Oozie client ``KerbAPIExample.java`` with the following code:
@@ -107,7 +116,8 @@ Client API Example of Kerberos Authentication
 .. _kerberos-yca_auth:
 
 YCA Authentication
-------------------
+~~~~~~~~~~~~~~~~~~
+
 
 Yahoo Oozie is also bundled with a custom command-line tool that adds YCA 
 authentication. The ``-auth`` option can take the argument ``yca`` to 
@@ -118,7 +128,7 @@ this authentication. Also, the allowed YCA namespaces have to be configured in t
 .. _yca_auth-creating_role:
 
 Creating an Oozie Role
-~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++
 
 To create a role in Oozie for a YCA allowed namespace:
 
@@ -139,7 +149,7 @@ To create a role in Oozie for a YCA allowed namespace:
 .. _yca_auth-invoke_oozie:
 
 Invoking Oozie With YCA Authentication
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++
 
 To invoke Oozie by YCA authentication as the ``<username>`` at one of the registered hosts::
 
@@ -149,8 +159,8 @@ To invoke Oozie by YCA authentication as the ``<username>`` at one of the regist
 
 .. _yca_auth-yca_certs:
 
-Verifying YCA Certificates 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Verifying YCA Certificates
+++++++++++++++++++++++++++
 
 To list the YCA certificates of the machine and their expiration date::
 
@@ -168,7 +178,7 @@ To verify the certificate::
 .. _yca_auth-yca_proxy:
 
 YCA Authentication With YCA Proxy Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++++
 
 To use the YCA proxy server for YCA authentication::
 
@@ -177,13 +187,13 @@ To use the YCA proxy server for YCA authentication::
 
 .. _yca_auth-yca_workflow:
 
-Adding YCA to a Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~
+Workflow with YCAV2
+-------------------
 
 .. _yca_workflow-namespace:
 
 Creating a Namespace and a Role
-*******************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The role ``oozie.httpproxy`` is created for this purpose. You can create your 
 namespace in the roles ``db`` and add a role under the namespace. In our case, the namespace 
@@ -196,20 +206,13 @@ to the role ``oozie.httpproxy``. See the example http://roles.corp.yahoo.com:999
 .. _yca_workflow-submit_ycav2:
 
 Submit a Workflow With the YCAv2(gYCA) Certificate
-**************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Users have to specify the gYCA credential explicitly in the beginning of a Workflow and 
-ask Oozie to retrieve certificate whenever an action needs to call a YCA-protected 
-Web service. In each credential element, the attribute ``name`` is the key and the attribute ``type``
-indicates which credential to use.
 
-The credential ``type`` is defined in the Oozie server. For example, on 
-``axoniteblue-oozie.blue.ygrid.yahoo.com``,  the YCA credential type is defined as ``yca``, 
-with the following::
-
-    "oozie.credentials.credentialclasses": yca=com.yahoo.oozie.action.hadoop.YCAV2Credentials,hcat=com.yahoo.oozie.action.hadoop.HCatCredentials,hbase=org.apache.oozie.action.hadoop.HBaseCredentials
-
-Users can give multiple ``credential`` elements under ``credentials`` and specify a 
+Users have to specify the gYCA credential explicitly in the beginning of a Workflow and
+ask Oozie to retrieve certificate whenever an actions needs to call YCA protected web service.
+In each credential element, attribute ``name`` is key and attribute ``type`` indicates which credential to use.
+The credential ``type`` value for ycav2 is ``yca``. Users can give multiple ``credential`` elements under ``credentials`` and specify a
 comma-separated list of credentials to use under each action ``cred`` attribute.
 There is only one parameter required for the credential ``type``.
 
@@ -226,6 +229,13 @@ There are three optional parameters for the credential type ``yca``:
   the corresponding role name that contains the hosts of the HTTP proxy VIP. The 
   role names containing members of production HTTP proxy VIPs are ``grid.blue.prod.httpproxy``, 
   ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. 
+.. _yca-cert_add_to_jobconf:
+
+- ``yca-cert-add-to-jobconf``: This can be *true* or *false*, default being *true* for backward compatibility reasons. If it is set to true, YCA certificate will be added to 
+  action configuration. Adding YCA certificate to action configuration is less secure because the certificate is visible in the Configuration page of the Job UI
+  and has to be secured by additionally setting ``mapreduce.job.acl-view-job`` to only users or groups with access instead of * (all).
+  Instead, YCA certificate is now added as secret key to action configuration. :ref:`This example explains more <yca_cert_secretkey_example>`. 
+  Therefore, it is good to set this property to *false* and retrive the YCA certificate from secret keys. 
 
   For example, the following contains the hosts of the production ``httpproxy``: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy``
   This role is the parent role containing the staging, research, and production ``httpproxy`` hosts: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
@@ -233,10 +243,10 @@ There are three optional parameters for the credential type ``yca``:
   the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 
-.. _yca_workflow-submit_ycav2:
+.. _yca_workflow-submit_ycav2_example:
 
 Example Workflow XML
-********************
+~~~~~~~~~~~~~~~~~~~~
 
 The following ``workflow.xml`` snippet shows how to configure your Workflow to use YCA authentication and set the role:
 
@@ -247,7 +257,7 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
          <credential name='myyca' type='yca'>
             <property>
                <name>yca-role</name>
-                  <value>griduser.actualuser</value>
+               <value>griduser.actualuser</value>
             </property>
          </credential> 
       </credentials>
@@ -260,14 +270,18 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
 
 .. _submit_ycav2-java_code_ex:
 
-Java Code Example
-*****************
+Example with Map-Reduce Action
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When an Oozie action executor sees a ``cred`` attribute in the current action, depending 
-on the credential name, it finds the appropriate credential class to retrieve 
-the token or certificate and inserts the action configuration. 
 
-In the above example, Oozie gets the certificate of gYCA and passes it to the action configuration. 
+YCA Certificate inside Action Configuration
++++++++++++++++++++++++++++++++++++++++++++
+
+We have deprecated the way of adding YCA Certificate to action configuration as 
+it was less secure. We advice to disable this as mentioned :ref:`here <yca-cert_add_to_jobconf>` and 
+make changes in your code by referring to :ref:`this example <yca_cert_secretkey_example>`
+
+In the :ref:`above example <yca_workflow-submit_ycav2_example>` , Oozie gets the certificate of gYCA and passes it to the action configuration. 
 Mapper can then use this certificate by getting it from the action configuration, adding it to 
 the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``. 
 
@@ -294,3 +308,157 @@ how to communicate with the YCAV2-protected Web service from the grid.
    con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
 
 
+.. _yca_cert_secretkey_example:
+
+YCA Certificate as a secret key inside Credentials
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+In the :ref:`above example <yca_workflow-submit_ycav2_example>`, Oozie gets the certificate of gYCA 
+and passes it to the Credentials as a secret key.
+Mapper can then use this certificate by getting it from the action configuration, adding it to 
+the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``. 
+
+A certificate or token retrieved in the credential class would set a secret key in action configuration
+as the name of credential defined in ``workflow.xml``. The following example shows 
+how to communicate with the YCAV2-protected Web service from the grid.
+
+.. code-block:: java
+
+
+   //**proxy setup**
+
+   //blue proxy
+   //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
+   //gold proxy
+   InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+   Proxy proxy = new Proxy(Type.HTTP, inet);
+   URL server = new URL(fileURL);
+
+   //**web service call**
+   //Get the secret key by passing the name of credential
+   byte[] bytes = conf.getCredentials().getSecretKey(new Text("myyca"));
+   //Create certificate string using bytes with UTF-8
+   String ycaCertificate = new String(bytes, "UTF-8"); 
+   HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
+   con.setRequestMethod("GET");
+   con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
+
+
+Example with Java Action
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _java_action_ex:
+
+Example workflow xml including Java Action:
+
+.. code-block:: xml
+
+   <credential name="yca.cert" type="yca">
+   ......
+   <action name="java_gyca" cred="yca.cert">
+     <java>
+        ......
+        <main-class>TestYcaCert</main-class>
+        <arg>yca.cert</arg>
+        .....
+     </java>
+     ...
+   </action>
+
+
+.. _java_yca_inside_config:
+
+YCA Certificate inside Action Configuration
++++++++++++++++++++++++++++++++++++++++++++
+
+With respect to :ref:`above workflow snippet:<java_action_ex>`, we can retrieve yca certificate from Configuration as follows-
+
+.. code-block:: java
+
+    public class TestYcaCert {
+      // for oozie java action
+      public static void main(String[] args) throws Throwable {
+        String YCA_CERT = args[0]; // YCA_CERT is the name of yca credential.
+
+        Configuration actionConf = new Configuration(false);
+        actionConf.addResource(new Path("file:///", System.getProperty("oozie.action.conf.xml")));
+        String ycaCertificate = actionConf.get(YCA_CERT);
+        ......
+
+
+.. _java_yca_inside_sec_key:
+
+YCA Certificate as a secret key inside Credentials
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+With respect to :ref:`above workflow snippet:<java_action_ex>`, we can retrieve yca certificate from Credentials as follows.
+YCA certificate is present as Secret Key inside Credentials.
+
+.. code-block:: java
+
+    public class TestYcaCert {
+      // for oozie java action
+      public static void main(String[] args) throws Throwable {
+         String YCA_CERT = args[0]; // YCA_CERT is the name of yca credential.
+         Configuration actionConf = new Configuration(false);
+         actionConf.addResource(new Path("file:///", System.getProperty("oozie.action.conf.xml")));
+         //Get the secret key by passing the name of credential
+         byte[] bytes = actionConf.getCredentials().getSecretKey(new Text(YCA_CERT));
+         //Create certificate string using bytes with UTF-8
+         String ycaCertificate = new String(bytes, "UTF-8"); 
+         ......
+
+
+Following example shows how to retrive YCA certificate in Scala.
+
+.. code-block:: scala
+
+   import org.apache.hadoop.security.{Credentials,UserGroupInformation}
+   import org.apache.hadoop.io.Text
+
+   object TestYcaCert {
+     def main(args: Array[String]) {
+       val YCA_CERT = args(0)
+       val creds = UserGroupInformation.getCurrentUser().getCredentials()
+       val ycaCertificate = new String(creds.getSecretKey(new Text(YCA_CERT)), "UTF-8")
+       println("YCA Cert is " + ycaCertificate)
+       .......
+       .......
+     }
+   }
+
+
+.. _yca_shell_ex:
+
+Example with Shell Action
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: xml
+
+   <workflow-app>
+      <credentials>
+         <credential name='myyca' type='yca'>
+            <property>
+               <name>yca-role</name>
+                  <value>griduser.actualuser</value>
+            </property>
+         </credential> 
+      </credentials>
+      <action cred='myyca'>
+         <shell>
+            ...
+         </shell>
+      </action>
+   <workflow-app>
+
+
+In the above example, Oozie gets the certificate of gYCA and passes it to the action configuration. 
+A certificate or token retrieved in the credential class would set an action configuration 
+as the name of credential defined in ``workflow.xml``. In the Shell Action, it is accessible 
+through environment variable - ``OOZIE_ACTION_CONF_XML``. 
+
+
+.. code-block:: bash
+
+   CERT=$(cat $OOZIE_ACTION_CONF_XML | perl -lne 'print $1 if /\<property\>\<name\>myyca\<\/name\>\<value\>([^<]+)<\/value>/')
+   echo "Certificate = $CERT"
