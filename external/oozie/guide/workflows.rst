@@ -41,6 +41,7 @@ types of actions:
 - Sub-workflow
 - Streaming
 - DistCp
+- Spark
 
 Oozie can also be extended to support additional type of actions. 
 We're going to take a look at each type of action in the sections below. 
@@ -677,6 +678,160 @@ The following ``workflow.xml`` copies a bzipped file to a user's home directory.
      </kill>
      <end name="end"/>
    </workflow-app>
+
+
+.. _action-spark:
+
+Spark Action
+~~~~~~~~~~~~
+
+- See the `Spark Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SparkActionExtension.html>`_ in the Apache documentation. 
+- To pick up spark-assembly.jar along with some standard jars/files, use: 
+
+.. code-block:: xml
+
+    <property>
+        <name>oozie.action.sharelib.for.spark</name>
+        <value>spark_current</value>
+    </property>
+
+- Please *DO NOT* include the jars which are present under spark_current on your own. That will 
+  cause conflicts and exceptions. You can always check what is included in the sharelib using
+  `this <http://jetblue-oozie.blue.ygrid.yahoo.com:4080/oozie/v2/admin/list_sharelib?lib=spark_current>`_
+  cluster specific url.
+- Only yarn is supported as master with cluster as mode; yarn as master with client as mode is not recommended.
+- For accessing HBase tables, include following sharelibs
+
+.. code-block:: xml
+
+    <property>
+        <name>oozie.action.sharelib.for.spark</name>
+        <value>spark_current,hbase_current,hbase_conf_reluxred</value>
+    </property>
+
+.. note:: If your jar is packaged with hadoop jars whose version is not compatible with the hadoop jars present on the cluster, 
+
+          - Create new jar for your job by excluding hadoop jars **OR**
+          - Include following properties in the workflow configuaration 
+
+             .. code-block:: xml
+
+               <property>
+                  <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+                  <value>false</value>
+               </property>
+               <property >
+                  <name>oozie.launcher.mapreduce.user.classpath.first</name>
+                  <value>false</value>
+               </property>
+
+
+Running Java/Scala Code
+***********************
+
+
+.. code-block:: xml
+
+   ......
+   ......
+   <action name='spark-node'>
+      <spark xmlns="uri:oozie:spark-action:0.2">
+          <configuration>
+              <property>
+                  <name>oozie.action.sharelib.for.spark</name>
+                  <value>spark_current</value>
+              </property>
+          </configuration>
+          <master>yarn</master>
+          <mode>cluster</mode>
+          <name>Spark-FileCopy</name>
+          <class>org.apache.oozie.example.SparkFileCopy</class>
+          <jar>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/examples/apps/spark/lib/oozie-examples.jar</jar>
+          <spark-opts>--conf spark.my.configuration.name=value --queue default</spark-opts>
+          <arg>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/examples/input-data/text/data.txt</arg>
+          <arg>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/examples/output-data/spark</arg>
+      </spark>
+      <ok to="end" />
+      <error to="fail" />
+   </action>
+   ......
+   ......
+
+Running PySpark Script
+**********************
+
+
+.. code-block:: xml
+
+   ......
+   ......
+   <action name='spark-node'>
+      <spark xmlns="uri:oozie:spark-action:0.2">
+          <configuration>
+              <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                  <value>spark_current</value>
+              </property>
+          </configuration>
+          <master>yarn</master>
+          <mode>cluster</mode>
+          <name>spark-pyspark</name>
+          <jar>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/examples/apps/spark-pyspark/lib/pi.py</jar>
+          <spark-opts>--conf spark.my.configuration.name=value --queue default</spark-opts>
+      </spark>
+      <ok to="end" />
+      <error to="fail" />
+   </action>
+   ......
+   ......
+
+Spark SQL Accessing Hive
+************************
+
+
+.. code-block:: xml
+
+   ......
+   ......
+   <credentials>
+        <credential name='hcatauth' type='hcat'>
+            <property>
+              <name>hcat.metastore.uri</name>
+              <!-- Remember to put in your cluster specific values -->
+              <value>thrift://jetblue-hcat.ygrid.vip.gq1.yahoo.com:50513</value>
+            </property>
+            <property>
+              <name>hcat.metastore.principal</name>
+              <!-- Remember to put in your cluster specific values -->
+              <value>hcat/jetblue-hcat.ygrid.vip.gq1.yahoo.com@YGRID.YAHOO.COM</value>
+            </property>
+         </credential>
+   </credentials>
+   <action name='spark-node' cred='hcatauth'>
+      <spark xmlns="uri:oozie:spark-action:0.2">
+          <configuration>
+               <property>
+                  <name>oozie.action.sharelib.for.spark</name>
+                  <value>spark_current</value>
+               </property>
+          </configuration>
+          <master>yarn</master>
+          <mode>cluster</mode>
+          <name>Spark-Hive</name>
+          <class>org.apache.spark.examples.sql.hive.HiveFromSpark</class>
+          <jar>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/examples/apps/spark/lib/spark-examples.jar</jar>
+          <spark-opts>--conf spark.my.configuration.name=value --queue default</spark-opts>
+      </spark>
+      <ok to="end" />
+      <error to="fail" />
+   </action>
+   ......
+   ......
+
+Getting YCA Certificate
+***********************
+Please refer to :ref:`examples here<submit_ycav2-java_code_ex>`.
+
 
 .. _workflow-examples:
 
