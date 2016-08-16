@@ -6,6 +6,10 @@ shared:
 
     build_containers: [rhel6]
     publish_containers: [rhel6]
+    steps:
+        update_metadata:
+            description: Update_metadata
+            command: ./cicd/update_metadata.sh
 
     plugins:
       coverage:
@@ -13,10 +17,6 @@ shared:
       test_results:
         enabled: false
 
-    triggers:
-    - "http://re101.ygrid.corp.gq1.yahoo.com:9999/yhudson/job/Hadoop-Cluster-Deploy-Grid-VM/"
-    params:
-        CLUSTER: openqe30blue
 jobs:
    component:
       order: [init, install-jdk, clean]
