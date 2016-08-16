@@ -273,52 +273,6 @@ public class GetDatasetsApiTest extends TestSession {
     }
     
     // ==================================  target ========================
-
-    /**
-     * Verify whether a given dataset is selected and return the same in response.
-     * Note: Regular expression starting with .(dot) or Matches any single character except newline.
-     */
-    @Test
-    public void testGetDataSetMatcherDotTarget() {
-      	List<String> tempGridList = this.consoleHandle.getUniqueGrids();
-        String targetName = tempGridList.get(0);
-        String regex = "." + targetName.substring(1);
-        TestSession.logger.info("regex = "+regex);
-        Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
-        List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
-        TestSession.logger.info("res  = "+res);
-        if(res.size() > 0){
-            String ds = res.get(0);
-            TestSession.logger.info("ds = "+ds);
-            String name = getDataSource(ds, "target");
-            TestSession.logger.info("name  = "+name);
-            boolean flag = tempGridList.contains(name);
-            assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
-        }
-    }
-    
-    /**
-     * Verify whether a  dataset(s) are selected for a given regular expression
-     * Note : Matches beginning of line (BOL ) 
-     */
-    @Test
-    public void testGetDataSetMatcherCapTarget() {
-      	List<String> tempGridList = this.consoleHandle.getUniqueGrids();
-        String targetName = tempGridList.get(0);
-        String regex = "^"+ targetName  ;
-        TestSession.logger.info("regex = "+regex);
-        Response response = given().cookie(cookie).get(url + dataSetPath +"?target="+regex);
-        List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
-        TestSession.logger.info("res  = "+res);
-        if (res.size() > 0) {
-            String ds = res.get(0);
-            TestSession.logger.info("ds = "+ds);
-            String name = getDataSource(ds, "target" );
-            TestSession.logger.info("name  = "+name);
-            boolean flag = tempGridList.contains(name);
-            assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
-        }
-    }
     
     /**
      * Verify whether a  dataset(s) are selected for a given regular expression
