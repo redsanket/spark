@@ -57,16 +57,16 @@ public class TopLevelDirTest {
         // allow dataset to propagate
         this.consoleHandle.sleep(35000);
         
-        // validate workflow passes
+        // validate workflow fails
         WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to fail", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
+        Assert.assertFalse("Expected workflow to fail", workFlowHelper.workflowPassed(this.dataSetName, "replication", INSTANCE1));
         
         // create top level dir on target
         targetHelper.createFile(dataPath + DUMMY_INSTANCE);
         
         // now the top level dir should exist on the target, but no instances
         Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
-        Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
         Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE2));
         
         // create new instance on source
@@ -77,7 +77,7 @@ public class TopLevelDirTest {
         
         // now instance2 should exist on the target, but not instance1
         Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
-        Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE1));
+        Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
         Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE2));
     }
     
