@@ -8,8 +8,8 @@ shared:
     publish_containers: [rhel6]
     steps:
         update_metadata:
-		description: Update_metadata
-		command: ./cicd/update_metadata.sh
+            description: Update_metadata
+            command: ./cicd/update_metadata.sh
 
     plugins:
       coverage:
