@@ -10,6 +10,7 @@ use File::Basename;
 use Sys::Hostname;
 
 my %options=();
+my ($cmd, $hadoop_version, $tez_version);
 
 #
 # Setup shell environment on a remote host
@@ -38,8 +39,6 @@ The options
         [ -sparkbranch <branch>             ] : Use the specified dist branch to install spark (for dependency fetch)
         [ -sparkhadoopver <hadoopversion>   ] : Use the specified version of hadoop with spark (for building htf)
         [ -sparkfullver <full version>      ] : Use the specified full version of spark (for building htf and dependency fetch))
-        [ -hadoop26                         ] : use Hadoop dependencies for Hadoop 2.6 (Hadoop 2.5 dependencies are default)
-        [ -hadoop27                         ] : use Hadoop dependencies for Hadoop 2.7 (Hadoop 2.5 dependencies are default)
         [ -n|--nopasswd                     ] : no password prompt
         [ -w|workspace  <workspace>         ] : workspace
         [ -a|--adm_box                      ] : The admin box to be used by the framework (devadm102.blue.ygrid.yahoo.com is the default)
@@ -104,6 +103,7 @@ my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
 my $tez = 0;
+# $hadoop26 $hadoop27 $hadoop28 are now deprecated
 my $hadoop26 = 0;
 my $hadoop27 = 0;
 my $hadoop28 = 0;
@@ -239,6 +239,24 @@ if($storm||$storm090) {
 else {
 	execute("stty -echo; kinit $username\@DS.CORP.YAHOO.COM; stty echo")
     	unless ($nopasswd);
+}
+
+$cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
+note($cmd);
+chomp($hadoop_version = `$cmd`);
+note("Hadoop version = '$hadoop_version'");
+
+if (($hadoop26) || ($hadoop27) || ($hadoop28)) {
+    note("WARN: Deprecated parameters are used {-hadoop26, -hadoop27, -hadoop28}!!!");
+    note("WARN: This will now be auto-set based on the installed hadoop version '$hadoop_version' on the cluster '$cluster'.");
+}
+if ($hadoop_version =~ '^2.6') {
+    $hadoop26=1;
+}
+elsif ($hadoop_version =~ '^2.7') {
+    $hadoop27=1;
+} elsif ($hadoop_version =~ '^2.8') {
+    $hadoop28=1;
 }
 
 if ($hadoop27) {
@@ -421,26 +439,13 @@ if ($pig) {
     execute("yinst i htf_pig_QE_data -br current");
 }
 
-my $hadoop_version;
-my $cmd = "ls -l /home/gs/gridre/yroot.$cluster/share/hadoop|cut -d'>' -f2|cut -d'-' -f2";
-note($cmd);
-chomp($hadoop_version = `$cmd`);
-
-my $tez_version;
 if ($tez){
-  my $cmd = "ls -l /home/gs/tez/current/tez-api-*.jar | sed -e's/  */ /g' | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
+  $cmd = "ls -l /home/gs/tez/current/tez-api-*.jar | sed -e's/  */ /g' | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
   note($cmd);
   chomp($tez_version = `$cmd`);
 }
 note("Tez version = '$tez_version'");
 
-# Fix for GDM to init the hadoop version since it won't be installed and we
-# expect hadoop 2 compatibility
-if ($gdm) {
-   $hadoop_version = "2.0";
-}
-
-note("Hadoop version = '$hadoop_version'");
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
@@ -451,60 +456,41 @@ if ($use_mvn) {
 
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
     if ($gdm) {
-        # If the -gdm option is specified to the script, we want to
-        # run with the gdm-deployed Hadoop 2.0 jars, instead of relying
-        # on any cluster deployment of the Hadoop jar
-        $hadoop_version = "2.0.5.0.1306301601";
-        
         # use -gdmVersion to run gdm testcases against GDM 6.3 or before that. 
         if ($gdmVersion) {
-        	print "==================================================================== \n ";
-        	my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/";
-        	my $find_rule = File::Find::Rule->new;
-        	$find_rule->maxdepth(1);
+            print "==================================================================== \n ";
+            my $base_dir = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/";
+            my $find_rule = File::Find::Rule->new;
+            $find_rule->maxdepth(1);
 
- 			# Only return directories
- 			$find_rule->directory;
- 			
- 			# Apply the rule and retrieve the subdirectories, which should be the
-        	# directories named by Hadoop version.
-        	my @sub_dirs = $find_rule->in($base_dir);
- 			         	
-        	my @basedirs;
-        	foreach my $dirname (@sub_dirs) {
-        		 push @basedirs, basename($dirname);
-        	}
-        	
-        	# inverse alphabetical sort the names so most recent version comes first
-        	foreach my $basedir (@basedirs) {
-        		if ($basedir =~ m/^2\.(.*)/) {
-        			 print "\n\nSetting GDM Hadoop dependencies to Hadoop version $basedir\n\n";
-        			 $hadoop_version = $basedir;
-        			 $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
-        			 last;
-        		}
-        	}
+            # Only return directories
+            $find_rule->directory;
+
+            # Apply the rule and retrieve the subdirectories, which should be the
+            # directories named by Hadoop version.
+            my @sub_dirs = $find_rule->in($base_dir);
+
+            my @basedirs;
+            foreach my $dirname (@sub_dirs) {
+                push @basedirs, basename($dirname);
+            }
+
+            # inverse alphabetical sort the names so most recent version comes first
+            foreach my $basedir (@basedirs) {
+                if ($basedir =~ m/^2\.(.*)/) {
+                    print "\n\nSetting GDM Hadoop dependencies to Hadoop version $basedir\n\n";
+                    $hadoop_version = $basedir;
+                    note("Hadoop version = '$hadoop_version'");
+                    $hadoop_share = "/grid/0/yroot/var/yroots/console/home/y/libexec/prod_hadoop_versions/$hadoop_version/share/hadoop-$hadoop_version/share/hadoop/";
+                    last;
+                }
+            }
         } else {
-        
-        	# Get yroot name , hadoop version and create the hadoop share location.
-        	print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n";
-	        my $cname = "ls -ld /home/gs/gridre/yroot.* | cut -d'.' -f 2 | head -1";
-	        note($cname);
-	        my $CLUSTER_NAME;
-	        chomp($CLUSTER_NAME= `$cname`);
-	        print "CLUSTER_NAME = $CLUSTER_NAME \n";
-	        $hadoop_share  = "/home/gs/gridre/yroot.$CLUSTER_NAME/share/hadoop/share/hadoop/";
-	        print "hShare = $hadoop_share \n";
-	
-	        my $hVersion = "hadoop version  | head -1 | cut -d' ' -f 2";
-	        note($hVersion);
-	        my $hadoopVersion ;
-	        chomp($hadoopVersion = `$hVersion`);
-	        $hadoop_version = $hadoopVersion;
-	        print "hadoop Version = $hadoop_version \n";
-	        print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ \n";
+            # Get yroot name , hadoop version and create the hadoop share location.
+            $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop/share/hadoop/";
         }
     }
+    print "hadoop_share = $hadoop_share \n";
 
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
