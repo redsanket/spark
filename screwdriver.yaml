@@ -19,6 +19,6 @@ shared:
 
 jobs:
    component:
-      order: [init, install-jdk, clean, update_metadata]
+      order: [init, install-jdk, clean, build, update_metadata]
    pull-request:
       order: [init, install-jdk, clean]
