@@ -16,10 +16,17 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    echo "INFO: Spark version being installed: $SPARKVERSION"
 
    echo "INFO: Installing yspark_yarn-$SPARKVERSION"
-   spark_install_cmd="yinst i yspark_yarn_install -br current \
-   -set yspark_yarn_install.DOT_SIX=yspark_yarn-$SPARKVERSION \
-   -set yspark_yarn_install.LATEST=yspark_yarn-$SPARKVERSION \
-   -same -live"
+   if [[ $SPARKVERSION =~ "2.0" ]]; then
+     spark_install_cmd="yinst i yspark_yarn_install -br current \
+     -set yspark_yarn_install.TWO_ZERO=yspark_yarn-$SPARKVERSION \
+     -set yspark_yarn_install.LATEST=yspark_yarn-$SPARKVERSION \
+     -same -live"
+   else
+     spark_install_cmd="yinst i yspark_yarn_install -br current \
+     -set yspark_yarn_install.DOT_SIX=yspark_yarn-$SPARKVERSION \
+     -set yspark_yarn_install.LATEST=yspark_yarn-$SPARKVERSION \
+     -same -live"
+   fi
    fanoutSpark "$spark_install_cmd"
    st=$?
    [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSpark: Install yspark_yarn-$SPARKVERSION <<<<<<<<<<" && exit $st
@@ -52,6 +59,15 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    st=$?
    [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutSparkUI: Install spark history server <<<<<<<<<<" && exit $st
 
+   if [[ $SPARKVERSION =~ "2.0" ]]; then
+     spark_install_jars_cmds="/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/ /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/ ; \
+     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/yspark-jars-*.tgz /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/ ; \
+     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/python/lib/py4j-0.10.1-src.zip /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/python/lib/"
+   else 
+     spark_install_jars_cmds="/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
+     /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/python/lib/py4j-0.9-src.zip /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/python/lib/"
+   fi
+
    # Install sharelib/v1/spark
    echo "INFO: Installing yspark_yarn-$SPARK_HISTORY_VERSION jars to hdfs://sharelib/v1/spark/"
    cmd="$spark_install_cmd ;\
@@ -65,11 +81,11 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
    echo Creating hdfs://sharelib/v1/spark/spark-$SPARKVERSION/share/spark/lib/ ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
+   /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/python/lib/ ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
    echo after chmoding -R 755 /sharelib ; \
-   /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
-   /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/python/lib/py4j-0.9-src.zip /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
-   /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/python/lib/pyspark.zip /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
+   $spark_install_jars_cmds; \
+   /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/python/lib/pyspark.zip /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/python/lib/ ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/datanucleus-api-jdo.jar /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/datanucleus-core.jar /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/spark/latest/lib/datanucleus-rdbms.jar /sharelib/v1/spark/yspark_yarn-$SPARKVERSION/share/spark/lib/ ; \
