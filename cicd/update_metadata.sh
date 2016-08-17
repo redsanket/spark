@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "Creating build information..."
 echo "Build Description: `cat ${WORKSPACE}/RELEASE`" > ${SOURCE_DIR}/cicd/gridci-metadata.txt
 echo "VERSION=${HTF_VERSION}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
 echo "BUILD_URL=${BUILD_URL} >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
