@@ -23,6 +23,6 @@ public class SparkPipesEnvVars {
     List<String> res2 = lines.pipe("printenv mapreduce_map_input_file").collect();
     System.out.println("mapreduce_map_input_file output: " + res2.toString());
 
-    System.exit(0);
+    ctx.stop();
   }
 }

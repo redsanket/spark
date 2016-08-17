@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.AppMaster;
-import hadooptest.workflow.spark.app.SparkRunClass;
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 
 import java.io.BufferedReader;
@@ -73,37 +72,6 @@ public class TestSparkSaveAsText extends TestSession {
         TestSession.cluster.getFS().delete(new Path(hdfsDir + lrDatafile), true);
         TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile), true);
         TestSession.cluster.getFS().delete(new Path(hdfsDir + saveAsFile2), true);
-    }
-
-
-    /*
-     * A test for saving file to hdfs
-     *
-     */
-    @Test
-    public void runSparkSaveAsText() throws Exception {
-        SparkRunClass appUserDefault = new SparkRunClass();
-
-        appUserDefault.setWorkerMemory("2g");
-        appUserDefault.setNumWorkers(3);
-        appUserDefault.setWorkerCores(1);
-        appUserDefault.setClassName("hadooptest.spark.regression.SparkSaveAsText");
-        appUserDefault.setJarName(localJar);
-        String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
-        appUserDefault.setArgs(argsArray);
-
-        appUserDefault.start();
-
-        assertTrue("App (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
-        assertTrue("App ID for sleep app (default user) is invalid.",
-            appUserDefault.verifyID());
-        assertEquals("App name for sleep app is invalid.",
-            "Spark", appUserDefault.getAppName());
-
-        int waitTime = 30;
-        assertTrue("Job (default user) did not succeed.",
-            appUserDefault.waitForSuccess(waitTime));
     }
 
     @Test
@@ -189,14 +157,16 @@ public class TestSparkSaveAsText extends TestSession {
     }
 
     @Test
-    public void runSparkSaveAsTextWithLogging() throws Exception {
-        SparkRunClass appUserDefault = new SparkRunClass();
+    public void runSparkSaveAsTextWithLoggingSparkSubmit() throws Exception {
+        SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
 
+        appUserDefault.setMaster(AppMaster.YARN_CLIENT);
         appUserDefault.setWorkerMemory("2g");
         appUserDefault.setNumWorkers(3);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("hadooptest.spark.regression.SparkSaveAsText");
         appUserDefault.setJarName(localJar);
+
         String localFile = Util.getResourceFullPath("resources/spark/data/log4j.properties");
         appUserDefault.setLog4jFile(localFile);
         String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
@@ -209,7 +179,7 @@ public class TestSparkSaveAsText extends TestSession {
         assertTrue("App ID for sleep app (default user) is invalid.",
             appUserDefault.verifyID());
         assertEquals("App name for sleep app is invalid.",
-            "Spark", appUserDefault.getAppName());
+            "SparkSaveAsText", appUserDefault.getAppName());
 
         int waitTime = 30;
         assertTrue("Job (default user) did not succeed.",
@@ -221,5 +191,4 @@ public class TestSparkSaveAsText extends TestSession {
         // confirm DEBUG was actually on
         assertTrue("DEBUG found in log file", appUserDefault.grepLogsCLI("(.*) DEBUG SparkEnv(.*)"));
     }
-
 }

@@ -32,6 +32,7 @@ The options
         [ -storm                            ] : Run with a Storm environment
         [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
+        [ -spark                            ] : Run with a Spark environment which has Spark specific dependencies
         [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark15                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -sparktag    <dist tag>           ] : Use the specified dist tag for spark installation on gateway
@@ -72,8 +73,7 @@ sub writeSparkConf {
     if (-e $outfile) {
         execute("rm $outfile");
     }
-    my $assembly = "spark-assembly-" . $version . "-hadoop" . $hadoopversion . ".jar";
-    my $examples= "spark-examples-" . $version . "-hadoop" . $hadoopversion . ".jar";
+    my $examples= "spark-examples.jar";
     open (FILE, ">> $outfile") || die "problem opening $outfile\n";
     print FILE "USER=hadoopqa\n";
     print FILE "LOG_LEVEL=DEBUG\n";
@@ -81,7 +81,6 @@ sub writeSparkConf {
     print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
     print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
     print FILE "SPARK_HOME=/home/y/share/spark/\n";
-    print FILE "SPARK_JAR=/home/y/share/spark/lib/$assembly\n";
     print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
     print FILE "CHECK_CLUSTER_STATE=false\n";
     close(FILE);
@@ -101,13 +100,13 @@ my $gdmVersion = 0;
 my $storm = 0;
 my $storm090 = 0;
 my $stormconf;
-my $spark = 0;
 my $tez = 0;
 # $hadoop26 $hadoop27 $hadoop28 are now deprecated
 my $hadoop26 = 0;
 my $hadoop27 = 0;
 my $hadoop28 = 0;
 my $pig = 0;
+my $spark = 0;
 my $spark12 = 0;
 my $spark13 = 0;
 my $spark14 = 0;
@@ -366,6 +365,9 @@ elsif ($tez){
 }
 elsif ($hadoop28) {
     $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
+}
+elsif ($spark) {
+    $dependencies_opt .= " -Pprofile-spark  -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
 }
 elsif ($hadoop27) {
     $dependencies_opt .= " -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";

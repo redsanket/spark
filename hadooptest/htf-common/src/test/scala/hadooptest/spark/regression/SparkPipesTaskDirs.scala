@@ -23,7 +23,6 @@ object SparkPipesTaskDirs {
       System.exit(1)
     }
     spark.stop()
-    System.exit(0)
   }
 }
 

@@ -166,7 +166,6 @@ public class TestSparkPipes extends TestSession {
         }
     }
 
-
     /*
      * A test for running pipes and it uses separate task dirs when specified
      *

@@ -17,6 +17,6 @@ public class SparkSaveAsText {
     JavaRDD<String> lines = ctx.textFile(args[0], 1);
 
     lines.saveAsTextFile(args[1]);
-    System.exit(0);
+    ctx.stop();
   }
 }

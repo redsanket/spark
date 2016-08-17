@@ -8,7 +8,6 @@ import org.junit.experimental.categories.Category;
 import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.workflow.spark.app.AppMaster;
-import hadooptest.workflow.spark.app.SparkRunClass;
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 
 import java.io.BufferedReader;
@@ -66,34 +65,6 @@ public class TestSparkJdk64 extends TestSession {
      * A test for running pipes and verifiying the properly environment variables are set
      * using jdk64.
      */
-    @Test
-    public void runSparkPipesEnvVarsJdk64() throws Exception {
-        SparkRunClass appUserDefault = new SparkRunClass();
-
-        // set memory high enough to require jdk64
-        appUserDefault.setWorkerMemory("6g");
-        appUserDefault.setMasterMemory("4g");
-        appUserDefault.setNumWorkers(1);
-        appUserDefault.setWorkerCores(1);
-        appUserDefault.setClassName("hadooptest.spark.regression.SparkPipesEnvVars");
-        appUserDefault.setJarName(localJar);
-        String[] argsArray = {lrDatafile};
-        appUserDefault.setArgs(argsArray);
-
-        appUserDefault.start();
-
-        assertTrue("App (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
-        assertTrue("App ID for sleep app (default user) is invalid.",
-            appUserDefault.verifyID());
-        assertEquals("App name for sleep app is invalid.",
-            "Spark", appUserDefault.getAppName());
-
-        int waitTime = 30;
-        assertTrue("Job (default user) did not succeed.",
-            appUserDefault.waitForSuccess(waitTime));
-    }
-
     @Test
     public void runSparkPipesEnvVarsJdk64SparkSubmit() throws Exception {
         SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();

@@ -37,7 +37,7 @@ public class TestSparkPiCli extends TestSession {
         String appName = "SparkTestPiCli";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
+        appUserDefault.setQueueName("default");
 
         appUserDefault.start();
 

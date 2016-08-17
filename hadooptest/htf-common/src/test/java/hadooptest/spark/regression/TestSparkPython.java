@@ -77,7 +77,7 @@ public class TestSparkPython extends TestSession {
         String appName = "SparkTestPython";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
+        appUserDefault.setQueueName("default");
         String pythonFileLoc = Util.getResourceFullPath("resources/spark/data/" + pythonFile);
         String[] argsArray = {pythonFileLoc, textFile};
         appUserDefault.setArgs(argsArray);

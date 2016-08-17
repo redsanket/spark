@@ -52,8 +52,5 @@ object SparkDistributedCacheSingleArchive {
       System.exit(1)
     }
     spark.stop()
-    System.exit(0)
-
-
   }
 }

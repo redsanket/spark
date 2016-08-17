@@ -39,7 +39,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         String appName = "SparkTestPiCliSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
+        appUserDefault.setQueueName("default");
 
         appUserDefault.start();
 
@@ -71,7 +71,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         String appName = "SparkTestPiCliSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
+        appUserDefault.setQueueName("default");
 
         appUserDefault.start();
 
@@ -106,7 +106,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         String appName = "SparkTestPiCliSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
-        appUserDefault.setQueueName("unfunded");
+        appUserDefault.setQueueName("default");
 
         appUserDefault.start();
 

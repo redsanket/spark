@@ -56,8 +56,5 @@ object SparkDistributedCacheThreeFiles {
       System.exit(1)
     }
     spark.stop()
-    System.exit(0)
-
-
   }
 }
