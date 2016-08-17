@@ -368,6 +368,9 @@ elsif ($storm090) {
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
 }
+elsif ($spark) {
+    $dependencies_opt .= " -Pprofile-spark  -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
+}
 elsif ($hadoop28) {
     $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }

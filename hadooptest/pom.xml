@@ -1934,6 +1934,9 @@
 			Hadoop API calls and configuration will be using the deployed Hadoop jars. -->
         <profile>
             <id>profile-hadoop-2-8</id>
+        <!-- SPARK RUNTIME DEPENDENCIES, CONSUMED ONLY BY SPARK HTF TESTS -->
+        <profile>
+            <id>profile-spark</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -2361,7 +2364,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!-- SPARK RUNTIME DEPENDENCIES, CONSUMED ONLY BY SPARK HTF TESTS -->
         <profile>
             <id>profile-spark</id>
