@@ -325,6 +325,11 @@ my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hado
 execute("mkdir /grid/0/tmp/htf_mvn_repo");
 my $dependencies_opt = "-Dmaven.repo.local=/grid/0/tmp/htf_mvn_repo";
 
+# If we are building spark, we require the correct spark dependencies to be picked up.
+if ($spark) {
+    $dependencies_opt .= " -Pprofile-spark";
+}
+
 # This relies on the hadoop options adding the correct dependencies below
 if ($sparkversion) {
     $dependencies_opt .= " -Dspark.hadoop.version=$sparkhadoopversion -Dspark.version=$sparkversion -Dspark.version.full=$sparkversionfull";

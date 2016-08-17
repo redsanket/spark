@@ -38,6 +38,6 @@ object SparkNewAPIHadoopRDD {
     val numLinesFile = linesFile.count()
     if (numLinesFile != numLines) throw new Exception("Error counting number of lines");
 
-    sc.stop();
+    sc.stop()
   }
 }

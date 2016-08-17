@@ -7,7 +7,6 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.workflow.spark.app.AppMaster;
-import hadooptest.workflow.spark.app.SparkPi;
 
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 import org.junit.BeforeClass;

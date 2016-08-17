@@ -147,7 +147,7 @@ note("use_mvn='$use_mvn'");
 note("install_only='$install_only'");
 
 my $os=$^O;
-my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/local/bin/mvn";
+my $mvn = ($os eq 'linux') ? "/home/y/bin/mvn" : "/usr/bin/mvn";
 
 my $SSH_OPT='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null';
 

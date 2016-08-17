@@ -8,7 +8,6 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.workflow.spark.app.AppMaster;
-import hadooptest.workflow.spark.app.SparkHdfsLR;
 
 import hadooptest.workflow.spark.app.SparkRunSparkSubmit;
 import org.apache.hadoop.fs.Path;

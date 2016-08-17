@@ -2361,13 +2361,20 @@
                 </dependency>
             </dependencies>
         </profile>
+
         <!-- SPARK RUNTIME DEPENDENCIES, CONSUMED ONLY BY SPARK HTF TESTS -->
         <profile>
             <id>profile-spark</id>
-                    <artifactId>commons-io</artifactId>
-                    <version>2.4</version>
-                    <scope>system</scope>
-                    <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/commons-io-2.4.jar</systemPath>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>system</groupId>
+                        <artifactId>commons-io</artifactId>
+                        <version>2.4</version>
+                        <scope>system</scope>
+                        <systemPath>${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/commons-io-2.4.jar</systemPath>
                 </dependency>
             </dependencies>
         </profile>

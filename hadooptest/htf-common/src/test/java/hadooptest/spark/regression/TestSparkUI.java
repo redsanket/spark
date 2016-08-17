@@ -13,7 +13,6 @@ import hadooptest.automation.utils.http.HTTPHandle;
 import hadooptest.automation.utils.http.ResourceManagerHttpUtils;
 import hadooptest.automation.utils.http.Response;
 import hadooptest.workflow.spark.app.AppMaster;
-import hadooptest.workflow.spark.app.SparkHdfsLR;
 
 import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
