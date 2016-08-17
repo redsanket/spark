@@ -1,17 +1,21 @@
 #!/bin/sh
 
+set -x
+
 echo "Creating build info..."
-echo "Build Description: `cat ${WORKSPACE}/RELEASE`" > ${SOURCE_DIR}/cicd/gridci-metadata.txt
-echo "VERSION=${HTF_VERSION}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
+echo "Screwdriver: ${SCREWDRIVER}" > ${SOURCE_DIR}/cicd/gridci-metadata.txt
+echo "Build Description: `cat ${SOURCE_DIR}/RELEASE`" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
 echo "BUILD_URL=${BUILD_URL}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
+echo "REPO=${GIT_URL}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
 echo "COMMIT=${GIT_COMMIT}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
 echo "BRANCH=${GIT_BRANCH}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
-echo "${JOB_NAME}:${BUILD_NUMBER}=`cat ${WORKSPACE}/RELEASE`" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
+echo "JOB_NAME=${JOB_NAME}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
+echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ${SOURCE_DIR}/cicd/gridci-metadata.txt
 
 echo "Updating cicd/gridci-metadata.txt file..."
 git branch
 git status
-git commit -am "Updating cicd metadata" ${SOURCE_DIR}/cicd/gridci-metadata.txt
-git push origin master
+git add . && git commit -m "Updating cicd metadata" cicd/gridci-metadata.txt
+git push
 rc=$?; if [[ $rc != 0 ]]; then exit -1; fi
 echo "Metadata update completed!"
