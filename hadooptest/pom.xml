@@ -1923,7 +1923,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <!-- BASE PROFILE FOR HADDOP 2.8 -->
         <!-- When Hadoop is used, this profile must be called before profile-ci
 			or any other profile. If another profile is used first, the dependency jars
@@ -1934,9 +1933,6 @@
 			Hadoop API calls and configuration will be using the deployed Hadoop jars. -->
         <profile>
             <id>profile-hadoop-2-8</id>
-        <!-- SPARK RUNTIME DEPENDENCIES, CONSUMED ONLY BY SPARK HTF TESTS -->
-        <profile>
-            <id>profile-spark</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
