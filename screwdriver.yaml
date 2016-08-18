@@ -9,7 +9,7 @@ shared:
     steps:
         update_metadata:
             description: Update_metadata
-            command: ./cicd/update_metadata.sh gridci-1287-trigger
+            command: ./cicd/update_metadata.sh master
 
     plugins:
       coverage:
