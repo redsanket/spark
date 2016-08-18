@@ -9,7 +9,7 @@ shared:
     steps:
         update_metadata:
             description: Update_metadata
-            command: ./cicd/update_metadata.sh
+            command: ./cicd/update_metadata.sh master
 
     plugins:
       coverage:
