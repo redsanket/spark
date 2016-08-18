@@ -239,14 +239,13 @@ public class GetDatasetsApiTest extends TestSession {
     public void testGetDataSetWithAstrictSource() {
         List<String> dsNameList = this.consoleHandle.getAllDataSetName();
         String temp = dsNameList.get(0);
-        String regex =  temp.substring(0, 3) + "*"  ;
+        String regex =  temp + "*" ;
         TestSession.logger.info("regex = "+regex);
         Response response = given().cookie(cookie).get(url + dataSetPath + "?dataset=" + regex);
-        List<String> res = response.jsonPath().getList("DatasetsResult.DatasetName");
-        TestSession.logger.info("res  = "+res);
-        if (res.size() > 0) {
-            String ds = res.get(0);
-            boolean flag = ds.startsWith(temp.substring(0, 3));
+        List<String> responseDataSetList = response.jsonPath().getList("DatasetsResult.DatasetName");
+        TestSession.logger.info("responseDataSetList  = " + responseDataSetList);
+        if (responseDataSetList.size() > 0) {
+            boolean flag = responseDataSetList.contains(temp);
             assertEquals("No dataset got selected for " + regex + datasetsResultList   , true , flag);
         }
     }
