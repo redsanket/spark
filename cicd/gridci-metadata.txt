@@ -1,1 +1,8 @@
-123
+Screwdriver: true
+Build Description: 1.0.0.1608180228
+BUILD_URL=http://jenkins.screwdriver.corp.yahoo.com:9999/jenkins/job/129246-v3-component/BUILD_CONTAINER=rhel6,label=DOCKER-LOW/16/
+REPO=git@git.corp.yahoo.com:HadoopQE/hadoop-openstack.git
+COMMIT=f2a9884e923a921c0487a4668b49b3ae8058eb2d
+BRANCH=origin/gridci-1287-trigger
+JOB_NAME=129246-v3-component/BUILD_CONTAINER=rhel6,label=DOCKER-LOW
+BUILD_NUMBER=16
