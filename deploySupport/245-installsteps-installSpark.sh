@@ -40,7 +40,7 @@ if [ $SPARKVERSION != none ] && [ $SPARK_HISTORY_VERSION != none ] && [ $STACK_C
    export HADOOP_CONF_DIR=/home/gs/conf/current ; \
    export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
    export JAVA_HOME="$GSHOME/java8/jdk64/current" ; \
-   yinst i yspark_yarn_history_server-$SPARK_HISTORY_VERSION -same -live -down; \
+   yinst i yspark_yarn_history_server-$SPARK_HISTORY_VERSION -same -live -down ; \
    kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
    echo Creating hdfs://mapred/sparkhistory ; \
    /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /mapred/sparkhistory/ ; \
