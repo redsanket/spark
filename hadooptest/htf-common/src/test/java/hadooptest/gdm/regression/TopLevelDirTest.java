@@ -44,6 +44,10 @@ public class TopLevelDirTest {
     public void runTest() throws Exception {
         // verify top level dir does not exist on target
         HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+        
+        // delete /projects folder if exists on the target cluster
+        targetHelper.removeDir("/projects");
+        
         String dataPath = "/projects/" + this.dataSetName + "/data/";
         Assert.assertFalse(targetHelper.exists("/projects/" + this.dataSetName));  
         Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
@@ -51,6 +55,9 @@ public class TopLevelDirTest {
         
         // create dataset and source instance
         HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.sourceGrid);
+        
+        // delete /projects folder if exists on the source cluster
+        sourceHelper.removeDir("/projects");
         sourceHelper.createFile(dataPath + INSTANCE1 + "/testfile");
         createDataset();
         
