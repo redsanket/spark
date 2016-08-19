@@ -129,7 +129,7 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         case GetFileStatus:
             runGetFileStatus();
             break;
-        default: 
+        default:
             throw new IOException("Unsupported operation - " + this.command);
         }
         

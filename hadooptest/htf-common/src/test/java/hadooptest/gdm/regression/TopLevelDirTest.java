@@ -44,6 +44,7 @@ public class TopLevelDirTest {
     public void runTest() throws Exception {
         // verify top level dir does not exist on target
         HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+        
         String dataPath = "/projects/" + this.dataSetName + "/data/";
         Assert.assertFalse(targetHelper.exists("/projects/" + this.dataSetName));  
         Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
@@ -51,6 +52,7 @@ public class TopLevelDirTest {
         
         // create dataset and source instance
         HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.sourceGrid);
+        
         sourceHelper.createFile(dataPath + INSTANCE1 + "/testfile");
         createDataset();
         

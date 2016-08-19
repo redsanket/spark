@@ -70,23 +70,29 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
-		for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
-			String currentDataSetName = this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
-			this.commonFunctionsObject.setDataSetName(currentDataSetName); 
+		String prefixName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+		if (prefixName != null) {
+			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
+				String currentDataSetName = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
+				this.commonFunctionsObject.setDataSetName(currentDataSetName); 
 
-			// check component health
-			this.commonFunctionsObject.checkClusterHealth();
-			this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName() , this.getClusterName());
+				// check component health
+				this.commonFunctionsObject.checkClusterHealth();
+				this.testDataAvailabilityOnCluster = new TestDataAvailabilityOnCluster(this.commonFunctionsObject.getNameNodeName() , this.getClusterName());
 
-			// check for data avaiable for the current hr 
-			boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();
-			TestSession.logger.info("isDataAvailable  = " + isDataAvailable);
+				// check for data avaiable for the current hr 
+				boolean isDataAvailable = this.testDataAvailabilityOnCluster.pollForDataAvaiability();
+				TestSession.logger.info("isDataAvailable  = " + isDataAvailable);
 
-			if (isDataAvailable ) {
-				this.commonFunctionsObject.preInit();
-				this.commonFunctionsObject.initComponents();
-				this.commonFunctionsObject.testStackComponent();
+				if (isDataAvailable ) {
+					this.commonFunctionsObject.preInit();
+					this.commonFunctionsObject.initComponents();
+					this.commonFunctionsObject.testStackComponent();
+				}
 			}
+		}else {
+			TestSession.logger.error("Please enter the pipeline name on jenkins");
 		}
+		
 	}
 }
