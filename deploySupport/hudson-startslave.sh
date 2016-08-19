@@ -10,6 +10,7 @@
 # Otherwise, CLUSTER will default to the environment variable value.
 if [ $# -gt 0 ]; then
     CLUSTER=$1
+    export CLUSTER=$CLUSTER
 fi
 
 # Remove spaces in cluster name
@@ -72,7 +73,7 @@ cd deploySupport
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
 cmd="dist_tag list $HADOOP_RELEASE_TAG"
-echo "$cmd"
+echo "`date +%H:%M:%S`: $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
@@ -80,7 +81,7 @@ if [[ $? != "0" ]];then
 fi
 
 # Parse the hadoop version
-export FULLHADOOPVERSION=`echo $DIST_TAG_LIST | tr ' ' '\n' | grep hadoopcoretree | cut -d'-' -f2`
+export FULLHADOOPVERSION=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]* | cut -d'-' -f2`
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
@@ -103,27 +104,32 @@ else
 fi
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
+HADOOP_INSTALL_STRING=''
+HADOOP_MVN_INSTALL_STRING_PKG=''
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
+    echo "`date +%H:%M:%S` Process dist tag '$HADOOP_RELEASE_TAG'."
     for i in $HADOOP_CORE_PKGS; do
-        HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
-        HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
+        HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
+        HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
     done
     HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING|sed 's/ *//'`
     export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
 
     for i in $HADOOP_MVN_PKGS; do
-        HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
-        HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
+        HADOOP_MVN_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
+        HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
     done
     HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING|sed 's/ *//'`
     export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
 
-    export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
-    export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $confpkg- | cut -d ' ' -f 1`
-    export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+    export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
+    export HADOOP_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $confpkg-[^\ ]*`
+    export LOCAL_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $LOCAL_CONFIG_PKG_NAME-[^\ ]*`
 else
-    if [ ! -z "$HIT_DEPLOYMENT_TAG" ]
-    then
+    if [ -n "$HIT_DEPLOYMENT_TAG" ]; then
+        echo "Error: You have to select a dist tag for deployment!!"
+        exit 1
+    else
         # if HIT_DEPLOYMENT_TAG is provided from hudson UI, we will install all the following pkgs
         # included in the $HIT_DEPLOYMENT_TAG
         # - gridjdk
@@ -131,66 +137,68 @@ else
         # - hadoopcoretree
         # - HadoopConfiggeneric10nodeblue
         # - HadoopConfiggeneric500nodeblue
-        tag=$HIT_DEPLOYMENT_TAG
-        export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg- | cut -d ' ' -f 1`
-        for i in $HADOOP_CORE_PKGS
-        do
-            export HADOOP_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $i- | cut -d ' ' -f 1`
-            export HADOOP_INSTALL_STRING="$HADOOP_INSTALL_STRING $HADOOP_INSTALL_STRING_PKG "
-        done
-        for i in $HADOOP_MVN_PKGS
-        do
-            export HADOOP_MVN_INSTALL_STRING_PKG=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep $i- | cut -d ' ' -f 1`
-            export HADOOP_MVN_INSTALL_STRING="$HADOOP_MVN_INSTALL_STRING $HADOOP_MVN_INSTALL_STRING_PKG "
-        done
-        export HADOOP_CORETREE_INSTALL_STRING=`/home/y/bin/dist_tag list $HADOOP_RELEASE_TAG |grep hadoopcoretree | cut -d ' ' -f 1`
-        export LOCAL_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $LOCAL_CONFIG_PKG_NAME- | cut -d ' ' -f 1`
+        cmd="dist_tag list $HIT_DEPLOYMENT_TAG"
+        echo "`date +%H:%M:%S`: $cmd"
+        HIT_DIST_TAG_LIST=`eval "$cmd"`
+        if [[ $? != "0" ]];then
+            echo "ERROR: dist_tag list '$HIT_DEPLOYMENT_TAG' failed: '$HIT_DIST_TAG_LIST'; Exiting!!!"
+            exit 1;
+        fi
 
+        export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg-`
+        for i in $HADOOP_CORE_PKGS; do
+            HADOOP_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
+            HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
+        done
+        HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING|sed 's/ *//'`
+        export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
+
+        for i in $HADOOP_MVN_PKGS; do
+            HADOOP_MVN_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
+            HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
+        done
+        HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING|sed 's/ *//'`
+        export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
+
+        export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
+        export LOCAL_CONFIG_INSTALL_STRING=`echo $HIT_DIST_TAG_LIST | grep -o $LOCAL_CONFIG_PKG_NAME-[^\ ]*`
 
         # now constructing the following variables based on HIT_DEPLOYMENT_TAG
         perl retrieveHitPkgFromTag.pl
         if [ $? = 0 ]; then
             . exportHITpkgs.sh
         else
-            echo "Error: cannot construct hadoop service pkg string from HIT_DEPLOYMENT_TAG=$tag"
+            echo "Error: cannot construct hadoop service pkg string from HIT_DEPLOYMENT_TAG=$HIT_DEPLOYMENT_TAG"
         fi
-    else
-        echo "Error: You have to select a dist tag for deployment!!"
-        exit 1
     fi
 fi
 
-if [ ! -z "$TEZ_DIST_TAG" ]
-then
+echo "`date +%H:%M:%S` Process component dist tags if enabled."
+if [ -n "$TEZ_DIST_TAG" ]; then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
 
-if [ ! -z "$SPARK_DIST_TAG" ]
-then
+if [ -n "$SPARK_DIST_TAG" ]; then
     export SPARKVERSION=`dist_tag list $SPARK_DIST_TAG | awk '{print $1}' | cut -d- -f2`
 fi
 
-if [ ! -z "$SPARK_HISTORY_SERVER_DIST_TAG" ]
-then
+if [ -n "$SPARK_HISTORY_SERVER_DIST_TAG" ]; then
     export SPARK_HISTORY_VERSION=`dist_tag list $SPARK_HISTORY_SERVER_DIST_TAG | awk '{print $1}' | cut -d- -f2`
 fi
 
-if [ ! -z "$AUTO_CREATE_RELEASE_TAG" ]
-then
-    if [ $AUTO_CREATE_RELEASE_TAG = 1 ] && [ ! -z "$HADOOP_RELEASE_TAG" ]
-    then
-        if [ ! -z "$CUST_DIST_TAG" ]
-        then
-            echo "Using custom dist tag to clone..."
+if [ -n "$AUTO_CREATE_RELEASE_TAG" ]; then
+    if [ $AUTO_CREATE_RELEASE_TAG = 1 ] && [ -n "$HADOOP_RELEASE_TAG" ]; then
+        if [ -n "$CUST_DIST_TAG" ]; then
             export NEW_DIST_TAG="$CUST_DIST_TAG"_${DATESTRING}
         else
             export NEW_DIST_TAG=hadoop_2_0_${DATESTRING}
         fi
-
+        echo "`date +%H:%M:%S` Clone dist tag '$HADOOP_RELEASE_TAG' to '$NEW_DIST_TAG':"
         dist_tag clone $HADOOP_RELEASE_TAG $NEW_DIST_TAG
         dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
     fi
 fi
+echo "`date +%H:%M:%S` Completed dist tag processing."
 
 echo ===
 echo ===
@@ -217,7 +225,7 @@ rm -f *.tgz > /dev/null 2>&1
 
 # Make sure rocl is installed on all nodes
 PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                    pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl'
+                    /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl'
 
 #		default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=adm102.blue.ygrid.yahoo.com
