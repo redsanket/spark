@@ -72,8 +72,8 @@ cd deploySupport
 
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
+echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tag '$HADOOP_RELEASE_TAG'."
 cmd="dist_tag list $HADOOP_RELEASE_TAG"
-echo "`date +%H:%M:%S`: $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
@@ -107,7 +107,6 @@ export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 HADOOP_INSTALL_STRING=''
 HADOOP_MVN_INSTALL_STRING_PKG=''
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
-    echo "`date +%H:%M:%S` Process dist tag '$HADOOP_RELEASE_TAG'."
     for i in $HADOOP_CORE_PKGS; do
         HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
         HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
@@ -173,7 +172,7 @@ else
     fi
 fi
 
-echo "`date +%H:%M:%S` Process component dist tags if enabled."
+echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tags for any applicable components."
 if [ -n "$TEZ_DIST_TAG" ]; then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
@@ -198,7 +197,7 @@ if [ -n "$AUTO_CREATE_RELEASE_TAG" ]; then
         dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
     fi
 fi
-echo "`date +%H:%M:%S` Completed dist tag processing."
+echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Completed dist tag processing."
 
 echo ===
 echo ===
