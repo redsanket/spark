@@ -1,7 +1,6 @@
 // Copyright 2016, Yahoo Inc.
 package hadooptest.gdm.regression;
 
-import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import java.io.File;
@@ -17,7 +16,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String> {
     
     public enum CommandEnum {
-        CreateDir, CreateFile, FileExists, NumFiles, GetFileStatus,RemoveDir
+        CreateDir, CreateFile, FileExists, NumFiles, GetFileStatus
     }
     
     private Configuration configuration;
@@ -87,12 +86,6 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         return this.fileStatus;
     }
     
-    public void removeDir(String fullPath) throws IOException, InterruptedException {
-    	this.fullPath = fullPath;
-    	this.command = CommandEnum.RemoveDir;
-    	this.ugi.doAs(this);
-    }
-    
     /**
      * Gets the number of files for a specified path
      * 
@@ -136,9 +129,6 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         case GetFileStatus:
             runGetFileStatus();
             break;
-        case RemoveDir:
-        	runRemoveDirCommand();
-        	break;
         default:
             throw new IOException("Unsupported operation - " + this.command);
         }
@@ -169,18 +159,6 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         if (!fs.exists(path)) {
             fs.mkdirs(path);
         }
-    }
-    
-    private void runRemoveDirCommand() throws IOException {
-    	FileSystem fs = FileSystem.get(this.configuration);
-    	Path path = new Path(this.fullPath);
-    	if (fs.exists(path)) {
-    		if (fs.delete(path, true) == true) {
-    			TestSession.logger.debug(this.fullPath + " is deleted successfully.");
-    		}
-    	}else {
-    		TestSession.logger.info(this.fullPath + " does not exists.");
-    	}
     }
     
     private void runCreateFileCommand() throws IOException {
