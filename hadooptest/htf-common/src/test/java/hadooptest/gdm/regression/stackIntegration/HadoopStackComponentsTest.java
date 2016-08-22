@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
@@ -71,8 +70,7 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
-		HadoopCluster hadoopcluster = new hadooptest.cluster.hadoop.HadoopCluster();
-		String prefixName = hadoopcluster.getVersion(); 
+		String prefixName = TestSession.cluster.getVersion(); 
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
 
 		if (prefixName != null) {
