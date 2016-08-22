@@ -16,7 +16,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
-import org.apache.hadoop.util.VersionInfo
+import org.apache.hadoop.util.VersionInfo;
 
 public class HadoopStackComponentsTest extends TestSession {
 
