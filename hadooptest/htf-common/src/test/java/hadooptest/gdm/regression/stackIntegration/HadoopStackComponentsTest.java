@@ -16,6 +16,8 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
+import org.apache.hadoop.util.VersionInfo
+
 public class HadoopStackComponentsTest extends TestSession {
 
 	// Since hbase is deployed outside the cluster , hbase is not in the following list.
@@ -70,7 +72,7 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
-		String prefixName = TestSession.cluster.getVersion(); 
+		String prefixName = VersionInfo.getVersion(); 
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
 
 		if (prefixName != null) {
