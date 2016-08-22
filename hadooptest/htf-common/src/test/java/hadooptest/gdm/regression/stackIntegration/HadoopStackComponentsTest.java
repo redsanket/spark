@@ -71,7 +71,8 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
-		String prefixName = this.getVersion(); 
+		HadoopCluster hadoopcluster = new hadooptest.cluster.hadoop.HadoopCluster();
+		String prefixName = hadoopcluster.getVersion(); 
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
 
 		if (prefixName != null) {
