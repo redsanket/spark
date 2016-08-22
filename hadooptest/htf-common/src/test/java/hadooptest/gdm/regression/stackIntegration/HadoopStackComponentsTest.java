@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.hadoop.HadoopCluster;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
@@ -70,7 +71,9 @@ public class HadoopStackComponentsTest extends TestSession {
 	}
 
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
-		String prefixName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
+		String prefixName = this.getVersion(); 
+		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
+
 		if (prefixName != null) {
 			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
 				String currentDataSetName = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
@@ -91,7 +94,7 @@ public class HadoopStackComponentsTest extends TestSession {
 				}
 			}
 		}else {
-			TestSession.logger.error("Please enter the pipeline name on jenkins");
+			TestSession.logger.error("Could not determine HADOOP_VERSION for dataset prefixName!!");
 		}
 		
 	}
