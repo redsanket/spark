@@ -62,6 +62,7 @@ public class TestSparkUI extends TestSession {
     private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
     private static SparkRunSparkSubmit appUserDefault; 
     private static String hitusr_1_password = "New2@password";
+    private static String hitusr_2_password = "New2@password";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -260,7 +261,7 @@ public class TestSparkUI extends TestSession {
             String uiURL = getAppClusterURL(appUserDefault);
             String stagesUIURL = uiURL + "/proxy/" + appUserDefault.getID() + "/stages/";
             logger.info("Test default bouncer user doesn't work on ui: " + stagesUIURL);
-            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 401);
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_password, stagesUIURL, 403);
    
             int waitTime = 180;
             assertTrue("Job (default user) did not succeed.",
@@ -350,15 +351,15 @@ public class TestSparkUI extends TestSession {
             appUserDefault.setNumWorkers(3);
             appUserDefault.setWorkerCores(1);
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
-            appUserDefault.setConf("spark.modify.acls=" + HadooptestConstants.UserNames.HITUSR_1);
+            appUserDefault.setConf("spark.modify.acls=" + HadooptestConstants.UserNames.HITUSR_2);
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
             startAndCheckUI(appUserDefault);
 
             String stagesUIURL = getAppClusterURL(appUserDefault)  + "/stages/";
-            logger.info("Test hitusr_1 user doesn't work on ui");
-            getWithBouncer(HadooptestConstants.UserNames.HITUSR_1, hitusr_1_password, stagesUIURL, 401);
+            logger.info("Test hitusr_2 user doesn't work on ui");
+            getWithBouncer(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_password, stagesUIURL, 403);
 
             // should fail since user doesn't have modify permissions
             boolean ret = appUserDefault.killCLI(HadooptestConstants.UserNames.DFSLOAD);
