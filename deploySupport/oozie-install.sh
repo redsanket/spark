@@ -184,7 +184,7 @@ yinst set yoozie.INJECT_JARS_HCATALOG="/home/y/libexec/hive/lib/hive-common.jar,
 yinst set yoozie.HADOOP_CONF_DIR=/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/ \
   yoozie.HADOOP_PREFIX=/home/gs/gridre/yroot.$CLUSTER/share/hadoop/ \
   yoozie.INJECT_CONF_HADOOP="/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/core-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/hdfs-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/mapred-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/yarn-site.xml" \
-  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core-*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar" \
+  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar" \
   yoozie.INJECT_CONF_HCATALOG=/home/y/libexec/hive/conf/hive-site.xml \
   yoozie.HADOOP_VERSION=2.0
 
