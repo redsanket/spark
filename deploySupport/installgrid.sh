@@ -20,7 +20,6 @@
 export PATH="/home/y/bin64:/home/y/bin:$PATH"
 echo `hostname`": PATH=$PATH"
 
-confpkg=HadoopConfigopenstacklargedisk
 confpkginstalloptions=
 export yinst=/usr/local/bin/yinst
 
@@ -39,6 +38,8 @@ export SCP="scp $SSH_OPT"
 export SSH="ssh $SSH_OPT"
 export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
 
+# confpkg=HadoopConfigopenstacklargedisk
+[ -z "$confpkg" ] && export confpkg=$hadoopgridrollout__confpkg
 [ -z "$STARTYARN" ] && export STARTYARN=$hadoopgridrollout__STARTYARN
 [ -z "$CONFIGUREJOBTRACKER" ] && export CONFIGUREJOBTRACKER=$hadoopgridrollout__CONFIGUREJOBTRACKER
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=$hadoopgridrollout__ADMIN_HOST
