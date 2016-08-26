@@ -364,22 +364,16 @@ elsif ($storm090) {
 elsif ($tez){
     $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
 }
-
 elsif ($hadoop28) {
     $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }
-
 elsif ($hadoop27) {
     $dependencies_opt .= " -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
 }
-
 elsif ($hadoop26) {
     $dependencies_opt .= " -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
 }
-
-
 else {
-
 	# When Hadoop is used, this profile must be called before profile-ci
 	# or any other profile.  If another profile is used first, the
 	# dependency jars from that profile might have Hadoop configuration
@@ -392,10 +386,8 @@ else {
     $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
 }
 
-my $stormClusterConf = "";
-if (-e "$stormconf") {
-   	$stormClusterConf = "-DSTORM_CLUSTER_CONF=$stormconf";
-}
+my $stormClusterConf =
+    (($stormconf) && (-e "$stormconf")) ? "-DSTORM_CLUSTER_CONF=$stormconf" : '';
 
 my @common_args = (
     "-DCLUSTER_NAME=$cluster",
@@ -443,8 +435,8 @@ if ($tez){
   $cmd = "ls -l /home/gs/tez/current/tez-api-*.jar | sed -e's/  */ /g' | cut -d' ' -f9| cut -d'-' -f3| rev | cut -d. -f2- | rev";
   note($cmd);
   chomp($tez_version = `$cmd`);
+  note("Tez version = '$tez_version'");
 }
-note("Tez version = '$tez_version'");
 
 if ($use_mvn) {
     # RUN TESTS VIA MAVEN
@@ -492,6 +484,15 @@ if ($use_mvn) {
     }
     print "hadoop_share = $hadoop_share \n";
 
+    my @settings = (
+        "CLUSTER=$cluster",
+        "HADOOP_VERSION=$hadoop_version",
+        "HADOOP_INSTALL=$hadoop_install",
+        "HADOOP_SHARE=$hadoop_share",
+        "HTF_WORKSPACE=$workspace" );
+    push(@settings, "TEZ_VERSION=$tez_version") if ($tez_version);
+    my $settings_str = join(" ", @settings);
+
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
     if ($sparkversion) {
@@ -511,31 +512,27 @@ if ($use_mvn) {
     }
     else {
         # Just clean the project.
-    	execute("CLUSTER=$cluster " .
-            "HADOOP_VERSION=$hadoop_version " .
-            "HADOOP_INSTALL=$hadoop_install " .
-            "HADOOP_SHARE=$hadoop_share " .
-            "HTF_WORKSPACE=$workspace " .
-            "TEZ_VERSION=$tez_version " .
-            "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package -DskipTests $dependencies_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8");
+        execute("${settings_str} ".
+                "/home/y/bin/mvn $pom_opt $mvn_settings_opt clean package ".
+                "-DskipTests $dependencies_opt ".
+                "-Dmaven.compiler.source=1.8 ".
+                "-Dmaven.compiler.target=1.8");
     }
-  print "clean up.. \n";
-  system("sh" , "./scripts/htf_cleanup.sh");   
-  print "-------------------------------------------------------------------------------------------------- \n"; 
+    print "clean up.. \n";
+    system("sh" , "./scripts/htf_cleanup.sh");
+    print "-------------------------------------------------------------------------------------------------- \n";
  
     ############################################################################
     # Execute the tests.
     ############################################################################
-    execute("CLUSTER=$cluster ".
-            "HADOOP_VERSION=$hadoop_version " .
-            "HADOOP_INSTALL=$hadoop_install " .
-            "HADOOP_SHARE=$hadoop_share " .
-            "HTF_WORKSPACE=$workspace " .
-            "TEZ_VERSION=$tez_version " .
-            "HADOOP_CONF_DIR=/home/gs/gridre/yroot." . $cluster . "/conf/hadoop " .
-            "HADOOP_HOME=/home/gs/gridre/yroot." . $cluster . "/share/hadoop " .
-            "HADOOP_PREFIX=/home/gs/gridre/yroot." . $cluster. "/share/hadoop " .
-           "/home/y/bin/mvn $pom_opt $mvn_settings_opt -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 test -DfailIfNoTests=false ".
+    execute("${settings_str} ".
+            "HADOOP_CONF_DIR=/home/gs/gridre/yroot.${cluster}/conf/hadoop " .
+            "HADOOP_HOME=/home/gs/gridre/yroot.${cluster}/share/hadoop " .
+            "HADOOP_PREFIX=/home/gs/gridre/yroot.${cluster}/share/hadoop " .
+            "/home/y/bin/mvn $pom_opt $mvn_settings_opt ".
+            "-Dmaven.compiler.source=1.8 ".
+            "-Dmaven.compiler.target=1.8 ".
+            "test -DfailIfNoTests=false ".
             join(" ", @common_args) . " " .
             $test_opt);
 
