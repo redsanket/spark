@@ -183,12 +183,12 @@ fi
 
 pkg=hadoopgridrollout
 
-file=installgrid.sh
+install_script=installgrid.sh
 
-cmd="conf/hadoop/hadoopAutomation/$file \"\${CLUSTER}\""
+cmd="conf/hadoop/hadoopAutomation/$install_script \"\${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
 # echo "YINST start 100 env" >> $pkg.yicf
-echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  $file " >> $pkg.yicf
+echo "f 0755 - - conf/hadoop/hadoopAutomation/$install_script  $install_script " >> $pkg.yicf
 
 scripts="\
 *.pl \
@@ -204,16 +204,16 @@ namenode*.sh \
 setup_nm_health_check_script.sh \
 "
 
-for f in $scripts; do
-    echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  $file" >> $pkg.yicf
+for script in $scripts; do
+    echo "f 0755 - - conf/hadoop/hadoopAutomation/$script $script" >> $pkg.yicf
 done
 
 if [ -d ../fitSupport ]
 then
     (cd ../fitSupport
-	for f in FIT*.sh
+	for script in FIT*.sh
 	do
-           echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  ../fitSupport/$file"
+           echo "f 0755 - - conf/hadoop/hadoopAutomation/$script  ../fitSupport/$script"
 	done
     )  >> $pkg.yicf
 fi
