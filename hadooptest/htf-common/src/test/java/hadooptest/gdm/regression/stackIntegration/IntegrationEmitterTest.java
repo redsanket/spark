@@ -173,7 +173,10 @@ public class IntegrationEmitterTest  extends TestSession {
 	 */
 	public boolean checkDataSetAlreadyExists() {
 		List<String> dataSetNameList = this.consoleHandle.getAllDataSetName();
-		return dataSetNameList.contains(this.dataSetName.trim());
+		if (dataSetNameList.size() == 0) {
+			TestSession.logger.info("There is no dataset on the console ");
+			return false;
+		} else return dataSetNameList.contains(this.dataSetName.trim());
 	}
 
 	/**
