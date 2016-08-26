@@ -50,6 +50,7 @@ mkyicf() {
 	echo PERM = 0444
 
         allfields="\
+confpkg \
 ADMIN_HOST \
 BUILD_NUMBER \
 CHECKSSHCONNECTIVITY \
@@ -182,12 +183,12 @@ fi
 
 pkg=hadoopgridrollout
 
-f=installgrid.sh
+file=installgrid.sh
 
-cmd="conf/hadoop/hadoopAutomation/$f \"\${CLUSTER}\""
+cmd="conf/hadoop/hadoopAutomation/$file \"\${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
 # echo "YINST start 100 env" >> $pkg.yicf
-echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  $f " >> $pkg.yicf
+echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  $file " >> $pkg.yicf
 
 scripts="\
 *.pl \
@@ -204,7 +205,7 @@ setup_nm_health_check_script.sh \
 "
 
 for f in $scripts; do
-    echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  $f" >> $pkg.yicf
+    echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  $file" >> $pkg.yicf
 done
 
 if [ -d ../fitSupport ]
@@ -212,7 +213,7 @@ then
     (cd ../fitSupport
 	for f in FIT*.sh
 	do
-           echo "f 0755 - - conf/hadoop/hadoopAutomation/$f  ../fitSupport/$f"
+           echo "f 0755 - - conf/hadoop/hadoopAutomation/$file  ../fitSupport/$file"
 	done
     )  >> $pkg.yicf
 fi
