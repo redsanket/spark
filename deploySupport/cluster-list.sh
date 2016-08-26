@@ -263,10 +263,15 @@ setGridParameters() {
        export gridname=$cluster
        case $gridname in
                     dense*)
-                       export scriptnames=generic10node12disk
-                       export localnames=12disk
-                    ;;
-                    *) export scriptnames=openstacklargedisk ;;
+                        export scriptnames=generic10node12disk
+                        export localnames=12disk
+                        ;;
+                    open*)
+                        export scriptnames=openstacklargedisk
+                        ;;
+                    *)
+                        export scriptnames=generic10node
+                        ;;
        esac
        export confpkg=HadoopConfig${scriptnames}
        export localconfpkg=hadooplocalconfigs_openstack_large
