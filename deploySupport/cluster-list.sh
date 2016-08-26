@@ -262,19 +262,23 @@ setGridParameters() {
         # step 2d: Now, set up variables that the deploy-script needs.
        export gridname=$cluster
        case $gridname in
-                    dense*)
-                        export scriptnames=generic10node12disk
-                        export localnames=12disk
-                        ;;
                     open*)
                         export scriptnames=openstacklargedisk
+                        export confpkg=HadoopConfig${scriptnames}
+                        export localconfpkg=hadooplocalconfigs_openstack_large
+                        ;;
+                    dense*)
+                        export scriptnames=generic10node12disk
+                        export confpkg=HadoopConfig${scriptnames}blue
+                        export localnames=12disk
+                        export localconfpkg=hadooplocalconfigs
                         ;;
                     *)
                         export scriptnames=generic10node
+                        export confpkg=HadoopConfig${scriptnames}blue
+                        export localconfpkg=hadooplocalconfigs
                         ;;
        esac
-       export confpkg=HadoopConfig${scriptnames}
-       export localconfpkg=hadooplocalconfigs_openstack_large
 
        # Just because stack component roles/nodes exist, it shouldn't
        # automatically be added for deployment in the hostlist.
