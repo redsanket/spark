@@ -1728,7 +1728,9 @@ public final class ConsoleHandle {
         com.jayway.restassured.response.Response response = given().cookie(cookie).get(url);
         JsonPath jsonPath = response.getBody().jsonPath();
         List<String> datasetNames = jsonPath.getList("DatasetsResult.DatasetName");
-        assertTrue("Failed to get the dataset name = "  , datasetNames != null && datasetNames.size() > 0);
+        if ( datasetNames != null && datasetNames.size() > 0) {
+        	TestSession.logger.info("There is no dataset available on the " + this.consoleURL);
+        }
         return datasetNames;
     }
     
