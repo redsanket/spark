@@ -264,17 +264,20 @@ setGridParameters() {
        case $gridname in
                     open*)
                         export scriptnames=openstacklargedisk
+                        export cfgscriptnames=${scriptnames}
                         export confpkg=HadoopConfig${scriptnames}
                         export localconfpkg=hadooplocalconfigs_openstack_large
                         ;;
                     dense*)
                         export scriptnames=generic10node12disk
+                        export cfgscriptnames=${scriptnames}blue
                         export confpkg=HadoopConfig${scriptnames}blue
                         export localnames=12disk
                         export localconfpkg=hadooplocalconfigs
                         ;;
                     *)
                         export scriptnames=generic10node
+                        export cfgscriptnames=${scriptnames}blue
                         export confpkg=HadoopConfig${scriptnames}blue
                         export localconfpkg=hadooplocalconfigs
                         ;;
