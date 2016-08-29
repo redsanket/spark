@@ -3,7 +3,7 @@
 #
 #
 # (1) [setup for later] We copy scripts for namenode startup, to all NNs.
-# (2) we run "cfg-${scriptnames}.sh" (made by the packaging of the configs) on each NN.
+# (2) we run "cfg-${cfgscriptnames}.sh" (made by the packaging of the configs) on each NN.
 # (2) We run a small perl(1) script to get the output and parse it.
 #
 # Inputs: $STARTNAMENODE	(boolean)
@@ -17,11 +17,11 @@ then
     fanoutcmd "scp $scripttmp/nameno*.sh $scripttmp/getclusterid.pl __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
 
     echo == Running namenode-configure script
-    fanoutNN "/bin/sh $yrootHadoopConf/cfg-${scriptnames}-namenode.sh " 
+    fanoutNN "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-namenode.sh "
     if [ -z "$secondarynamenode" ]; then
        echo "no secondary name node to configure or start"
     else
-       fanoutSecondary "sh $yrootHadoopConf/cfg-${scriptnames}-namenode.sh"
+       fanoutSecondary "sh $yrootHadoopConf/cfg-${cfgscriptnames}-namenode.sh"
     fi
 fi
 
