@@ -1,8 +1,8 @@
 Screwdriver: true
-Build Description: 1.0.0.1608262249
-BUILD_URL=http://jenkins.screwdriver.corp.yahoo.com:9999/jenkins/job/129246-v3-component/BUILD_CONTAINER=rhel6,label=DOCKER-LOW/26/
+Build Description: 1.0.0.1608291401
+BUILD_URL=http://jenkins.screwdriver.corp.yahoo.com:9999/jenkins/job/129246-v3-component/BUILD_CONTAINER=rhel6,label=DOCKER-LOW/27/
 REPO=git@git.corp.yahoo.com:HadoopQE/hadoop-openstack.git
-COMMIT=b34618e5b4369568b647d9a385976a710dc73c98
+COMMIT=b9a70cfb819378d37b0177d6a8a1564cf81303b0
 BRANCH=origin/master
 JOB_NAME=129246-v3-component/BUILD_CONTAINER=rhel6,label=DOCKER-LOW
-BUILD_NUMBER=26
+BUILD_NUMBER=27
