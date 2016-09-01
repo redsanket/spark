@@ -120,7 +120,7 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
         # gridci-1465, allow testing yjava_jdk version 8u102
         if [ -n "$YJAVA_JDK_VERSION" ]; then
           echo "Using yjava_jdk for testing: $YJAVA_JDK_VERSION"
-          HADOOP_INSTALL_STRING_PKG = "$HADOOP_INSTALL_STRING_PKG yjava_jdk-1.8.0_102.70" 
+          HADOOP_INSTALL_STRING_PKG = "$HADOOP_INSTALL_STRING_PKG $YJAVA_JDK_VERSION" 
         else
           echo "Using yjava_jdk from Dist tag"
         fi
