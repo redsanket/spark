@@ -100,7 +100,7 @@ HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
 if [[ "$HADOOP_27" == "true" ]]; then
 
     # gridci-1465, allow testing yjava_jdk version 8u102
-    if [ -z "$YJAVA_JDK_VERSION" ]; then
+    if [[ $YJAVA_JDK_VERSION =~ "default" ]]; then
       export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk yspark_yarn_shuffle"
     else
       echo "Not adding yjava_jdk to HADOOP_CORE_PACKAGES to allow testing $YJAVA_JDK_VERSION"
@@ -118,7 +118,7 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
         HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
 
         # gridci-1465, allow testing yjava_jdk version 8u102
-        if [ -n "$YJAVA_JDK_VERSION" ]; then
+        if [[ ! $YJAVA_JDK_VERSION =~ "default" ]]; then
           echo "Using yjava_jdk for testing: $YJAVA_JDK_VERSION"
           HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG $YJAVA_JDK_VERSION" 
         else
