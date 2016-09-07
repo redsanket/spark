@@ -3,25 +3,37 @@
 export mapred=$MAPREDUSER
 [ -z "$mapred" ] && export mapred=mapred
 
-find /grid/0/hadoop -user hdfsqa -type d -exec chown hdfs '{}' ';' 
-find /grid/0/hadoop -user mapredqa -type d -exec chown mapred '{}' ';' 
+data_dir="/home/gs/var/run"
+yarn_data_dir="${data_dir}/mapredqa"
 
-if [ -d /grid/0/tmp/mapred-local/taskTracker ]; then
-    rm -rf /grid/0/tmp/mapred-local/taskTracker
-    mkdir -p /grid/0/tmp/mapred-local/taskTracker
-    chmod 777 /grid/0/tmp/mapred-local/taskTracker
+# Remove YARN data only.
+component=$1
+if [ "$component" == "yarn" ]; then
+    if [ -d ${yarn_data_dir} ]; then
+        rm -rf ${yarn_data_dir}
+        exit $?;
+    else
+        exit 0;
+    fi
 fi
 
-if [ -d /grid/0/tmp/yarn-local/taskTracker ]; then
-    rm -rf /grid/0/tmp/yarn-local/taskTracker
-    mkdir -p /grid/0/tmp/yarn-local/taskTracker
-    chmod 777 /grid/0/tmp/yarn-local/taskTracker
-fi
+find /grid/0/hadoop -user hdfsqa -type d -exec chown hdfs '{}' ';'
+find /grid/0/hadoop -user mapredqa -type d -exec chown mapred '{}' ';'
+
+tt_mr_dir="/grid/0/tmp/mapred-local/taskTracker"
+tt_yarn_dir="/grid/0/tmp/yarn-local/taskTracker"
+for tt_dir in $tt_mr_dir $tt_yarn_dir; do
+    if [ -d ${tt_dir} ]; then
+        rm -rf ${tt_dir}
+        mkdir -p ${tt_dir}
+        chmod 777 ${tt_dir}
+    fi
+done
 
 # Remove prior history files. Deploy will remake directories with correct
 # owner and permissions
-if [ -d /home/gs/var/run ]; then
-    rm -rf /home/gs/var/run
+if [ -d ${data_dir} ]; then
+    rm -rf ${data_dir}
 fi
 
 for i in 0 1 2 3 4 5 6 7 8 9 10 11
