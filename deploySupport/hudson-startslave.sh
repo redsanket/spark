@@ -234,6 +234,8 @@ PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
 [ -z "$CREATEGSHOME" ] && export CREATEGSHOME=true
 [ -z "$REMOVE_EXISTING_LOGS" ] && export REMOVE_EXISTING_LOGS=true
 [ -z "$REMOVEEXISTINGDATA" ] && export REMOVEEXISTINGDATA=true
+# GRIDCI-1495 Remove only YARN data. This is a subset of REMOVEEXISTINGDATA.
+[ -z "$REMOVE_YARN_DATA" ] && export REMOVE_YARN_DATA=true
 [ -z "$CLEANLOCALCONFIG" ] && export CLEANLOCALCONFIG=false
 [ -z "$GRIDJDK_VERSION" ] && export GRIDJDK_VERSION=1.7.0_17
 [ -z "$GRIDJDK_INSTALL_STRING" ] && export GRIDJDK_INSTALL_STRING=gridjdk:hadoopXXX20X104Xlatest
