@@ -246,28 +246,28 @@ public class DataSetXmlGenerator {
         this.permission = permission;
     }
 
-		public void setHcatTableName(String hcatTableName) {
-			this.hcatTableName = hcatTableName;
-		}
+    public void setHcatTableName(String hcatTableName) {
+	this.hcatTableName = hcatTableName;
+    }
 
-		public void setHcatDbName(String hcatDbName) {
-			this.hcatDbName = hcatDbName;
-		}
+    public void setHcatDbName(String hcatDbName) {
+	this.hcatDbName = hcatDbName;
+    }
 
-		public void setHcatForceExternalTables(String hcatForceExternalTables) {
-			this.hcatForceExternalTables = hcatForceExternalTables;
-		}
+    public void setHcatForceExternalTables(String hcatForceExternalTables) {
+	this.hcatForceExternalTables = hcatForceExternalTables;
+    }
 
-		public void setHcatInstanceKey(String hcatInstanceKey) {
-			this.hcatInstanceKey = hcatInstanceKey;
-		}
+    public void setHcatInstanceKey(String hcatInstanceKey) {
+	this.hcatInstanceKey = hcatInstanceKey;
+    }
 
-		public void setHcatRunTargetFilter(String hcatRunTargetFilter) {
-			this.hcatRunTargetFilter = hcatRunTargetFilter;
-		}
+    public void setHcatRunTargetFilter(String hcatRunTargetFilter) {
+	this.hcatRunTargetFilter = hcatRunTargetFilter;
+    }
 
-		public void setHcatTablePropagationEnabled(String hcatTablePropagationEnabled) {
-			this.hcatTablePropagationEnabled = hcatTablePropagationEnabled;
-		}
+    public void setHcatTablePropagationEnabled(String hcatTablePropagationEnabled) {
+	this.hcatTablePropagationEnabled = hcatTablePropagationEnabled;
+    }
 }
 
