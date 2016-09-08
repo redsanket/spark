@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 
 public class DataSetXmlGenerator {
@@ -33,6 +34,12 @@ public class DataSetXmlGenerator {
     private String frequency;
     private String discoveryFrequency;
     private String discoveryInterface;
+    private String hcatTableName;
+    private String hcatDbName;
+    private String hcatForceExternalTables = "FALSE";
+    private String hcatInstanceKey = "instancedate";
+    private String hcatRunTargetFilter = "FALSE";
+    private String hcatTablePropagationEnabled = "FALSE";
     private String source;
     private DataSetTarget target;
     private Map<String,String> sourcePaths = new HashMap<String,String>();
@@ -103,6 +110,26 @@ public class DataSetXmlGenerator {
             Element targets = this.appendRequiredElement(dataset, "Targets");
             Element target = this.target.buildElement(this.doc);
             targets.appendChild(target);
+            
+            NodeList nl = target.getElementsByTagName("HCatTargetType");
+            boolean hcatFlag = false;
+            for ( int i=0;i<nl.getLength();i++) {
+            	String targetType  = nl.item(i).getTextContent().trim();
+            	if (targetType.equals("HCatOnly") ||  targetType.equals("Mixed")) {
+            		hcatFlag = true;
+            		break;
+            	}
+            }
+            
+            if (hcatFlag) {
+            	Element hcatElement = this.appendRequiredElement(dataset, "HCat");
+            	this.appendRequiredElement(hcatElement, "HCatDatabaseName", this.hcatDbName);
+            	this.appendRequiredElement(hcatElement, "HCatForceExternalTables", this.hcatForceExternalTables);
+            	this.appendRequiredElement(hcatElement, "HCatInstanceKey", this.hcatInstanceKey);
+            	this.appendRequiredElement(hcatElement, "HCatRunTargetFilter", this.hcatRunTargetFilter);
+            	this.appendRequiredElement(hcatElement, "HCatTableName", this.hcatTableName);
+            	this.appendRequiredElement(hcatElement, "HCatTablePropagationEnabled", this.hcatTablePropagationEnabled);
+            }
             
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer transformer = tf.newTransformer();
@@ -217,6 +244,30 @@ public class DataSetXmlGenerator {
     
     public void setPermission(String permission) {
         this.permission = permission;
-    } 
+    }
+
+		public void setHcatTableName(String hcatTableName) {
+			this.hcatTableName = hcatTableName;
+		}
+
+		public void setHcatDbName(String hcatDbName) {
+			this.hcatDbName = hcatDbName;
+		}
+
+		public void setHcatForceExternalTables(String hcatForceExternalTables) {
+			this.hcatForceExternalTables = hcatForceExternalTables;
+		}
+
+		public void setHcatInstanceKey(String hcatInstanceKey) {
+			this.hcatInstanceKey = hcatInstanceKey;
+		}
+
+		public void setHcatRunTargetFilter(String hcatRunTargetFilter) {
+			this.hcatRunTargetFilter = hcatRunTargetFilter;
+		}
+
+		public void setHcatTablePropagationEnabled(String hcatTablePropagationEnabled) {
+			this.hcatTablePropagationEnabled = hcatTablePropagationEnabled;
+		}
 }
 

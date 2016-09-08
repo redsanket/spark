@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 public class DataSetTarget {
     private String name;
     private Document doc;
+    private boolean addPathFlag = false;
     private String dateRangeStartType;
     private String dateRangeStartValue;
     private String dateRangeEndType;
@@ -45,15 +46,16 @@ public class DataSetTarget {
         
         this.appendRequiredElement(target, "HCatTargetType", this.hcatType);
         
-        Element paths = this.appendRequiredElement(target, "Paths");
-        
-        Iterator pathIterator = this.paths.entrySet().iterator();
-        while (pathIterator.hasNext()) {
-            Map.Entry entry = (Map.Entry)pathIterator.next();
-            Element path = this.appendRequiredElement(paths, "Path");
-            this.addRequiredAttribute(path, "location", (String)entry.getValue());
-            this.addRequiredAttribute(path, "type", (String)entry.getKey());
-            pathIterator.remove();
+        if (this.addPathFlag) {
+        	Element paths = this.appendRequiredElement(target, "Paths");
+          Iterator pathIterator = this.paths.entrySet().iterator();
+          while (pathIterator.hasNext()) {
+              Map.Entry entry = (Map.Entry)pathIterator.next();
+              Element path = this.appendRequiredElement(paths, "Path");
+              this.addRequiredAttribute(path, "location", (String)entry.getValue());
+              this.addRequiredAttribute(path, "type", (String)entry.getKey());
+              pathIterator.remove();
+          }	
         }
         
         Element policies = this.appendRequiredElement(target, "Policies");
@@ -138,6 +140,7 @@ public class DataSetTarget {
      */
     public void addPath(String pathType, String pathLocation) {
         this.paths.put(pathType, pathLocation);
+        this.addPathFlag = true;
     }
     
     public void setNumInstances(String numInstances) {
