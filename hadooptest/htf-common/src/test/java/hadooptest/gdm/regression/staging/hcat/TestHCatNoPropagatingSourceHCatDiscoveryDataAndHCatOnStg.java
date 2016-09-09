@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.staging.hcat;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,14 +30,7 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import static org.junit.Assert.assertTrue;
-
-
-/**
- * TestCase : To test whether hcat metadata only works on staging
- *
- */
-public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends TestSession {
+public class TestHCatNoPropagatingSourceHCatDiscoveryDataAndHCatOnStg extends TestSession {
 
     private ConsoleHandle consoleHandle;
     private WorkFlowHelper workFlowHelper;
@@ -48,8 +42,8 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
     private final static String SOURCE_CLUSTER_NAME = "AxoniteRed";
     private final static String TARGET_CLUSTER_NAME = "KryptoniteRed";
     private static final String DBNAME = "gdmstgtesting";
-    private static final String TABLE_NAME = "metadata_only";
-    private static final String DATA_PATH = "/user/hitusr_1/metadata_only";
+    private static final String TABLE_NAME = "hcatNoPropSrcHCatDiscMix";
+    private static final String DATA_PATH = "/user/hitusr_1/HCatNoPropSrcHCatDiscMix";
     private static final String HEALTH_CHECKUP_API = "/console/api/proxy/health";
     private static final String HCAT_TABLE_LIST_API = "/replication/api/admin/hcat/table/list";
     private static int SUCCESS = 200;
@@ -68,17 +62,20 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 	HTTPHandle httpHandle = new HTTPHandle();
 	jsonUtil = new JSONUtil();
 	this.cookie = httpHandle.getBouncerCookie();
-	dataSetName = "TestHCatMetadataOnlyReplOnStg_" + System.currentTimeMillis();
+	dataSetName = "TestHCatNoPropSrcHCatDiscMixOnStg_" + System.currentTimeMillis();
 	workFlowHelper = new WorkFlowHelper();
 	hCatHelper = new HCatHelper();
     }
 
     @Test
     public void test() {
-	String hostName = getReplicationHostName();
-	if (hostName != "") {
-	    TestSession.logger.info("replication hostName - " + hostName);
-	    if ( checkTableExistsOnSource(hostName) ) {
+	String repHostName = this.getFacetHostName("replication" , "red");
+	String retHostName = this.getFacetHostName("retention" , "red");
+	if (repHostName != "" || retHostName != "") {
+	    TestSession.logger.info("replication hostName - " + repHostName  + "  retention hostName - " +  retHostName);
+	    if ( (hCatHelper.checkTableAndDataPathExists(repHostName, "replication", SOURCE_CLUSTER_NAME, DBNAME, TABLE_NAME, DATA_PATH) == true)
+		    && (hCatHelper.checkTableAndDataPathExists(retHostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME, DATA_PATH) == true) ) {
+	   // if ( checkTableExistsOnSource(repHostName) ) {
 		TestSession.logger.info(this.TABLE_NAME + " exists on " + this.SOURCE_CLUSTER_NAME);
 		checkDataSetExistForGivenPath();
 		createDataset();
@@ -89,9 +86,9 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 
 		// check for replication workflow
 		workFlowHelper.checkWorkFlow(this.dataSetName, "replication", this.datasetActivationTime);
-
+		
 		// check whether partitions exists on the target after replication workflow is success
-		List<String> partitionList = this.hCatHelper.getHCatTablePartitions(hostName, "replication", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME);
+		List<String> partitionList = this.hCatHelper.getHCatTablePartitions(repHostName, "replication", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME);
 		Assert.assertTrue("Partition does not exists on " + TARGET_CLUSTER_NAME  + "  after replication workflow is completed.", partitionList.size() > 0);
 
 		// deactivate the dataset before applying retention to dataset
@@ -108,13 +105,13 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 		workFlowHelper.checkWorkFlow(this.dataSetName, "retention", this.datasetActivationTime);
 		
 		// check parition does not exists after retention is successfull
-		Assert.assertTrue("Expected there is no partitions exists on " + TARGET_CLUSTER_NAME  + "  but looks like it exists after retention " + this.hCatHelper.getHCatTablePartitions(hostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME), 
-			this.hCatHelper.isPartitionExist(hostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME) == false);
+		Assert.assertTrue("Expected there is no partitions exists on " + TARGET_CLUSTER_NAME  + "  but looks like it exists after retention " + this.hCatHelper.getHCatTablePartitions(retHostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME), 
+			this.hCatHelper.isPartitionExist(retHostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME) == false);
 	    } else {
 		Assert.fail( this.TABLE_NAME + " does not exists on " + this.SOURCE_CLUSTER_NAME + "  , please check whether " + this.DBNAME + "  &  " + this.TABLE_NAME +  " exists on " + this.SOURCE_CLUSTER_NAME ); 
 	    }
 	} else {
-	    Assert.fail("No replication host configured for console - " + this.consoleHandle.getConsoleURL());
+	    Assert.fail("Either replication or retention host is not configured for console - " + this.consoleHandle.getConsoleURL());
 	}
     }
 
@@ -163,13 +160,13 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 	generator.setHcatInstanceKey("instancedate");
 	generator.setHcatRunTargetFilter("FALSE");
 	generator.setHcatTableName(TABLE_NAME);
-	generator.setHcatTablePropagationEnabled("TRUE");
+	generator.setHcatTablePropagationEnabled("FALSE");
 
 	DataSetTarget target = new DataSetTarget();
 	target.setName(TARGET_CLUSTER_NAME);
 	target.setDateRangeStart(true, START_INSTANCE_RANGE);
 	target.setDateRangeEnd(true, END_INSTANCE_RANGE);
-	target.setHCatType("HCatOnly");
+	target.setHCatType("Mixed");
 	target.setNumInstances("5");
 	generator.setTarget(target);
 	String dataSetXml = generator.getXml();
@@ -255,7 +252,7 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
      * Query health checkup on console and get red replication hostname
      * @return
      */
-    public String getReplicationHostName() {
+    public String getFacetHostName(String facetName , String coloColor) {
 	String healthCheckUpURL = this.consoleHandle.getCurrentConsoleURL() + HEALTH_CHECKUP_API + "?facet=console&colo=ne1&type=health";
 	String replicationHostName= "";
 	TestSession.logger.info("health checkup api - " + healthCheckUpURL);
@@ -271,9 +268,12 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 		applicationSummary.put(keys.get(i), values.get(i));
 	    }
 	    List<String> hostNames = Arrays.asList(applicationSummary.get("Facet Endpoints").split(" "));
-	    List<String> hostName = hostNames.stream().filter(hostname -> hostname.indexOf("red") > -1 && hostname.indexOf("replication") > -1).collect(Collectors.toList());
+	    List<String> hostName = hostNames.stream().filter(hostname -> hostname.indexOf(coloColor) > -1 && hostname.indexOf(facetName) > -1).collect(Collectors.toList());
+	    if (hostName.size() == 0) {
+		TestSession.logger.error(facetName + " is not configured for " + this.consoleHandle.getConsoleURL());
+	    }
 	    if (hostName.size() > 0) {
-		replicationHostName = hostName.get(0).replaceAll("https://" , "").replaceAll(":4443/replication", "");
+		replicationHostName = hostName.get(0).replaceAll("https://" , "").replaceAll(":4443/" + facetName, "");
 	    }
 	}
 	return replicationHostName;

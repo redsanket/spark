@@ -36,6 +36,8 @@ public class HCatHelper {
     private ConsoleHandle consoleHandle = null;
     private HTTPHandle httpHandle = null;
     private Configuration conf = null;
+    private static final String HCAT_TABLE_LIST_API = "/api/admin/hcat/table/list";
+    private static final String HCAT_TABLE_PARTITION_API = "/api/admin/hcat/partition/list";
 
     public HCatHelper() {
         this.httpHandle = new HTTPHandle();
@@ -131,6 +133,31 @@ public class HCatHelper {
         assertTrue("Failed to get the partition for " + tableName + "  table."  , ( (jsonArray != null) && (jsonArray.size() > 0)) );
         return jsonArray;
     }
+    
+    public List<String> getHCatTablePartitions(String hostName , String facetName , String clusterName , String dbName, String tableName) {
+	List<String> partitions =  new ArrayList<String>();
+	String url = "http://" + hostName + ":4080/" + facetName + HCAT_TABLE_PARTITION_API  + "?dataSource=" + clusterName + "&dbName=" + dbName + "&tablePattern=" + tableName;
+	TestSession.logger.info("get partition url - " + url);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
+	String res = response.getBody().asString();
+	TestSession.logger.info("Response - " + res);
+	JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(res);
+	JSONArray jsonArray = jsonObject.getJSONArray("Partitions");
+	for ( Object obj : jsonArray) {
+	    TestSession.logger.info(obj);
+	    String partitionStr = obj.toString();
+	    JSONObject jsonObject1 =  (JSONObject) JSONSerializer.toJSON(partitionStr);
+	    JSONArray valuesJsonArray = jsonObject1.getJSONArray("Values");
+	    for ( Object instanceDateObj : valuesJsonArray) {
+		String instanceDateStr = instanceDateObj.toString();
+		JSONObject instanceDateJSONObject = (JSONObject) JSONSerializer.toJSON(instanceDateStr);
+		String columnValue = instanceDateJSONObject.getString("Value").trim();
+		TestSession.logger.info("columnValue  = "  + columnValue);
+		partitions.add(columnValue);
+	    }
+	}
+	return partitions;
+    }
 
     /**
      *  Returns schema columns of the given hcat table
@@ -150,7 +177,6 @@ public class HCatHelper {
         return columnsJsonArray;
     } 
     
-    
     public boolean isPartitionExist(String databaseName , String dataSourceName , String tableName) {
         String url = "http://" +  dataSourceName + ":" + this.consoleHandle.getFacetPortNo("console") + "/hcatalog/v1/ddl/database/"+ databaseName + "/table/" + tableName.toLowerCase() + "/partition";
         TestSession.logger.info("Check for table partition url = " + url);
@@ -163,6 +189,22 @@ public class HCatHelper {
             return false;
         }
         return true;
+    }
+    
+    public boolean isPartitionExist(String hostName , String facetName , String clusterName , String dbName, String tableName) {
+	List<String> partitions =  new ArrayList<String>();
+	String url = "http://" + hostName + ":4080/" + facetName + HCAT_TABLE_PARTITION_API  + "?dataSource=" + clusterName + "&dbName=" + dbName + "&tablePattern=" + tableName;
+	TestSession.logger.info("get partition url - " + url);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
+	String res = response.getBody().asString();
+	TestSession.logger.info("Response - " + res);
+	JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(res);
+	JSONArray jsonArray = jsonObject.getJSONArray("Partitions");
+	String partition = jsonObject.getString("Partitions");
+	if (partition.equals("[]")) {
+	    return false;
+	}
+	return true;
     }
     
     /**
@@ -350,5 +392,47 @@ public class HCatHelper {
             fail("Failed to get the table for dataset - " + dataSetName + " Response - " + res);
         }
         return tableName;
+    }
+    
+    public boolean checkTableAndDataPathExists(String hostName, String facetName, String clusterName , String dbName , String tableName , String dataPath) {
+	boolean isTableExists = false , isDataPathExists = false;
+	//String url = "http://" + hostName  + ":4080" + HCAT_TABLE_LIST_API + "?dataSource=" + clusterName + "&dbName=" + dbName  + "&tablePattern="  + tableName;
+	String testURL = "http://" + hostName + ":4080" + "/" + facetName  + HCAT_TABLE_LIST_API + "?dataSource=" + clusterName + "&dbName=" + dbName  + "&tablePattern="  + tableName;
+	TestSession.logger.info("url - " + testURL);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(testURL);
+	JSONArray jsonArray = this.consoleHandle.convertResponseToJSONArray(response, "Tables");
+	if (jsonArray.size() > 0) {
+	    Iterator iterator = jsonArray.iterator();	
+	    while (iterator.hasNext()) {
+		JSONObject dSObject = (JSONObject) iterator.next();
+
+		// check for table name
+		String  tName = dSObject.getString("TableName");
+		TestSession.logger.info("tableName  - " + tableName);
+		isTableExists = tName.equalsIgnoreCase(tableName);
+		
+		if (isTableExists) {
+		    TestSession.logger.info(dbName + " table exists");
+		} else {
+		    TestSession.logger.info(dbName + " table does not exists");
+		}
+
+		// check for path 
+		String location = dSObject.getString("Location");
+		TestSession.logger.info("location - " + location);
+		isDataPathExists = location.indexOf(dataPath) > 0;
+		
+		if (isDataPathExists) {
+		    TestSession.logger.info(dataPath + " path exists");
+		} else {
+		    TestSession.logger.info(dataPath + " path does not exists");
+		}
+
+		if (isTableExists && isDataPathExists) {
+		    return true;
+		}
+	    }
+	}
+	return false;
     }
 }
