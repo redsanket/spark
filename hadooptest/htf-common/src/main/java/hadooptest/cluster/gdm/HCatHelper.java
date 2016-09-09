@@ -396,7 +396,6 @@ public class HCatHelper {
     
     public boolean checkTableAndDataPathExists(String hostName, String facetName, String clusterName , String dbName , String tableName , String dataPath) {
 	boolean isTableExists = false , isDataPathExists = false;
-	//String url = "http://" + hostName  + ":4080" + HCAT_TABLE_LIST_API + "?dataSource=" + clusterName + "&dbName=" + dbName  + "&tablePattern="  + tableName;
 	String testURL = "http://" + hostName + ":4080" + "/" + facetName  + HCAT_TABLE_LIST_API + "?dataSource=" + clusterName + "&dbName=" + dbName  + "&tablePattern="  + tableName;
 	TestSession.logger.info("url - " + testURL);
 	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(testURL);

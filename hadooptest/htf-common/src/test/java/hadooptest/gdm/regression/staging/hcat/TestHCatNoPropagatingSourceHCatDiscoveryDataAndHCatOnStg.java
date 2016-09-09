@@ -75,7 +75,6 @@ public class TestHCatNoPropagatingSourceHCatDiscoveryDataAndHCatOnStg extends Te
 	    TestSession.logger.info("replication hostName - " + repHostName  + "  retention hostName - " +  retHostName);
 	    if ( (hCatHelper.checkTableAndDataPathExists(repHostName, "replication", SOURCE_CLUSTER_NAME, DBNAME, TABLE_NAME, DATA_PATH) == true)
 		    && (hCatHelper.checkTableAndDataPathExists(retHostName, "retention", TARGET_CLUSTER_NAME, DBNAME, TABLE_NAME, DATA_PATH) == true) ) {
-	   // if ( checkTableExistsOnSource(repHostName) ) {
 		TestSession.logger.info(this.TABLE_NAME + " exists on " + this.SOURCE_CLUSTER_NAME);
 		checkDataSetExistForGivenPath();
 		createDataset();
