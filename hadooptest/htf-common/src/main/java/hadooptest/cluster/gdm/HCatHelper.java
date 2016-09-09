@@ -191,7 +191,7 @@ public class HCatHelper {
         return true;
     }
     
-    public boolean isPartitionExist(String hostName , String facetName , String clusterName , String dbName, String tableName) {
+    public boolean doPartitionExist(String hostName , String facetName , String clusterName , String dbName, String tableName) {
 	List<String> partitions =  new ArrayList<String>();
 	String url = "http://" + hostName + ":4080/" + facetName + HCAT_TABLE_PARTITION_API  + "?dataSource=" + clusterName + "&dbName=" + dbName + "&tablePattern=" + tableName;
 	TestSession.logger.info("get partition url - " + url);
@@ -200,8 +200,7 @@ public class HCatHelper {
 	TestSession.logger.info("Response - " + res);
 	JSONObject jsonObject =  (JSONObject) JSONSerializer.toJSON(res);
 	JSONArray jsonArray = jsonObject.getJSONArray("Partitions");
-	String partition = jsonObject.getString("Partitions");
-	if (partition.equals("[]")) {
+	if (jsonArray.size() == 0 ) {
 	    return false;
 	}
 	return true;
@@ -394,6 +393,16 @@ public class HCatHelper {
         return tableName;
     }
     
+    /**
+     * Check whether table exists for a given db on the given facet. If table exist check even for location path or data path of the table
+     * @param hostName
+     * @param facetName
+     * @param clusterName
+     * @param dbName
+     * @param tableName
+     * @param dataPath
+     * @return
+     */
     public boolean checkTableAndDataPathExists(String hostName, String facetName, String clusterName , String dbName , String tableName , String dataPath) {
 	boolean isTableExists = false , isDataPathExists = false;
 	String testURL = "http://" + hostName + ":4080" + "/" + facetName  + HCAT_TABLE_LIST_API + "?dataSource=" + clusterName + "&dbName=" + dbName  + "&tablePattern="  + tableName;
@@ -414,6 +423,7 @@ public class HCatHelper {
 		    TestSession.logger.info(dbName + " table exists");
 		} else {
 		    TestSession.logger.info(dbName + " table does not exists");
+		    return false;
 		}
 
 		// check for path 
@@ -425,6 +435,7 @@ public class HCatHelper {
 		    TestSession.logger.info(dataPath + " path exists");
 		} else {
 		    TestSession.logger.info(dataPath + " path does not exists");
+		    return false;
 		}
 
 		if (isTableExists && isDataPathExists) {

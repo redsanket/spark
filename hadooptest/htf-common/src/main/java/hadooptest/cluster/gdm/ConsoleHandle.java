@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,6 +48,7 @@ public final class ConsoleHandle {
     public static final String RUNNING_WORKFLOW = "/api/workflows/running?exclude=false&joinType=innerJoin";
     public static final String KILL_WORKFLOW = "/api/admin/proxy/workflows";
     public static final String HCAT_TABLE_PARTITION = "replication/api/admin/hcat/partition/list?";
+    private static final String HEALTH_CHECKUP_API = "/console/api/proxy/health";
     
     public HTTPHandle httpHandle = null;
     private Response response;
@@ -409,7 +411,7 @@ public final class ConsoleHandle {
 
         return this.response;
     }
-
+    
     public Response cloneDataSet(String dataSetName, String configDataFile, String originalDataSetName)
     {
         String resource = this.conf.getString("hostconfig.console.datasets.clone.resource")  + "?action=Create&operation=1";
@@ -2011,4 +2013,67 @@ public final class ConsoleHandle {
         return version;
     }
     
+    /**
+     * Query health checkup on console and get red replication hostname
+     * @return
+     */
+    public String getFacetHostName(String facetName , String coloColor , String coloName) {
+	String healthCheckUpURL = this.getCurrentConsoleURL() + HEALTH_CHECKUP_API + "?facet=console&colo="+ coloName + "&type=health";
+	String replicationHostName= "";
+	TestSession.logger.info("health checkup api - " + healthCheckUpURL);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(healthCheckUpURL);
+	if (response != null) {
+	    String resString = response.asString();
+	    TestSession.logger.info("response = " + resString);
+	    JsonPath jsonPath = new JsonPath(resString);
+	    Map<String , String>applicationSummary = new HashMap<String, String>();
+	    List<String> keys = jsonPath.get("ApplicationSummary.Parameter");
+	    List<String> values = jsonPath.get("ApplicationSummary.Value");
+	    for(int i = 0;i<keys.size() ; i++){
+		applicationSummary.put(keys.get(i), values.get(i));
+	    }
+	    List<String> hostNames = Arrays.asList(applicationSummary.get("Facet Endpoints").split(" "));
+	    List<String> hostName = hostNames.stream().filter(hostname -> hostname.indexOf(coloColor) > -1 && hostname.indexOf(facetName) > -1).collect(Collectors.toList());
+	    if (hostName.size() == 0) {
+		TestSession.logger.error(facetName + " is not configured for " + this.getConsoleURL());
+	    }
+	    if (hostName.size() > 0) {
+		replicationHostName = hostName.get(0).replaceAll("https://" , "").replaceAll(":4443/" + facetName, "");
+	    }
+	}
+	return replicationHostName;
+    }
+
+    /**
+     * Check whether any dataset(s) exists for the given path, on the given cluster
+     * This is to avoid path collision when creating a new dataset.
+     */
+    public List<String> checkDataSetExistForGivenPath(String dataPath , String clusterName) {
+	List<String> dataSetNameList = new ArrayList<String>();
+	String url = this.getConsoleURL() + "/console/api/datasets/view?prefix=" + dataPath +  "&dataSource=" + clusterName;
+	TestSession.logger.info("url - " + url);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(url);
+	if (response != null ) {
+	    dataSetNameList = response.getBody().jsonPath().getList("DatasetsResult.DatasetName");
+	}
+	return dataSetNameList;
+    }
+    
+    /**
+     * Deactivate and remove dataset
+     * @param dataSetName
+     */
+    public void deActivateAndRemoveDataSet(String dataSetName) {
+	
+	// deactivate dataset
+	Response response = this.deactivateDataSet(dataSetName);
+	assertTrue("Failed to deactivate the dataset " +dataSetName  , response.getStatusCode() == SUCCESS);
+	TestSession.logger.info("deactivate   " +  dataSetName  + "  dataset");
+
+	// wait for some time, so that changes are reflected in the dataset specification file i,e active to inactive
+	this.sleep(3000);
+
+	this.removeDataSet(dataSetName);
+	TestSession.logger.info("Deleted " + dataSetName  + " dataset");
+    }
 }
