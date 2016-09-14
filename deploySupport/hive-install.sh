@@ -101,9 +101,9 @@ else
   exit 1
 fi
 
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE -branch quarantine
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF -branch quarantine
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER -branch quarantine
 
 
 # hive yinst sets
