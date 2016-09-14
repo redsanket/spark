@@ -85,12 +85,13 @@ if [ $RC -eq 0 ]; then
   echo $ARTI_URI
 
   # get component version to use from Artifactory
-  PACKAGE_VERSION_HIVE=hive-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+  HIVE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+  PACKAGE_VERSION_HIVE="hive-${HIVE_VERSION}"
 
   # GRIDCI-1525
   if [ "$REFERENCE_CLUSTER" == "LATEST" ]; then
-      echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${PACKAGE_VERSION_HIVE}'"
-      PACKAGE_VERSION_HIVE_CONF="hive_conf-${PACKAGE_VERSION_HIVE}"
+      echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${HIVE_VERSION}'"
+      PACKAGE_VERSION_HIVE_CONF="hive_conf-${HIVE_VERSION}"
   else
       PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   fi
