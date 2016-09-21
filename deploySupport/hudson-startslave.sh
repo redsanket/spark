@@ -97,6 +97,7 @@ fi
 export HADOOP_27=$HADOOP_27
 
 HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
+YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='default'}
 if [[ "$HADOOP_27" == "true" ]]; then
 
     # gridci-1465, allow testing yjava_jdk version 8u102
