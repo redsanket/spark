@@ -312,7 +312,9 @@ echo "installgrid.sh: run install steps scripts:"
 echo "==============================================="
 # Be careful not to name any variable in any downstream scripts with the name
 # $script because it will override the $script variable here.
-for script in ${base}/[0-9][0-9]*-installsteps-*.sh
+# for script in ${base}/[0-9][0-9]*-installsteps-*.sh
+# Skip over HIT tests. HIT tests are not being run anymore.
+for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh
 do
   if [[  -e $script ]]
   then
@@ -324,12 +326,13 @@ do
        continue;
     fi
 
-    if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
-        if [[ $script_sn =~ "-HIT-" ]]; then
-            echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
-            continue
-        fi
-    fi
+    # HIT tests are not being run anymore.
+    # if [[ $script_sn =~ "-HIT-" ]]; then
+    #     if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
+    #         echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
+    #         continue
+    #     fi
+    # fi
 
     #banner running $f
     set +x

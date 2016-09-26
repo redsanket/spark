@@ -96,16 +96,24 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # exist which will get installed, and we don't want that (legacy from
 # 0.23 hadoop)
 #
+set -x
 yinst i ygrid_cacert
 
 #
 ## install oozie
 #
 
-# gridci-924, ygrid_sharelib pkg branches are being fiddled with...
-yinst i ygrid_sharelib -br current 
-yinst i hadoopgplcompression-1.0.2.2.1209201519
+# # debug
+# # kinit as dfsload for hdfs /tmp/oozie setup
+# kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
+# /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls hdfs:/tmp/ygrid_sharelib_dir/
 
+# gridci-924, ygrid_sharelib pkg branches are being fiddled with...
+# GRIDCI-1537
+yinst i ygrid_sharelib -br nightly
+
+yinst i hadoopgplcompression-1.0.2.2.1209201519
+set +x
 
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_OOZIE is: $REFERENCE_CLUSTER"
