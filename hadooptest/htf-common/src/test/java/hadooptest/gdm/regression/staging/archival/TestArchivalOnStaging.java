@@ -65,8 +65,8 @@ public class TestArchivalOnStaging  extends TestSession {
 			Assert.fail( ARCHIVAL_CLUSTER_NAME + " archival cluster does not exists.");
 		}
 		
-		if ( this.consoleHandle.checkFacetRunning("replication", "red", "bf1") == false ) {
-		    Assert.fail("Looks like Red replication facet in bf1 color is down.");
+		if ( this.consoleHandle.isFacetRunning("replication", "red", "bf1") == false ) {
+		    Assert.fail("Looks like Red replication facet in bf1 colo is down.");
 		}
 	}
 

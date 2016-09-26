@@ -52,8 +52,8 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 	workFlowHelper = new WorkFlowHelper();
 	hCatHelper = new HCatHelper();
 	
-	if ( this.consoleHandle.checkFacetRunning("replication", "red", "bf1") == false ) {
-	    Assert.fail("Looks like Red replication facet in bf1 color is down.");
+	if ( this.consoleHandle.isFacetRunning("replication", "red", "bf1") == false ) {
+	    Assert.fail("Looks like Red replication facet in bf1 colo is down.");
 	}
     }
 
