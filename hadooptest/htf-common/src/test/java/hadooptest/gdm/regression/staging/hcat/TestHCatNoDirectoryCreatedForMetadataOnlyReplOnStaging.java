@@ -51,6 +51,10 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyReplOnStaging extends Test
 	dataSetName = "TestHCatMetadataOnlyReplOnStg_" + System.currentTimeMillis();
 	workFlowHelper = new WorkFlowHelper();
 	hCatHelper = new HCatHelper();
+	
+	if ( this.consoleHandle.isFacetRunning("replication", "red", "bf1") == false ) {
+	    Assert.fail("Looks like Red replication facet in bf1 colo is down.");
+	}
     }
 
     @Test
