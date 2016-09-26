@@ -2043,6 +2043,37 @@ public final class ConsoleHandle {
 	}
 	return replicationHostName;
     }
+    
+    /**
+     * Get facet status, through health checkup  
+     * @param facetName 
+     * @param coloColor 
+     * @param coloName 
+     * @return status of the facet ( running, down etc)
+     */
+    public boolean checkFacetRunning(String facetName , String coloColor , String coloName) {
+	boolean isFacetRunning = false;
+	String healthCheckUpURL = this.getCurrentConsoleURL() + HEALTH_CHECKUP_API + "?facet=" + facetName + "&colo="+ coloName + "&type=health";
+	TestSession.logger.info("health checkup api - " + healthCheckUpURL);
+	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(healthCheckUpURL);
+	if (response != null) {
+	    String resString = response.asString();
+	    TestSession.logger.info("response = " + resString);
+	    JsonPath jsonPath = new JsonPath(resString);
+	    Map<String , String>applicationSummary = new HashMap<String, String>();
+	    List<String> keys = jsonPath.get("ApplicationSummary.Parameter");
+	    List<String> values = jsonPath.get("ApplicationSummary.Value");
+	    for(int i = 0;i<keys.size() ; i++){
+		applicationSummary.put(keys.get(i), values.get(i));
+	    }
+	    if (applicationSummary.containsKey("ApplicationStatus"))  {
+		if ( applicationSummary.get("ApplicationStatus").trim().equalsIgnoreCase("Running") == true){
+		    isFacetRunning = true;    
+		}
+	    }
+	}
+	return isFacetRunning;
+    }
 
     /**
      * Check whether any dataset(s) exists for the given path, on the given cluster

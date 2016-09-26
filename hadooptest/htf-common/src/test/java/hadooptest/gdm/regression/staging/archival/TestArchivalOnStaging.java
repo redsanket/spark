@@ -64,6 +64,10 @@ public class TestArchivalOnStaging  extends TestSession {
 		if (! archivalStores.contains(ARCHIVAL_CLUSTER_NAME)) {
 			Assert.fail( ARCHIVAL_CLUSTER_NAME + " archival cluster does not exists.");
 		}
+		
+		if ( this.consoleHandle.checkFacetRunning("replication", "red", "bf1") == false ) {
+		    Assert.fail("Looks like Red replication facet in bf1 color is down.");
+		}
 	}
 
 	@Test
