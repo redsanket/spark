@@ -99,18 +99,19 @@ export HADOOP_27=$HADOOP_27
 HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
 if [[ "$HADOOP_27" == "true" ]]; then
 
-    # gridci-1557, make jdk8 u102 the default, so changing YJAVA_JDK_VERSION behavior to be:
-    #              if param empty, use Dist tagged version
-    #              elif param has 'default', use u102
-    #              else use the version sent in from jenkins 
+    # gridci-1557, make jdk8 u102 the 'qedefault', so changing YJAVA_JDK_VERSION behavior to be:
+    #              if param empty OR 'qedefault', use u102
+    #              elif param has 'disttag', use Dist tagged pkg
+    #              else use the version sent in from jenkins
     # gridci-1465, allow testing yjava_jdk version 8u102
-    if [[ ! -z $YJAVA_JDK_VERSION ]]; then
+    if [[ $YJAVA_JDK_VERSION =~ "disttag" ]]; then
       echo "Using JDK version from Dist tag"
       export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk yspark_yarn_shuffle"
     else
-      echo "Not adding yjava_jdk to HADOOP_CORE_PACKAGES in order to use $YJAVA_JDK_VERSION"
+      echo "Not adding yjava_jdk to HADOOP_CORE_PACKAGES in order to use JDK specified by user" 
       export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yspark_yarn_shuffle"
     fi
+
 else
     export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk gridjdk"
 fi
@@ -122,19 +123,20 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     for i in $HADOOP_CORE_PKGS; do
         HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
 
-        # gridci-1557, make jdk8 u102 the default, so changing YJAVA_JDK_VERSION behavior to be:
-        #              if param empty, use Dist tagged version
-        #              elif param has 'default', use u102
-        #              else use the version sent in from jenkins 
+        # gridci-1557, make jdk8 u102 the 'qedefault', so changing YJAVA_JDK_VERSION behavior to be:
+        #              if param empty OR 'qedefault', use u102
+        #              elif param has 'disttag', use Dist tagged pkg
+        #              else use the version sent in from jenkins
         # gridci-1465, allow testing yjava_jdk version 8u102
-        if [[ -z $YJAVA_JDK_VERSION  ]]; then
-          echo "Using yjava_jdk from Dist tag" 
-        elsif [[ $YJAVA_JDK_VERSION =~ "default" ]]; then
-          echo "Using yjava_jdk yjava_jdk-1.8.0_102.70" 
-          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG yjava_jdk-1.8.0_102.70" 
+        if [[ -z $YJAVA_JDK_VERSION || $YJAVA_JDK_VERSION =~ "qedefault"  ]]; then
+          echo "Using yjava_jdk yjava_jdk-1.8.0_102.70"
+          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG yjava_jdk-1.8.0_102.70"
+        elif [[ $YJAVA_JDK_VERSION =~ "disttag" ]]; then
+          echo "Using yjava_jdk from Dist tag"
         else
-          echo "Using yjava_jdk $YJAVA_JDK_VERSION" 
-          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  $YJAVA_JDK_VERSION" 
+          # use arbitrary jdk version sent in from jenkins
+          echo "Using yjava_jdk $YJAVA_JDK_VERSION"
+          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  $YJAVA_JDK_VERSION"
         fi
 
         HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
