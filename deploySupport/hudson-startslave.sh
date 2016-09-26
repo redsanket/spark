@@ -52,6 +52,7 @@ echo "PATH = '$PATH'"
 echo =========================================
 
 export DATESTRING=`date +%y%m%d%H%M`
+set -o pipefail
 
 # Setup and cleanup artifacts directory
 artifacts_dir="${WORKSPACE}/artifacts"
@@ -363,10 +364,13 @@ done
 
 # Fetch build artifacts from the admin box
 function fetch_artifacts() {
+    echo "FETCH ARTIFACTS"
     set -x
     scp $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
-    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
     cat $artifacts_dir/manifest.txt
+    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
+    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
+    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -461,7 +465,13 @@ if [ "$CLEANUP_ON_EXIT" = "true" ]; then
     )| ssh $ADMIN_HOST
 fi
 
-fetch_artifacts
+# Use the same banner for logging stack component deploy as the other deploy steps
+banner() {
+    echo "*********************************************************************************"
+    echo "***" `TZ=PST8PDT date ; echo // ; TZ=  date `
+    echo "***" $*
+    echo "*********************************************************************************"
+}
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
@@ -492,13 +502,39 @@ function deploy_stack() {
     if [ "$STACK_COMP_VERSION" == "none" ]; then
         echo "INFO: Nothing to do since STACK_COMP_VERSION is set to 'none'"
     else
+        # check we got a valid reference cluster
+        REFERENCE_CLUSTER=$STACK_COMP_VERSION
+        if [[ "$STACK_COMP" == "pig" ]]; then
+            packagename='pig_latest'
+        elif [[ "$STACK_COMP" == "oozie" ]]; then
+            packagename='yoozie'
+        else
+            packagename=${STACK_COMP}
+        fi
+        RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+        if [ $? -eq 0 ]; then
+            # get Artifactory URI and log it
+            ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+            echo "Artifactory URI with most recent versions:"
+            echo $ARTI_URI
+            # look up stack component version for AR in artifactory
+            set -x
+            PACKAGE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b ${STACK_COMP} -p $packagename`
+            set +x
+        else
+            echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
+            exit 1
+        fi
+
+        banner "START INSTALL STEP: Stack Component ${STACK_COMP}"
         set -x
-        time ./$STACK_COMP_SCRIPT $CLUSTER $STACK_COMP_VERSION
+        time ./$STACK_COMP_SCRIPT $CLUSTER $STACK_COMP_VERSION 2>&1 | tee $artifacts_dir/deploy_stack_${STACK_COMP}-${PACKAGE_VERSION}.log
         st=$?
         set +x
         if [ $st -ne 0 ]; then
             echo "ERROR: component install for ${STACK_COMP} failed!"
         fi
+        banner "END INSTALL STEP: Stack Component ${STACK_COMP}: status='$st'"
     fi
     end=`date +%s`
     h_end=`date +%Y/%m/%d-%H:%M:%S`
@@ -507,9 +543,19 @@ function deploy_stack() {
     cat $artifacts_dir/timeline.log
 }
 
+echo "CHECK IF WE NEED TO INSTALL STACK COMPONENTS:"
+# For stack component deploys, make sure we have tools to talk to artifactory
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils!"
+  exit 1
+fi
 deploy_stack pig $STACK_COMP_VERSION_PIG pig-install-check.sh
 deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
 deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
+
+fetch_artifacts
 
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
