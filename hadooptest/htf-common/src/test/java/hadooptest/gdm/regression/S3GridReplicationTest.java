@@ -117,10 +117,7 @@ public class S3GridReplicationTest {
         target.setReplicationStrategy("DistCp");
         generator.setTarget(target);
         
-        generator.addParameter("uselocalkeys3.keydb.secretkey.keyname", "gdmdev_test1_secret");
-        generator.addParameter("uselocalkeys3.keydb.keyid.keyname", "gdmdev_test1_access");
-        generator.addParameter("s3.keydb.directory", "gdmtest");
-        generator.addParameter("s3service.https-only", "false");
+        generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
         
         generator.setGroup("jaggrp");
         generator.setOwner("jagpip");
