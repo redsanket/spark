@@ -96,18 +96,8 @@ else
 fi
 export HADOOP_27=$HADOOP_27
 
-HADOOP_CORE_BASE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon yspark_yarn_shuffle"
+HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon yspark_yarn_shuffle"
 YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
-
-# gridci-1557, make jdk8 u102 the 'qedefault', if user didn't pass in another jdk to use, 
-# add yjava_jdk to base pkgs so it gets pulled from Dist tag 
-if [[ $YJAVA_JDK_VERSION == "disttag" ]]; then
-  echo "Using JDK version from Dist tag"
-  export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk" 
-else
-  echo "Using JDK from either qedefault or jenkins YJAVA_JDK_VERSION"
-  export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS" 
-fi
 
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
@@ -127,7 +117,8 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
           echo "Using yjava_jdk $JDK_QEDEFAULT" 
           HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  $JDK_QEDEFAULT"
         elif [[ $YJAVA_JDK_VERSION == "disttag" ]]; then
-          echo "Using yjava_jdk from Dist tag"
+          echo "Using JDK version from Dist tag"
+          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  yjava_jdk"
         else
           # use arbitrary jdk version sent in from jenkins
           echo "Using yjava_jdk $YJAVA_JDK_VERSION"
