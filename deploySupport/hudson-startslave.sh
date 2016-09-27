@@ -126,7 +126,7 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     if [[ $YJAVA_JDK_VERSION == "qedefault"  ]]; then
       echo "Using yjava_jdk $JDK_QEDEFAULT"
       HADOOP_INSTALL_STRING_PKG+=" $JDK_QEDEFAULT"
-    else 
+    elif [[ $YJAVA_JDK_VERSION != "disttag" ]]; then 
       # use arbitrary jdk version sent in from jenkins
       echo "Using yjava_jdk $YJAVA_JDK_VERSION"
       if [[ $YJAVA_JDK_VERSION =~ "^yjava_jdk-1" ]]; then
