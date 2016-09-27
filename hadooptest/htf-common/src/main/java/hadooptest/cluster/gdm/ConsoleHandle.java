@@ -2051,8 +2051,8 @@ public final class ConsoleHandle {
      * @param coloName 
      * @return status of the facet ( running, down etc)
      */
-    public boolean checkFacetRunning(String facetName , String coloColor , String coloName) {
-	boolean isFacetRunning = false;
+    public boolean isFacetRunning(String facetName , String coloColor , String coloName) {
+	boolean flag = false;
 	String healthCheckUpURL = this.getCurrentConsoleURL() + HEALTH_CHECKUP_API + "?facet=" + facetName + "&colo="+ coloName + "&type=health";
 	TestSession.logger.info("health checkup api - " + healthCheckUpURL);
 	com.jayway.restassured.response.Response response = given().cookie(this.httpHandle.cookie).get(healthCheckUpURL);
@@ -2068,11 +2068,11 @@ public final class ConsoleHandle {
 	    }
 	    if (applicationSummary.containsKey("ApplicationStatus"))  {
 		if ( applicationSummary.get("ApplicationStatus").trim().equalsIgnoreCase("Running") == true){
-		    isFacetRunning = true;    
+		    flag = true;    
 		}
 	    }
 	}
-	return isFacetRunning;
+	return flag;
     }
 
     /**
