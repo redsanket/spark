@@ -103,7 +103,10 @@ YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 # add yjava_jdk to base pkgs so it gets pulled from Dist tag 
 if [[ $YJAVA_JDK_VERSION == "disttag" ]]; then
   echo "Using JDK version from Dist tag"
-  export HADOOP_CORE_PKGS+=" yjava_jdk"
+  export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS yjava_jdk" 
+else
+  echo "Using JDK from either qedefault or jenkins YJAVA_JDK_VERSION"
+  export HADOOP_CORE_PKGS="$HADOOP_CORE_BASE_PKGS" 
 fi
 
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
