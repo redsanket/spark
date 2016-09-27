@@ -128,7 +128,12 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
         else
           # use arbitrary jdk version sent in from jenkins
           echo "Using yjava_jdk $YJAVA_JDK_VERSION"
-          HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  $YJAVA_JDK_VERSION"
+          if [[ $YJAVA_JDK_VERSION =~ "^yjava_jdk-1" ]]; then 
+            HADOOP_INSTALL_STRING_PKG="$HADOOP_INSTALL_STRING_PKG  $YJAVA_JDK_VERSION"
+          else
+            echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-1, got: $YJAVA_JDK_VERSION"
+            exit 1
+          fi
         fi
 
         HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
