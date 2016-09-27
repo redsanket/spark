@@ -102,7 +102,7 @@ HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon yspark
 # version can be pulled along with rest of core pkgs
 if [[ $YJAVA_JDK_VERSION == "disttag" ]]; then
   echo "Using JDK version from Dist tag"
-  HADOOP_CORE_PKG+=" yjava_jdk"
+  HADOOP_CORE_PKGS+=" yjava_jdk"
 fi
 
 export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
