@@ -489,6 +489,8 @@ public class SparkRunSparkSubmit extends App {
         cmd.add("spark.executorEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
         cmd.add("--conf");
         cmd.add("spark.yarn.appMasterEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
+        cmd.add("--conf");
+        cmd.add("spark.sql.warehouse.dir=" + "file:${system:user.dir}/spark-warehouse");
 
         for(Map.Entry<String, String> confEntry : this.additionalConfs.entrySet()) {
             String confName = confEntry.getKey();
