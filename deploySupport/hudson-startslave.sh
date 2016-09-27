@@ -126,12 +126,12 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # gridci-1465, allow testing yjava_jdk version 8u102
     if [[ $YJAVA_JDK_VERSION == "qedefault"  ]]; then
       echo "Using yjava_jdk $JDK_QEDEFAULT"
-      HADOOP_INSTALL_STRING_PKG+=" $JDK_QEDEFAULT"
+      HADOOP_INSTALL_STRING+=" $JDK_QEDEFAULT"
     elif [[ $YJAVA_JDK_VERSION != "disttag" ]]; then 
       # use arbitrary jdk version sent in from jenkins
       echo "Using yjava_jdk $YJAVA_JDK_VERSION"
       if [[ $YJAVA_JDK_VERSION =~ "^yjava_jdk-1" ]]; then
-        HADOOP_INSTALL_STRING_PKG+=" $YJAVA_JDK_VERSION"
+        HADOOP_INSTALL_STRING+=" $YJAVA_JDK_VERSION"
       else
         echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-1, got: $YJAVA_JDK_VERSION"
         exit 1
