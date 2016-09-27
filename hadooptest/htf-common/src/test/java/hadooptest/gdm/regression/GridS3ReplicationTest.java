@@ -116,10 +116,7 @@ public class GridS3ReplicationTest {
         target.setReplicationStrategy("DistCp");
         generator.setTarget(target);
         
-        generator.addParameter("uselocalkeys3.keydb.secretkey.keyname", "gdmdev_test1_secret");
-        generator.addParameter("uselocalkeys3.keydb.keyid.keyname", "gdmdev_test1_access");
-        generator.addParameter("s3.keydb.directory", "gdmtest");
-        generator.addParameter("s3service.https-only", "false");
+        generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
         generator.addParameter("working.dir", "upload-test-bucket-1/user/daqload/daqtest/tmp1/");
         
         generator.setGroup("jaggrp");
@@ -155,12 +152,12 @@ public class GridS3ReplicationTest {
     }
     
     private void instanceExistsForFeed(String instance, boolean exists, String feed) throws Exception {
-        String path = "s3n://upload-test-bucket-1/project-foo/" + this.dataSetName + "/" + feed + "/" + INSTANCE1;
+        String path = "s3a://upload-test-bucket-1/project-foo/" + this.dataSetName + "/" + feed + "/" + INSTANCE1;
         boolean found = this.consoleHandle.s3FilesExist(this.targetGrid, path, this.dataSetName);
         Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
 
         if (found) {
-            path = "s3n://upload-test-bucket-1/project-foo/" + this.dataSetName + "/" + feed + "/" + INSTANCE1 + "/sometext.txt";
+            path = "s3a://upload-test-bucket-1/project-foo/" + this.dataSetName + "/" + feed + "/" + INSTANCE1 + "/sometext.txt";
             found = this.consoleHandle.s3FilesExist(this.targetGrid, path, this.dataSetName);
             Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
         }
