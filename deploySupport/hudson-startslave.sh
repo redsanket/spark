@@ -140,6 +140,8 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
 
+    # gridci-1566, remove the unneeded "|sed 's/ *//'" from below 'echo', this does 
+    # nothing and 'echo' itself reduces whitespace
     HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
     export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
 
