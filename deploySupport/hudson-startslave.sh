@@ -140,14 +140,16 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
 
-    HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING|sed 's/ *//'`
+    # gridci-1566, remove the unneeded "|sed 's/ *//'" from below 'echo', this does 
+    # nothing and 'echo' itself reduces whitespace
+    HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
     export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
 
     for i in $HADOOP_MVN_PKGS; do
         HADOOP_MVN_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
         HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
     done
-    HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING|sed 's/ *//'`
+    HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING`
     export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
 
     export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
@@ -178,14 +180,14 @@ else
             HADOOP_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
             HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
         done
-        HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING|sed 's/ *//'`
+        HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
         export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
 
         for i in $HADOOP_MVN_PKGS; do
             HADOOP_MVN_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
             HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
         done
-        HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING|sed 's/ *//'`
+        HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING`
         export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
 
         export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
