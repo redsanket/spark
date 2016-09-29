@@ -1,0 +1,33 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkHBaseViaOozieTest'>
+  <global>
+   <job-tracker>${jobTracker}</job-tracker>
+   <name-node>${nameNode}</name-node>
+  </global>
+    <credentials>
+        <credential name="hbase.cert" type="hbase"></credential>
+    </credentials>
+    <start to="spark-node"/>
+    <action name='spark-node' cred="hbase.cert">
+   <spark xmlns="uri:oozie:spark-action:0.2">
+       <configuration>
+           <property>
+               <name>oozie.action.sharelib.for.spark</name>
+               <value>spark_latest,hbase_current,hbase_conf_reluxred</value>
+           </property>
+       </configuration>
+       <master>yarn</master>
+       <mode>cluster</mode>
+       <name>SparkHBaseViaOozieTest</name>
+       <class>com.yahoo.spark.starter.SparkClusterHBase</class>
+       <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+       <spark-opts>--queue default --conf "spark.yarn.security.tokens.hbase.enabled=false" --conf "spark.yarn.security.tokens.hive.enabled=false"</spark-opts>
+       <arg>${tableName}</arg>
+   </spark>
+   <ok to="end" />
+   <error to="fail" />
+    </action>
+   <kill name="fail">
+        <message>Script failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+   </kill>
+   <end name='end' />
+</workflow-app>
