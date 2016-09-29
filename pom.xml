@@ -13,6 +13,7 @@
         <spark.scala.version>2.11</spark.scala.version>
         <scala.version>2.11.8</scala.version>
         <java.version>1.7</java.version>
+        <hbase.version>0.94.6.7.1304181342</hbase.version>
     </properties>
 
     <repositories>
@@ -71,6 +72,12 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scalap</artifactId>
             <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
