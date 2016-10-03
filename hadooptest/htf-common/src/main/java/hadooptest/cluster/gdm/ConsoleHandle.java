@@ -1787,22 +1787,10 @@ public final class ConsoleHandle {
         String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
         TestSession.logger.info("testURL = " + testURL);        
         com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
-        String responseString = response.getBody().asString();
-        TestSession.logger.info("Response  : " + responseString);
-        JSONObject versionObj =  (JSONObject) JSONSerializer.toJSON(responseString.toString());
-        Object obj = versionObj.get("HadoopClusterVersions");
-        if (obj instanceof JSONArray) {
-            JSONArray sizeLimitAlertArray = versionObj.getJSONArray("HadoopClusterVersions");
-            Iterator iterator = sizeLimitAlertArray.iterator();
-            while (iterator.hasNext()) {
-                JSONObject jsonObject = (JSONObject) iterator.next();
-                String dataSourceName = jsonObject.getString("DataStoreName").trim();
-                if (! dataSourceName.startsWith("gdm")) {
-                    TestSession.logger.info("dataSourceName  =  " + dataSourceName);
-                    gridNames.add(dataSourceName);
-                }
-            }
-        }
+        List<String> tempGridNameList = response.jsonPath().getList("HadoopClusterVersions.DataStoreName");
+        
+        // filter any datastore staring with gdm and S3 or s3
+        gridNames = tempGridNameList.stream().filter(list-> ! (list.startsWith("gdm") || list.startsWith("S3") || list.startsWith("s3"))).collect(Collectors.toList());
         return gridNames;
     }
     
@@ -1812,6 +1800,7 @@ public final class ConsoleHandle {
      */
     public String getClusterNameNodeName(String clusterName) {
         String nameNodeName = null;
+        TestSession.logger.info("clusterName  - " + clusterName);
         
         String xml = this.getDataSourceXml(clusterName);
         TestSession.logger.debug("*****************xml = " + xml);
