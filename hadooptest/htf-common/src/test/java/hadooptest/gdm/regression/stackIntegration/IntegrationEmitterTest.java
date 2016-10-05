@@ -17,6 +17,9 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
 import hadooptest.gdm.regression.integration.CreateIntegrationDataSet;
 import hadooptest.gdm.regression.integration.clusterHealth.CheckClusterHealth;
+import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import net.sf.json.JSONArray;
@@ -109,7 +114,7 @@ public class IntegrationEmitterTest  extends TestSession {
 		System.exit(1);
 	    }
 	}
-
+	
 	createIntegrationDataSetObj = new CreateIntegrationDataSet();
 	createIntegrationDataSetObj.setHcatType(TARGET_START_TYPE_DATAONLY);
 	createIntegrationDataSetObj.setTargeList(this.targetClusterList);
@@ -121,7 +126,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	this.cookie = httpHandle.getBouncerCookie();
 	this.workFlowHelper = new WorkFlowHelper();
     }
-
+    
     @Test
     public void integrationTest() throws Exception {
 
@@ -146,8 +151,9 @@ public class IntegrationEmitterTest  extends TestSession {
 	// check for replication workflow is success for each instance
 	for (String date : dates ) {
 	    this.workFlowHelper.checkWorkFlow(this.dataSetName , "replication" , datasetActivationTime , date);
+	    this.consoleHandle.sleep(2000);
 	}
-
+	
 	for ( String clusterName : this.targetClusterList) {
 
 	    // Check whether _SUCCESS file exists.
@@ -191,7 +197,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	feed_sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 	long dataSetHourlyTimeStamp = Long.parseLong(feed_sdf.format(dataSetCal.getTime()));
 	String cName = this.targetClusterList.get(0).trim();
-	String dSName = cName + "_Integration_Testing_DS_temp_" + dataSetHourlyTimeStamp + "00";
+	String dSName = cName + "_Integration_Testing_DS_" + dataSetHourlyTimeStamp + "00";
 	return dSName;
     }
 
