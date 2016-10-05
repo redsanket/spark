@@ -151,9 +151,9 @@ public class FsckResponseBO {
 				+ "([\\w\\-\\.]+)\\:"
 				+ "([\\w\\_]+)\\s+"
 				+ "len=([\\d]+)\\s+"
-				+ "\\*repl=([\\d]+)\\s+"
+				+ "Live_repl=([\\d]+)\\s+"
 				+ "\\[\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+):\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+\\]";
-		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+\\*repl=([\\d]+)";
+		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+\\Live_repl=([\\d]+)";
 		int sequenceNumber;
 		String blockPool;
 		String blockName;

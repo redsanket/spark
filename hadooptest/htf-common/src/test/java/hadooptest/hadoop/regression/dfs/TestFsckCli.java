@@ -327,13 +327,15 @@ public class TestFsckCli extends DfsTestsBaseClass {
                 dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-		GenericCliResponseBO responseBO = dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
+
+		// gridui-1398, use 'wait' for safemode instead of just 'get'
+		GenericCliResponseBO responseBO = dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "wait",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
 		if ( responseBO.response.contains("Safemode is OFF") )
 		  TestSession.logger.info("Safemode is OFF as expected");
 		else
-		  TestSession.logger.error("Safemode is still ON!!");
+		  TestSession.logger.error("Safemode is still ON!! Got responseBO of: " + responseBO.response);
 		  
 	}
 
