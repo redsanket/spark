@@ -146,13 +146,14 @@ public class FsckResponseBO {
 		//
 		// private static final String blocksAndRacksPattern =
 		// "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+repl=([\\d]+)\\s+\\[\\/([\\d\\.]+)\\/([\\d\\.\\:]+),\\s+\\/([\\d\\.]+)\\/([\\d\\.\\:]+),\\s+\\/([\\d\\.]+)\\/([\\d\\.\\:]+)\\]";
+		// gridci-1398, 2.8 tweaked the fsck header slightly, "repl" became "Live_repl"
 		private static final String blocksAndRacksPattern = "([\\d]+)\\.\\s+"
 				+ "([\\w\\-\\.]+)\\:"
 				+ "([\\w\\_]+)\\s+"
 				+ "len=([\\d]+)\\s+"
-				+ "repl=([\\d]+)\\s+"
+				+ "*repl=([\\d]+)\\s+"
 				+ "\\[\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+):\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+\\]";
-		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+repl=([\\d]+)";
+		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+*repl=([\\d]+)";
 		int sequenceNumber;
 		String blockPool;
 		String blockName;
