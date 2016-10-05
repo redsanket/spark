@@ -175,7 +175,7 @@ public class FsckResponseBO {
 	TestSession.logger.info("PHW sequence: " + this.sequenceNumber);
 				this.blockPool = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$2");
-	TestSession.logger.info("PHW blockpool: " + this.blockpool);
+	TestSession.logger.info("PHW blockpool: " + this.blockPool);
 				this.blockName = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$3");
 	TestSession.logger.info("PHW blockname: " + this.blockName);
@@ -208,7 +208,7 @@ public class FsckResponseBO {
 	TestSession.logger.info("PHW sequence2: " + this.sequenceNumber);
 				this.blockPool = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$2");
-	TestSession.logger.info("PHW blockpool2: " + this.blockpool);
+	TestSession.logger.info("PHW blockpool2: " + this.blockPool);
 				this.blockName = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$3");
 	TestSession.logger.info("PHW blockname2: " + this.blockName);

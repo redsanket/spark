@@ -327,7 +327,7 @@ public class TestFsckCli extends DfsTestsBaseClass {
                 dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "leave",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
-		GenericCliResponseBO responseBO = new GenericCliResponseBO(); 
+		GenericCliResponseBO responseBO = new dfsCommonCli.GenericCliResponseBO(); 
                 responseBO = dfsCommonCli.dfsadmin(EMPTY_ENV_HASH_MAP, Report.NO, "get",
                                 ClearQuota.NO, SetQuota.NO, 0, ClearSpaceQuota.NO,
                                 SetSpaceQuota.NO, 0, PrintTopology.NO, EMPTY_FS_ENTITY);
