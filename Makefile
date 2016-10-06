@@ -29,9 +29,11 @@ releaseHTF:
 
 cleanHTF:
 	@echo "Cleaning HTF"
+	${MVN} -f hadooptest/pom.xml clean
 
-build:
+build:	cleanHTF
 	@echo "Building HTF"
+	${MVN} -f hadooptest/pom.xml package -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -gs hadooptest/resources/yjava_maven/settings.xml.orig -Pprofile-all -Pprofile-corp -DskipTests
 
 testCommit:
 	@echo "HTF Commit tests"
