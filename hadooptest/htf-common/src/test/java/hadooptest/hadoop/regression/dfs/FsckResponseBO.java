@@ -151,9 +151,9 @@ public class FsckResponseBO {
 				+ "([\\w\\-\\.]+)\\:"
 				+ "([\\w\\_]+)\\s+"
 				+ "len=([\\d]+)\\s+"
-				+ "Live_repl=([\\d]+)\\s+"
+				+ "[.*]repl=([\\d]+)\\s+"
 				+ "\\[\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+):\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+\\]";
-		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+\\Live_repl=([\\d]+)";
+		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+\\[.*]repl=([\\d]+)";
 		int sequenceNumber;
 		String blockPool;
 		String blockName;
@@ -172,19 +172,14 @@ public class FsckResponseBO {
 				dataNodeDistributionAcrossRacks = new HashMap<String, ArrayList<String>>();
 				this.sequenceNumber = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$1"));
-	TestSession.logger.info("PHW sequence: " + this.sequenceNumber);
 				this.blockPool = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$2");
-	TestSession.logger.info("PHW blockpool: " + this.blockPool);
 				this.blockName = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$3");
-	TestSession.logger.info("PHW blockname: " + this.blockName);
 				this.length = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$4"));
-	TestSession.logger.info("PHW length: " + this.length);
 				this.replication = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$5"));
-	TestSession.logger.info("PHW repl: " + this.replication);
 				for (int xx = 0, rackPos = 6, datanodePos = 7; xx < replication; xx++) {
 					String rack = aLineFromFsckResponse.replaceAll(
 							blocksAndRacksPattern, "$" + rackPos);
@@ -205,19 +200,14 @@ public class FsckResponseBO {
 				dataNodeDistributionAcrossRacks = null;
 				this.sequenceNumber = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$1"));
-	TestSession.logger.info("PHW sequence2: " + this.sequenceNumber);
 				this.blockPool = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$2");
-	TestSession.logger.info("PHW blockpool2: " + this.blockPool);
 				this.blockName = aLineFromFsckResponse.replaceAll(
 						blocksAndRacksPattern, "$3");
-	TestSession.logger.info("PHW blockname2: " + this.blockName);
 				this.length = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$4"));
-	TestSession.logger.info("PHW length2: " + this.length);
 				this.replication = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$5"));
-	TestSession.logger.info("PHW repl2: " + this.replication);
 			}
 		}
 
