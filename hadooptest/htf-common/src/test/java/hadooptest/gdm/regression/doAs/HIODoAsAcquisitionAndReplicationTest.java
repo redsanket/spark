@@ -44,6 +44,7 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 	private String targetGrid1_NameNode;
 	private String targetGrid2_NameNode;
 	private List<String> grids = new ArrayList<String>();
+	private boolean eligibleForDelete = false;
 
 	@BeforeClass
 	public static void startTestSession() {
@@ -93,9 +94,10 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 		// replication workflow
 		helper.checkWorkFlow(this.dataSetName, "replication", this.datasetActivationTime);
 		
+		eligibleForDelete = true;
 	}
 
-	//@After
+	@After
 	public void tearDown() throws Exception {
 		List<String> datasetList =  consoleHandle.getAllDataSetName();
 		if (datasetList.contains(this.dataSetName)) {
@@ -108,7 +110,9 @@ public class HIODoAsAcquisitionAndReplicationTest extends TestSession {
 			assertEquals("ResponseMessage.", "Operation on " + this.dataSetName + " was successful.", response.getElementAtPath("/Response/ResponseMessage/[0]").toString());	
 			
 			// remove dataset
-			this.consoleHandle.removeDataSet(this.dataSetName);
+			if (eligibleForDelete) {
+			    this.consoleHandle.removeDataSet(this.dataSetName);    
+			}
 		} else {
 			TestSession.logger.info(this.dataSetName + " does not exists.");
 		}

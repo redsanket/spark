@@ -24,6 +24,7 @@ public class TopLevelDirTest {
     private String dataSetName =  "TopLevel_" + System.currentTimeMillis();
     private String sourceGrid;
     private String target;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -81,12 +82,18 @@ public class TopLevelDirTest {
         Assert.assertTrue(targetHelper.exists("/projects/" + this.dataSetName));
         Assert.assertFalse(targetHelper.exists(dataPath + INSTANCE1));
         Assert.assertTrue(targetHelper.exists(dataPath + INSTANCE2));
+        
+        eligibleForDelete = true;
     }
     
     @After
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+        
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
     }
     
     private void createDataset() {

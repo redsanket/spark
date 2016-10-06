@@ -22,6 +22,7 @@ public class AcqRepRetTest {
     private String sourceFDI;
     private String targetGrid1;
     private String targetGrid2;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -58,6 +59,8 @@ public class AcqRepRetTest {
         enableRetention();
         validateRetentionWorkflow();
         validateReplicationFiles();
+        
+        eligibleForDelete = true;
     }
     
     // touch a dataset to re-discover for retention
@@ -137,6 +140,10 @@ public class AcqRepRetTest {
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("7 ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+        
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
     }
 }
 

@@ -33,6 +33,8 @@ public class DataSetJSONTest {
     private String instanceToKeep = getPastInstanceDate(RETENTION_INSTANCE_DAYS - 1);
     private String lastDataSetCreationRequest;
     private String lastDataSetRequestResponse;
+    private boolean eligibleForDelete = false;
+    private List<String> dataSetList = new java.util.ArrayList<String>();
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -74,6 +76,8 @@ public class DataSetJSONTest {
         // now validate that a retention workflow runs for the last dataset
         validateRetentionWorkflow(2);
         validateTargetFiles(2);
+        
+        eligibleForDelete = true;
     }
     
     private void modifyCreationTimeRetentionPolicy() {
@@ -162,7 +166,8 @@ public class DataSetJSONTest {
         this.lastDataSetCreationRequest = datasetCreator.toString();
         
         // submit the dataset
-        this.lastDataSetRequestResponse = datasetCreator.submit();        
+        this.lastDataSetRequestResponse = datasetCreator.submit();
+        this.dataSetList.add(dataSetName);
     }
     
     private void createTargetInstanceFiles(int retentionPolicy) throws Exception {
@@ -178,5 +183,13 @@ public class DataSetJSONTest {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         return dateFormat.format(instanceDate);
     }
+    
+    @After
+    public void tearDown() {
+	if (eligibleForDelete) {
+	    for ( String dataSetName : this.dataSetList) {
+		this.consoleHandle.deActivateAndRemoveDataSet(dataSetName);
+	    }    
+	}
+    }
 }
-

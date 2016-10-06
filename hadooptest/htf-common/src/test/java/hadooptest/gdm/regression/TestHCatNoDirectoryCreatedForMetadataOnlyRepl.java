@@ -15,6 +15,7 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -27,12 +28,13 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyRepl extends TestSession {
     private static String targetCluster;
     private static final int SUCCESS = 200;
     private String dsActivationTime; 
-    private String dataSetName; 
+    private String dataSetName;
     private ConsoleHandle consoleHandle;
     private WorkFlowHelper workFlowHelperObj = null;
     private String tableName;
     private String partition;
     private String dataCommitPath;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() {
@@ -59,7 +61,6 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyRepl extends TestSession {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date();
         partition = dateFormat.format(date);
-        
     }
     
     public void createDataSet(){
@@ -108,5 +109,14 @@ public class TestHCatNoDirectoryCreatedForMetadataOnlyRepl extends TestSession {
         HadoopFileSystemHelper targetFSHandler = new HadoopFileSystemHelper(targetCluster);
         assertFalse("Path: "+ dataCommitPath + "created on target cluster" + targetCluster, 
                 targetFSHandler.exists(dataCommitPath) );
+        
+        eligibleForDelete = true;
+    }
+    
+    @After
+    public void tearDown() {
+	if (eligibleForDelete) {
+	    this.consoleHandle.deActivateAndRemoveDataSet(this.dataSetName);
+	}
     }
 }
