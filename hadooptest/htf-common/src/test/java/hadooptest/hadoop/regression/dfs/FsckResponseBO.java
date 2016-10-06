@@ -151,9 +151,9 @@ public class FsckResponseBO {
 				+ "([\\w\\-\\.]+)\\:"
 				+ "([\\w\\_]+)\\s+"
 				+ "len=([\\d]+)\\s+"
-				+ "*repl=([\\d]+)\\s+"
+				+ "(.*)repl=([\\d]+)\\s+"
 				+ "\\[\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+):\\d+,\\s+\\/([\\d\\.]+)\\/([\\d\\.]+)\\:\\d+\\]";
-		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+*repl=([\\d]+)";
+		private static final String blocksAndNoRacksPattern = "([\\d]+)\\.\\s+([\\w\\-\\.]+):([\\w\\_]+)\\s+len=([\\d]+)\\s+(.*)repl=([\\d]+)";
 		int sequenceNumber;
 		String blockPool;
 		String blockName;
@@ -179,8 +179,8 @@ public class FsckResponseBO {
 				this.length = Integer.parseInt(aLineFromFsckResponse
 						.replaceAll(blocksAndRacksPattern, "$4"));
 				this.replication = Integer.parseInt(aLineFromFsckResponse
-						.replaceAll(blocksAndRacksPattern, "$5"));
-				for (int xx = 0, rackPos = 6, datanodePos = 7; xx < replication; xx++) {
+						.replaceAll(blocksAndRacksPattern, "$6"));
+				for (int xx = 0, rackPos = 7, datanodePos = 8; xx < replication; xx++) {
 					String rack = aLineFromFsckResponse.replaceAll(
 							blocksAndRacksPattern, "$" + rackPos);
 					String datanode = aLineFromFsckResponse.replaceAll(
