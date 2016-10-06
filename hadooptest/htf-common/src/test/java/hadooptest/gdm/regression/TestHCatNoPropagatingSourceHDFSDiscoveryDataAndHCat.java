@@ -16,6 +16,7 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +33,7 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
     private WorkFlowHelper workFlowHelperObj = null;
     private String tableName;
     private String partition;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() {
@@ -79,6 +81,8 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         boolean status = HCatDataHandle.doesPartitionExist(targetCluster, tableName, partition);
         assertTrue("The "+ tableName +" didn't get replicated from " + sourceCluster +
                 " to " + targetCluster + ".",status);
+        
+        eligibleForDelete = true;
     }
     
     public void createDataSet(){
@@ -113,5 +117,11 @@ public class TestHCatNoPropagatingSourceHDFSDiscoveryDataAndHCat extends TestSes
         assertTrue("Failed to create the dataset " + this.dataSetName ,  response.getStatusCode() == SUCCESS);
         this.consoleHandle.sleep(5000);
     }
-
+    
+    @After
+    public void tearDown() throws Exception {
+	if (eligibleForDelete == true) {
+	    this.consoleHandle.deActivateAndRemoveDataSet(this.dataSetName);
+	}
+    }
 }

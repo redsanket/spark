@@ -14,6 +14,7 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import static org.junit.Assert.assertTrue;
@@ -31,6 +32,7 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
     private WorkFlowHelper workFlowHelperObj = null;
     private String tableName;
     private String partition;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() {
@@ -105,6 +107,15 @@ public class TestAvroTablePropagationWithObsoleteTargetTableSchema extends TestS
         //check if the target table has correct avro schema
         status = HCatDataHandle.isAvroSchemaCorrect(sourceCluster, tableName,targetCluster);
         assertTrue("The "+ tableName +" doesn't have the expected avro schema on target cluster " + targetCluster + ".",status);
+        
+        eligibleForDelete = true;
+    }
+    
+    @After
+    public void tearDown() {
+	if (eligibleForDelete) {
+	    this.consoleHandle.deActivateAndRemoveDataSet(this.dataSetName);
+	}
     }
 
 }

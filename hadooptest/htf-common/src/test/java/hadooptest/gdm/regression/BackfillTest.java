@@ -29,6 +29,7 @@ public class BackfillTest extends TestSession {
     private String sourceGrid;
     private String target1;
     private String target2;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -126,6 +127,8 @@ public class BackfillTest extends TestSession {
         Assert.assertTrue(this.consoleHandle.filesExist(this.target2, "/data/daqdev/data/" + this.dataSetName + "/target2/" + INSTANCE1));
         Assert.assertTrue(this.consoleHandle.filesExist(this.target2, "/data/daqdev/data/" + this.dataSetName + "/target2/" + INSTANCE2));
         Assert.assertTrue(this.consoleHandle.filesExist(this.target2, "/data/daqdev/data/" + this.dataSetName + "/target2/" + INSTANCE3));
+        
+       eligibleForDelete = true;
     }
     
     @After
@@ -134,6 +137,11 @@ public class BackfillTest extends TestSession {
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", SUCCESS , response.getStatusCode());
         response = this.consoleHandle.deactivateDataSet("BACKFILL_" + this.dataSetName);
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", SUCCESS , response.getStatusCode());
+        
+        if (eligibleForDelete == true) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+            this.consoleHandle.removeDataSet("BACKFILL_" + this.dataSetName);
+        }
     }
     
     private void createDataSetInstance(String instanceId) throws Exception {

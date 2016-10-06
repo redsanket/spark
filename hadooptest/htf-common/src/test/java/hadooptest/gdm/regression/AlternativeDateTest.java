@@ -24,6 +24,7 @@ public class AlternativeDateTest {
     private String sourceGrid;
     private String targetGrid;
     private List<String> invalidInstances = new ArrayList<String>();
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -44,6 +45,10 @@ public class AlternativeDateTest {
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+        
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
     }   
     
     /**
@@ -70,6 +75,8 @@ public class AlternativeDateTest {
         enableRetention();
         validateRetentionWorkflow();
         validateTargetFiles(false);
+        
+        eligibleForDelete = true;
     }
     
     private void validateRetentionWorkflow() {

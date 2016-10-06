@@ -21,6 +21,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,6 +47,7 @@ public class TestArchivalWorkFlow extends TestSession {
 	private String targetGrid1;
 	private String targetGrid2;
 	private String archivalTargetName;
+	private boolean eligibleForDelete = false;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -90,6 +92,8 @@ public class TestArchivalWorkFlow extends TestSession {
 
 		// check for Archival workflow.
 		testArchivalWorkFlow(this.dataSetName , "replication");
+		
+		eligibleForDelete = true;
 	}
 
 	/**
@@ -173,5 +177,11 @@ public class TestArchivalWorkFlow extends TestSession {
 			assertTrue("Failed : Archival workflow failed or Dn't run." , isArchivalWorkFlowCompletd == true);
 		}
 	}
-
+	
+	@After
+	public void tearDown() {
+	    if (eligibleForDelete) {
+		this.consoleHandle.deActivateAndRemoveDataSet(this.dataSetName);
+	    }
+	}
 }

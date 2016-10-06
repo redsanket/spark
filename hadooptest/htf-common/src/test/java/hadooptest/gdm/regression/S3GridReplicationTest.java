@@ -28,6 +28,7 @@ public class S3GridReplicationTest {
     private String sourceGrid;
     private String targetGrid;
     private String dataSetName = "S3GridRepl_" + System.currentTimeMillis();
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -56,12 +57,19 @@ public class S3GridReplicationTest {
         validateReplicationWorkflows();
         enableRetention();
         validateRetentionWorkflow();
+        
+        // if all the above method and their asserts are success then this dataset is eligible for deletion
+        eligibleForDelete = true;
     }
     
     @After
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("Deactivate DataSet failed", HttpStatus.SC_OK , response.getStatusCode());
+        
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
     }
     
     private void createTopLevelDirectoryOnTarget() throws Exception {
@@ -192,5 +200,6 @@ public class S3GridReplicationTest {
         instanceExists(INSTANCE1, false);
         instanceExists(INSTANCE2, true);
     }
+     
 }
 

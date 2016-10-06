@@ -27,6 +27,7 @@ public class GridS3ReplicationTest {
     private String sourceGrid;
     private String targetGrid;
     private String dataSetName = "GridS3Repl_" + System.currentTimeMillis();
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -53,12 +54,18 @@ public class GridS3ReplicationTest {
         createDataSetInstance();
         createDataSet();
         validateReplicationWorkflows();
+        
+        eligibleForDelete = true;
     }
     
     @After
     public void tearDown() throws Exception {
         Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
         Assert.assertEquals("Deactivate DataSet failed", HttpStatus.SC_OK , response.getStatusCode());
+        
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
     }
     
     private void createDataSetInstance() throws Exception {

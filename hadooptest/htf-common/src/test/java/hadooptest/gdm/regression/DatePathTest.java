@@ -23,6 +23,7 @@ public class DatePathTest extends TestSession {
     private String sourceGrid;
     private String targetGrid;
     private long startTime = System.currentTimeMillis();
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -83,6 +84,8 @@ public class DatePathTest extends TestSession {
                 }
             }
         }
+        
+        eligibleForDelete = true;
     }
     
     // validates files exist or not as expected on target
@@ -478,6 +481,10 @@ public class DatePathTest extends TestSession {
                         String dataSetName = this.getDataSetName(pathType, replStrategy, pathOverride, exclude);
                         Response response = this.consoleHandle.deactivateDataSet(dataSetName);
                         Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+                        
+                        if (this.eligibleForDelete ) {
+                            this.consoleHandle.removeDataSet(dataSetName);
+                        }
                     }
                 }
             }
