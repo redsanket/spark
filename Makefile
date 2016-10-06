@@ -1,5 +1,5 @@
 ROOT=/home/y
-MVN=/home/y/bin/mvn
+MVN=$(shell which mvn)
 
 SRCTOP = .
 YAHOO_CFG=/home/y/share/yahoo_cfg
