@@ -1,5 +1,5 @@
 ROOT=/home/y
-MVN=$(shell which mvn)
+MVN=/home/y/libexec/maven/bin/mvn
 
 SRCTOP = .
 YAHOO_CFG=/home/y/share/yahoo_cfg
