@@ -23,6 +23,7 @@ public class DoneFileTest {
     private long startTime = System.currentTimeMillis();
     private String sourceGrid;
     private String targetGrid;
+    private boolean eligibleForDelete = false;
     
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -55,15 +56,18 @@ public class DoneFileTest {
             validateReplicationWorkflow(dataSetName);
             validateTargetFiles(dataSetName, pathType);
         }
+        
+        eligibleForDelete = true;
     }
     
     @After
     public void tearDown() throws Exception {
-        for (int pathType = 0; pathType <= 1; pathType++) {
-            String dataSetName = this.getDataSetName(pathType);
-            Response response = this.consoleHandle.deactivateDataSet(dataSetName);
-            Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
-        }
+	if (eligibleForDelete) {
+	    for (int pathType = 0; pathType <= 1; pathType++) {
+		String dataSetName = this.getDataSetName(pathType);
+		this.consoleHandle.deActivateAndRemoveDataSet(dataSetName);
+	    }    
+	}
     }
     
     private String getDataSetName(int pathType) {
