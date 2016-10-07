@@ -18,6 +18,7 @@ import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
 import hadooptest.cluster.gdm.Response;
 
+import org.junit.After;
 import org.junit.Assert;
 
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class RemoveDataSetTest extends TestSession {
 	private String sourceGrid;
 	private String target;
 	private static final String INSTANCE1 = "20151201";
+	private boolean eligibleForDelete = false;
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -78,6 +80,13 @@ public class RemoveDataSetTest extends TestSession {
     	this.originalDataSetName = "TestRemoveBaseDataSet_"  + System.currentTimeMillis();
     	this.createDataset(originalDataSetName);
     }
+    
+    @After
+    public void tearDown() {
+	if (eligibleForDelete) {
+	    this.consoleHandle.deActivateAndRemoveDataSet(this.originalDataSetName);
+	}
+    }
 
     @Test
     public void testRemoveDataSet() {
@@ -87,6 +96,8 @@ public class RemoveDataSetTest extends TestSession {
         testDeactivateAndRemoveDataSet();
         testRemoveDataSource();
         testRemoveDataTargets();
+        
+        eligibleForDelete = true;
     }
 
     /**
