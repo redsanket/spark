@@ -191,9 +191,9 @@ public class TestArchives extends DfsTestsBaseClass {
 		Assert.assertTrue(genericCliResponse.process.exitValue() != 0);
 
 		// gridci-1600, 2.8 changed the error response 
-		Assert.assertTrue(genericCliResponse.response
-				.contains("Permission denied|is not a directory"));
-
+		Assert.assertTrue(
+		  genericCliResponse.response.contains("Permission denied") ||
+		    genericCliResponse.response.contains("is not a directory") );
 	}
 
 	/**
