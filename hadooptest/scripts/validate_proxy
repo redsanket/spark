@@ -46,6 +46,19 @@ LOG="$LOG_DIR/extended2.log"
 
 EC=0
 
+src_hadoop_version=`ssh ${SOURCE_NN} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/gs/gridre/yroot.${SOURCE_CLUSTER}/share/hadoop/bin/hadoop version|head -1|cut -d' ' -f2`
+tgt_hadoop_version=`ssh ${TARGET_NN} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /home/gs/gridre/yroot.${TARGET_CLUSTER}/share/hadoop/bin/hadoop version|head -1|cut -d' ' -f2`
+local_proxy_version=`ssh $LOCAL_PROXY yinst ls ats`;
+build_desc="Build Description: "
+build_desc+="src=${SOURCE_CLUSTER} ${src_hadoop_version};"
+build_desc+="tgt=${TARGET_CLUSTER} ${tgt_hadoop_version};"
+build_desc+="localproxy=$local_proxy_version;"
+if [ -n $REMOTE_PROXY ]; then
+    remote_proxy_version=`ssh $REMOTE_PROXY yinst ls ats`;
+    build_desc+="remoteproxy=$remote_proxy_version"
+fi
+echo "$build_desc"
+
 if [ "$#" -eq 4 ]; then
   PROXY=$LOCAL_PROXY
   echo -n "----> Validate intra-colo cross-cluster distcp to/from clusters '$SOURCE_CLUSTER'/'$TARGET_CLUSTER'"
