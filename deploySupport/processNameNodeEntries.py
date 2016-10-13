@@ -71,11 +71,6 @@ runs on.</description>
 </property>
 ''')
 
-fd.writelines('''<property>
-    <name>dfs.federation.nameservices</name>
-    <value>%s</value>
-    </property>
-    '''   % ','.join(shortnames))
 
 for (namenode,s) in l:
     nameserviceID = namenode.split('.')[0]
@@ -131,10 +126,6 @@ for (namenode,s) in l:
     h = gethostname()
     if h in (s,namenode):
         fd.writelines('''
-<property>
-    <name>dfs.federation.nameservice.id</name>
-    <value>%s</value>
-</property>''' % nameserviceID)
 
 fd.writelines('''</configuration>''')
 fd.close()
