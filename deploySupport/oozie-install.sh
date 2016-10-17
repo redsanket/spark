@@ -221,6 +221,10 @@ yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
 yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_USERNAME_groups=*
 yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_USERNAME_hosts=*
 
+# Set proxy user for hueadmin
+yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_hueadmin_groups=*
+yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_hueadmin_hosts=*
+
 yinst set yoozie.conf_oozie_service_HadoopAccessorService_kerberos_principal="%OOZIE_USER%/%YINST_HOSTNAME%@%KERBEROS_REALM%" \
   yoozie.conf_oozie_service_WorkflowAppService_system_libpath="%DEFAULT_FS%/tmp/oozie/systemlib/%YINST_HOSTNAME%" \
   yoozie.conf_oozie_system_id=%CLUSTER_NAME% \
