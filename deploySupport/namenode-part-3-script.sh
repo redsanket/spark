@@ -154,11 +154,6 @@ if [ $CMD == "start" ]; then
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/history
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/logs
 
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapred/system
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/system
-
         DIR_LIST="/data /tmp/ /user /user/dfsload /user/hueadmin"
         for dir in $DIR_LIST; do
             $HADOOP_HDFS_HOME/bin/hdfs dfs -mkdir $dir
@@ -166,6 +161,11 @@ if [ $CMD == "start" ]; then
         done
         $HADOOP_HDFS_HOME/bin/hdfs dfs -chown dfsload /user/dfsload
         $HADOOP_HDFS_HOME/bin/hdfs dfs -chown hueadmin /user/hueadmin
+
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapred/system
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/system
 
 	RMSTORE="/mapred/rmstore"
 	echo "============ creating resourcemanager state store at $RMSTORE"
