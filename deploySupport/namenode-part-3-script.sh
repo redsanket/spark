@@ -153,19 +153,19 @@ if [ $CMD == "start" ]; then
 	echo ============ almost done with hdfs janitorial services...
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/history
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/logs
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /data
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /data
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /tmp
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /tmp
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/
+
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown hadoopqa /user/hadoopqa
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir -p /mapred/system
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${MAPREDUSER}:hadoop /mapred/system
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -mkdir /user/dfsload
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown dfsload /user/dfsload
-	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod 777 /user/dfsload
+
+        DIR_LIST="/data /tmp/ /user /user/dfsload /user/hueadmin"
+        for dir in $DIR_LIST; do
+            $HADOOP_HDFS_HOME/bin/hdfs dfs -mkdir $dir
+            $HADOOP_HDFS_HOME/bin/hdfs dfs -chmod 777 $dir
+        done
+        $HADOOP_HDFS_HOME/bin/hdfs dfs -chown dfsload /user/dfsload
+        $HADOOP_HDFS_HOME/bin/hdfs dfs -chown hueadmin /user/hueadmin
 
 	RMSTORE="/mapred/rmstore"
 	echo "============ creating resourcemanager state store at $RMSTORE"
