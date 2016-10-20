@@ -479,7 +479,19 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
 			if ((aJobStatus.getState() != State.SUCCEEDED)) {
-				cluster.getJob(aJobStatus.getJobID()).killJob();
+				// gridci-1641, debugging
+				TestSession.logger.debug("Job not in SUCCEEDED state, jobID: " + aJobStatus.getJobID() );
+				TestSession.logger.debug("Job not in SUCCEEDED state, jobName: " + aJobStatus.getJobName() );
+				TestSession.logger.debug("Job not in SUCCEEDED state, jobState: " + aJobStatus.getState() );
+				TestSession.logger.debug("Job not in SUCCEEDED state, jobQueue: " + aJobStatus.getQueue() );
+				TestSession.logger.debug("Job not in SUCCEEDED state, isJobComplete?: " + aJobStatus.isJobComplete() );
+				TestSession.logger.debug("Job not in SUCCEEDED state, failure info: " + aJobStatus.getFailureInfo() );
+				
+				try {
+				  cluster.getJob(aJobStatus.getJobID()).killJob();
+				} catch Exception e {
+					TestSession.logger.error("Kaboom, got exception: " + e);
+				} 
 			}
 		}
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
