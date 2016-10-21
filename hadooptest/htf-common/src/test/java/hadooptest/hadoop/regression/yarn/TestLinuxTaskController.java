@@ -599,7 +599,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
 			// gridci-1641
-			if ((aJobStatus.getState() != State.RUNNING)) {
+			if ((aJobStatus.getState() == State.RUNNING)) {
 				cluster.getJob(aJobStatus.getJobID()).killJob();
 			}
 		}
