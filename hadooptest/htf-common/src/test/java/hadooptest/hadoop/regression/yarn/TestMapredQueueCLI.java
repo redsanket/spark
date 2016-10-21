@@ -205,10 +205,10 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
  			timer+=2;
 		}
 		if ( timer >= 90 ) {
-		  TestSession.logger.error("Job " + jobID + " did not complete after 90 seconds!");  
+		  TestSession.logger.error("Job " + jobId + " did not complete after 90 seconds!");  
 		}
 		else {
-		  Assert.assertTrue("Job " + jobID + " did not succeed! ", job.isSuccessful() );
+		  Assert.assertTrue("Job " + jobId + " did not succeed! ", job.isSuccessful() );
 		}
 
 	}
