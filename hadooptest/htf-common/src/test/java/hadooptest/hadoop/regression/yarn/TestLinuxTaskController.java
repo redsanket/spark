@@ -489,7 +489,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				
 				try {
 				  cluster.getJob(aJobStatus.getJobID()).killJob();
-				} catch Exception e {
+				} catch (Exception e) {
 					TestSession.logger.error("Kaboom, got exception: " + e);
 				} 
 			}
