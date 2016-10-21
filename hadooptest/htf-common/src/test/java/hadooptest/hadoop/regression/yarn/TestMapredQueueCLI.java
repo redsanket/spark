@@ -198,6 +198,12 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 						aLine.contains(jobId));
 		}
 
+		// check if the job succeeded
+		while ( ! job.isComplete() ) {
+			Thread.sleep(2000);
+		}
+		Assert.assertTrue("Job " + jobID + " did not succeed! ", job.isSuccessful() );
+
 	}
 
 	@Test
