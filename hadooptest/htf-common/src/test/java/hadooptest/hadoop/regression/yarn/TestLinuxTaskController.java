@@ -482,7 +482,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 			    (aJobStatus.getState() != State.FAILED) ||
 			    (aJobStatus.getState() != State.KILLED)) {
 
-TestSession.logger.info("STATE1, should be SUCCEEDED, FAILED or KILLED: " + (aJobStatus.getState() );
+TestSession.logger.info("STATE1, should be SUCCEEDED, FAILED or KILLED: " + aJobStatus.getState() );
 			if ((aJobStatus.getState() == State.SUCCEEDED)) 
 				TestSession.logger.info("Was SUCCEEDED");
 			if ((aJobStatus.getState() == State.FAILED)) 
