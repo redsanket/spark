@@ -482,15 +482,6 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 			    (aJobStatus.getState() != State.FAILED) ||
 			    (aJobStatus.getState() != State.KILLED)) {
 
-TestSession.logger.info("STATE1, should be SUCCEEDED, FAILED or KILLED: " + aJobStatus.getState() );
-			if ((aJobStatus.getState() == State.SUCCEEDED)) 
-				TestSession.logger.info("Was SUCCEEDED");
-			if ((aJobStatus.getState() == State.FAILED)) 
-				TestSession.logger.info("Was FAILED");
-			if ((aJobStatus.getState() == State.KILLED)) 
-				TestSession.logger.info("Was KILLED");
-
-
 				// gridci-1641, if we're here, something's screwy. Dump info on the job that was found active
 				// to help track why said job is there 
 				TestSession.logger.info("Warning, did not expect active jobs to be found, logging debug info:");
@@ -505,7 +496,7 @@ TestSession.logger.info("STATE1, should be SUCCEEDED, FAILED or KILLED: " + aJob
 				// allowed to kill another user's (hadoopqa) job(s). Catch any exception so we report it 
 				// at the point of failure in the jenkins raw log, makes debugging a lot easier
 				try {
-				  cluster.getJob(aJobStatus.getJobID()).killJob();
+				  //cluster.getJob(aJobStatus.getJobID()).killJob();
 				} catch (Exception e) {
 					TestSession.logger.error("Kaboom, got exception trying to kill an active job: " + e);
 				} 
