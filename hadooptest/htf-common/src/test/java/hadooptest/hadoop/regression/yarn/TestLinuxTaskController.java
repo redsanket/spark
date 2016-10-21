@@ -478,9 +478,10 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
-			if ((aJobStatus.getState() != State.SUCCEEDED) ||
-			    (aJobStatus.getState() != State.FAILED) ||
-			    (aJobStatus.getState() != State.KILLED)) {
+			//if ((aJobStatus.getState() != State.SUCCEEDED) ||
+			    //(aJobStatus.getState() != State.FAILED) ||
+			    //(aJobStatus.getState() != State.KILLED)) {
+			if ((aJobStatus.getState() == State.RUNNING)) {
 
 				// gridci-1641, if we're here, something's screwy. Dump info on the job that was found active
 				// to help track why said job is there 
@@ -496,7 +497,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 				// allowed to kill another user's (hadoopqa) job(s). Catch any exception so we report it 
 				// at the point of failure in the jenkins raw log, makes debugging a lot easier
 				try {
-				  //cluster.getJob(aJobStatus.getJobID()).killJob();
+				  cluster.getJob(aJobStatus.getJobID()).killJob();
 				} catch (Exception e) {
 					TestSession.logger.error("Kaboom, got exception trying to kill an active job: " + e);
 				} 
