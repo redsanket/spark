@@ -483,7 +483,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 			    (aJobStatus.getState() != State.KILLED)) {
 				// gridci-1641, if we're here, something's screwy. Dump info on the job that was found active
 				// to help track why said job is there 
-				TestSession.logger.info("Warning, did not expect active jobs to be found, logging debug info:"));
+				TestSession.logger.info("Warning, did not expect active jobs to be found, logging debug info:");
 				TestSession.logger.info("Unexpected active job found, jobID: " + aJobStatus.getJobID() );
 				TestSession.logger.info("Unexpected active job found, jobName: " + aJobStatus.getJobName() );
 				TestSession.logger.info("Unexpected active job found, jobState: " + aJobStatus.getState() );
