@@ -198,6 +198,19 @@ public class TestMapredQueueCLI extends YarnTestsBaseClass {
 						aLine.contains(jobId));
 		}
 
+		// check if the job succeeded, job should be done in 60 secs so bail after 90
+		int timer = 0;
+		while ( (! job.isComplete()) && (timer < 90) ) {
+			Thread.sleep(2000);
+ 			timer+=2;
+		}
+		if ( timer >= 90 ) {
+		  TestSession.logger.error("Job " + jobId + " did not complete after 90 seconds!");  
+		}
+		else {
+		  Assert.assertTrue("Job " + jobId + " did not succeed! ", job.isSuccessful() );
+		}
+
 	}
 
 	@Test

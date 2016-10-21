@@ -478,8 +478,27 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
 
 		Cluster cluster = new Cluster(TestSession.cluster.getConf());
 		for (JobStatus aJobStatus : cluster.getAllJobStatuses()) {
-			if ((aJobStatus.getState() != State.SUCCEEDED)) {
-				cluster.getJob(aJobStatus.getJobID()).killJob();
+			if ((aJobStatus.getState() != State.SUCCEEDED) ||
+			    (aJobStatus.getState() != State.FAILED) ||
+			    (aJobStatus.getState() != State.KILLED)) {
+				// gridci-1641, if we're here, something's screwy. Dump info on the job that was found active
+				// to help track why said job is there 
+				TestSession.logger.info("Warning, did not expect active jobs to be found, logging debug info:");
+				TestSession.logger.info("Unexpected active job found, jobID: " + aJobStatus.getJobID() );
+				TestSession.logger.info("Unexpected active job found, jobName: " + aJobStatus.getJobName() );
+				TestSession.logger.info("Unexpected active job found, jobState: " + aJobStatus.getState() );
+				TestSession.logger.info("Unexpected active job found, jobQueue: " + aJobStatus.getQueue() );
+				TestSession.logger.info("Unexpected active job found, isJobComplete?: " + aJobStatus.isJobComplete() );
+				TestSession.logger.info("Unexpected active job found, failure info: " + aJobStatus.getFailureInfo() );
+				
+				// try the killJob, it can fail as seen in gridci-1641 where this user (hadoop3) is not
+				// allowed to kill another user's (hadoopqa) job(s). Catch any exception so we report it 
+				// at the point of failure in the jenkins raw log, makes debugging a lot easier
+				try {
+				  cluster.getJob(aJobStatus.getJobID()).killJob();
+				} catch (Exception e) {
+					TestSession.logger.error("Kaboom, got exception trying to kill an active job: " + e);
+				} 
 			}
 		}
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
