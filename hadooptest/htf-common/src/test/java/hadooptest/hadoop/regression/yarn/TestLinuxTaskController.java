@@ -621,6 +621,7 @@ public class TestLinuxTaskController extends YarnTestsBaseClass {
                                 } catch (Exception e) {
                                         TestSession.logger.error("Kaboom, got exception trying to kill an active job: " + e);
                                 }
+			}
 		}
 		DfsCliCommands dfsCommonCliCommands = new DfsCliCommands();
 		String user = HadooptestConstants.UserNames.HADOOP3;
