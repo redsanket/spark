@@ -39,6 +39,13 @@ public class AggIntResult {
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+
+                // set the aggregated run's start date and time
+                java.text.SimpleDateFormat sdfStartDateTime = new SimpleDateFormat("yyyyMMddhhmmss");
+                String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+                this.setStartDateTime(currentStartDateTime);
+                // set placeholder for end date and time
+                this.setEndDateTime("To Be Set");
 	}
 	
 	public String getCurrentPipeLineName() {
@@ -61,6 +68,31 @@ public class AggIntResult {
 		this.currentDate = currentDate;
 	}
 	
+        public String getStartDateTime() {
+                return startDateTime;
+        }
+
+        public void setStartDateTime(String currentStartDateTime) {
+                this.startDateTime = currentStartDateTime;
+        }
+
+        public String getEndDateTime() {
+                return endDateTime;
+        }
+
+        public void setEndDateTime(String currentEndDateTime) {
+                this.endDateTime = currentEndDateTime;
+        }
+
+        public String getUniqueId() {
+                return uniqueId;
+        }
+
+        public void setUniqueId(String currentUniqueId) {
+                this.UniqueId = currentUniqueId;
+        }
+
+
 	public void finalResult() {
 		java.util.List<String> versionList = getToDaysResult();
 		if (versionList != null) {
@@ -256,6 +288,10 @@ public class AggIntResult {
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
+                                        String startDateTime =  resultSet.getString("startDateTime");
+                                        String endDateTime =  resultSet.getString("endDateTime");
+                                        String unique_id =  resultSet.getString("unique_id");
+
 					
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
@@ -279,7 +315,7 @@ public class AggIntResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-							comments, result));
+							comments, result, startDateTime, endDateTime, unique_id));
 					
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
@@ -312,7 +348,7 @@ public class AggIntResult {
 									pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-									comments, result
+									comments, result, startDateTime, endDateTime, unique_id
 								);
 						}else {
 							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist.");
@@ -362,7 +398,7 @@ public class AggIntResult {
 								dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsResult(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsCurrentState(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsMRJobURL(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsComments(),
 								dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
 								dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
-								dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult()
+								dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult(),dbTableColumnsReplicaObject.getStartDateTime(),dbTableColumnsReplicaObject.getEndDateTime(),dbTableColumnsReplicaObject.getUniqueId()
 							);
 					}
 				}else {
@@ -394,7 +430,7 @@ public class AggIntResult {
 			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
-			String  comments, String result ) {		
+			String  comments, String result, String startDateTime, String endDateTime, String unique_id ) {		
 		String dsName = null;
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
@@ -483,6 +519,9 @@ public class AggIntResult {
 					"hive_verifyComments" , hive_verifyComments,
 					"comments",comments,
 					"result",result,
+                                        "startDateTime",startDateTime,
+                                        "endDateTime",endDateTime,
+                                        "unique_id",uniqueId,
 					dsName
 					);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
@@ -501,8 +540,13 @@ public class AggIntResult {
 	
 	
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
+
+                // set the aggregated run's end date and time
+                java.text.SimpleDateFormat sdfEndDateTime = new SimpleDateFormat("yyyyMMddhhmmss");
+                String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+
 		String colName = componentName + "Version" ;
-		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date)  " +  "values ( ?,?,? )";
+		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date, currentEndDateTime)  " +  "values ( ?,?,?,? )";
 		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 		PreparedStatement pStatment ;
 		try {
@@ -510,6 +554,7 @@ public class AggIntResult {
 			pStatment.setString(1, dsName);
 			pStatment.setString(2, version);
 			pStatment.setString(3, date);
+                        pStatment.setString(4, currentEndDateTime);
 			boolean isRecordInserted = pStatment.execute();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
