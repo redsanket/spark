@@ -134,15 +134,15 @@ public interface DBCommands {
 				+ "hive_verifyResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
 				+ "hive_verifyCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 				+ "hive_verifyMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
-				+ "hive_verifyComments TEXT   ,"
+				+ "hive_verifyComments TEXT   , "
 				
 				+ "comments TEXT   , "
-				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
+				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' , "
 
 				// start and end date/time stamps
 				+ "startDateTime VARCHAR(30) DEFAULT 'UNKOWN' , "
 				+ "endDateTime VARCHAR(30) DEFAULT 'UNKOWN' , "
 
 				// unique ID for a given test run, from Jenkins
-				+ "uniqueId VARCHAR(30) DEFAULT 'UNKOWN' )"
+				+ "uniqueId VARCHAR(30) DEFAULT 'UNKOWN' )";
 }
