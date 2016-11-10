@@ -334,6 +334,9 @@ public class StackComponentAggResult {
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
+                                        String startDateTime =  resultSet.getString("startDateTime");
+                                        String endDateTime =  resultSet.getString("endDateTime");
+                                        String uniqueId =  resultSet.getString("uniqueId");
 
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,

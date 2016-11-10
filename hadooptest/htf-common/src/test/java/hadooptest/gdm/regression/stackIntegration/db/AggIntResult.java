@@ -545,7 +545,7 @@ public class AggIntResult {
                 // set the aggregated run's end date and time
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-                java.text.SimpleDateFormat sdfEndDateTime = new SimpleDateFormat("yyyyMMddhhmmss");
+                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
 		String colName = componentName + "Version" ;
