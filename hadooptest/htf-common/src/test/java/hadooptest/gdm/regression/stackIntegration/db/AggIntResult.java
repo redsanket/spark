@@ -290,7 +290,7 @@ public class AggIntResult {
 					String result =  resultSet.getString("result");
                                         String startDateTime =  resultSet.getString("startDateTime");
                                         String endDateTime =  resultSet.getString("endDateTime");
-                                        String unique_id =  resultSet.getString("unique_id");
+                                        String uniqueId =  resultSet.getString("uniqueId");
 
 					
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
@@ -315,7 +315,7 @@ public class AggIntResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-							comments, result, startDateTime, endDateTime, unique_id));
+							comments, result, startDateTime, endDateTime, uniqueId));
 					
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
@@ -348,7 +348,7 @@ public class AggIntResult {
 									pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-									comments, result, startDateTime, endDateTime, unique_id
+									comments, result, startDateTime, endDateTime, uniqueId
 								);
 						}else {
 							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist.");
@@ -430,7 +430,7 @@ public class AggIntResult {
 			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
-			String  comments, String result, String startDateTime, String endDateTime, String unique_id ) {		
+			String  comments, String result, String startDateTime, String endDateTime, String uniqueId ) {		
 		String dsName = null;
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
@@ -521,7 +521,7 @@ public class AggIntResult {
 					"result",result,
                                         "startDateTime",startDateTime,
                                         "endDateTime",endDateTime,
-                                        "unique_id",uniqueId,
+                                        "uniqueId",uniqueId,
 					dsName
 					);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {

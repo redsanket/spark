@@ -19,7 +19,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 
 public class StackComponentAggResult {
-	private String currentDate, dataSetName, gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion, startDateTime, endDateTime, uniqueId;
+	private String currentDate, dataSetName, gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion;
 	private java.util.List<String> hadoopVersionList;
 	private Map<String,String> componentsResultMap;
 	private DataBaseOperations dataBaseOperations;
@@ -124,7 +124,6 @@ public class StackComponentAggResult {
 	public void setCurrentDate(String currentDate) {
 		this.currentDate = currentDate;
 	}
-
 
 	public void test() {
 
@@ -567,7 +566,6 @@ public class StackComponentAggResult {
 
 
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
-
 		String colName = componentName + "Version" ;
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date)  " +  "values ( ?,?,? )";
 		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
