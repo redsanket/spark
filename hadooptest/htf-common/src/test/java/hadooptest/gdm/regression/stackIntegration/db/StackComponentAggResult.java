@@ -357,7 +357,7 @@ public class StackComponentAggResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-							comments, result));
+							comments, result, startDateTime, endDateTime, uniqueId));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
@@ -387,7 +387,7 @@ public class StackComponentAggResult {
 								pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 								hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 								hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-								comments, result
+								comments, result, startDateTime, endDateTime, uniqueId
 							);
 					}
 					count++;

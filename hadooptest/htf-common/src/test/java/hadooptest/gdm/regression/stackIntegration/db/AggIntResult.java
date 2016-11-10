@@ -19,6 +19,7 @@ public class AggIntResult {
 
 	private String currentDate;
 	private String currentPipeLineName;
+	private String startDateTime, endDateTime, uniqueId;
 	private java.util.List<String> hadoopVersionList;
 	private Map<String,String> componentsResultMap;
 	private DataBaseOperations dataBaseOperations;
@@ -41,7 +42,7 @@ public class AggIntResult {
 		}
 
                 // set the aggregated run's start date and time
-                java.text.SimpleDateFormat sdfStartDateTime = new SimpleDateFormat("yyyyMMddhhmmss");
+                java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
                 this.setStartDateTime(currentStartDateTime);
                 // set placeholder for end date and time
@@ -89,7 +90,7 @@ public class AggIntResult {
         }
 
         public void setUniqueId(String currentUniqueId) {
-                this.UniqueId = currentUniqueId;
+                this.uniqueId = currentUniqueId;
         }
 
 
