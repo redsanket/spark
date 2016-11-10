@@ -138,4 +138,11 @@ public interface DBCommands {
 				
 				+ "comments TEXT   , "
 				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' )";
+
+				// start and end date/time stamps
+				+ "startDateTime VARCHAR(30) DEFAULT 'UNKOWN' , "
+				+ "endDateTime VARCHAR(30) DEFAULT 'UNKOWN' , "
+
+				// unique ID for a given test run, from Jenkins
+				+ "uniqueId VARCHAR(30) DEFAULT 'UNKOWN' )"
 }

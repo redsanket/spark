@@ -542,6 +542,8 @@ public class AggIntResult {
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
 
                 // set the aggregated run's end date and time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
                 java.text.SimpleDateFormat sdfEndDateTime = new SimpleDateFormat("yyyyMMddhhmmss");
                 String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 

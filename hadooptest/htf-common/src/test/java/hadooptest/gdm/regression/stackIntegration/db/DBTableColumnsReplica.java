@@ -909,7 +909,7 @@ public class DBTableColumnsReplica {
 		return startDateTime;
 	}
 
-	public String setStartDateTime() {
+	public void setStartDateTime() {
 		this.startDateTime = startDateTime;
 	}
 
@@ -917,7 +917,7 @@ public class DBTableColumnsReplica {
 		return endDateTime;
 	}
 
-	public String setEndDateTime() {
+	public void setEndDateTime() {
 		this.endDateTime = endDateTime;
 	}
 
@@ -925,7 +925,7 @@ public class DBTableColumnsReplica {
                 return uniqueId;
         }
 
-        public String setUniqueId() {
+        public void setUniqueId() {
                 this.uniqueId = uniqueId;
         }
 
