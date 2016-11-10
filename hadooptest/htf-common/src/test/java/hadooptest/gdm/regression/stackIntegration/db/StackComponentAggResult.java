@@ -434,7 +434,7 @@ public class StackComponentAggResult {
 						dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsResult(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsCurrentState(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsMRJobURL(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsComments(),
 						dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
 						dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
-						dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult()
+						dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult(),dbTableColumnsReplicaObject.getStartDateTime(),dbTableColumnsReplicaObject.getEndDateTime(),dbTableColumnsReplicaObject.getUniqueId()
 						);
 			}
 		}
