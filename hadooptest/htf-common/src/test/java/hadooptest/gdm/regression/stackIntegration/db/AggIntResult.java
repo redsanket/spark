@@ -47,6 +47,8 @@ public class AggIntResult {
                 this.setStartDateTime(currentStartDateTime);
                 // set placeholder for end date and time
                 this.setEndDateTime("To Be Set");
+                // set placeholder for Unique ID 
+                this.setUniqueId("To Be Set");
 	}
 	
 	public String getCurrentPipeLineName() {
