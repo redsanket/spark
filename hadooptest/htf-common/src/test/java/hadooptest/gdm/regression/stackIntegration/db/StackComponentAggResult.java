@@ -334,9 +334,6 @@ public class StackComponentAggResult {
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
-                                        String startDateTime =  resultSet.getString("startDateTime");
-                                        String endDateTime =  resultSet.getString("endDateTime");
-                                        String uniqueId =  resultSet.getString("uniqueId");
 
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
@@ -360,7 +357,7 @@ public class StackComponentAggResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-							comments, result, startDateTime, endDateTime, uniqueId));
+							comments, result));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
@@ -390,7 +387,7 @@ public class StackComponentAggResult {
 								pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 								hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 								hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-								comments, result, startDateTime, endDateTime, uniqueId
+								comments, result
 							);
 					}
 					count++;
@@ -434,7 +431,7 @@ public class StackComponentAggResult {
 						dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsResult(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsCurrentState(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsMRJobURL(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsComments(),
 						dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
 						dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
-						dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult(),dbTableColumnsReplicaObject.getStartDateTime(),dbTableColumnsReplicaObject.getEndDateTime(),dbTableColumnsReplicaObject.getUniqueId()
+						dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult()
 						);
 			}
 		}
