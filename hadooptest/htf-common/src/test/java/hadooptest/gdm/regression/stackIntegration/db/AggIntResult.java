@@ -49,6 +49,10 @@ public class AggIntResult {
                 this.setEndDateTime("To Be Set");
                 // set placeholder for Unique ID 
                 this.setUniqueId("To Be Set");
+
+		TestSession.logger.debug("GRIDCI-1667, currentStartDateTime is: " + this.getStartDateTime());
+		TestSession.logger.debug("GRIDCI-1667, currentEndDatTime is: " + this.getEndDateTime());
+		TestSession.logger.debug("GRIDCI-1667, currentUniqueId is: " + this.getUniqueId());
 	}
 	
 	public String getCurrentPipeLineName() {
@@ -549,6 +553,8 @@ public class AggIntResult {
                 calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
                 java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+
+		TestSession.logger.debug("GRIDCI-1667, currentEndDatTime is: " + currentEndDateTime);
 
 		String colName = componentName + "Version" ;
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date, currentEndDateTime)  " +  "values ( ?,?,?,? )";
