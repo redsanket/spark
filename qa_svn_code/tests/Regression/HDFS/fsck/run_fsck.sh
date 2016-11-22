@@ -426,7 +426,7 @@ function test_fsck_05 {
     echo "Dir location: $multi_locs"
     echo $BLOCK_LOCATIONS
     export PDSH_SSH_ARGS_APPEND=" -i /homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa"
-    pdsh -w `echo $BLOCK_LOCATIONS | sed 's/ /,/g'` -l hdfsqa "cat \`find ${multi_locs} -name ${BLOCK_ID}\` > \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp; echo Corrupting the first block | tee \`find ${multi_locs} -name ${BLOCK_ID}\`; cat \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp >> \`find ${multi_locs} -name ${BLOCK_ID}\`; rm \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp"
+    pdsh -R exec -w `echo $BLOCK_LOCATIONS | sed 's/ /,/g'` -l hdfsqa "cat \`find ${multi_locs} -name ${BLOCK_ID}\` > \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp; echo Corrupting the first block | tee \`find ${multi_locs} -name ${BLOCK_ID}\`; cat \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp >> \`find ${multi_locs} -name ${BLOCK_ID}\`; rm \`find ${multi_locs} -name ${BLOCK_ID}\`.tmp"
 
     #cat the file to report the block as corrupt
     cmd="${HADOOP_HDFS_CMD} --config $HADOOP_CONF_DIR dfs -fs $FS -cat ${Unique}/fsck_05_input.txt 2>&1 |  tee -a $TMP_FILE | egrep '(Could not obtain block)|(cat: Checksum error)'"
@@ -832,7 +832,7 @@ function test_fsck_10 {
     echo "Dir location: $multi_locs"
     echo $BLOCK_LOCATIONS
     export PDSH_SSH_ARGS_APPEND=" -i /homes/hadoopqa/.ssh/flubber_hadoopqa_as_hdfsqa"
-    pdsh -w `echo $BLOCK_LOCATIONS | sed 's/ /,/g'` -l hdfsqa "echo Corrupting the first block | tee \`find ${multi_locs} -name ${BLOCK_ID}\`"
+    pdsh -R exec -w `echo $BLOCK_LOCATIONS | sed 's/ /,/g'` -l hdfsqa "echo Corrupting the first block | tee \`find ${multi_locs} -name ${BLOCK_ID}\`"
         
     #cat the file to report the block as corrupt
 	#cmd="${HADOOP_HDFS_CMD} --config $HADOOP_CONF_DIR dfs -fs $FS -cat ${Unique}/fsck_10_input.txt 2>&1 |  tee -a $TMP_FILE | egrep '(Could not obtain block)|(cat: Could not obtain block:)'"
