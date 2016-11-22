@@ -98,7 +98,26 @@ fi
 export HADOOP_27=$HADOOP_27
 
 YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
-HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon yspark_yarn_shuffle"
+
+HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
+
+# For stack component deploys, make sure we have tools to talk to artifactory.
+# We also dertermine the yspark_yarn_shuffle version using artifactory.
+yinst i hadoop_releases_utils
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  echo "Error: failed to install hadoop_releases_utils!"
+  exit 1
+fi
+
+if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+    export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" && $SPARK_SHUFFLE_VERSION == "" ]]; then
+    export SPARK_SHUFFLE_VERSION=`/home/y/bin/query_releases -c $STACK_COMP_VERSION_SPARK -b spark -p SPARK_DOT_LATEST`
+else
+    HADOOP_CORE_PKGS+=" yspark_yarn_shuffle"
+fi
+
 # if jdk is coming from Dist tag, add it to the HADOOP_CORE_PKGS list now so that its
 # version can be pulled along with rest of core pkgs
 if [[ $YJAVA_JDK_VERSION == "disttag" ]]; then
@@ -141,6 +160,10 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
 
+    if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+        HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
+    fi
+
     # gridci-1566, remove the unneeded "|sed 's/ *//'" from below 'echo', this does 
     # nothing and 'echo' itself reduces whitespace
     HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
@@ -181,6 +204,11 @@ else
             HADOOP_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
             HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
         done
+
+        if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+            HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
+        fi
+
         HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
         export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
 
@@ -241,6 +269,7 @@ echo "===  Hadoop Version (short)='$HADOOPVERSION'"
 echo "===  HADOOP_27='$HADOOP_27'"
 [ -n $TEZVERSION ] && echo "===  Tez Version='$TEZVERSION'"
 [ -n $SPARKVERSION ] && echo "===  Spark Version='$SPARKVERSION'"
+[ -n $SPARK_HISTORY_VERSION ] && echo "=== Spark History Version='$SPARK_HISTORY_VERSION'"
 echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
 echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
 echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
@@ -358,7 +387,7 @@ done
 [ -z "$STACK_COMP_VERSION_OOZIE" ] && export STACK_COMP_VERSION_OOZIE=none
 # spark is a boolean jenkins control
 [ -z "$STACK_COMP_INSTALL_SPARK" ] && export STACK_COMP_INSTALL_SPARK=false
-
+[ -z "$STACK_COMP_VERSION_SPARK" ] && export STACK_COMP_VERSION_SPARK=none
 
 ## HIT test pkg
 [ -z "$PIG_TEST_PKG" ] && export PIG_TEST_PKG=none
@@ -533,7 +562,9 @@ function deploy_stack() {
             echo $ARTI_URI
             # look up stack component version for AR in artifactory
             set -x
-            PACKAGE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b ${STACK_COMP} -p $packagename`
+            if [[ ${STACK_COMP} != "spark" ]]; then
+              PACKAGE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b ${STACK_COMP} -p $packagename`
+            fi
             set +x
         else
             echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
@@ -557,17 +588,39 @@ function deploy_stack() {
     cat $artifacts_dir/timeline.log
 }
 
+#################################################################################
+# Spark installation is flexible. You can either specify a reference cluster or
+# you can specify the version of spark and spark history server to be installed.
+#################################################################################
+function deploy_spark () {
+  if [[ $STACK_COMP_INSTALL_SPARK != false ]]; then
+    if [[ $STACK_COMP_VERSION_SPARK != "none" ]]; then
+      # call the default deploy behavior.
+      deploy_stack spark $STACK_COMP_VERSION_SPARK spark-install-check.sh
+    else
+      start=`date +%s`
+      h_start=`date +%Y/%m/%d-%H:%M:%S`
+
+      STACK_COMP=spark
+      echo "INFO: Install stack component ${STACK_COMP} on $h_start"
+      banner "START INSTALL STEP: Stack Component ${STACK_COMP}"
+      set -x
+      time ./spark-install-check.sh $CLUSTER $STACK_COMP_VERSION 2>&1 | tee $artifacts_dir/deploy_stack_${STACK_COMP}-${PACKAGE_VERSION}.log
+      st=$?
+      set +x
+      if [ $st -ne 0 ]; then
+        echo "ERROR: component install for ${STACK_COMP} failed!"
+      fi
+      banner "END INSTALL STEP: Stack Component ${STACK_COMP}: status='$st'"
+    fi
+  fi
+}
+
 echo "CHECK IF WE NEED TO INSTALL STACK COMPONENTS:"
-# For stack component deploys, make sure we have tools to talk to artifactory
-yinst i hadoop_releases_utils
-RC=$?
-if [ "$RC" -ne 0 ]; then
-  echo "Error: failed to install hadoop_releases_utils!"
-  exit 1
-fi
 deploy_stack pig $STACK_COMP_VERSION_PIG pig-install-check.sh
 deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
 deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
+deploy_spark
 
 fetch_artifacts
 
