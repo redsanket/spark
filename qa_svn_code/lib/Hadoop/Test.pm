@@ -774,7 +774,7 @@ sub get_single_daemon_status {
     $daemon_host = $self->get_daemon_hosts($component) unless $daemon_host;
 
     my $prog = ($component eq 'datanode') ? 'jsvc.exec' : 'java';
-    my @command = ( 'ssh', $admin_host, 'pdsh', '-R', 'exec', '-w', "$daemon_host",
+    my @command = ( 'ssh', $admin_host, 'pdsh', '-w', "$daemon_host",
         'ps auxww', '|', 'grep',
         shell_quote("$prog -Dproc_$component"),
          '|','grep -v grep -c');
@@ -892,7 +892,7 @@ sub control_daemon {
 
     if ($operation eq 'kill') {
         @command = ('ps','-ef','|','grep java','|','grep -v grep');
-        @command = ('/home/y/bin/pdsh', '-R', 'exec', '-w', $hosts, shell_quote("@command"), '2> /dev/null');
+        @command = ('/home/y/bin/pdsh', '-w', $hosts, shell_quote("@command"), '2> /dev/null');
         `stty -echo`;
         my $result = `@command`;
         note($result) if $verbose;
@@ -922,7 +922,7 @@ sub control_daemon {
                 'sudo', '/usr/local/bin/yinst', $operation, '-root',
                 "$Config->{HADOOP_QA_ROOT}/gs/gridre/yroot.$Config->{CLUSTER}",
                 $component);
-    @command = ('/home/y/bin/pdsh', '-R', 'exec', '-w', $hosts, shell_quote("@command"));
+    @command = ('/home/y/bin/pdsh', '-w', $hosts, shell_quote("@command"));
     note("@command");
 
     # This is a workaround because pdsh always return 0 even on failure.

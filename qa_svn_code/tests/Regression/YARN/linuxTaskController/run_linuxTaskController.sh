@@ -102,10 +102,10 @@ function cleanUpTmpDirs {
     fi
     echo "List of active Task Trackers: $tt_hosts"
     for tt_host in $tt_hosts; do
-        ssh $admin_host "pdsh -R exec -w $tt_host "rm -r ${HADOOP_QA_ROOT}/tmp/mapred-local/taskTracker/hadoopqa"
-    ssh $admin_host "pdsh -R exec -w $tt_host "rm -r /grid/1/tmp/mapred-local/taskTracker/hadoopqa"
-        ssh $admin_host "pdsh -R exec -w $tt_host "rm -r /grid/2/tmp/mapred-local/taskTracker/hadoopqa"
-    ssh $admin_host "pdsh -R exec -w $tt_host "rm -r /grid/3/tmp/mapred-local/taskTracker/hadoopqa"
+        ssh $admin_host "pdsh -w $tt_host "rm -r ${HADOOP_QA_ROOT}/tmp/mapred-local/taskTracker/hadoopqa"
+    ssh $admin_host "pdsh -w $tt_host "rm -r /grid/1/tmp/mapred-local/taskTracker/hadoopqa"
+        ssh $admin_host "pdsh -w $tt_host "rm -r /grid/2/tmp/mapred-local/taskTracker/hadoopqa"
+    ssh $admin_host "pdsh -w $tt_host "rm -r /grid/3/tmp/mapred-local/taskTracker/hadoopqa"
     done             
 }       
 
