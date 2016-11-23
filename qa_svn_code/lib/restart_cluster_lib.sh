@@ -136,7 +136,7 @@ function resetNodes
   fi
 
   #start/stop the host
-  local final_cmd="/home/y/bin/pdsh -R exec -w $hosts \"${set_conf_cmd} >> /dev/null;${reset_node_cmd}\""
+  local final_cmd="/home/y/bin/pdsh -w $hosts \"${set_conf_cmd} >> /dev/null;${reset_node_cmd}\""
   echo $final_cmd
   
   output=`eval $final_cmd`
