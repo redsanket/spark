@@ -122,5 +122,7 @@ public class TestReplicationOnStaging extends TestSession {
     public void tearDown() {
 	Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
 	Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+	
+	this.consoleHandle.removeDataSet(this.dataSetName);
     }
 }
