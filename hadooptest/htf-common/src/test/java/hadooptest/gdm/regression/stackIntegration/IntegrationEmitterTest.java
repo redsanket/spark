@@ -267,6 +267,9 @@ public class IntegrationEmitterTest  extends TestSession {
 	    boolean safeMode = checkClusterHealthObject.getClusterMode();
 	    TestSession.logger.info("cluster mode = " + safeMode);
 	    List<String> dataPathList = checkClusterHealthObject.getPathsList();
+
+	    TestSession.logger.info("CleanUpFlag is: " + checkClusterHealthObject.getCleanUpFlag());
+
 	    if (checkClusterHealthObject.getCleanUpFlag() && safeMode == false) {
 		for ( String dataPath : dataPathList)
 		    checkClusterHealthObject.deletePath(dataPath);

@@ -38,7 +38,7 @@ public class CheckClusterHealth {
 	private boolean cleanUpFlag = false;
 	private int noOfDataNode = 0;
 	private int dataNodeFullCount = 0;
-	private static final double BLOCK_USED_LIMIT = 50.0; 
+	private static final double BLOCK_USED_LIMIT = 80.0; // increase from 50% 
 	
 	private static final String NAMENODE_PORT_NUMBER = "50070";
 	private static final String PROCOTOL = "hdfs://";
