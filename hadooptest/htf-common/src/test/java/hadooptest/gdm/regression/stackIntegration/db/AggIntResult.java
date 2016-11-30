@@ -557,7 +557,7 @@ public class AggIntResult {
 		TestSession.logger.debug("GRIDCI-1667, currentEndDatTime is: " + currentEndDateTime);
 
 		String colName = componentName + "Version" ;
-		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date, currentEndDateTime)  " +  "values ( ?,?,?,? )";
+		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date, endDateTime)  " +  "values ( ?,?,?,? )";
 		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 		PreparedStatement pStatment ;
 		try {
