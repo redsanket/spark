@@ -365,6 +365,9 @@ public class StackComponentAggResult {
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
+
+						TestSession.logger.info(" GRIDCI-1667 mark4");
+
 						isTestFailed = true;
 						TestSession.logger.info(" failed .........");
 						insertRecordIntoFinalTable(dataSetName1, getCurrentDate() , gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion);
@@ -442,6 +445,9 @@ public class StackComponentAggResult {
 	}
 
 	public void insertFinalResultIntoDB( String dataSetName, String  date,
+
+			TestSession.logger.info(" GRIDCI-1667 mark1");
+
 			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
 			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
 			String  pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
@@ -570,6 +576,7 @@ public class StackComponentAggResult {
 
 
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
+		TestSession.logger.info(" GRIDCI-1667 mark2");
 		String colName = componentName + "Version" ;
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date)  " +  "values ( ?,?,? )";
 		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
@@ -587,6 +594,8 @@ public class StackComponentAggResult {
 
 	public void insertRecordIntoFinalTable(String dataSetName, String date , String gdmVersion, String hadoopVersion , String  pigVersion, String tezVersion ,
 			String hiveVersion , String hcatVersion, String hbaseVersion, String oozieVersion) {
+
+		TestSession.logger.info(" GRIDCI-1667 mark3");
 
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion)  " 
 				+  "values ( ?,?,?,?,?,?,?,?,?,?)";
