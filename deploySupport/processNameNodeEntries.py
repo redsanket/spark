@@ -122,10 +122,6 @@ for (namenode,s) in l:
   </property>
 
 '''  % ( nameserviceID, s))
-    from socket import gethostname
-    h = gethostname()
-    if h in (s,namenode):
-        fd.writelines('''
 
 fd.writelines('''</configuration>''')
 fd.close()
