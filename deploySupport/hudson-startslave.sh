@@ -110,11 +110,11 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+if [[ $SPARK_SHUFFLE_DIST_TAG != "same_as_STACK_COMP_VERSION_SPARK" ]]; then
     export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | awk '{print $1}' | cut -d- -f2`
-elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" && $SPARK_SHUFFLE_VERSION == "" ]]; then
+elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" ]]; then
     export SPARK_SHUFFLE_VERSION=`/home/y/bin/query_releases -c $STACK_COMP_VERSION_SPARK -b spark -p SPARK_DOT_LATEST`
-else
+elif [[ $SPARK_SHUFFLE_VERSION == "" ]]; then
     HADOOP_CORE_PKGS+=" yspark_yarn_shuffle"
 fi
 
@@ -160,7 +160,7 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
 
-    if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+    if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
         HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
     fi
 
@@ -205,7 +205,7 @@ else
             HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
         done
 
-        if [ -n "$SPARK_SHUFFLE_DIST_TAG" ]; then
+        if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
             HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
         fi
 
