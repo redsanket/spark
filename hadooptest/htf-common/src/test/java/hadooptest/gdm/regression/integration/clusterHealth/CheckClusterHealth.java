@@ -38,7 +38,7 @@ public class CheckClusterHealth {
 	private boolean cleanUpFlag = false;
 	private int noOfDataNode = 0;
 	private int dataNodeFullCount = 0;
-	private static final double BLOCK_USED_LIMIT = 80.0; // increase from 50% 
+	private static final double BLOCK_USED_LIMIT = 70.0; // increase from 50%, long-pole DN 
 	
 	private static final String NAMENODE_PORT_NUMBER = "50070";
 	private static final String PROCOTOL = "hdfs://";
@@ -127,13 +127,13 @@ public class CheckClusterHealth {
 				Double temp = (Double)MorphDynaBeanObject.get("blockPoolUsedPercent");
 				TestSession.logger.info("temp =  " + temp.doubleValue());
 				
-				// if datanode's blockPoolUsedPercent is greater than 50% then we need to delete the folders
+				// if datanode's blockPoolUsedPercent is greater than 70% then we need to delete the folders
 				if (temp > BLOCK_USED_LIMIT) {
 					// clean hdfs
 					this.setCleanUpFlag(true);
 					this.setDataNodeFullCount();
 					
-					// increase the datanode that is full by 50% of space
+					// increase the datanode that is full by 70% of space
 					
 					
 					TestSession.logger.info("DataNode " + key + "  of " + this.getClusterName()  + "  is filled with data of " + temp + "  on HDFS.  cleanUpFlag =  "  +  this.getCleanUpFlag());

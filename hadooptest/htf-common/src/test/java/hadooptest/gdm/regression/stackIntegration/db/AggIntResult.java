@@ -374,6 +374,11 @@ public class AggIntResult {
 				int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
 				if (recordCount == 0) {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
+
+					TestSession.logger.debug("GRIDCI-1667: new record case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+					TestSession.logger.debug("GRIDCI-1667: new record case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+					TestSession.logger.debug("GRIDCI-1667: new record case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+
 					insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
 					if (dbTableColumnsReplicaList.size() > -1) {
 						DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
@@ -409,6 +414,10 @@ public class AggIntResult {
 							);
 					}
 				}else {
+					TestSession.logger.debug("GRIDCI-1667: record exists case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+					TestSession.logger.debug("GRIDCI-1667: record exists case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+					TestSession.logger.debug("GRIDCI-1667: record exists case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
 				}
 			}
