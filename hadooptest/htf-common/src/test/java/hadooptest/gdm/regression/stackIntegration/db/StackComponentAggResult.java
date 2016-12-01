@@ -445,9 +445,6 @@ public class StackComponentAggResult {
 	}
 
 	public void insertFinalResultIntoDB( String dataSetName, String  date,
-
-			TestSession.logger.info(" GRIDCI-1667 mark1");
-
 			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
 			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
 			String  pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
@@ -471,6 +468,9 @@ public class StackComponentAggResult {
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
 			String  comments, String result ) {		
 		String dsName = null;
+
+		TestSession.logger.info(" GRIDCI-1667 mark1");
+
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 			this.dataBaseOperations.updateRecord(this.connection , "date" , date,
