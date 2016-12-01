@@ -415,10 +415,6 @@ public class AggIntResult {
 							);
 					}
 				}else {
-					TestSession.logger.debug("GRIDCI-1667: record exists case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
-					TestSession.logger.debug("GRIDCI-1667: record exists case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
-					TestSession.logger.debug("GRIDCI-1667: record exists case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
-
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
 				}
 			}
