@@ -50,9 +50,9 @@ public class AggIntResult {
                 // set placeholder for Unique ID 
                 this.setUniqueId("To Be Set");
 
-		TestSession.logger.debug("GRIDCI-1667, currentStartDateTime is: " + this.getStartDateTime());
-		TestSession.logger.debug("GRIDCI-1667, currentEndDatTime is: " + this.getEndDateTime());
-		TestSession.logger.debug("GRIDCI-1667, currentUniqueId is: " + this.getUniqueId());
+		TestSession.logger.info("GRIDCI-1667, currentStartDateTime is: " + this.getStartDateTime());
+		TestSession.logger.info("GRIDCI-1667, currentEndDatTime is: " + this.getEndDateTime());
+		TestSession.logger.info("GRIDCI-1667, currentUniqueId is: " + this.getUniqueId());
 	}
 	
 	public String getCurrentPipeLineName() {
@@ -373,20 +373,20 @@ public class AggIntResult {
 			if (compVersion != null) {
 				int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
 
-				TestSession.logger.debug("GRIDCI-1667: recordCount is: " + recordCount); 
+				TestSession.logger.info("GRIDCI-1667: recordCount is: " + recordCount); 
 
 				if (recordCount == 0) {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
 
-					TestSession.logger.debug("GRIDCI-1667: dbTableColumnsReplicaList.size is: " + dbTableColumnsReplicaList.size() );
+					TestSession.logger.info("GRIDCI-1667: dbTableColumnsReplicaList.size is: " + dbTableColumnsReplicaList.size() );
 
 					insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
 					if (dbTableColumnsReplicaList.size() > -1) {
 						DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 
-						TestSession.logger.debug("GRIDCI-1667: new record case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
-						TestSession.logger.debug("GRIDCI-1667: new record case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
-						TestSession.logger.debug("GRIDCI-1667: new record case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+						TestSession.logger.info("GRIDCI-1667: new record case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+						TestSession.logger.info("GRIDCI-1667: new record case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+						TestSession.logger.info("GRIDCI-1667: new record case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
 
 						insertFinalResultIntoDB(
 								dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
@@ -451,9 +451,9 @@ public class AggIntResult {
 			String  comments, String result, String startDateTime, String endDateTime, String uniqueId ) {		
 		String dsName = null;
 
-		TestSession.logger.debug("GRIDCI-1667: startDateTime is: " + startDateTime);
-		TestSession.logger.debug("GRIDCI-1667: endDateTime is: " + endDateTime);
-		TestSession.logger.debug("GRIDCI-1667: uniqueId is: " + uniqueId);
+		TestSession.logger.info("GRIDCI-1667: startDateTime is: " + startDateTime);
+		TestSession.logger.info("GRIDCI-1667: endDateTime is: " + endDateTime);
+		TestSession.logger.info("GRIDCI-1667: uniqueId is: " + uniqueId);
 
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
@@ -560,7 +560,7 @@ public class AggIntResult {
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
 
-		TestSession.logger.debug("GRIDCI-1667, mark5"); 
+		TestSession.logger.info("GRIDCI-1667, mark5"); 
 	}
 	
 	
@@ -572,7 +572,7 @@ public class AggIntResult {
                 java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
-		TestSession.logger.debug("GRIDCI-1667, currentEndDatTime is: " + currentEndDateTime);
+		TestSession.logger.info("GRIDCI-1667, currentEndDatTime is: " + currentEndDateTime);
 
 		String colName = componentName + "Version" ;
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date, endDateTime)  " +  "values ( ?,?,?,? )";
