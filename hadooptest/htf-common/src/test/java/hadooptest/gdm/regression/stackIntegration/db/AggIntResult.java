@@ -372,8 +372,13 @@ public class AggIntResult {
 			TestSession.logger.info("All components are passed.");
 			if (compVersion != null) {
 				int recordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , compVersion ,  getCurrentDate() );
+
+				TestSession.logger.debug("GRIDCI-1667: recordCount is: " + recordCount); 
+
 				if (recordCount == 0) {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " does not exist, inserting a new record.");
+
+					TestSession.logger.debug("GRIDCI-1667: dbTableColumnsReplicaList.size is: " + dbTableColumnsReplicaList.size() );
 
 					insertRecordIntoFinalTable(dataSetName1, this.getCurrentPipeLineName() , compVersion , getCurrentDate() );
 					if (dbTableColumnsReplicaList.size() > -1) {
@@ -445,6 +450,11 @@ public class AggIntResult {
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
 			String  comments, String result, String startDateTime, String endDateTime, String uniqueId ) {		
 		String dsName = null;
+
+		TestSession.logger.debug("GRIDCI-1667: startDateTime is: " + startDateTime);
+		TestSession.logger.debug("GRIDCI-1667: endDateTime is: " + endDateTime);
+		TestSession.logger.debug("GRIDCI-1667: uniqueId is: " + uniqueId);
+
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 			this.dataBaseOperations.updateRecord(this.connection , "date" , date,
@@ -549,6 +559,8 @@ public class AggIntResult {
 		getComponentResult("hbase"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
+
+		TestSession.logger.debug("GRIDCI-1667, mark5"); 
 	}
 	
 	
