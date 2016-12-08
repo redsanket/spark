@@ -56,11 +56,23 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		for (int xx = 0; xx < 60; xx++) {
 			if (job.getJobState().toString().equalsIgnoreCase("SUCCEEDED")) {
 				testConditionMet = true;
+                                TestSession.logger.info("Got expected job status after " + xx + " msecs");
 				break;
 			}
 			Thread.sleep(1000);
 		}
 		Assert.assertTrue(testConditionMet);
+
+                // gridci-1771
+                // also need to check after enough time has passed to be sure status is sent
+                // from history server, previously status can come right from the RM/AM
+                boolean testCondition2Met = false;
+                Thread.sleep(30000);
+                if (job.getJobState().toString().equalsIgnoreCase("SUCCEEDED")) {
+                        testCondition2Met = true;
+                        TestSession.logger.info("Still got expected job status after 30 secs");
+                }
+                Assert.assertTrue(testCondition2Met);
 
 		genericMapredCliResponseBO = mapredCliCommands.getJobStatus(
 				EMPTY_ENV_HASH_MAP, user, jobId);
