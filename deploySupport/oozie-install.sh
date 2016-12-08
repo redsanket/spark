@@ -143,8 +143,9 @@ else
   exit 1
 fi
 
-yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE
-yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE_CLIENT
+# gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
 
 
 #
