@@ -145,7 +145,13 @@ fi
 
 # gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
 yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
+if [ $? -ne 0 ]; then
+  echo "Error: $PACKAGE_VERSION_OOZIE failed to install!"
+fi
 yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
+if [ $? -ne 0 ]; then
+  echo "Error: $PACKAGE_VERSION_OOZIE_CLIENT failed to install!"
+fi
 
 
 #
