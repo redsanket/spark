@@ -147,10 +147,12 @@ fi
 yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE failed to install!"
+  exit 1
 fi
 yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE_CLIENT failed to install!"
+  exit 1
 fi
 
 
