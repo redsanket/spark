@@ -148,6 +148,8 @@ if [ $CMD == "start" ]; then
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapredsystem
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chown -R ${HDFSUSER}:hadoop /mapred 
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 755 /mapred
+	# gridci-1773, change /mapred/history/done to match prod
+	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 770 /mapred/history/done
 	$HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/history/done_intermediate
         $HADOOP_HDFS_HOME/bin/hdfs  dfs -chmod -R 1777 /mapred/logs
 	echo ============ almost done with hdfs janitorial services...
