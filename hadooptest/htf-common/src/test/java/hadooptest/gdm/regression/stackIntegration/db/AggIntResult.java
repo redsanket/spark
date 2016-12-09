@@ -636,8 +636,8 @@ public class AggIntResult {
 		int total = 0, fail = 0, pass = 0 , skipped = 0;
 		String absolutePath = new File("").getAbsolutePath();
 		File folderPath = new File(absolutePath + "/resources/stack_integration/integration_result");
+		TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
 		if (!folderPath.exists()) {
-			TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
 			TestSession.logger.info("GRIDCI-1768: Folder path is - " + folderPath.toString());
 			if (folderPath.mkdir() == true ) {
 				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
