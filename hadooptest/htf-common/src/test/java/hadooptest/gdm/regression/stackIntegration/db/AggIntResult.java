@@ -565,8 +565,11 @@ public class AggIntResult {
 		String absolutePath = new File("").getAbsolutePath();
 		File folderPath = new File(absolutePath + "/resources/stack_integration/integration_result");
 		if (!folderPath.exists()) {
+			TestSession.logger.info("GRIDCI-1768: Aboslute path is - ", absolutePath);
+			TestSession.logger.info("GRIDCI-1768: Folder path is - ", folderPath);
 			if (folderPath.mkdir() == true ) {
 				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.txt");
+				TestSession.logger.info("GRIDCI-1768: File used is - ", reportFile);
 				try {
 					//	if (reportFile.createNewFile() == true) {
 					PrintWriter printWriter = new PrintWriter(reportFile);
@@ -603,6 +606,8 @@ public class AggIntResult {
 					e.printStackTrace();
 				}
 			}
+		} else {
+			TestSession.logger.info("GRIDCI-1768: Folder already exists ", absolutePath);
 		}
 	}
 
