@@ -367,6 +367,7 @@ public class AggIntResult {
 					}
 				}else {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
+					createJsonReport();
 				}
 			}
 		}
@@ -629,5 +630,19 @@ public class AggIntResult {
 			total++;
 		}
 		this.addResultToMap(componentName, total + ":" + pass + ":" + fail + ":" + skipped);
+	}
+	
+	public void createJsonReport() {
+		int total = 0, fail = 0, pass = 0 , skipped = 0;
+		String absolutePath = new File("").getAbsolutePath();
+		File folderPath = new File(absolutePath + "/resources/stack_integration/integration_result");
+		if (!folderPath.exists()) {
+			TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
+			TestSession.logger.info("GRIDCI-1768: Folder path is - " + folderPath.toString());
+			if (folderPath.mkdir() == true ) {
+				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
+				TestSession.logger.info("GRIDCI-1768: File used is - " + reportFile.toString());
+			}
+		}
 	}
 }
