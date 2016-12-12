@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 
@@ -367,7 +369,6 @@ public class AggIntResult {
 					}
 				}else {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
-					createJsonReport();
 				}
 			}
 		}
@@ -498,6 +499,19 @@ public class AggIntResult {
 		getComponentResult("hbase"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
+		createJsonReport(dataSetName, date, hadoopVersion, hadoopCurrentState, hadoopResult, hadoopComments, gdmVersion, gdmCurrentState, gdmResult, 
+				gdmComments, pigVersion, pigCurrentState, pigMRJobURL, pigResult, pigComments, tezVersion, tezCurrentState, tezMRJobURL, tezResult, 
+				tezComments, hiveVersion, hiveCurrentState, hiveResult, hiveComment, hiveDropTable, hiveDropTableCurrentState, hiveDropTableComment, 
+				hiveCreateTable, hiveCreateTableCurrentState, hiveCreateTableComment, hiveCopyDataToHive, hiveCopyDataToHiveMRJobURL, 
+				hiveCopyDataToHiveCurrentState, hiveCopyDataToHiveComment, hiveLoadDataToTable, hiveLoadDataToTableComment, hiveLoadDataToTableCurrentState, 
+				hcatVersion, hcatCurrentState, hcatResult, hcatMRJobURL, hcatComment, hbaseVersion, hbaseCurrentState, hbaseResult, hbaseComment, 
+				hbaseCreateTable, hbaseCreateTableCurrentState, hbaseCreateTableComment, hbaseInsertRecordTable, hbaseInsertRecordTableMRJobURL, 
+				hbaseInsertTableCurrentState, hbaseInsertRecordTableComment, hbaseScanRecordTable, hbaseScanRecordTableMRJobURL, hbaseScanRecordTableCurrentState, 
+				hbaseScanRecordTableComment, hbaseDeleteTable, hbaseDeleteTableCurrentState, hbaseDeleteTableComment, oozieVersion, oozieResult, oozieCurrentState, 
+				oozieComments, cleanup_outputResult, cleanup_outputCurrentState, cleanup_outputMRJobURL, cleanup_outputComments, check_inputResult, 
+				check_inputCurrentState, check_inputMRJobURL, check_inputComments, pig_abf_input_PageValidNewsResult, pig_abf_input_PageValidNewsCurrentState, 
+				pig_abf_input_PageValidNewsMRJobURL, pig_abf_input_PageValidNewsComments, hive_storageResult, hive_storageCurrentState, hive_storageMRJobURL, 
+				hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments, comments, result);
 	}
 	
 	
@@ -632,16 +646,134 @@ public class AggIntResult {
 		this.addResultToMap(componentName, total + ":" + pass + ":" + fail + ":" + skipped);
 	}
 	
-	public void createJsonReport() {
-		int total = 0, fail = 0, pass = 0 , skipped = 0;
+	public void createJsonReport(String dataSetName, String  date,
+			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
+			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
+			String  pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
+			String  tezVersion, String  tezCurrentState, String  tezMRJobURL, String tezResult, String  tezComments,
+			String  hiveVersion, String  hiveCurrentState, String  hiveResult, String  hiveComment,
+			String  hiveDropTable, String  hiveDropTableCurrentState, String  hiveDropTableComment,
+			String  hiveCreateTable, String  hiveCreateTableCurrentState, String  hiveCreateTableComment,
+			String  hiveCopyDataToHive, String  hiveCopyDataToHiveMRJobURL, String  hiveCopyDataToHiveCurrentState, String  hiveCopyDataToHiveComment,
+			String  hiveLoadDataToTable, String  hiveLoadDataToTableComment, String hiveLoadDataToTableCurrentState,
+			String  hcatVersion, String  hcatCurrentState, String  hcatResult, String  hcatMRJobURL, String  hcatComment,
+			String  hbaseVersion, String   hbaseCurrentState, String  hbaseResult, String  hbaseComment,
+			String  hbaseCreateTable, String  hbaseCreateTableCurrentState, String hbaseCreateTableComment,
+			String  hbaseInsertRecordTable, String hbaseInsertRecordTableMRJobURL, String hbaseInsertTableCurrentState, String  hbaseInsertRecordTableComment,
+			String  hbaseScanRecordTable, String  hbaseScanRecordTableMRJobURL, String  hbaseScanRecordTableCurrentState, String  hbaseScanRecordTableComment,
+			String  hbaseDeleteTable, String  hbaseDeleteTableCurrentState, String  hbaseDeleteTableComment,
+			String  oozieVersion, String  oozieResult, String  oozieCurrentState, String  oozieComments,
+			String  cleanup_outputResult, String  cleanup_outputCurrentState, String  cleanup_outputMRJobURL, String  cleanup_outputComments,
+			String  check_inputResult, String  check_inputCurrentState, String check_inputMRJobURL, String check_inputComments,
+			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
+			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
+			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
+			String  comments, String result) {
+		
 		String absolutePath = new File("").getAbsolutePath();
-		File folderPath = new File(absolutePath + "/resources/stack_integration/integration_result");
+		File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
 		TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
+		
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("dataSetName", dataSetName);
+		jsonObj.put("date" , date);
+		jsonObj.put("hadoopVersion", hadoopVersion);
+		jsonObj.put("hadoopCurrentState" , hadoopCurrentState);
+		jsonObj.put("hadoopResult" , hadoopResult);
+	    jsonObj.put("hadoopComments" , hadoopComments);
+		jsonObj.put("gdmVersion" , gdmVersion);
+		jsonObj.put("gdmCurrentState" , gdmCurrentState);
+		jsonObj.put("gdmResult" , gdmResult);
+		jsonObj.put("gdmComments" , gdmComments);
+		jsonObj.put("pigVersion" , pigVersion);
+		jsonObj.put("pigCurrentState" , pigCurrentState);
+		jsonObj.put("pigMRJobURL" , pigMRJobURL);
+		jsonObj.put("pigResult" , pigResult);
+		jsonObj.put("pigComments" , pigComments); 
+		jsonObj.put("tezVersion" , tezVersion);
+		jsonObj.put("tezCurrentState" , tezCurrentState);
+		jsonObj.put("tezMRJobURL",tezMRJobURL);
+		jsonObj.put("tezResult" , tezResult);
+		jsonObj.put("tezComments" , tezComments);
+		jsonObj.put("hiveVersion" , hiveVersion);
+		jsonObj.put("hiveCurrentState" , hiveCurrentState);
+		jsonObj.put("hiveResult" , hiveResult);
+		jsonObj.put("hiveComment",hiveComment);
+		jsonObj.put("hiveDropTable", hiveDropTable);
+		jsonObj.put("hiveDropTableCurrentState" , hiveDropTableCurrentState);
+		jsonObj.put("hiveDropTableComment" , hiveDropTableComment);
+		jsonObj.put("hiveCreateTable", hiveCreateTable);
+		jsonObj.put("hiveCreateTableCurrentState" , hiveCreateTableCurrentState);
+		jsonObj.put("hiveCreateTableComment",hiveCreateTableComment);
+		jsonObj.put("hiveCopyDataToHive" , hiveCopyDataToHive);
+		jsonObj.put("hiveCopyDataToHiveMRJobURL" , hiveCopyDataToHiveMRJobURL);
+		jsonObj.put("hiveCopyDataToHiveCurrentState", hiveCopyDataToHiveCurrentState);
+		jsonObj.put("hiveCopyDataToHiveComment",hiveCopyDataToHiveComment);
+		jsonObj.put("hiveLoadDataToTable",hiveLoadDataToTable);
+		jsonObj.put("hiveLoadDataToTableComment", hiveLoadDataToTableComment);
+		jsonObj.put("hiveLoadDataToTableCurrentState", hiveLoadDataToTableCurrentState);
+		jsonObj.put("hcatVersion",hcatVersion);
+		jsonObj.put("hcatCurrentState" , hcatCurrentState);
+		jsonObj.put("hcatResult" , hcatResult);
+		jsonObj.put("hcatMRJobURL" , hcatMRJobURL);
+		jsonObj.put("hcatComment" , hcatComment);
+		jsonObj.put("hbaseVersion",hbaseVersion);
+		jsonObj.put("hbaseCurrentState" , hbaseCurrentState);
+		jsonObj.put("hbaseResult", hbaseResult);
+		jsonObj.put("hbaseComment",hbaseComment);
+		jsonObj.put("hbaseCreateTable", hbaseCreateTable);
+		jsonObj.put("hbaseCreateTableCurrentState",hbaseCreateTableCurrentState);
+		jsonObj.put("hbaseCreateTableComment",hbaseCreateTableComment);
+		jsonObj.put("hbaseInsertRecordTable" , hbaseInsertRecordTable);
+		jsonObj.put("hbaseInsertRecordTableMRJobURL",hbaseInsertRecordTableMRJobURL);
+		jsonObj.put("hbaseInsertTableCurrentState",hbaseInsertTableCurrentState);
+		jsonObj.put("hbaseInsertRecordTableComment" , hbaseInsertRecordTableComment);
+		jsonObj.put("hbaseScanRecordTable", hbaseScanRecordTable);
+		jsonObj.put("hbaseScanRecordTableMRJobURL" , hbaseScanRecordTableMRJobURL);
+		jsonObj.put("hbaseScanRecordTableCurrentState" , hbaseScanRecordTableCurrentState);
+		jsonObj.put("hbaseScanRecordTableComment" , hbaseScanRecordTableComment);
+		jsonObj.put("hbaseDeleteTable",hbaseDeleteTable);
+		jsonObj.put("hbaseDeleteTableCurrentState" , hbaseDeleteTableCurrentState);
+		jsonObj.put("hbaseDeleteTableComment" , hbaseDeleteTableComment);
+		jsonObj.put("oozieVersion",oozieVersion);
+		jsonObj.put("oozieResult", oozieResult);
+		jsonObj.put("oozieCurrentState", oozieCurrentState);
+		jsonObj.put("oozieComments" , oozieComments);
+		jsonObj.put("cleanup_outputResult", cleanup_outputResult);
+		jsonObj.put("cleanup_outputCurrentState" , cleanup_outputCurrentState);
+		jsonObj.put("cleanup_outputMRJobURL", cleanup_outputMRJobURL);
+		jsonObj.put("cleanup_outputComments",cleanup_outputComments);
+		jsonObj.put("check_inputResult",check_inputResult);
+		jsonObj.put("check_inputCurrentState",check_inputCurrentState);
+		jsonObj.put("check_inputMRJobURL",check_inputMRJobURL);
+		jsonObj.put("check_inputComments",check_inputComments);
+		jsonObj.put("pig_abf_input_PageValidNewsResult",pig_abf_input_PageValidNewsResult);
+		jsonObj.put("pig_abf_input_PageValidNewsCurrentState" , pig_abf_input_PageValidNewsCurrentState);
+		jsonObj.put("pig_abf_input_PageValidNewsMRJobURL" , pig_abf_input_PageValidNewsMRJobURL);
+		jsonObj.put("pig_abf_input_PageValidNewsComments" , pig_abf_input_PageValidNewsComments);
+		jsonObj.put("hive_storageResult" , hive_storageResult);
+		jsonObj.put("hive_storageCurrentState" , hive_storageCurrentState);
+		jsonObj.put("hive_storageMRJobURL" , hive_storageMRJobURL);
+		jsonObj.put("hive_storageComments" , hive_storageComments);
+		jsonObj.put("hive_verifyResult" , hive_verifyResult);
+		jsonObj.put("hive_verifyCurrentState" , hive_verifyCurrentState);
+		jsonObj.put("hive_verifyMRJobURL" , hive_verifyMRJobURL);
+		jsonObj.put("hive_verifyComments" , hive_verifyComments);
+		jsonObj.put("comments",comments);
+		jsonObj.put("result",result);
+		
 		if (!folderPath.exists()) {
 			TestSession.logger.info("GRIDCI-1768: Folder path is - " + folderPath.toString());
 			if (folderPath.mkdir() == true ) {
 				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
 				TestSession.logger.info("GRIDCI-1768: File used is - " + reportFile.toString());
+				try {
+					PrintWriter printWriter = new PrintWriter(reportFile);
+					printWriter.write(jsonObj.toJSONString());
+					printWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
