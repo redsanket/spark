@@ -669,11 +669,7 @@ public class AggIntResult {
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
 			String  comments, String result) {
-		
-		String absolutePath = new File("").getAbsolutePath();
-		File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
-		TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
-		
+
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("dataSetName", dataSetName);
 		jsonObj.put("date" , date);
@@ -762,9 +758,12 @@ public class AggIntResult {
 		jsonObj.put("comments",comments);
 		jsonObj.put("result",result);
 		
+		String absolutePath = new File("").getAbsolutePath();
+		File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
+		TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
 		if (!folderPath.exists()) {
 			TestSession.logger.info("GRIDCI-1768: Folder path is - " + folderPath.toString());
-			if (folderPath.mkdir() == true ) {
+			if (folderPath.mkdirs() == true ) {
 				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
 				TestSession.logger.info("GRIDCI-1768: File used is - " + reportFile.toString());
 				try {
