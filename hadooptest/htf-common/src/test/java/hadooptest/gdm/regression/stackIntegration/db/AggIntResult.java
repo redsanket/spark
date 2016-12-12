@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
+import jdk.nashorn.api.scripting.JSObject;
 
 public class AggIntResult {
 
@@ -671,7 +672,10 @@ public class AggIntResult {
 			String  comments, String result) {
 
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("dataSetName", dataSetName);
+		JSONObject jsonObjTop = new JSONObject();
+
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
+		jsonObj.put("dataSetName", dsName);
 		jsonObj.put("date" , date);
 		jsonObj.put("hadoopVersion", hadoopVersion);
 		jsonObj.put("hadoopCurrentState" , hadoopCurrentState);
@@ -758,14 +762,16 @@ public class AggIntResult {
 		jsonObj.put("comments",comments);
 		jsonObj.put("result",result);
 		
+		String pipelineName = this.getCurrentPipeLineName();
+		jsonObjTop.put("pipeline", pipelineName);
+		jsonObjTop.put("resultset", jsonObj);
+
 		String absolutePath = new File("").getAbsolutePath();
 		File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
-		TestSession.logger.info("GRIDCI-1768: Aboslute path is - " + absolutePath);
 		if (!folderPath.exists()) {
-			TestSession.logger.info("GRIDCI-1768: Folder path is - " + folderPath.toString());
 			if (folderPath.mkdirs() == true ) {
 				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
-				TestSession.logger.info("GRIDCI-1768: File used is - " + reportFile.toString());
+				TestSession.logger.info("Final test results json file - " + reportFile.toString());
 				try {
 					PrintWriter printWriter = new PrintWriter(reportFile);
 					printWriter.write(jsonObj.toJSONString());
