@@ -774,7 +774,7 @@ public class AggIntResult {
 				TestSession.logger.info("Final test results json file - " + reportFile.toString());
 				try {
 					PrintWriter printWriter = new PrintWriter(reportFile);
-					printWriter.write(jsonObj.toJSONString());
+					printWriter.write(jsonObjTop.toJSONString());
 					printWriter.close();
 				} catch (IOException e) {
 					e.printStackTrace();
