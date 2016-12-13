@@ -1,4 +1,4 @@
-jackage hadooptest.gdm.regression.stackIntegration.db;
+package hadooptest.gdm.regression.stackIntegration.db;
 
 import java.io.File;
 import java.io.IOException;
