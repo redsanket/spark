@@ -674,7 +674,7 @@ public class AggIntResult {
 		JSONObject jsonObj = new JSONObject();
 		JSONObject jsonObjTop = new JSONObject();
 
-		String dsName = dataSetName.substring(0, (dataSetName.length() - 2));
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 		jsonObj.put("dataSetName", dsName);
 		jsonObj.put("date" , date);
 		jsonObj.put("hadoopVersion", hadoopVersion);
