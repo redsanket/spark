@@ -1,4 +1,4 @@
-package hadooptest.gdm.regression.stackIntegration.db;
+jackage hadooptest.gdm.regression.stackIntegration.db;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
+import jdk.nashorn.api.scripting.JSObject;
 
 public class AggIntResult {
 
@@ -559,8 +562,22 @@ public class AggIntResult {
 		getComponentResult("hbase"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
+                createJsonReport(dataSetName, date, hadoopVersion, hadoopCurrentState, hadoopResult, hadoopComments, gdmVersion, gdmCurrentState, gdmResult,
+                                gdmComments, pigVersion, pigCurrentState, pigMRJobURL, pigResult, pigComments, tezVersion, tezCurrentState, tezMRJobURL, tezResult,
+                                tezComments, hiveVersion, hiveCurrentState, hiveResult, hiveComment, hiveDropTable, hiveDropTableCurrentState, hiveDropTableComment,
+                                hiveCreateTable, hiveCreateTableCurrentState, hiveCreateTableComment, hiveCopyDataToHive, hiveCopyDataToHiveMRJobURL,
+                                hiveCopyDataToHiveCurrentState, hiveCopyDataToHiveComment, hiveLoadDataToTable, hiveLoadDataToTableComment, hiveLoadDataToTableCurrentState, 
+                                hcatVersion, hcatCurrentState, hcatResult, hcatMRJobURL, hcatComment, hbaseVersion, hbaseCurrentState, hbaseResult, hbaseComment,
+                                hbaseCreateTable, hbaseCreateTableCurrentState, hbaseCreateTableComment, hbaseInsertRecordTable, hbaseInsertRecordTableMRJobURL,
+                                hbaseInsertTableCurrentState, hbaseInsertRecordTableComment, hbaseScanRecordTable, hbaseScanRecordTableMRJobURL, hbaseScanRecordTableCurrentState,
+                                hbaseScanRecordTableComment, hbaseDeleteTable, hbaseDeleteTableCurrentState, hbaseDeleteTableComment, oozieVersion, oozieResult, oozieCurrentState,
+                                oozieComments, cleanup_outputResult, cleanup_outputCurrentState, cleanup_outputMRJobURL, cleanup_outputComments, check_inputResult,
+                                check_inputCurrentState, check_inputMRJobURL, check_inputComments, pig_abf_input_PageValidNewsResult, pig_abf_input_PageValidNewsCurrentState,
+                                pig_abf_input_PageValidNewsMRJobURL, pig_abf_input_PageValidNewsComments, hive_storageResult, hive_storageCurrentState, hive_storageMRJobURL,
+                                hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments, comments, result, startDateTime, 
+				endDateTime, uniqueId);
 
-		TestSession.logger.info("GRIDCI-1667, mark5"); 
+				TestSession.logger.info("GRIDCI-1667, mark5"); 
 	}
 	
 	
@@ -699,4 +716,6 @@ public class AggIntResult {
 		}
 		this.addResultToMap(componentName, total + ":" + pass + ":" + fail + ":" + skipped);
 	}
+
+
 }
