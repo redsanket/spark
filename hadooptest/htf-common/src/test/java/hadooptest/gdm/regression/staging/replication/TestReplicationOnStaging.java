@@ -31,6 +31,7 @@ public class TestReplicationOnStaging extends TestSession {
     private final static String START_INSTANCE_RANGE = "20160719";
     private final static String END_INSTANCE_RANGE = "20160721";
     private final static String SOURCE_DATA_PATH = "/user/hitusr_1/test/";
+    private boolean testCasePassedFlag = false;
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -79,6 +80,9 @@ public class TestReplicationOnStaging extends TestSession {
 
 	// check for retention workflow
 	workFlowHelper.checkWorkFlow(this.dataSetName , "retention", this.datasetActivationTime);
+	
+	// set to true if both replication and retention are successful
+	testCasePassedFlag = true;
     }
 
     /**
@@ -122,5 +126,9 @@ public class TestReplicationOnStaging extends TestSession {
     public void tearDown() {
 	Response response = this.consoleHandle.deactivateDataSet(this.dataSetName);
 	Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+	
+	if (testCasePassedFlag) {
+	    this.consoleHandle.removeDataSet(this.dataSetName);
+	}
     }
 }
