@@ -99,7 +99,7 @@ export HADOOP_27=$HADOOP_27
 
 YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 
-HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon"
+HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
 
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
