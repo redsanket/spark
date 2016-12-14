@@ -310,7 +310,7 @@ public class CommonFunctions {
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
 
                 // set the individual run's start date and time
-                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+                java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
 
                 TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
