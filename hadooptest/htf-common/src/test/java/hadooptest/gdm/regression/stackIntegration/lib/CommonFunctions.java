@@ -308,6 +308,14 @@ public class CommonFunctions {
 		
 		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
 		setHealthyStackComponentsMap(healthyStackComponentsMap);
+
+                // set the individual run's start date and time
+                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+                String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+
+                TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
+		  currentStartDateTime);
+                this.updateDB(this.getDataSetName(), "startDateTime", currentStartDateTime);
 	}
 
 	public void preInit() {
@@ -449,13 +457,13 @@ public class CommonFunctions {
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
 
-                // set the aggregated run's end date and time
+                // set the individual run's end date and time
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
                 java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
                 String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
-                TestSession.logger.info("GRIDCI-1667, x2yz currentEndDateTime is: " + currentEndDateTime);
+                TestSession.logger.info("GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
 		this.updateDB(this.getDataSetName(), "endDateTime", currentEndDateTime);
 
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
