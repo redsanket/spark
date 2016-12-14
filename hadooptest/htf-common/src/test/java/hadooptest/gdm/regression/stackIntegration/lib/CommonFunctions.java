@@ -448,6 +448,16 @@ public class CommonFunctions {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
+
+                // set the aggregated run's end date and time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+                String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+
+                TestSession.logger.info("GRIDCI-1667, x2yz currentEndDateTime is: " + currentEndDateTime);
+		this.updateDB(this.getDataSetName(), "endDateTime", currentEndDateTime);
+
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			aggIntResultObj.finalResult();
