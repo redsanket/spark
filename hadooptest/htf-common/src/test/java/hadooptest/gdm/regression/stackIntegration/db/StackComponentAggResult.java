@@ -408,6 +408,7 @@ public class StackComponentAggResult {
 			TestSession.logger.info("**********  Record for " +  getCurrentDate() +   " does not exist, inserting a new record.");
 			insertRecordIntoFinalTable(dataSetName1, getCurrentDate() , gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion);
 			if (dbTableColumnsReplicaList.size() > -1) {
+				DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 				// set the final run's start/end date and time
 				dbTableColumnsReplicaObject.setStartDateTime(currentStartDateTime);
 
@@ -421,7 +422,6 @@ public class StackComponentAggResult {
 				TestSession.logger.info("GRIDCI-1667: final run, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
 				TestSession.logger.info("GRIDCI-1667: final run, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
 
-				DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 				insertFinalResultIntoDB(
 						dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
 						dbTableColumnsReplicaObject.getHadoopVersion(),dbTableColumnsReplicaObject.getHadoopCurrentState(),dbTableColumnsReplicaObject.getHadoopResult(),dbTableColumnsReplicaObject.getHadoopComments(),
