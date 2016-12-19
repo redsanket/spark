@@ -80,6 +80,8 @@ public class HadoopStackComponentsTest extends TestSession {
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
 
 		// set the total run's start date and time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
 		String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
 		TestSession.logger.info("GRIDCI-1667, populate startDateTime for total run, startDateTime is: " +
