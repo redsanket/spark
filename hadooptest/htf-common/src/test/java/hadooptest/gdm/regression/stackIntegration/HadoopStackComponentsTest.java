@@ -90,7 +90,7 @@ public class HadoopStackComponentsTest extends TestSession {
 		String tmpDATASETNAME = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath();
 
 		TestSession.logger.info("GRIDCI-1667, tmpDATASETNAME is: " + tmpDATASETNAME);
-		this.commonFunctionsObject.updateDB(tmpDATASETNAME, "startDateTime", currentStartDateTime);
+		this.commonFunctionsObject.updateDB("FINAL_RESULT_TABLE_NAME", tmpDATASETNAME, "startDateTime", currentStartDateTime);
 
 		if (prefixName != null) {
 			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {

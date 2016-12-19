@@ -153,8 +153,36 @@ public class DataBaseOperations {
             }   
         }
     }
-    
-    
+
+    // gridci-1667, update final table
+    public synchronized void insertComponentTestResult(String tableNameToUpdate, String dataSetName , String columnName , String columnValue) {
+        TestSession.logger.info("table name = " + tableNameToUpdate + ", dataSetName  = " + dataSetName  + ", columnName  = " + columnName  + ", columnValue = " + columnValue);
+        Connection con = null;
+        try {
+            con = this.getConnection();
+            String  UPDATE_RECORD = "update " + DBCommands.tableNameToUpdate + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\""    ;
+            TestSession.logger.info("UPDATE_RECORD  = " + UPDATE_RECORD);
+            if (con != null) {
+                Statement stmt = con.createStatement();
+                stmt.execute(UPDATE_RECORD);
+                TestSession.logger.info("Record updated successfully..!");
+                stmt.close();
+            }
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+            TestSession.logger.error("Failed to update " + columnName + "  result into DB." + e);
+            e.printStackTrace();
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    TestSession.logger.error("Failed to close db connection." + e);
+                    e.printStackTrace();
+                }
+            }  
+        }
+    }
+
     public synchronized void insertComponentTestResult(String dataSetName , String testIteration, String columnName , String columnValue) {
         TestSession.logger.info("dataSetName  = " + dataSetName  + "   columnName  = " + columnName  + "   columnValue = " + columnValue);
         Connection con = null;
