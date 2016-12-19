@@ -75,6 +75,17 @@ public class HadoopStackComponentsTest extends TestSession {
 		String prefixName = VersionInfo.getVersion(); 
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
 
+		// set the total run's start date and time
+		java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+		TestSession.logger.info("GRIDCI-1667, populate startDateTime for total run, startDateTime is: " +
+        		currentStartDateTime);
+
+		String tmpDATASETNAME = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath());
+
+		TestSession.logger.info("GRIDCI-1667, tmpDATASETNAME is: " + tmpDATASETNAME);
+		this.commonFunctionsObject.updateDB(tmpDATASETNAME, "startDateTime", currentStartDateTime);
+
 		if (prefixName != null) {
 			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
 				String currentDataSetName = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
