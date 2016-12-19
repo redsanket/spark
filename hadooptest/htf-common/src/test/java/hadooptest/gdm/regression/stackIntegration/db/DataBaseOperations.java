@@ -155,12 +155,12 @@ public class DataBaseOperations {
     }
 
     // gridci-1667, update final table
-    public synchronized void insertComponentTestResult(String tableNameToUpdate, String dataSetName , String columnName , String columnValue) {
-        TestSession.logger.info("table name = " + tableNameToUpdate + ", dataSetName  = " + dataSetName  + ", columnName  = " + columnName  + ", columnValue = " + columnValue);
+    public synchronized void insertComponentTestResult(Boolean finalTable, String dataSetName , String columnName , String columnValue) {
+        TestSession.logger.info("table name = " + FINAL_RESULT_TABLE_NAME + ", dataSetName  = " + dataSetName  + ", columnName  = " + columnName  + ", columnValue = " + columnValue);
         Connection con = null;
         try {
             con = this.getConnection();
-            String  UPDATE_RECORD = "update " + DBCommands.tableNameToUpdate + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\""    ;
+            String  UPDATE_RECORD = "update " + DBCommands.FINAL_RESULT_TABLE_NAME + "  set " + columnName.trim() + "=\""  + columnValue + "\"" + "  where dataSetName=\"" + dataSetName + "\""    ;
             TestSession.logger.info("UPDATE_RECORD  = " + UPDATE_RECORD);
             if (con != null) {
                 Statement stmt = con.createStatement();
