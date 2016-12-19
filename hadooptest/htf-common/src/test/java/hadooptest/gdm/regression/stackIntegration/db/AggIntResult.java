@@ -387,13 +387,6 @@ public class AggIntResult {
 					if (dbTableColumnsReplicaList.size() > -1) {
 						DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 
-						// set the iterative run's end date and time
-						Calendar calendar = Calendar.getInstance();
-						calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-						java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-						String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
-						dbTableColumnsReplicaObject.setEndDateTime(currentEndDateTime);
-
 						TestSession.logger.info("GRIDCI-1667: iterative run, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
 						TestSession.logger.info("GRIDCI-1667: iterative run, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
 						TestSession.logger.info("GRIDCI-1667: iterative run, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
