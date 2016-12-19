@@ -387,9 +387,18 @@ public class AggIntResult {
 					if (dbTableColumnsReplicaList.size() > -1) {
 						DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 
-						TestSession.logger.info("GRIDCI-1667: new record case, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
-						TestSession.logger.info("GRIDCI-1667: new record case, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
-						TestSession.logger.info("GRIDCI-1667: new record case, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+						// set the iterative run's start/end date and time
+						dbTableColumnsReplicaObject.setStartDateTime(currentStartDateTime);
+
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+						java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+						String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+						dbTableColumnsReplicaObject.setEndDateTime(currentEndDateTime);
+
+						TestSession.logger.info("GRIDCI-1667: iterative run, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+						TestSession.logger.info("GRIDCI-1667: iterative run, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+						TestSession.logger.info("GRIDCI-1667: iterative run, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
 
 						insertFinalResultIntoDB(
 								dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),

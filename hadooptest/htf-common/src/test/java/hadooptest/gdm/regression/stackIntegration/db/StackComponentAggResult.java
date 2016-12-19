@@ -408,6 +408,19 @@ public class StackComponentAggResult {
 			TestSession.logger.info("**********  Record for " +  getCurrentDate() +   " does not exist, inserting a new record.");
 			insertRecordIntoFinalTable(dataSetName1, getCurrentDate() , gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion);
 			if (dbTableColumnsReplicaList.size() > -1) {
+				// set the final run's start/end date and time
+				dbTableColumnsReplicaObject.setStartDateTime(currentStartDateTime);
+
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+				java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+				String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+				dbTableColumnsReplicaObject.setEndDateTime(currentEndDateTime);
+
+				TestSession.logger.info("GRIDCI-1667: final run, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+				TestSession.logger.info("GRIDCI-1667: final run, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+				TestSession.logger.info("GRIDCI-1667: final run, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+
 				DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
 				insertFinalResultIntoDB(
 						dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
