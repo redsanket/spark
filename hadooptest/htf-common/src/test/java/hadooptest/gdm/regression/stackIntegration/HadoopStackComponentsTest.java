@@ -81,7 +81,7 @@ public class HadoopStackComponentsTest extends TestSession {
 		TestSession.logger.info("GRIDCI-1667, populate startDateTime for total run, startDateTime is: " +
         		currentStartDateTime);
 
-		String tmpDATASETNAME = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath());
+		String tmpDATASETNAME = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath();
 
 		TestSession.logger.info("GRIDCI-1667, tmpDATASETNAME is: " + tmpDATASETNAME);
 		this.commonFunctionsObject.updateDB(tmpDATASETNAME, "startDateTime", currentStartDateTime);
