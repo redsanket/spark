@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.mail.MessagingException;
 
 import org.junit.Before;
