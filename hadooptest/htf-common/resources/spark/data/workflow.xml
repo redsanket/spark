@@ -1,0 +1,30 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkOozieTests'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+    <start to="spark-node"/>
+    <action name='spark-node'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sharelibAction}</value>
+                </property>
+            </configuration>
+            <master>${master}</master>
+            <mode>${deployMode}</mode>
+            <name>${appName}</name>
+            <class>${appClass}</class>
+            <jar>${appJar}</jar>
+            <spark-opts>${sparkOpts}</spark-opts>
+            <arg>${sparkJobArgs}</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+    <kill name="fail">
+        <message>Script failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name='end' />
+</workflow-app>
