@@ -155,7 +155,7 @@ public class DataBaseOperations {
     }
 
     // gridci-1667, update final table
-    public synchronized void insertComponentTestResult(Boolean finalTable, String dataSetName , String columnName , String columnValue) {
+    public synchronized void insertComponentTestResult(Boolean isFinalTable, String dataSetName , String columnName , String columnValue) {
         TestSession.logger.info("table name = FINAL_RESULT_TABLE_NAME, dataSetName  = " + dataSetName  + ", columnName  = " + columnName  + ", columnValue = " + columnValue);
         Connection con = null;
         try {

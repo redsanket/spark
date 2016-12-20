@@ -790,4 +790,14 @@ public class CommonFunctions {
 			TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
 		}
 	}
+
+        public synchronized void updateDB(Boolean isFinalTable, String dataSetName, String columnName , String columnValue) {
+                DataBaseOperations dbOperations = new DataBaseOperations();
+                if (dbOperations != null) {
+                        dbOperations.insertComponentTestResult(true, dataSetName, columnName , columnValue);
+                } else {
+                        TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
+                }
+        }
+
 }
