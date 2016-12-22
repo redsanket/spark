@@ -471,7 +471,7 @@ public class CommonFunctions {
                 TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
                         uniqueId);
 
-                this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "uniqueId", uniqueId);
+                this.updateDB(true, this.getDataSetName(), "uniqueId", uniqueId);
 
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
 			AggIntResult aggIntResultObj = new AggIntResult();
