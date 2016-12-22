@@ -466,6 +466,13 @@ public class CommonFunctions {
                 TestSession.logger.info("GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
 		this.updateDB(this.getDataSetName(), "endDateTime", currentEndDateTime);
 
+                // set the total run's uniqueId 
+                String uniqueId = "This_Is_My_Unique_ID_1234";
+                TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
+                        uniqueId);
+
+                this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "uniqueId", uniqueId);
+
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			aggIntResultObj.finalResult();
