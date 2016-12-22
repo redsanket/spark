@@ -468,16 +468,16 @@ public class CommonFunctions {
 
                 // set the interative run's uniqueId
                 String uniqueId = "This_Is_My_Unique_ID_1234";
+
                 TestSession.logger.info("GRIDCI-1667, populate uniqueId for interative run, uniqueId is: " +
                         uniqueId);
                 this.updateDB(this.getDataSetName(), "uniqueId", uniqueId);
 
                 // set the total run's uniqueId 
-                String uniqueId = "This_Is_My_Unique_ID_1234";
                 TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
                         uniqueId);
-                TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
 		String tmpStr = dataSetName.substring(0, (dataSetName.length() - 4));
+                TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
                 this.updateDB(true, tmpStr, "uniqueId", uniqueId);
 
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
