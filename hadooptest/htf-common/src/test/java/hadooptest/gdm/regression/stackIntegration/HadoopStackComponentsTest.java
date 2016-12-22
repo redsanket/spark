@@ -92,6 +92,14 @@ public class HadoopStackComponentsTest extends TestSession {
 		TestSession.logger.info("GRIDCI-1667, tmpDATASETNAME is: " + tmpDATASETNAME);
 		this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "startDateTime", currentStartDateTime);
 
+                // set the total run's uniqueId 
+		String uniqueId = "This_is_my_Unique_ID_1234";
+                TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
+                        uniqueId);
+
+                this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "uniqueId", uniqueId);
+
+
 		if (prefixName != null) {
 			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
 				String currentDataSetName = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
