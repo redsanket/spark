@@ -295,9 +295,9 @@ how to communicate with the YCAV2-protected Web service from the grid.
    //**proxy setup**
 
    //blue proxy
-   //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
-   //gold proxy
-   InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+   //InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.blue.ygrid.yahoo.com", 4080);
+   //tan proxy
+   InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.tan.ygrid.yahoo.com", 4080);
    Proxy proxy = new Proxy(Type.HTTP, inet);
    URL server = new URL(fileURL);
 
@@ -328,9 +328,9 @@ how to communicate with the YCAV2-protected Web service from the grid.
    //**proxy setup**
 
    //blue proxy
-   //InetSocketAddress inet = new InetSocketAddress("flubberblue-httpproxy.blue.ygrid.yahoo.com", 4080);
-   //gold proxy
-   InetSocketAddress inet = new InetSocketAddress("httpproxystg-rr.gold.ygrid.yahoo.com", 4080);
+   //InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.blue.ygrid.yahoo.com", 4080);
+   //tan proxy
+   InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.tan.ygrid.yahoo.com", 4080);
    Proxy proxy = new Proxy(Type.HTTP, inet);
    URL server = new URL(fileURL);
 
@@ -462,3 +462,115 @@ through environment variable - ``OOZIE_ACTION_CONF_XML``.
 
    CERT=$(cat $OOZIE_ACTION_CONF_XML | perl -lne 'print $1 if /\<property\>\<name\>myyca\<\/name\>\<value\>([^<]+)<\/value>/')
    echo "Certificate = $CERT"
+
+.. _workflow_with_Athens
+
+Workflow with Athens
+--------------------
+
+
+Athens (http://devel.corp.yahoo.com/athens/guide/) is a hosted service at Yahoo supporting role-based authorization. 
+Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
+To enable that, users will have add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
+the username under which the Oozie workflow will be run as. The user can either be yby.<yahoo user> or ygrid.<headless user>. 
+
+For eg: If the workflow will be run as user filo, then ``hadoop.oozie`` and ``yby.filo`` will have to be added as members 
+of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will 
+have to be added as members of that role. 
+
+Similar to other credentials like hcat or YCA, you will have to add a Athens credential section to the workflow with the 
+domain and role details. This credential definition can then be referred in individual actions which need it. 
+
+Required properties for an Athens credential
+
+- ``athens.domain`` : Athens domain in which the role is present.
+- ``athens.role`` : The role in the domain for which token should be fetched.
+
+Optional properties
+
+- ``athens.user.domain`` : The domain in which user resides. The default value is ``ygrid``. If you are running as yourself 
+  and not a headless user, set value for this to ``yby``.
+- ``athens.trust.domain`` : Athens will only look for trusted roles in this domain.
+- ``athens.min.expiry`` : It specifies that the returned role token must be at least valid (min/lower bound) 
+  for specified number of seconds.
+- ``athens.max.expiry`` : It specifies that the returned role token must be at most valid (max/upper bound) 
+  for specified number of seconds.
+
+
+.. _athens_auth_wf_ex:
+
+
+Example Workflow XML
+~~~~~~~~~~~~~~~~~~~~
+
+
+The following ``workflow.xml`` snippet shows how to configure your Workflow to use Athens authentication:
+
+.. code-block:: xml
+
+   <workflow-app>
+    <credentials>
+       <credential name='athensauth' type='athens'>
+           <property>
+               <name>athens.domain</name>
+               <value>sherpa</value>
+           </property>
+           <property>
+               <name>athens.role</name>
+               <value>table1.write.access</value>
+           </property>
+           <!-- athens.user.domain is not required when running as headless user as the default value is ygrid -->
+            <property>
+               <name>athens.user.domain</name>
+               <value>yby</value>
+           </property>
+       </credential> 
+    </credentials>
+    <action cred='athensauth'>
+       <java>
+          ...
+       </java>
+    </action>
+   <workflow-app>
+
+
+
+Oozie retrieves the role token based on the provided credential properties and sends it to the job running the java action. 
+The ZTS local client cache is populated with the role token, so that the user can get the role token in their java code using 
+the Athens ZTSClient.getRoleToken API. This requires having the ``zts_java_client.jar`` from 
+http://dist.corp.yahoo.com/by-package/zts_java_client/ in the workflow lib directory. The following example shows how to get 
+the role token in the hadoop job and how to authenticate to a Athens protected web service by passing 
+the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following dependency should be added.
+
+.. code-block:: xml
+
+   <dependency>
+     <groupId>yahoo.yinst.zts_java_client</groupId>
+     <artifactId>zts_java_client</artifactId>
+     <version>1.5.35</version>
+     <scope>provided</scope>
+   </dependency>
+
+
+.. code-block:: java
+
+   //User 'filo' has submitted the Oozie job.
+   //Create ZTSClient object by passing domain for the user/service and user/service name
+   ZTSClient ztsClient = new ZTSClient("yby", "filo");
+   // If headless user 'mog_prod' had submitted the Oozie job, then it would be
+   // ZTSClient ztsClient = new ZTSClient("ygrid", "mog_prod");
+   RoleToken roleToken = ztsClient.getRoleToken("sherpa", "table1.write.access");
+   roleTokenStr = roleToken.getToken();
+   ztsClient.close();
+   
+   // Web service call to the external web service via proxy. 
+   // This example assumes a production cluster in gq1 and uses corresponding proxy.
+   // Refer http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList for the different proxy urls.
+   InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.blue.ygrid.yahoo.com", 4080);
+   Proxy proxy = new Proxy(Type.HTTP, inet);
+   URL url = new URL(<<external web service url>>);
+   HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+   conn.setRequestMethod("GET");
+   conn.addRequestProperty("Yahoo-Role-Auth",roleTokenStr);
+
+
