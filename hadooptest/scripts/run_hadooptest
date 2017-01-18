@@ -316,7 +316,7 @@ if ($sparkversion) {
 # the metadata from a versionless instance of the plugin.
 # my $pom_opt="-f pom.xml help:active-profiles";
 my $pom_opt="-f pom.xml";
-my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.gw ";
+my $mvn_settings_opt="-gs $workspace/resources/yjava_maven/settings.xml.orig ";
 my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hadoop/lib/native/Linux-amd64-64/";
 
 # Create the local repo directory on /grid/0/ and set the maven.repo.local
