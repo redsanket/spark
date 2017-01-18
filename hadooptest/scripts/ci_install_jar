@@ -71,7 +71,7 @@ fi
 # hbase
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/hbase_fetch" ]
 then
-   hbase_version=$( /usr/local/bin/yinst packages -latest hbase | awk '{print $1}' )
+   hbase_version=$( /usr/local/bin/yinst packages hbase | awk '{print $1}' )
    /usr/local/bin/yinst fetch ${hbase_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz -br quarantine -br nightly -br test
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tar -C $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/
