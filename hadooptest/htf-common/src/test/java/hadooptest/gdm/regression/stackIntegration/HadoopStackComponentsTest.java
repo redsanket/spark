@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.mail.MessagingException;
 
 import org.junit.Before;
@@ -74,6 +78,27 @@ public class HadoopStackComponentsTest extends TestSession {
 	public void testStack() throws InterruptedException, ExecutionException, IOException {
 		String prefixName = VersionInfo.getVersion(); 
 		TestSession.logger.debug("Using HADOOP_VERSION " + prefixName + " for dataset prefixName");
+
+		// set the total run's start date and time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+		TestSession.logger.info("GRIDCI-1667, populate startDateTime for total run, startDateTime is: " +
+        		currentStartDateTime);
+
+		String tmpDATASETNAME = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath();
+
+		TestSession.logger.info("GRIDCI-1667, tmpDATASETNAME is: " + tmpDATASETNAME);
+		this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "startDateTime", currentStartDateTime);
+
+                // set the total run's uniqueId 
+		String uniqueId = "This_is_my_Unique_ID_1234";
+                TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
+                        uniqueId);
+
+                this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "uniqueId", uniqueId);
+
 
 		if (prefixName != null) {
 			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {

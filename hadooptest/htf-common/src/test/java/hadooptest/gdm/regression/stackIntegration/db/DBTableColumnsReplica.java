@@ -94,6 +94,9 @@ public class DBTableColumnsReplica {
 	String hive_verifyComments;
 	String comments;
 	String result;
+	String startDateTime;
+	String endDateTime;
+	String uniqueId;
 	
 	public DBTableColumnsReplica(String dataSetName, String date, String hadoopVersion, String hadoopCurrentState,
 			String hadoopResult, String hadoopComments, String gdmVersion, String gdmCurrentState, String gdmResult,
@@ -121,7 +124,7 @@ public class DBTableColumnsReplica {
 			String pig_abf_input_PageValidNewsComments, String hive_storageResult, String hive_storageCurrentState,
 			String hive_storageMRJobURL, String hive_storageComments, String hive_verifyResult,
 			String hive_verifyCurrentState, String hive_verifyMRJobURL, String hive_verifyComments, String comments,
-			String result) {
+			String result, String startDateTime, String endDateTime, String uniqueId) {
 		super();
 		this.dataSetName = dataSetName;
 		this.date = date;
@@ -209,6 +212,9 @@ public class DBTableColumnsReplica {
 		this.hive_verifyComments = hive_verifyComments;
 		this.comments = comments;
 		this.result = result;
+		this.startDateTime = startDateTime;
+		this.endDateTime = endDateTime;
+		this.uniqueId = uniqueId;
 	}
 
 	public String getDataSetName() {
@@ -898,4 +904,29 @@ public class DBTableColumnsReplica {
 	public void setResult(String result) {
 		this.result = result;
 	}
+
+	public String getStartDateTime() {
+		return startDateTime;
+	}
+
+	public void setStartDateTime() {
+		this.startDateTime = startDateTime;
+	}
+
+	public String getEndDateTime() {
+		return endDateTime;
+	}
+
+	public void setEndDateTime() {
+		this.endDateTime = endDateTime;
+	}
+
+        public String getUniqueId() {
+                return uniqueId;
+        }
+
+        public void setUniqueId() {
+                this.uniqueId = uniqueId;
+        }
+
 }

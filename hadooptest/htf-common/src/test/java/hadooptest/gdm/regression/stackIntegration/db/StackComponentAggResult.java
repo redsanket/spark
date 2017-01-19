@@ -334,6 +334,10 @@ public class StackComponentAggResult {
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
+                                        String startDateTime =  resultSet.getString("startDateTime");
+                                        String endDateTime =  resultSet.getString("endDateTime");
+                                        String uniqueId =  resultSet.getString("uniqueId");
+
 
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
@@ -357,10 +361,13 @@ public class StackComponentAggResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
-							comments, result));
+							comments, result, startDateTime, endDateTime, uniqueId));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
+
+						TestSession.logger.info(" GRIDCI-1667 mark4");
+
 						isTestFailed = true;
 						TestSession.logger.info(" failed .........");
 						insertRecordIntoFinalTable(dataSetName1, getCurrentDate() , gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion);
@@ -402,6 +409,11 @@ public class StackComponentAggResult {
 			insertRecordIntoFinalTable(dataSetName1, getCurrentDate() , gdmVersion, hadoopVersion ,  pigVersion, tezVersion , hiveVersion ,hcatVersion, hbaseVersion, oozieVersion);
 			if (dbTableColumnsReplicaList.size() > -1) {
 				DBTableColumnsReplica dbTableColumnsReplicaObject = dbTableColumnsReplicaList.get(dbTableColumnsReplicaList.size()-1);
+
+				TestSession.logger.info("GRIDCI-1667: final run, startDateTime is: " + dbTableColumnsReplicaObject.getStartDateTime());
+				TestSession.logger.info("GRIDCI-1667: final run, endDateTime is: " + dbTableColumnsReplicaObject.getEndDateTime());
+				TestSession.logger.info("GRIDCI-1667: final run, uniqueId is: " + dbTableColumnsReplicaObject.getUniqueId());
+
 				insertFinalResultIntoDB(
 						dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
 						dbTableColumnsReplicaObject.getHadoopVersion(),dbTableColumnsReplicaObject.getHadoopCurrentState(),dbTableColumnsReplicaObject.getHadoopResult(),dbTableColumnsReplicaObject.getHadoopComments(),
@@ -461,6 +473,9 @@ public class StackComponentAggResult {
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
 			String  comments, String result ) {		
 		String dsName = null;
+
+		TestSession.logger.info(" GRIDCI-1667 mark1");
+
 		try {
 			dsName = dataSetName.substring(0, (dataSetName.length() - 4));
 			this.dataBaseOperations.updateRecord(this.connection , "date" , date,
@@ -566,6 +581,7 @@ public class StackComponentAggResult {
 
 
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
+		TestSession.logger.info(" GRIDCI-1667 mark2");
 		String colName = componentName + "Version" ;
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName, " + colName + ", date)  " +  "values ( ?,?,? )";
 		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
@@ -583,6 +599,8 @@ public class StackComponentAggResult {
 
 	public void insertRecordIntoFinalTable(String dataSetName, String date , String gdmVersion, String hadoopVersion , String  pigVersion, String tezVersion ,
 			String hiveVersion , String hcatVersion, String hbaseVersion, String oozieVersion) {
+
+		TestSession.logger.info(" GRIDCI-1667 mark3");
 
 		String INSERT_DATASET_INTO_ROW = "INSERT INTO " + DBCommands.FINAL_RESULT_TABLE_NAME + "( dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion)  " 
 				+  "values ( ?,?,?,?,?,?,?,?,?,?)";
