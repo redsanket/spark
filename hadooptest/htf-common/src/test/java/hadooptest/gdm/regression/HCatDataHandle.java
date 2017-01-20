@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import hadooptest.TestSession;
 
@@ -36,7 +37,12 @@ public class HCatDataHandle {
         Process p = pb.start();
         BufferedReader stderrReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getErrorStream())));
         BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getInputStream())));
-        p.waitFor();
+        
+        if (!p.waitFor(5, TimeUnit.MINUTES)) {
+            p.destroy();
+            throw new Exception("Timed out running process");
+        }
+        
         int exitStatus = p.exitValue();
         String line;
         String output="";
