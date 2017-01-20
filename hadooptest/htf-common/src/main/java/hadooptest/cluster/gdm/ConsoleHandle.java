@@ -1481,8 +1481,7 @@ public final class ConsoleHandle {
      */
     public List<String> getHCatEnabledGrid( ) {
         List<String> hcatEnabledGridList = new ArrayList<String>();
-        String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";
-        TestSession.logger.info("testURL = " + testURL);        
+        String testURL = this.getConsoleURL() + "/console/query/hadoop/versions";    
         com.jayway.restassured.response.Response response = given().cookie(httpHandle.cookie).get(testURL);
         String responseString = response.getBody().asString();
         String gridName="";

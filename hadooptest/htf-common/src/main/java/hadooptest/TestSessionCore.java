@@ -65,7 +65,6 @@ public abstract class TestSessionCore {
      */
     @Before
     public void startTest() throws Exception {
-        TestSession.logger.info("--------- @Before: TestSession: startTest ----------------------------------");
         testStartTime = System.currentTimeMillis();
     }
 	
