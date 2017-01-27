@@ -121,8 +121,8 @@
   </testconfig>
   <auth>
     <usr>hitusr_1</usr>
-    <pp>New2@password</pp>
+    <pp>NOT_VALID</pp>
     <nonAdminUser>hitusr_2</nonAdminUser>
-    <nonAdminPassWord>New2@password</nonAdminPassWord>
+    <nonAdminPassWord>NOT_VALID</nonAdminPassWord>
   </auth>
 </config>
