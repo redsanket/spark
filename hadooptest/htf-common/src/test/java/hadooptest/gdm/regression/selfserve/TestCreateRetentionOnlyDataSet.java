@@ -41,7 +41,7 @@ public class TestCreateRetentionOnlyDataSet extends TestSession {
 
 	@Before
 	public void setup() throws Exception {
-		this.consoleHandle = new ConsoleHandle("hitusr_2"  , "New2@password");
+		this.consoleHandle = new ConsoleHandle("hitusr_2"  , "NOT_VALID");
 		this.grids = this.consoleHandle.getAllGridNames();
 		TestSession.logger.info("Grids = " + grids);
 		assertTrue("Expected atleast two targets." , this.grids.size() > 2);

@@ -38,7 +38,7 @@ public class TestCreateHCatMetaDataOnlyDataSet extends TestSession {
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
 
-		this.consoleHandle = new ConsoleHandle("hitusr_2"  , "New2@password");
+		this.consoleHandle = new ConsoleHandle("hitusr_2"  , "NOT_VALID");
 
 		// get all the hcat supported clusters
 		hcatSupportedGrid = this.consoleHandle.getHCatEnabledGrid();
