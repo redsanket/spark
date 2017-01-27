@@ -29,7 +29,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dataSetName;
 	private static final String nonAdminUserName = "hitusr_2"; 
-	private static final String nonAdminPassWord = "New2@password";
+	private static final String nonAdminPassWord = "NOT_VALID";
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
@@ -92,7 +92,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	public void testDisableRetentionForNonAdminWithUserInGroup() {
 		
 		String nonAdminUserNameInGroup = "hitusr_2"; 
-		String nonAdminPassWordInGroup = "New2@password";
+		String nonAdminPassWordInGroup = "NOT_VALID";
 		this.httpHandle.logonToBouncer(this.nonAdminUserName, this.nonAdminPassWord);
 		this.cookie = this.httpHandle.getBouncerCookie();
 		
