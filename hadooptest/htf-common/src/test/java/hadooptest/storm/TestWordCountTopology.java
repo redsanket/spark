@@ -235,17 +235,17 @@ public class TestWordCountTopology extends TestSessionStorm {
             logger.info("Test default bouncer user works on ui");
             getWithBouncer(mc.getBouncerUser(), mc.getBouncerPassword(), uiURL, 200);
             logger.info("Test hitusr_1 user works on log");
-            getWithBouncer("hitusr_1", "New2@password", getURL, 200);
+            getWithBouncer("hitusr_1", "NOT_VALID", getURL, 200);
             logger.info("Test hitusr_1 user works on ui");
-            getWithBouncer("hitusr_1", "New2@password", uiURL, 200);
+            getWithBouncer("hitusr_1", "NOT_VALID", uiURL, 200);
             logger.info("Test hitusr_2 user works on log");
-            getWithBouncer("hitusr_2", "New2@password", getURL, 500);
+            getWithBouncer("hitusr_2", "NOT_VALID", getURL, 500);
             logger.info("Test hitusr_2 user works on ui");
-            getWithBouncer("hitusr_2", "New2@password", uiURL, 500);
+            getWithBouncer("hitusr_2", "NOT_VALID", uiURL, 500);
             logger.info("Test hitusr_3 user works on log");
-            getWithBouncer("hitusr_3", "New2@password", getURL, 500);
+            getWithBouncer("hitusr_3", "NOT_VALID", getURL, 500);
             logger.info("Test hitusr_3 user works on ui");
-            getWithBouncer("hitusr_3", "New2@password", uiURL, 500);
+            getWithBouncer("hitusr_3", "NOT_VALID", uiURL, 500);
             logger.info("All tests passed!");
         } finally {
             logger.info("About to kill topology");

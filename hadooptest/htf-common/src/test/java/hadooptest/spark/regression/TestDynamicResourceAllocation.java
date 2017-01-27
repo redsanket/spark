@@ -129,17 +129,17 @@ public class TestDynamicResourceAllocation {
                     "TestDynamicAllocationAndShuffleServiceTurnedOn", appUserDefault.getAppName());
 
             //wait to get executors. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (NUM_EXECUTORS + 1) + " executors timeout");
             }
 
             //wait for all tasks to complete
-            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "NOT_VALID", 100)) {
                 TestSession.logger.warn("Not all tasks finished after timeout period");
             }
 
             //wait for it to scale down. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (0 + 1) + " executors timeout");
             }
 
@@ -177,17 +177,17 @@ public class TestDynamicResourceAllocation {
                     "TestDynamicAllocationMaxExecutors", appUserDefault.getAppName());
 
             //wait to get executors. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MAX_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MAX_EXECUTORS + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (MAX_EXECUTORS + 1) + " executors timeout");
             }
 
             //wait for all tasks to complete
-            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "New2@password", 300)) {
+            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "NOT_VALID", 300)) {
                 TestSession.logger.warn("Not all tasks finished after timeout period");
             }
 
             //wait for it to scale down. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (0 + 1) + " executors timeout");
             }
 
@@ -225,17 +225,17 @@ public class TestDynamicResourceAllocation {
                     "TestDynamicAllocationMinExecutors", appUserDefault.getAppName());
 
             //wait to get executors. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (NUM_EXECUTORS + 1) + " executors timeout");
             }
 
             //wait for all tasks to complete
-            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "NOT_VALID", 100)) {
                 TestSession.logger.warn("Not all tasks finished after timeout period");
             }
 
             //wait for it to scale down. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MIN_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), MIN_EXECUTORS + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (MIN_EXECUTORS + 1) + " executors timeout");
             }
 
@@ -276,17 +276,17 @@ public class TestDynamicResourceAllocation {
                     "testCachedExecutorIdleTimeout", appUserDefault.getAppName());
 
             //wait to get executors. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), NUM_EXECUTORS + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (NUM_EXECUTORS + 1) + " executors timeout");
             }
 
             //wait for all tasks to complete
-            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForNoActiveTasks(appUserDefault.getID(), "hitusr_1", "NOT_VALID", 100)) {
                 TestSession.logger.warn("Not all tasks finished after timeout period");
             }
 
             //wait for it to scale down. +1 executor for driver
-            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "New2@password", 100)) {
+            if (!appUserDefault.waitForExecutors(appUserDefault.getID(), 0 + 1, "hitusr_1", "NOT_VALID", 100)) {
                 fail("wait to get " + (0 + 1) + " executors timeout");
             }
 
