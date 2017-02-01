@@ -7,11 +7,9 @@ SHORT_DESC = Hadoopqa headless keys ykeykey access
 LONG_DESC = `cat README`
 CUSTODIAN = champaign-hadoop-qe-team@yahoo-inc.com http://twiki.corp.yahoo.com/view/Grid/HadoopQE
 PACKAGE_OS_SPECIFIC = no
-
-PROD_DIR = libexec/$(PRODUCT_NAME)
+YINST bug-product HTF
 
 OWNER = hadoopqa
-GROUP = hadoopqa
 
 # make sure ykeykey support is installed
 YINST requires pkg ykeykey
@@ -20,7 +18,9 @@ YINST requires pkg ykeykeyd_cert_mgmt
 YINST requires pkg ykeykeyd_core
 YINST requires pkg ykeykeyshared
 
+# set the ykeykey service 'prod' as default
+YINST set hadoopqa_headless_keys.ykeykey_svc_type prod  
 
 # the ykeykey kgp file for hitusr_*
-file 0644 - - conf/ykeykey/kgp/  ./hadoop_us.qauser_passwords.kgp 
+file 0644 - - conf/ykeykey/kgp/  ./hadoop_us.qauser_passwords.kgp  expand overwrite
 
