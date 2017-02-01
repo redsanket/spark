@@ -9,7 +9,12 @@ CUSTODIAN = champaign-hadoop-qe-team@yahoo-inc.com http://twiki.corp.yahoo.com/v
 PACKAGE_OS_SPECIFIC = no
 YINST bug-product HTF
 
+PROD_DIR = libexec/$(PRODUCT_NAME)
+
 OWNER = hadoopqa
+
+# set default ykeykey service type
+YINST set svc_type prod
 
 # make sure ykeykey support is installed
 YINST requires pkg ykeykey
@@ -18,9 +23,6 @@ YINST requires pkg ykeykeyd_cert_mgmt
 YINST requires pkg ykeykeyd_core
 YINST requires pkg ykeykeyshared
 
-# set the ykeykey service 'prod' as default
-YINST set hadoopqa_headless_keys.ykeykey_svc_type prod  
-
 # the ykeykey kgp file for hitusr_*
-file 0644 - - conf/ykeykey/kgp/  ./hadoop_us.qauser_passwords.kgp  expand overwrite
+c 0644 - - conf/ykeykey/kgp/hadoop_us.qauser_passwords.kgp   ./hadoop_us.qauser_passwords.kgp.template  expand overwrite
 
