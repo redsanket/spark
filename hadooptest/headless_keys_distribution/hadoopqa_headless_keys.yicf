@@ -22,5 +22,5 @@ YINST requires pkg ykeykeyshared
 
 
 # the ykeykey kgp file for hitusr_*
-file 0644 - - - hadoop_us.qauser_passwords.kgp    /home/y/conf/ykeykey/kgp/
+file 0644 - - conf/ykeykey/kgp/  ./hadoop_us.qauser_passwords.kgp 
 
