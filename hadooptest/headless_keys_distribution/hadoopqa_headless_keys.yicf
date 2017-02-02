@@ -11,7 +11,7 @@ YINST bug-product HTF
 
 PROD_DIR = libexec/$(PRODUCT_NAME)
 
-OWNER = hadoopqa
+#OWNER = hadoopqa
 
 # set default ykeykey service type
 YINST set svc_type prod
