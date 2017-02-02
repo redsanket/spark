@@ -12,10 +12,10 @@ shared:
             command: ./cicd/update_metadata.sh master
         yinst_create:
             description: Build the package 
-            command: cd hadooptest/headless_keys_distribution;yinst_create -r hadoopqa_headless_keys.yicf
+            command: cd hadooptest/headless_keys_distribution ; yinst_create -r hadoopqa_headless_keys.yicf
         dist_install:
             description: Push the package to Dist 
-            command: cd hadooptest/headless_keys_distribution ;ls -la ; dist_install -headless hadoopqa_headless_keys-*.tgz 
+            command: cd hadooptest/headless_keys_distribution ; dist_install --branch "test"  -headless hadoopqa_headless_keys-*.tgz 
     plugins:
       coverage:
         enabled: false
