@@ -30,5 +30,6 @@ jobs:
       order: [init, install-jdk, clean, build, update_metadata]
    pull-request:
       order: [init, install-jdk, clean, build]
-   build_hadoopqa_headless_keys: [yinst_create, dist_install]
+   build_hadoopqa_headless_keys: 
+      order: [yinst_create, dist_install]
 
