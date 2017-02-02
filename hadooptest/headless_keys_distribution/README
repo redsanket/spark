@@ -1,0 +1,7 @@
+Dist package to deliver the ykeykey 'kgp' file to a target node. If the node is
+in CM3 role 'hadoop.cm3', it is allowed to fetch hadoopqa headless 'hitusr'
+passwords.
+
+Version 0.1
+  - initial version
+
