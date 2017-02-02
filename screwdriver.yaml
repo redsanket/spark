@@ -15,7 +15,7 @@ shared:
             command: cd hadooptest/headless_keys_distribution;yinst_create -r hadoopqa_headless_keys.yicf
         dist_install:
             description: Push the package to Dist 
-            command: ls -la ; dist_install hadoopqa_headless_keys-*.tgz 
+            command: cd hadooptest/headless_keys_distribution ;ls -la ; dist_install hadoopqa_headless_keys-*.tgz 
     plugins:
       coverage:
         enabled: false
