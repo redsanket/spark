@@ -1,0 +1,26 @@
+platform: cpp
+
+shared:
+    notifications:
+      email: patwhite@yahoo-inc.com
+
+    build_containers: [rhel6]
+    publish_containers: [rhel6]
+    steps:
+        yinst_create:
+            description: Build the package 
+            command: yinst_create -r hadoopqa_headless_keys 
+        dist_install:
+            description: Push the package to Dist 
+            command: dist_install hadoopqa_headless_keys.tgz 
+
+    plugins:
+      coverage:
+        enabled: false
+      test_results:
+        enabled: false
+
+jobs:
+   component:
+      order: [yinst_create, dist_install]
+   pull-request:
