@@ -10,21 +10,17 @@ shared:
         update_metadata:
             description: Update_metadata
             command: ./cicd/update_metadata.sh master
-
         yinst_create:
             description: Build the package 
             command: yinst_create -r hadoopqa_headless_keys 
         dist_install:
             description: Push the package to Dist 
             command: dist_install hadoopqa_headless_keys.tgz 
-
-
     plugins:
       coverage:
         enabled: false
       test_results:
         enabled: false
-
 jobs:
    component:
       order: [init, install-jdk, clean, build, update_metadata]
