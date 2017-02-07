@@ -76,10 +76,10 @@ public class Util {
 	 * for test users, like 'headless_user_hitusr_1'
          */
 	public static String getTestUserPasswordFromYkeykey(String test_user) throws Exception {
-	  try {
             String[] output = TestSession.exec.runProcBuilder(new String[] {
                     "ykeykeygetkey",
 		    test_user});
+
             if (!output[0].equals("0")) {
                 TestSession.logger.info(
                         "Got unexpected non-zero exit code: " + output[0]);
@@ -89,8 +89,5 @@ public class Util {
 
 	    return output[1].trim();
 
-	  } catch (Exception e) {
-              e.printStackTrace();
-          }
 	}
 }
