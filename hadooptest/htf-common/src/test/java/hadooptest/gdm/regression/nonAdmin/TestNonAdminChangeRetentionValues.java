@@ -52,7 +52,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	}
 
 	@Test
-	public void testNonAdmin() {
+	public void testNonAdmin() throws Exception {
 		
 		this.dataSetName = "TestNonAdminChangingRetentionByRestAPI_"  + System.currentTimeMillis();
 		createDataSet();
