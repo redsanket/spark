@@ -37,7 +37,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 
 	try {
 		nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
-	} catch Exception e {
+	} catch (Exception e) {
 		e.printStackTrace();
 	}
 
