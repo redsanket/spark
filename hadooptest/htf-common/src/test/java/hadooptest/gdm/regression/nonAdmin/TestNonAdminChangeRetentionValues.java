@@ -35,12 +35,6 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
 
-	try {
-		nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-
 	@BeforeClass
 	public static void startTestSession() throws Exception {
 		TestSession.start();
@@ -54,6 +48,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		this.url = this.consoleHandle.getConsoleURL();
 		TestSession.logger.info("url = " + url);
 		this.cookie = this.httpHandle.getBouncerCookie();
+		nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
 	}
 
 	@Test
