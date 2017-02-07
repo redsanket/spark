@@ -21,7 +21,7 @@ import com.jayway.restassured.path.json.JsonPath;
  * TestCase : Verify whether Non-Admin user is a able to change the retention value.
  *
  */
-public class TestNonAdminChangeRetentionValues extends TestSession throws Exception {
+public class TestNonAdminChangeRetentionValues extends TestSession {
 
 	private ConsoleHandle consoleHandle;
 	private String cookie;
@@ -30,10 +30,16 @@ public class TestNonAdminChangeRetentionValues extends TestSession throws Except
 	private JSONUtil jsonUtil;
 	private String dataSetName;
 	private static final String nonAdminUserName = "hitusr_2"; 
-	private static final String nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
+	private static final String nonAdminPassWord; 
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
+
+	try {
+		nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
+	} catch Exception e {
+		e.printStackTrace();
+	}
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
