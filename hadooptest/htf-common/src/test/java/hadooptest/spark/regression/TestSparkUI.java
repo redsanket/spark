@@ -61,8 +61,8 @@ public class TestSparkUI extends TestSession {
     private static String lrDatafile = "lr_data.txt";
     private static String hdfsDir = "/user/" + System.getProperty("user.name") + "/";
     private static SparkRunSparkSubmit appUserDefault; 
-    private static String hitusr_1_password = "NOT_VALID";
-    private static String hitusr_2_password = "NOT_VALID";
+    private static String hitusr_1_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_1"); 
+    private static String hitusr_2_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
 
     @BeforeClass
     public static void startTestSession() throws Exception {

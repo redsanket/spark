@@ -86,10 +86,11 @@ public class Util {
                 TestSession.logger.info("stdout: " + output[1]);
                 TestSession.logger.info("stderr: " + output[2]);
 	    }
+
+	    return output[1].trim();
+
 	  } catch (Exception e) {
               e.printStackTrace();
           }
-
-	  return output[1].trim();
 	}
 }
