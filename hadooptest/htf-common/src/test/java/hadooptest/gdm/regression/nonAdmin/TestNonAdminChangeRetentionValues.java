@@ -21,7 +21,7 @@ import com.jayway.restassured.path.json.JsonPath;
  * TestCase : Verify whether Non-Admin user is a able to change the retention value.
  *
  */
-public class TestNonAdminChangeRetentionValues extends TestSession {
+public class TestNonAdminChangeRetentionValues extends TestSession throws Exception {
 
 	private ConsoleHandle consoleHandle;
 	private String cookie;
@@ -90,7 +90,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	 * Verify whether Non admin user is able to set the disable the dataset retention value.
 	 * Note : Non-Admin user should be in the group
 	 */
-	public void testDisableRetentionForNonAdminWithUserInGroup() {
+	public void testDisableRetentionForNonAdminWithUserInGroup() throws Exception {
 		
 		String nonAdminUserNameInGroup = "hitusr_2"; 
 		String nonAdminPassWordInGroup = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
