@@ -30,7 +30,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dataSetName;
 	private static final String nonAdminUserName = "hitusr_2"; 
-	private static String nonAdminPassWord; 
+	private String nonAdminPassWord; 
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
@@ -48,7 +48,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		this.url = this.consoleHandle.getConsoleURL();
 		TestSession.logger.info("url = " + url);
 		this.cookie = this.httpHandle.getBouncerCookie();
-		nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
+		this.nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
 	}
 
 	@Test
