@@ -30,7 +30,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dataSetName;
 	private static final String nonAdminUserName = "hitusr_2"; 
-	private static final String nonAdminPassWord; 
+	private static String nonAdminPassWord; 
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
