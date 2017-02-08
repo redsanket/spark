@@ -74,7 +74,7 @@ public class Util {
 	 *
 	 * This relies on the yinst pkg hadoopqa_headless_keys, which enables ykeykeygetkey
 	 * for test users, like 'headless_user_hitusr_1', standalone commandline use is
-	 * like: 'ykeykeygetkey headless_user_hitusr-1', there are four user keys right now
+	 * like: 'ykeykeygetkey headless_user_hitusr_1', there are four user keys right now
 	 * for hitusr_[1-4] 
          */
 	public static String getTestUserPasswordFromYkeykey(String test_user) throws Exception {
@@ -89,7 +89,6 @@ public class Util {
                 TestSession.logger.info("stderr: " + output[2]);
 	    }
 
-	    TestSessionCore.logger.debug("Substring of getTestUserPasswordFromYkeykey return is: " + output[1].trim().substring(2) );
 	    return output[1].trim();
 
 	}
