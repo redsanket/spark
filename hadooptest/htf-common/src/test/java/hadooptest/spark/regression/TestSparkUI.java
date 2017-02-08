@@ -69,8 +69,8 @@ public class TestSparkUI extends TestSession {
         TestSession.start();
         setupTestDir();
         copyResMgrConfigAndRestartNodes();
-    	hitusr_1_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_1"); 
-    	hitusr_2_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
+        hitusr_1_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_1"); 
+        hitusr_2_password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
     }
 
     @AfterClass
