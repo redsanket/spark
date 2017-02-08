@@ -3,6 +3,7 @@ package hadooptest.gdm.regression.nonAdmin;
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
+import hadooptest.Util;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.HTTPHandle;
 import hadooptest.cluster.gdm.JSONUtil;
@@ -29,7 +30,7 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	private JSONUtil jsonUtil;
 	private String dataSetName;
 	private static final String nonAdminUserName = "hitusr_2"; 
-	private static final String nonAdminPassWord = "NOT_VALID";
+	private String nonAdminPassWord; 
 	private static final String baseDataSetName = "VerifyAcqRepRetWorkFlowExecutionSingleDate";
 	private static final String OPS_DB_GROUP = "ygrid_group_gdmtest";
 	private static final int SUCCESS = 200;
@@ -47,10 +48,11 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 		this.url = this.consoleHandle.getConsoleURL();
 		TestSession.logger.info("url = " + url);
 		this.cookie = this.httpHandle.getBouncerCookie();
+		this.nonAdminPassWord = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2");
 	}
 
 	@Test
-	public void testNonAdmin() {
+	public void testNonAdmin() throws Exception {
 		
 		this.dataSetName = "TestNonAdminChangingRetentionByRestAPI_"  + System.currentTimeMillis();
 		createDataSet();
@@ -89,10 +91,10 @@ public class TestNonAdminChangeRetentionValues extends TestSession {
 	 * Verify whether Non admin user is able to set the disable the dataset retention value.
 	 * Note : Non-Admin user should be in the group
 	 */
-	public void testDisableRetentionForNonAdminWithUserInGroup() {
+	public void testDisableRetentionForNonAdminWithUserInGroup() throws Exception {
 		
 		String nonAdminUserNameInGroup = "hitusr_2"; 
-		String nonAdminPassWordInGroup = "NOT_VALID";
+		String nonAdminPassWordInGroup = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_2"); 
 		this.httpHandle.logonToBouncer(this.nonAdminUserName, this.nonAdminPassWord);
 		this.cookie = this.httpHandle.getBouncerCookie();
 		
