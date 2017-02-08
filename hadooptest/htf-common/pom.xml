@@ -13,12 +13,4 @@
 	<packaging>jar</packaging>
 	<name>HTF Common</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>hadooptest</groupId>
-			<artifactId>topologies</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
