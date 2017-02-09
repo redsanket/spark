@@ -87,8 +87,8 @@ public class Util {
                         "Got unexpected non-zero exit code: " + output[0]);
                 TestSession.logger.info("stdout: " + output[1]);
                 TestSession.logger.info("stderr: " + output[2]);
+                throw new Exception("Failed to read password from ykeykey for user " + test_user);
 	    }
-
 	    return output[1].trim();
 
 	}
