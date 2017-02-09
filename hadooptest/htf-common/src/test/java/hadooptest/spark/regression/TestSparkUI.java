@@ -168,12 +168,7 @@ public class TestSparkUI extends TestSession {
     public String getBouncerUser() throws Exception {
         String user = TestSession.conf.getProperty("DEFAULT_BOUNCER_USER");
         if (user == null) {
-            String[] output = TestSession.exec.runProcBuilder(
-                    new String[]{"keydbgetkey", "hadoopqa_re_bouncer.user"});
-            if (!output[0].equals("0")) {
-                throw new IllegalStateException("keydbgetkey failed for user");
-            }
-            user = output[1].trim();
+            user = "hadoop_re";
         }
         return user;
     }
@@ -186,12 +181,7 @@ public class TestSparkUI extends TestSession {
     public String getBouncerPassword() throws Exception {
         String password = TestSession.conf.getProperty("DEFAULT_BOUNCER_PASSWORD");
         if (password == null) {
-            String[] output = TestSession.exec.runProcBuilder(
-                    new String[]{"keydbgetkey", "hadoopqa_re_bouncer.passwd"});
-            if (!output[0].equals("0")) {
-                throw new IllegalStateException("keydbgetkey failed for password");
-            }
-            password = output[1].trim();
+            password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_1"); 
         }
         return password;
     }
