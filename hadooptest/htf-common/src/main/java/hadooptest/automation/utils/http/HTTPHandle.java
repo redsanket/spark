@@ -1,7 +1,7 @@
 package hadooptest.automation.utils.http;
 
 import hadooptest.TestSession;
-import hadooptest.TestSessionStorm;
+import hadooptest.TestSessionCore;
 import hadooptest.Util;
 import hadooptest.automation.constants.HadooptestConstants;
 
@@ -53,7 +53,7 @@ public class HTTPHandle {
 		YBYCookie = null;
 		try {
             YBYCookie = localHttpClientBouncerAuth.authenticate(
-                TestSessionStorm.conf.getProperty("BOUNCER_URL", HadooptestConstants.Location.Bouncer.SSO_SERVER), paramString1,
+                TestSessionCore.conf.getProperty("BOUNCER_URL", HadooptestConstants.Location.Bouncer.SSO_SERVER), paramString1,
                 paramString2.toCharArray());
 		} catch (Exception localException) {
 			logger.error(new StringBuilder()
