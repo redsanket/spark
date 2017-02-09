@@ -40,9 +40,15 @@ public class HTTPHandle
 
     public HTTPHandle() {
         init();
-        this.userName = this.conf.getString("auth.usr");
-        this.passWord = this.conf.getString("auth.pp");
-        this.logonToBouncer(this.userName,this.passWord);   
+        try {
+            this.userName = this.conf.getString("auth.usr");
+            this.passWord = Util.getTestUserPasswordFromYkeykey(this.userName);
+            if (this.passWord != null) {
+        	this.logonToBouncer(this.userName,this.passWord);
+            }
+        }catch (Exception e) {
+            System.out.println("exception while reading userName or Password " + e.getStackTrace());
+        }   
     }
     
     public HTTPHandle(String userName, String passWord) {

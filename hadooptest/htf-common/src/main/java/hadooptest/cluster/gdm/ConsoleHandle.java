@@ -76,8 +76,10 @@ public final class ConsoleHandle {
         try
         {
             this.username = this.conf.getString("auth.usr");
-            this.passwd = this.conf.getString("auth.pp");
-            this.httpHandle.logonToBouncer(this.username, this.passwd);
+            this.passwd = Util.getTestUserPasswordFromYkeykey(this.username);
+            if ( this.passwd != null) {
+        	this.httpHandle.logonToBouncer(this.username, this.passwd);
+            }
             TestSession.logger.debug("logon OK");
         } catch (Exception ex) {
             TestSession.logger.error("Exception thrown", ex);
