@@ -67,12 +67,3 @@ then
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tar -C $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/
 fi
-
-# ykafka
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ykafka_fetch" ]
-then
-   ykafka_version=ykafka-0.8.2.200.5
-   /usr/local/bin/yinst fetch ${ykafka_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz 
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tar -C $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/
-fi
