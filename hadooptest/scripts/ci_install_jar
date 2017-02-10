@@ -59,15 +59,6 @@ else
   fi
 fi
 
-# ystorm_contrib
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch" ]
-then
-   ystorm_contrib_version=ystorm_contrib-0.4.0.22
-   /usr/local/bin/yinst fetch ${ystorm_contrib_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz 
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/ystorm_contrib.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_contrib_fetch/
-fi
-
 # hbase
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/hbase_fetch" ]
 then
@@ -75,22 +66,4 @@ then
    /usr/local/bin/yinst fetch ${hbase_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz -br quarantine -br nightly -br test
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tar -C $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/
-fi
-
-# ystorm
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ystorm_fetch" ]
-then
-   ystorm_version=ystorm-0.9.2_incubating_security.504
-   /usr/local/bin/yinst fetch ${ystorm_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz 
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/ystorm.tar -C $WORKSPACE/yinst_fetch_dependencies/ystorm_fetch/
-fi
-
-# ykafka
-if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/ykafka_fetch" ]
-then
-   ykafka_version=ykafka-0.8.2.200.5
-   /usr/local/bin/yinst fetch ${ykafka_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz 
-   gunzip -f $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tgz
-   tar -xf $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/ykafka.tar -C $WORKSPACE/yinst_fetch_dependencies/ykafka_fetch/
 fi
