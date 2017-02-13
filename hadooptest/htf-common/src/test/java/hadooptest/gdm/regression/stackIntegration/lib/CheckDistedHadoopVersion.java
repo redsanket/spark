@@ -84,9 +84,9 @@ public class CheckDistedHadoopVersion {
 	List<Future<String>> hostNamesList = executor.invokeAll(list);
 	for ( Future<String> hostNames : hostNamesList) {
 	    String hostName = hostNames.get();
-	    if (hostName.startsWith("nameNodeHostName-")) {
-		String temp = hostName.substring("nameNodeHostName-".length() + 1 , hostName.length());
-		this.setNameNodeName(temp);
+	    List<String> hostList = Arrays.asList(hostName.split("-"));
+	    if (hostList.size() > 0) {
+		this.setNameNodeName(hostList.get(1));
 	    }
 	}
 	executor.shutdown();
@@ -95,7 +95,7 @@ public class CheckDistedHadoopVersion {
     public void getClustterHadoopVersion() throws InterruptedException, ExecutionException {
 	List<Callable<String>> list = new ArrayList<Callable<String>>();
 	Callable<String> callable = ()->{
-	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + "hadoop version\"";
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
 	    String hadoopVersion = this.commonFunctions.executeCommand(command);
 	    return "hadoopVersion-" +  hadoopVersion;
 	};
@@ -148,6 +148,10 @@ public class CheckDistedHadoopVersion {
 	    }
 	}
 	return flag;
+    }
+    
+    public void restartFacet() {
+	
     }
 
 }
