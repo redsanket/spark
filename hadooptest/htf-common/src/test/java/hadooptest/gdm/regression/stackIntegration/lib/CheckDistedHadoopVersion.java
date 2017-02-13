@@ -20,10 +20,11 @@ public class CheckDistedHadoopVersion {
     private String latestExistingHadoopVersion = null;
     private static final String GDM_HADOOP_CONFIGS = "/home/y/libexec/gdm_hadoop_configs/";
     
-    public CheckDistedHadoopVersion(String clusterName) {
+    public CheckDistedHadoopVersion(String clusterName , String replicationHostName) {
 	this.commonFunctions = new CommonFunctions();
 	this.consoleHandle = new ConsoleHandle();
 	this.setClusterName(clusterName);
+	this.setReplicationHostName(replicationHostName);
     }
 
     public String getReplicationHostName() {
@@ -68,10 +69,10 @@ public class CheckDistedHadoopVersion {
 
     public void fetchHostNames() throws InterruptedException, ExecutionException {
 	List<Callable<String>> list = new ArrayList<Callable<String>>();
-	Callable<String> replicationHostCallable = ()->{
+/*	Callable<String> replicationHostCallable = ()->{
 	    String replHostName = this.consoleHandle.getFacetHostName("replication" , "blue" , "gq1");
 	    return "replicationHostName-" + replHostName;
-	};
+	};*/
 
 	Callable<String> nameNodeCallable = ()->{
 	    String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";

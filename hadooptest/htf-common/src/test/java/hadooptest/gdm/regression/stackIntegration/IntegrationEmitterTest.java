@@ -126,7 +126,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	String replHostName = this.consoleHandle.getFacetHostName("replication" , "blue" , "gq1");
 	System.out.println("------- replHostName --   " + replHostName);
 	
-	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.sourceCluster);
+	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.sourceCluster , replHostName);
 	checkDistedHadoopVersionObject.fetchHostNames();
 	if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
 	    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
