@@ -28,7 +28,7 @@ public class CheckDistedHadoopVersion {
 	this.consoleHandle = new ConsoleHandle();
 	this.setClusterName(clusterName);
 	this.setReplicationHostName(replicationHostName);
-	getNameNodeHostName();
+	//getNameNodeHostName();
     }
 
     public String getReplicationHostName() {
@@ -72,7 +72,7 @@ public class CheckDistedHadoopVersion {
     }
 
     public void getNameNodeHostName() throws InterruptedException, ExecutionException {
-	List<Callable<String>> list = new ArrayList<Callable<String>>();
+	/*List<Callable<String>> list = new ArrayList<Callable<String>>();
 	Callable<String> nameNodeCallable = ()->{
 	    String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";
 	    String nnHostName = this.commonFunctions.executeCommand(command);
@@ -90,12 +90,15 @@ public class CheckDistedHadoopVersion {
 		this.setNameNodeName(hostList.get(1));
 	    }
 	}
-	executor.shutdown();
+	executor.shutdown();*/
+	String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";
+	String nnHostName = this.commonFunctions.executeCommand(command);
+	this.setNameNodeName(nnHostName);
 	System.out.println("getNameNodeHostName() - namenodeHost Name - " + this.getNameNodeName());
     }
     
     public void getClustterHadoopVersion() throws InterruptedException, ExecutionException {
-	List<Callable<String>> list = new ArrayList<Callable<String>>();
+	/*List<Callable<String>> list = new ArrayList<Callable<String>>();
 	Callable<String> callable = ()->{
 	    System.out.println("getClustterHadoopVersion() - namenodeHost Name - " + this.getNameNodeName());
 	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
@@ -113,10 +116,16 @@ public class CheckDistedHadoopVersion {
 		this.setHadoopVersion(hVersionList.get(1));
 	    }
 	}
-	executor.shutdown();
+	executor.shutdown();*/
+	
+	String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
+	String hadoopVersion = this.commonFunctions.executeCommand(command);
+	this.setHadoopVersion(hadoopVersion);
+	System.out.println("getHadoopVersion() - namenodeHost Name - " + this.getHadoopVersion());
     }
     
     public boolean checkClusterHadoopVersionAndReplDistedVersionMatches() throws InterruptedException, ExecutionException {
+	getNameNodeHostName();
 	getClustterHadoopVersion();
 	String cmd1 = "ssh " +  this.getReplicationHostName() + " \"ls -dt " + GDM_HADOOP_CONFIGS + this.getClusterName() ;
 	String command = cmd1 + "/*  | head -n 1 \"";
