@@ -23,11 +23,12 @@ public class CheckDistedHadoopVersion {
     private String latestExistingHadoopVersion = null;
     private static final String GDM_HADOOP_CONFIGS = "/home/y/libexec/gdm_hadoop_configs/";
     
-    public CheckDistedHadoopVersion(String clusterName , String replicationHostName) {
+    public CheckDistedHadoopVersion(String clusterName , String replicationHostName) throws InterruptedException, ExecutionException {
 	this.commonFunctions = new CommonFunctions();
 	this.consoleHandle = new ConsoleHandle();
 	this.setClusterName(clusterName);
 	this.setReplicationHostName(replicationHostName);
+	getNameNodeHostName();
     }
 
     public String getReplicationHostName() {
@@ -114,7 +115,6 @@ public class CheckDistedHadoopVersion {
     }
     
     public boolean checkClusterHadoopVersionAndReplDistedVersionMatches() throws InterruptedException, ExecutionException {
-	getNameNodeHostName();
 	getClustterHadoopVersion();
 	String cmd1 = "ssh " +  this.getReplicationHostName() + " \"ls -dt " + GDM_HADOOP_CONFIGS + this.getClusterName() ;
 	String command = cmd1 + "/*  | head -n 1 \"";
