@@ -3,6 +3,7 @@ package hadooptest.gdm.regression.stackIntegration;
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import hadooptest.TestSession;
@@ -17,6 +18,8 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
 import hadooptest.gdm.regression.integration.CreateIntegrationDataSet;
 import hadooptest.gdm.regression.integration.clusterHealth.CheckClusterHealth;
+import hadooptest.gdm.regression.stackIntegration.lib.CheckDistedHadoopVersion;
+import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -32,6 +35,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -65,8 +73,10 @@ public class IntegrationEmitterTest  extends TestSession {
     private int duration;
     private int noOfFeeds;
     private int frequency;
+    private String hadoopVesion;
     private boolean isDataSetEligibleForDelete = true;
     private String freq;
+    private String targetName;
     private List<String> feedList;
     private WorkFlowHelper workFlowHelper;
     private CreateIntegrationDataSet createIntegrationDataSetObj;
@@ -85,6 +95,14 @@ public class IntegrationEmitterTest  extends TestSession {
     @BeforeClass
     public static void startTestSession() throws Exception {
 	TestSession.start();
+    }
+    
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
     }
 
     @Before
@@ -113,6 +131,20 @@ public class IntegrationEmitterTest  extends TestSession {
 		fail("Destination cluster is null or Specified a wrong destination cluster that is not configured.");
 		System.exit(1);
 	    }
+	    setTargetName(clusterName);
+	}
+	
+	String replHostName = this.consoleHandle.getFacetHostName("replication" , "blue" , "gq1");
+	System.out.println("------- replHostName --   " + replHostName);
+	
+	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.getTargetName() , replHostName);
+	if (checkDistedHadoopVersionObject.setYinstSettingAndRestartFacet()){
+	    if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
+		    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
+		    org.junit.Assert.assertFalse("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion(), false);
+		}    
+	} else {
+	    org.junit.Assert.assertFalse("failed to restart replication facet." , false);
 	}
 	
 	createIntegrationDataSetObj = new CreateIntegrationDataSet();
@@ -129,7 +161,7 @@ public class IntegrationEmitterTest  extends TestSession {
     
     @Test
     public void integrationTest() throws Exception {
-
+	
 	// check whether instance files are available on the specified source
 	List<String> dates = getInstanceFileDates();
 	assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
@@ -313,4 +345,5 @@ public class IntegrationEmitterTest  extends TestSession {
 	TestSession.logger.info("actionName = "+actionName  + "   ResponseId = "  +responseId + "    responseMessage = "+responseMessage);
 	assertTrue("Expected remove action name , but found " + actionName , actionName.equals("remove"));
     }
+    
 }
