@@ -72,25 +72,6 @@ public class CheckDistedHadoopVersion {
     }
 
     public void getNameNodeHostName() throws InterruptedException, ExecutionException {
-	/*List<Callable<String>> list = new ArrayList<Callable<String>>();
-	Callable<String> nameNodeCallable = ()->{
-	    String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";
-	    String nnHostName = this.commonFunctions.executeCommand(command);
-	    return "nameNodeHostName-" +  nnHostName;
-	};
-	
-	list.add(nameNodeCallable);
-	
-	ExecutorService executor = Executors.newFixedThreadPool(2);
-	List<Future<String>> hostNamesList = executor.invokeAll(list);
-	for ( Future<String> hostNames : hostNamesList) {
-	    String hostName = hostNames.get();
-	    List<String> hostList = Arrays.asList(hostName.split("-"));
-	    if (hostList.size() > 0) {
-		this.setNameNodeName(hostList.get(1));
-	    }
-	}
-	executor.shutdown();*/
 	String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";
 	String nnHostName = this.commonFunctions.executeCommand(command);
 	this.setNameNodeName(nnHostName);
@@ -98,30 +79,34 @@ public class CheckDistedHadoopVersion {
     }
     
     public void getClustterHadoopVersion() throws InterruptedException, ExecutionException {
-	/*List<Callable<String>> list = new ArrayList<Callable<String>>();
-	Callable<String> callable = ()->{
-	    System.out.println("getClustterHadoopVersion() - namenodeHost Name - " + this.getNameNodeName());
-	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
-	    String hadoopVersion = this.commonFunctions.executeCommand(command);
-	    return "hadoopVersion-" +  hadoopVersion;
-	};
-	
-	list.add(callable);
-	ExecutorService executor = Executors.newFixedThreadPool(2);
-	List<Future<String>> hostNamesList = executor.invokeAll(list);
-	for ( Future<String> hostNames : hostNamesList) {
-	    String hostName = hostNames.get();
-	    List<String> hVersionList = Arrays.asList(hostName.split("-"));
-	    if (hVersionList.size() > 0) {
-		this.setHadoopVersion(hVersionList.get(1));
-	    }
-	}
-	executor.shutdown();*/
-	
 	String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName().trim() +  "  \"" + " hadoop version\"";
 	String hadoopVersion = this.commonFunctions.executeCommand(command);
-	this.setHadoopVersion(hadoopVersion);
+	List<String> versionList = Arrays.asList(hadoopVersion.split("\n"));
+	for ( String str : versionList) {
+	    if (str.startsWith("Hadoop")) {
+		List<String> tempList = Arrays.asList(str.split(" "));
+		if (tempList.size() > 0) {
+		    this.setHadoopVersion(tempList.get(1));
+		}
+	    }
+	}
 	System.out.println("getHadoopVersion() - namenodeHost Name - " + this.getHadoopVersion());
+    }
+    
+    
+    public boolean setYinstSettingAndRestartFacet() {
+	String yinstSetting = "yinst set ygrid_gdm_replication_server.hadoop_config_watcher_frequency_seconds=120";
+	String restartCommand = "yinst restart ygrid_gdm_replication_server";
+	this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  " + yinstSetting + ";" + restartCommand);
+	int i = 1;
+	boolean flag = false;
+	while (i <= 10) {
+	    if (this.consoleHandle.isFacetRunning("replication", "blue", "gq1") == true){
+		flag = true;
+		break;
+	    }
+	}
+	return flag;
     }
     
     public boolean checkClusterHadoopVersionAndReplDistedVersionMatches() throws InterruptedException, ExecutionException {

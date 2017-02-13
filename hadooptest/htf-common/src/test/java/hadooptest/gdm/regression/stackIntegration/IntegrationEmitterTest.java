@@ -3,6 +3,7 @@ package hadooptest.gdm.regression.stackIntegration;
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import hadooptest.TestSession;
@@ -137,9 +138,13 @@ public class IntegrationEmitterTest  extends TestSession {
 	System.out.println("------- replHostName --   " + replHostName);
 	
 	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.getTargetName() , replHostName);
-	if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
-	    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
-	    System.exit(0);
+	if (checkDistedHadoopVersionObject.setYinstSettingAndRestartFacet()){
+	    if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
+		    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
+		    org.junit.Assert.assertFalse("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion(), false);
+		}    
+	} else {
+	    org.junit.Assert.assertFalse("failed to restart replication facet." , false);
 	}
 	
 	createIntegrationDataSetObj = new CreateIntegrationDataSet();
