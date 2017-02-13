@@ -83,6 +83,8 @@ public class CheckDistedHadoopVersion {
 	    return "nameNodeHostName-" +  nnHostName;
 	};
 	
+	list.add(nameNodeCallable);
+	
 	ExecutorService executor = Executors.newFixedThreadPool(2);
 	List<Future<String>> hostNamesList = executor.invokeAll(list);
 	for ( Future<String> hostNames : hostNamesList) {
@@ -116,7 +118,8 @@ public class CheckDistedHadoopVersion {
 		    }
 		}
 		if (StringUtils.isNotBlank(latestFolder)) {
-		    String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  " + latestFolder  + "/hadoopcoretree/share/hadoop-*");
+		    String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  \"" + latestFolder  + "/hadoopcoretree/share/hadoop-*\"");
+		    System.out.println("installed hadoop version - " + latestHadoopVersion);
 		    this.setLatestExistingHadoopVersion(latestHadoopVersion);
 		    if ( latestHadoopVersion.indexOf(this.getHadoopVersion()) > -1 ) {
 			flag = true;
