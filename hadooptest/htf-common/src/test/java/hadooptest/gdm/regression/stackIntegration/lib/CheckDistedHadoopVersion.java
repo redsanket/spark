@@ -91,11 +91,13 @@ public class CheckDistedHadoopVersion {
 	    }
 	}
 	executor.shutdown();
+	System.out.println("getNameNodeHostName() - namenodeHost Name - " + this.getNameNodeName());
     }
     
     public void getClustterHadoopVersion() throws InterruptedException, ExecutionException {
 	List<Callable<String>> list = new ArrayList<Callable<String>>();
 	Callable<String> callable = ()->{
+	    System.out.println("getClustterHadoopVersion() - namenodeHost Name - " + this.getNameNodeName());
 	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
 	    String hadoopVersion = this.commonFunctions.executeCommand(command);
 	    return "hadoopVersion-" +  hadoopVersion;
