@@ -70,13 +70,8 @@ public class CheckDistedHadoopVersion {
         this.latestExistingHadoopVersion = latestExistingHadoopVersion;
     }
 
-    public void fetchHostNames() throws InterruptedException, ExecutionException {
+    public void getNameNodeHostName() throws InterruptedException, ExecutionException {
 	List<Callable<String>> list = new ArrayList<Callable<String>>();
-/*	Callable<String> replicationHostCallable = ()->{
-	    String replHostName = this.consoleHandle.getFacetHostName("replication" , "blue" , "gq1");
-	    return "replicationHostName-" + replHostName;
-	};*/
-
 	Callable<String> nameNodeCallable = ()->{
 	    String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + "namenode" +")\"";
 	    String nnHostName = this.commonFunctions.executeCommand(command);
@@ -89,10 +84,6 @@ public class CheckDistedHadoopVersion {
 	List<Future<String>> hostNamesList = executor.invokeAll(list);
 	for ( Future<String> hostNames : hostNamesList) {
 	    String hostName = hostNames.get();
-	    if (hostName.startsWith("replicationHostName")) {
-		String temp = hostName.substring("replicationHostName-".length() + 1, hostName.length());
-		this.setReplicationHostName(temp);
-	    }
 	    if (hostName.startsWith("nameNodeHostName-")) {
 		String temp = hostName.substring("nameNodeHostName-".length() + 1 , hostName.length());
 		this.setNameNodeName(temp);
@@ -101,7 +92,32 @@ public class CheckDistedHadoopVersion {
 	executor.shutdown();
     }
     
-    public boolean checkClusterHadoopVersionAndReplDistedVersionMatches() {
+    
+    public void getClustterHadoopVersion() throws InterruptedException, ExecutionException {
+	List<Callable<String>> list = new ArrayList<Callable<String>>();
+	Callable<String> nameNodeCallable = ()->{
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + "hadoop version\"";
+	    String hadoopVersion = this.commonFunctions.executeCommand(command);
+	    return "hadoopVersion-" +  hadoopVersion;
+	};
+	
+	list.add(nameNodeCallable);
+	
+	ExecutorService executor = Executors.newFixedThreadPool(2);
+	List<Future<String>> hostNamesList = executor.invokeAll(list);
+	for ( Future<String> hostNames : hostNamesList) {
+	    String hostName = hostNames.get();
+	    if (hostName.startsWith("hadoopVersion-")) {
+		String temp = hostName.substring("hadoopVersion-".length() + 1 , hostName.length());
+		this.setHadoopVersion(temp);
+	    }
+	}
+	executor.shutdown();
+    }
+    
+    public boolean checkClusterHadoopVersionAndReplDistedVersionMatches() throws InterruptedException, ExecutionException {
+	getNameNodeHostName();
+	getClustterHadoopVersion();
 	String cmd1 = "ssh " +  this.getReplicationHostName() + " \"ls -dt " + GDM_HADOOP_CONFIGS + this.getClusterName() ;
 	String command = cmd1 + "/*  | head -n 1 \"";
 	boolean flag = false;
@@ -118,7 +134,7 @@ public class CheckDistedHadoopVersion {
 		    }
 		}
 		if (StringUtils.isNotBlank(latestFolder)) {
-		    String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  \"" + latestFolder  + "/hadoopcoretree/share/hadoop-*\"");
+		    String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  \" ls -dt" + latestFolder  + "/hadoopcoretree/share/hadoop-*\"");
 		    System.out.println("installed hadoop version - " + latestHadoopVersion);
 		    this.setLatestExistingHadoopVersion(latestHadoopVersion);
 		    if ( latestHadoopVersion.indexOf(this.getHadoopVersion()) > -1 ) {

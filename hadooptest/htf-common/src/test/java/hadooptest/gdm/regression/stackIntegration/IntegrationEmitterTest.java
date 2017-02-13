@@ -75,6 +75,7 @@ public class IntegrationEmitterTest  extends TestSession {
     private String hadoopVesion;
     private boolean isDataSetEligibleForDelete = true;
     private String freq;
+    private String targetName;
     private List<String> feedList;
     private WorkFlowHelper workFlowHelper;
     private CreateIntegrationDataSet createIntegrationDataSetObj;
@@ -93,6 +94,14 @@ public class IntegrationEmitterTest  extends TestSession {
     @BeforeClass
     public static void startTestSession() throws Exception {
 	TestSession.start();
+    }
+    
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
     }
 
     @Before
@@ -121,13 +130,13 @@ public class IntegrationEmitterTest  extends TestSession {
 		fail("Destination cluster is null or Specified a wrong destination cluster that is not configured.");
 		System.exit(1);
 	    }
+	    setTargetName(clusterName);
 	}
 	
 	String replHostName = this.consoleHandle.getFacetHostName("replication" , "blue" , "gq1");
 	System.out.println("------- replHostName --   " + replHostName);
 	
-	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.sourceCluster , replHostName);
-	checkDistedHadoopVersionObject.fetchHostNames();
+	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.getTargetName() , replHostName);
 	if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
 	    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
 	    System.exit(0);
