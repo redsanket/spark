@@ -1,12 +1,15 @@
 package hadooptest.gdm.regression.stackIntegration.lib;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.List;
 import java.util.concurrent.Future;
+
+import org.apache.commons.lang3.StringUtils;
 
 import hadooptest.cluster.gdm.ConsoleHandle;
 
@@ -104,15 +107,25 @@ public class CheckDistedHadoopVersion {
 	    try {
 		System.out.println("Wait for some time so that latest hadoop jar is fetched.");
 		Thread.sleep(30000);
-		String latestFolder = this.commonFunctions.executeCommand(command);
-		String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  " + latestFolder  + "/hadoopcoretree/share/hadoop-*");
-		this.setLatestExistingHadoopVersion(latestHadoopVersion);
-		if ( latestHadoopVersion.indexOf(this.getHadoopVersion()) > -1 ) {
-		    flag = true;
-		    break;
-		} else {
-		    continue;
+		String latestFolderTemp = this.commonFunctions.executeCommand(command);
+		List<String> latestFolderValueList = Arrays.asList(latestFolderTemp.split("\n"));
+		String latestFolder = "";
+		for ( String str : latestFolderValueList) {
+		    if ( str.startsWith(GDM_HADOOP_CONFIGS)){
+			latestFolder = str.trim();
+		    }
 		}
+		if (StringUtils.isNotBlank(latestFolder)) {
+		    String latestHadoopVersion = this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  " + latestFolder  + "/hadoopcoretree/share/hadoop-*");
+		    this.setLatestExistingHadoopVersion(latestHadoopVersion);
+		    if ( latestHadoopVersion.indexOf(this.getHadoopVersion()) > -1 ) {
+			flag = true;
+			break;
+		    } else {
+			continue;
+		    }    
+		}
+		
 	    } catch (InterruptedException e) {
 		e.printStackTrace();
 	    }
