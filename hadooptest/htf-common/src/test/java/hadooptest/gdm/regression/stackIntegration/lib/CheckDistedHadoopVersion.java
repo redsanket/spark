@@ -118,7 +118,7 @@ public class CheckDistedHadoopVersion {
 	}
 	executor.shutdown();*/
 	
-	String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName() +  "  \"" + " hadoop version\"";
+	String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getNameNodeName().trim() +  "  \"" + " hadoop version\"";
 	String hadoopVersion = this.commonFunctions.executeCommand(command);
 	this.setHadoopVersion(hadoopVersion);
 	System.out.println("getHadoopVersion() - namenodeHost Name - " + this.getHadoopVersion());
