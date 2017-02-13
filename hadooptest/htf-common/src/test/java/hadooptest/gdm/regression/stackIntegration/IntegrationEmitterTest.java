@@ -17,6 +17,8 @@ import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
 import hadooptest.gdm.regression.integration.CreateIntegrationDataSet;
 import hadooptest.gdm.regression.integration.clusterHealth.CheckClusterHealth;
+import hadooptest.gdm.regression.stackIntegration.lib.CheckDistedHadoopVersion;
+import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -32,6 +34,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -65,6 +72,7 @@ public class IntegrationEmitterTest  extends TestSession {
     private int duration;
     private int noOfFeeds;
     private int frequency;
+    private String hadoopVesion;
     private boolean isDataSetEligibleForDelete = true;
     private String freq;
     private List<String> feedList;
@@ -115,6 +123,13 @@ public class IntegrationEmitterTest  extends TestSession {
 	    }
 	}
 	
+	CheckDistedHadoopVersion checkDistedHadoopVersionObject = new CheckDistedHadoopVersion(this.sourceCluster);
+	checkDistedHadoopVersionObject.fetchHostNames();
+	if (! checkDistedHadoopVersionObject.checkClusterHadoopVersionAndReplDistedVersionMatches()){
+	    System.out.println("Expected hadoop version - " + checkDistedHadoopVersionObject.getHadoopVersion() + "  but got " + checkDistedHadoopVersionObject.getLatestExistingHadoopVersion());
+	    System.exit(0);
+	}
+	
 	createIntegrationDataSetObj = new CreateIntegrationDataSet();
 	createIntegrationDataSetObj.setHcatType(TARGET_START_TYPE_DATAONLY);
 	createIntegrationDataSetObj.setTargeList(this.targetClusterList);
@@ -129,7 +144,7 @@ public class IntegrationEmitterTest  extends TestSession {
     
     @Test
     public void integrationTest() throws Exception {
-
+	
 	// check whether instance files are available on the specified source
 	List<String> dates = getInstanceFileDates();
 	assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
@@ -313,4 +328,5 @@ public class IntegrationEmitterTest  extends TestSession {
 	TestSession.logger.info("actionName = "+actionName  + "   ResponseId = "  +responseId + "    responseMessage = "+responseMessage);
 	assertTrue("Expected remove action name , but found " + actionName , actionName.equals("remove"));
     }
+    
 }
