@@ -95,9 +95,19 @@ public class CheckDistedHadoopVersion {
     
     
     public boolean setYinstSettingAndRestartFacet() {
-	String yinstSetting = "yinst set ygrid_gdm_replication_server.hadoop_config_watcher_frequency_seconds=120";
-	String restartCommand = "yinst restart ygrid_gdm_replication_server";
-	this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName() + "  " + yinstSetting + ";" + restartCommand);
+	String yinstSetting = "\"yinst set ygrid_gdm_replication_server.hadoop_config_watcher_frequency_seconds=120";
+	String restartCommand = "yinst restart ygrid_gdm_replication_server\"";
+	this.commonFunctions.executeCommand("ssh " + this.getReplicationHostName().trim() + "   " + yinstSetting + ";" + restartCommand );
+	
+	try {
+	    for ( int i =1 ;i <10;i++) {
+		System.out.println("Please wait for some time so that replication facet comes up. " + i);
+		Thread.sleep(30000);
+	    }
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
+	}
+	
 	int i = 1;
 	boolean flag = false;
 	while (i <= 10) {
