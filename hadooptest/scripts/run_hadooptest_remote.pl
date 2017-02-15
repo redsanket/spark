@@ -109,7 +109,7 @@ if (!$remote_host) {
     note("fetch unspecified gateway host from igor role: '$rolename'");
     $remote_host = (-e $igor) ?
         `/home/y/bin/igor fetch -members $rolename` :
-        `ssh $screwdriver_ssh_opts $re_host $igor fetch -members $rolename`;
+        `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $screwdriver_ssh_opts $re_host $igor fetch -members $rolename`;
     chomp($remote_host);
 }
 note("remote gateway host = '$remote_host'");
@@ -127,15 +127,15 @@ $remote_ws_ht = "$remote_ws/hadooptest";
 # CLEAN UP EXISTING WORKSPACE DIRECTORY
 my $command;
 if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa")) {
-    $command = "ssh $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then sudo /bin/rm -rf $remote_ws; fi\"";
+    $command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then sudo /bin/rm -rf $remote_ws; fi\"";
 } else {
-    $command = "ssh $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then /bin/rm -rf $remote_ws; fi\"";
+    $command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then /bin/rm -rf $remote_ws; fi\"";
 }
 execute($command);
 
 # CREATE NEW WORKSPACE DIRECTORY
-execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws\"");
-execute("ssh $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws\"");
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht\"");
 
 $use_mvn = ( grep( /-j/, @ARGV ) ) ? 0 : 1;
 $local_ws_ht = "/Users/$username/git/hadooptest/hadooptest" unless ($local_ws_ht);
@@ -158,12 +158,12 @@ my $SSH_OPT='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null';
 execute("HTF_WORKSPACE=/ignore $mvn clean -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
 execute("scp $SSH_OPT $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
-execute("ssh $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
-execute("ssh $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
 execute("scp $SSH_OPT $local_ws_ht/target/*.jar $screwdriver_scp_opts$remote_host:$remote_ws_ht/target");
-execute("ssh $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
-execute("ssh $screwdriver_ssh_opts -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
+execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
     if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa"));
 
 # EXECUTE TESTS
@@ -175,7 +175,7 @@ unless ($install_only) {
         #########################
         # Execute tests via maven
         #########################
-        execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
         if ($test_results_dir) {
@@ -208,6 +208,6 @@ unless ($install_only) {
         #########################
         # Execute tests via java
         #########################
-        execute("ssh $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
+        execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"cd $remote_ws_ht; $remote_ws_ht/scripts/run_hadooptest $common_args\"");
     }
 }
