@@ -157,10 +157,10 @@ my $SSH_OPT='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null';
 # INSTALL HADOOPTEST FRAMEWORK
 execute("HTF_WORKSPACE=/ignore $mvn clean -Dmaven.compiler.source=1.8 -Dmaven.compiler.target=1.8 -f $local_ws_ht/pom.xml") if ($use_mvn);
 execute("tar -zcf $tgz_dir/$tgz_file_ht --exclude='target' -C $local_ws_ht .");
-execute("scp $SSH_OPT $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
+execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $SSH_OPT $tgz_dir/$tgz_file_ht $screwdriver_scp_opts$remote_host:$remote_ws_ht");
 execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/gtar fx $remote_ws_ht/$tgz_file_ht -C $remote_ws_ht\"");
 execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"/bin/mkdir -p $remote_ws_ht/target\"");
-execute("scp $SSH_OPT $local_ws_ht/target/*.jar $screwdriver_scp_opts$remote_host:$remote_ws_ht/target");
+execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $local_ws_ht/target/*.jar $screwdriver_scp_opts$remote_host:$remote_ws_ht/target");
 execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SSH_OPT $screwdriver_ssh_opts -t $remote_host \"$remote_ws_ht/scripts/yinst_perl_support\"");
 
 execute("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"sudo chown -R hadoopqa $remote_ws;\"")
@@ -179,16 +179,16 @@ unless ($install_only) {
 
         # COPY THE TEST RESULTS BACK TO THE BUILD HOST FROM THE GATEWAY
         if ($test_results_dir) {
-            execute("scp -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports/*.xml $test_results_dir");
+            execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports/*.xml $test_results_dir");
         }
         else {
             execute("/bin/mkdir -p $local_ws_ht/target");
-            execute("scp -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
+            execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -rp $screwdriver_scp_opts$remote_host:$remote_ws_ht/htf-common/target/surefire-reports $local_ws_ht/target");
         }
 
     	# COPY BACK THE FINGER PRINT FILE (IF IT EXISTS SO IT CAN BE GROUPED
     	# TOGETHER WITH APPLICABLE JENKINS JOBS)
-    	execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
+    	execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/artifacts.stamp $local_ws_ht/target/");
 
         # LIST THE BUILD HOST TARGET DIR
         # execute("/usr/bin/tree $local_ws_ht/target/");
@@ -197,11 +197,11 @@ unless ($install_only) {
         # COPY THE CLOVER CODE COVERAGE FILE BACK IF APPLICABLE
         # execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
         #   if (( "-p" ~~ @ARGV ) || ( "-profile" ~~ @ARGV ) || ( "--profile" ~~ @ARGV ));
-        execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
+        execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/clover $local_ws_ht/target/")
             if ( "clover" ~~ @ARGV );
 
         # COPY THE JACOCO CODE COVERAGE FILE BACK IF APPLICABLE
-        execute("scp -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
+        execute("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $screwdriver_scp_opts$remote_host:$remote_ws_ht/target/site $local_ws_ht/target/")
             if ( "jacoco" ~~ @ARGV );
     }
     else {
