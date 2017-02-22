@@ -2,6 +2,15 @@ Dist package to deliver the ykeykey 'kgp' file to a target node. If the node is
 in CM3 role 'hadoop.cm3', it is allowed to fetch hadoopqa headless 'hitusr'
 passwords.
 
+Usage docs:
+https://yahoo.jiveon.com/docs/DOC-127838
+
+To create a new package, modify the kgp file as needed, ie to add new keys. Then to build
+and Dist the package, run this scredwdriver job:
+
+https://screwdriver.corp.yahoo.com/projects/190116
+
+
 Version 0.1
   - initial version
 
