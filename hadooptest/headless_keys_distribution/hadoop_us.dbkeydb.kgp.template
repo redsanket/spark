@@ -1,0 +1,8 @@
+[KEY_GROUP/hadoop_us.dbkeydb]
+svc_type=$(svc_type)
+svc_mode=DEKKEK
+public=1
+
+[KEY/hadoop_us.dbkeydb/db_pass_yds_hadoopqa]
+user_acl=root,hadoopqa
+group_acl=hadoopqa
