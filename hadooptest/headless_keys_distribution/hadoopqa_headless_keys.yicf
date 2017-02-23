@@ -23,4 +23,4 @@ YINST requires pkg ykeykeyshared
 
 # the ykeykey kgp file for hitusr_*
 c 0644 - - conf/ykeykey/kgp/hadoop_us.qauser_passwords.kgp   ./hadoop_us.qauser_passwords.kgp.template  expand overwrite
-
+c 0644 - - conf/ykeykey/kgp/hadoop_us.dbkeydb.kgp            ./hadoop_us.dbkeydb.kgp.template           expand overwrite
