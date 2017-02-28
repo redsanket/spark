@@ -530,6 +530,8 @@ banner() {
 # cluster configure portion
 # of cluster building (cluster-build/configure_cluster)
 #
+# gridci-1937, allow hive/hcat to install using current branch
+#
 # OOZIE - gridci-561 install yoozie server
 # this relies on oozie service keytab being generated and pushed out in the
 # cluster configure portion of cluster building (cluster-build/configure_cluster)
@@ -554,21 +556,27 @@ function deploy_stack() {
         else
             packagename=${STACK_COMP}
         fi
-        RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
-        if [ $? -eq 0 ]; then
-            # get Artifactory URI and log it
-            ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
-            echo "Artifactory URI with most recent versions:"
-            echo $ARTI_URI
-            # look up stack component version for AR in artifactory
-            set -x
-            if [[ ${STACK_COMP} != "spark" ]]; then
-              PACKAGE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b ${STACK_COMP} -p $packagename`
-            fi
-            set +x
+
+        # gridci-1937 allow install from current branch
+        if [[ "$STACK_COMP_VERSION" == "current" ]]; then
+          REFERENCE_CLUSTER=current
         else
-            echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
-            exit 1
+          RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+          if [ $? -eq 0 ]; then
+              # get Artifactory URI and log it
+              ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+              echo "Artifactory URI with most recent versions:"
+              echo $ARTI_URI
+              # look up stack component version for AR in artifactory
+              set -x
+              if [[ ${STACK_COMP} != "spark" ]]; then
+                PACKAGE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b ${STACK_COMP} -p $packagename`
+              fi
+              set +x
+          else
+              echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
+              exit 1
+          fi
         fi
 
         banner "START INSTALL STEP: Stack Component ${STACK_COMP}"
