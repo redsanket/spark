@@ -56,6 +56,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	
 	List<String> versionList = Arrays.asList(this.commonFunctions.executeCommand("yinst packages ygrid_gdm_" + facetName + "_server -br test | cut -d- -f2").split(" "));
 	String deployedGdmVersion = applicationSummaryMap.get("build.version");
+	TestSession.logger.info("INSTALLED_GDM_VERSION=" + deployedGdmVersion);
 	TestSession.logger.info(facetName + " is running on  " + deployedGdmVersion  + "  package disted on test branch is " + versionList.get(0));
 	return versionList.get(0).equals(deployedGdmVersion);
     }
