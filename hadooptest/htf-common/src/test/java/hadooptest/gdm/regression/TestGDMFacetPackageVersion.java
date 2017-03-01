@@ -52,7 +52,6 @@ public class TestGDMFacetPackageVersion extends TestSession {
     
     private boolean checkGDMVersion(String facetName) {
 	Map<String , String> applicationSummaryMap = this.getHealthCheckDetails(facetName);
-	assertTrue("Expected ApplicationStatus to be running but got " + applicationSummaryMap.get("ApplicationStatus") , applicationSummaryMap.get("ApplicationStatus").equals("Running") );
 	assertTrue("Expected Current State to be Active but got " + applicationSummaryMap.get("Current State") ,  applicationSummaryMap.get("Current State").endsWith("Active"));
 	
 	List<String> versionList = Arrays.asList(this.commonFunctions.executeCommand("yinst packages ygrid_gdm_" + facetName + "_server -br test | cut -d- -f2").split(" "));
