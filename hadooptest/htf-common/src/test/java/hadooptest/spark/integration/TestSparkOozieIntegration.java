@@ -255,7 +255,7 @@ public class TestSparkOozieIntegration extends TestSession {
         if (rsrcType == ResourceType.AppLib && srcRsrcName == null) {
             src = Util.getResourceFullPath("../htf-common/target/htf-common-1.0-SNAPSHOT-tests.jar");
         } else {
-            src = Util.getResourceFullPath("resources/spark/data/"+srcRsrcName);
+            src = Util.getResourceFullPath("resources/spark/data/" + srcRsrcName);
         }
 
         String dst = OOZIE_WORKFLOW_ROOT_HDFS + "/" + appName;
@@ -280,8 +280,8 @@ public class TestSparkOozieIntegration extends TestSession {
         // run the oozie job & get status
         String[] temp = TestSession.exec.runProcBuilder(
             new String[]{ OOZIE_COMMAND, "job", "-run", "-config",
-                TMP_WORKSPACE + jobProps.appName +"/job.properties",
-                "-oozie", oozieNodeURL +"/oozie/", "-auth", "kerberos"
+                TMP_WORKSPACE + jobProps.appName + "/job.properties",
+                "-oozie", oozieNodeURL + "/oozie/", "-auth", "kerberos"
             }
         );
         // The first entry is the result status of the command. The following entry is the value.
