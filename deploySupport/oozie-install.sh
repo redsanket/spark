@@ -161,8 +161,17 @@ else
 fi
 
 # Install oozie and oozie_client on the oozie_node
-yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE
-yinst i -same -live -downgrade  $PACKAGE_VERSION_OOZIE_CLIENT
+# gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
+if [ $? -ne 0 ]; then
+  echo "Error: $PACKAGE_VERSION_OOZIE failed to install!"
+  exit 1
+fi
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
+if [ $? -ne 0 ]; then
+  echo "Error: $PACKAGE_VERSION_OOZIE_CLIENT failed to install!"
+  exit 1
+fi
 
 ##
 # Install oozie_client and ygrid_cacert on gateway
