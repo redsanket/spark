@@ -45,10 +45,10 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	// get test environment type
 	if (this.consoleHandle.getConsoleURL().indexOf("stg") > -1) {
 	    this.setEnvType("staging");
-	    this.setColoName("gq1");
+	    this.setColoName("bf1");
 	} else {
 	    this.setEnvType("qa");
-	    this.setColoName("ne1");
+	    this.setColoName("gq1");
 	}
     }
     
