@@ -60,7 +60,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	Map<String , String> applicationSummaryMap = this.getHealthCheckDetails(facetName);
 	assertTrue("Expected Current State to be Active but got " + applicationSummaryMap.get("Current State") ,  applicationSummaryMap.get("Current State").endsWith("Active"));
 	
-	String distedVersion = this.commonFunctions.executeCommand("dist_tag list gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest | cut -d- -f2 | cut -d' ' -f1");
+	String distedVersion = this.commonFunctions.executeCommand("dist_tag list gdm_" + facetName + "_" + this.getEnvType() +  "_under_test_latest | cut -d- -f2 | cut -d' ' -f1");
 	String deployedGdmVersion = applicationSummaryMap.get("build.version");
 	TestSession.logger.info("INSTALLED_GDM_VERSION=" + deployedGdmVersion);
 	TestSession.logger.info(facetName + " is running on  " + deployedGdmVersion  + " version & package disted on gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest  is " + distedVersion);
