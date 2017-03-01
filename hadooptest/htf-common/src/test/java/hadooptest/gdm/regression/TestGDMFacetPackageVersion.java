@@ -26,6 +26,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
     private String cookie;
     private CommonFunctions commonFunctions;
     private List<String> facets;
+    private String envType;
 
     @BeforeClass
     public static void startTestSession() {
@@ -39,26 +40,33 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	this.cookie = httpHandle.getBouncerCookie();
 	this.commonFunctions = new CommonFunctions();
 	this.facets = new ArrayList<String>(Arrays.asList("console", "acquisition", "replication", "retention"));
+
+	// get test environment type
+	if (this.consoleHandle.getConsoleURL().indexOf("stg") > -1) {
+	    this.setEnvType("staging");
+	} else {
+	    this.setEnvType("qa");
+	}
     }
     
     @Test
     public void testDeployedGDMFacetPackageVersion() throws Exception {
 	for ( String facetName : this.facets) {
-	    if (! this.checkGDMVersion(facetName)) {
-		throw new Exception("Current running " + facetName + " version and disted version does not match");
-	    }
+	    checkGDMVersion(facetName);
 	}
     }
     
-    private boolean checkGDMVersion(String facetName) {
+    private void checkGDMVersion(String facetName) throws Exception {
 	Map<String , String> applicationSummaryMap = this.getHealthCheckDetails(facetName);
 	assertTrue("Expected Current State to be Active but got " + applicationSummaryMap.get("Current State") ,  applicationSummaryMap.get("Current State").endsWith("Active"));
 	
-	List<String> versionList = Arrays.asList(this.commonFunctions.executeCommand("yinst packages ygrid_gdm_" + facetName + "_server -br test | cut -d- -f2").split(" "));
+	String distedVersion = this.commonFunctions.executeCommand("dist_tag list gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest | cut -d- -f2 | cut -d' ' -f1");
 	String deployedGdmVersion = applicationSummaryMap.get("build.version");
 	TestSession.logger.info("INSTALLED_GDM_VERSION=" + deployedGdmVersion);
-	TestSession.logger.info(facetName + " is running on  " + deployedGdmVersion  + "  package disted on test branch is " + versionList.get(0));
-	return versionList.get(0).equals(deployedGdmVersion);
+	TestSession.logger.info(facetName + " is running on  " + deployedGdmVersion  + " version & package disted on gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest  is " + distedVersion);
+	if (! distedVersion.equals(deployedGdmVersion) ) {
+	    throw new Exception("Current running " + facetName + " version is " +  deployedGdmVersion + "   & package disted on gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest  is " + distedVersion);
+	}
     }
     
     /**
@@ -81,5 +89,13 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	    applicationSummary.put(keys.get(i), values.get(i));
 	}
 	return applicationSummary;
+    }
+
+    private String getEnvType() {
+        return envType;
+    }
+
+    private void setEnvType(String envType) {
+        this.envType = envType;
     }
 }
