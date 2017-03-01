@@ -22,7 +22,6 @@ from operator import add
 
 from pyspark import SparkContext
 
-
 if __name__ == "__main__":
     """
         Usage: pi [partitions]

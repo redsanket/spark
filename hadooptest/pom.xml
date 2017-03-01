@@ -392,10 +392,28 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-catalyst_${spark.scala.version}</artifactId>
+                    <version>${spark.version.full}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-tags_${spark.scala.version}</artifactId>
+                    <version>${spark.version.full}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.spark</groupId>
                     <artifactId>spark-hive_${spark.scala.version}</artifactId>
                     <version>${spark.version.full}</version>
                     <scope>provided</scope>
                 </dependency>
+                <dependency>
+                    <groupId>com.databricks</groupId>
+                    <artifactId>spark-avro_2.11</artifactId>
+                    <version>3.2.0</version>
+                </dependency>
+
 
                 <!-- HBase Client -->
                 <dependency>
@@ -2947,6 +2965,24 @@
                 </dependency>
                 <dependency>
                     <groupId>system</groupId>
+                    <artifactId>spark-catalyst_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-catalyst_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>spark-tags_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-tags_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
                     <artifactId>spark-hive_${spark.scala.version}</artifactId>
                     <version>0.9.2</version>
                     <scope>system</scope>
@@ -3311,6 +3347,24 @@
                     <scope>system</scope>
                     <systemPath>
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-sql_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>spark-catalyst_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-catalyst_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>spark-tags_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-tags_${spark.scala.version}.jar
                     </systemPath>
                 </dependency>
                 <dependency>
@@ -3721,12 +3775,35 @@
                 </dependency>
                 <dependency>
                     <groupId>system</groupId>
+                    <artifactId>spark-catalyst_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-catalyst_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>spark-tags_${spark.scala.version}</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-tags_${spark.scala.version}.jar
+                    </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
                     <artifactId>spark-hive_${spark.scala.version}</artifactId>
                     <version>0.9.2</version>
                     <scope>system</scope>
                     <systemPath>
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-hive_${spark.scala.version}.jar
                     </systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>com.databricks</groupId>
+                    <artifactId>spark-avro_2.11</artifactId>
+                    <version>3.2.0</version>
                 </dependency>
             </dependencies>
 

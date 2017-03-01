@@ -14,6 +14,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
@@ -31,6 +32,7 @@ import hadooptest.spark.regression.TestSparkUI;
 public class TestSparkOozieIntegration extends TestSession {
 
     private static final String WORKFLOW = "workflow.xml";
+    private static final String WORKFLOW_WITH_HIVE_CREDS = "workflowWithHiveCreds.xml";
     private static final String OOZIE_WORKFLOW_ROOT_HDFS = "oozie/apps";
     private static final String TMP_WORKSPACE = "/tmp/oozie/";
     private static final String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
@@ -60,10 +62,11 @@ public class TestSparkOozieIntegration extends TestSession {
         cookie = client.YBYCookie;
     }
 
-    // Clean up the directors in local FS and HDFS
     @AfterClass
     public static void endTestSession() throws Exception {
-        //TestSession.cluster.getFS().delete(new Path(OOZIE_WORKFLOW_ROOT_HDFS), true);
+        // Clean up the directors in local FS and HDFS
+        TestSession.cluster.getFS().delete(new Path(OOZIE_WORKFLOW_ROOT_HDFS), true);
+        FileUtils.deleteDirectory(new File(TMP_WORKSPACE));
     }
 
     //===================================== TESTS ==================================================
@@ -81,6 +84,7 @@ public class TestSparkOozieIntegration extends TestSession {
             ,"htf-common-1.0-SNAPSHOT-tests.jar"
             ,"--queue default"
             ,"1"
+            ,false
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -100,6 +104,7 @@ public class TestSparkOozieIntegration extends TestSession {
                 ,"htf-common-1.0-SNAPSHOT-tests.jar"
                 ,"--queue default"
                 ,"1"
+                ,false
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -110,7 +115,8 @@ public class TestSparkOozieIntegration extends TestSession {
     public void runOozieSparkWordCountJava() throws Exception {
         String appName = "oozieSparkWordCountJava";
         // Copy input data to hdfs
-        String inputDataDir = copyFileToHDFS("wordCountInputData.txt", ResourceType.AppData, appName);
+        String inputDataDir =
+                copyFileToHDFS("wordCountInputData.txt", null, ResourceType.AppData, appName);
 
         OozieJobProperties jobProps = new OozieJobProperties(
                 jobTrackerURL
@@ -123,6 +129,7 @@ public class TestSparkOozieIntegration extends TestSession {
                 ,"htf-common-1.0-SNAPSHOT-tests.jar"
                 ,"--queue default"
                 ,inputDataDir
+                ,false
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -131,37 +138,20 @@ public class TestSparkOozieIntegration extends TestSession {
 
     @Test
     public void runOozieSparkPiPython() throws Exception {
-        copyFileToHDFS("pi.py", ResourceType.AppLib, "sparkPiPython");
+        String appName = "oozieSparkPiPython";
+        copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
         OozieJobProperties jobProps = new OozieJobProperties(
                 jobTrackerURL
                 ,"hdfs://"+nameNodeURL
                 ,"spark_latest"
                 ,"yarn"
                 ,"cluster"
-                ,"oozieSparkPiPython"
+                ,appName
                 ,"pi.py"
                 ,"pi.py"
                 ,"--queue default"
                 ,"1"
-        );
-
-        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
-        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
-    }
-
-    @Test
-    public void runOozieSparkHiveScala() throws Exception {
-        OozieJobProperties jobProps = new OozieJobProperties(
-                jobTrackerURL
-                ,"hdfs://"+nameNodeURL
-                ,"spark_latest"
-                ,"yarn"
-                ,"cluster"
-                ,"oozieSparkClusterHive"
-                ,"hadooptest.spark.regression.SparkClusterHive"
-                ,"htf-common-1.0-SNAPSHOT-tests.jar"
-                ,"--queue default --conf spark.yarn.security.tokens.hive.enabled=false"
-                ,"1"
+                ,false
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -181,6 +171,7 @@ public class TestSparkOozieIntegration extends TestSession {
                 ,"htf-common-1.0-SNAPSHOT-tests.jar"
                 ,"--queue=default"
                 ,"1"
+                ,false
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -200,6 +191,27 @@ public class TestSparkOozieIntegration extends TestSession {
                 ,"htf-common-1.0-SNAPSHOT-tests.jar"
                 ,"--queue=default"
                 ,"1"
+                ,false
+        );
+
+        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
+        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
+    }
+
+    @Test
+    public void runOozieSparkHiveScala() throws Exception {
+        OozieJobProperties jobProps = new OozieJobProperties(
+                jobTrackerURL
+                ,"hdfs://"+nameNodeURL
+                ,"spark_latest"
+                ,"yarn"
+                ,"cluster"
+                ,"oozieSparkClusterHive"
+                ,"hadooptest.spark.regression.SparkClusterHive"
+                ,"htf-common-1.0-SNAPSHOT-tests.jar"
+                ,"--queue default --conf spark.yarn.security.tokens.hive.enabled=false"
+                ,"1"
+                ,true
         );
 
         boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
@@ -227,23 +239,24 @@ public class TestSparkOozieIntegration extends TestSession {
         writer.close();
     }
 
-    private void createAndSetupOozieAppDir(String appName) throws Exception {
+    private void createAndSetupOozieAppDir(OozieJobProperties jobProps) throws Exception {
+
         // Copy the workflow file
-        copyFileToHDFS(WORKFLOW, ResourceType.Workflow, appName);
+        String resourceName = jobProps.requireHiveCreds ? WORKFLOW_WITH_HIVE_CREDS : WORKFLOW;
+        copyFileToHDFS(resourceName, WORKFLOW, ResourceType.Workflow, jobProps.appName);
         // Copy the jar file
-        copyFileToHDFS(null, ResourceType.AppLib, appName);
+        copyFileToHDFS(null, null, ResourceType.AppLib, jobProps.appName);
     }
 
-    private String copyFileToHDFS(String resourceName, ResourceType rsrcType, String appName )
-            throws Exception {
+    private String copyFileToHDFS(String srcRsrcName, String dstRsrcName, ResourceType rsrcType,
+            String appName) throws Exception {
         String src = null;
         // For java/scala the source is JAR. For python its available under data.
-        if (rsrcType == ResourceType.AppLib && resourceName == null) {
+        if (rsrcType == ResourceType.AppLib && srcRsrcName == null) {
             src = Util.getResourceFullPath("../htf-common/target/htf-common-1.0-SNAPSHOT-tests.jar");
         } else {
-            src = Util.getResourceFullPath("resources/spark/data/"+resourceName);
+            src = Util.getResourceFullPath("resources/spark/data/"+srcRsrcName);
         }
-        Path srcPath = new Path(src);
 
         String dst = OOZIE_WORKFLOW_ROOT_HDFS + "/" + appName;
         if (rsrcType == ResourceType.AppLib) {
@@ -251,21 +264,26 @@ public class TestSparkOozieIntegration extends TestSession {
         } else if (rsrcType == ResourceType.AppData) {
             dst += "/data/";
         }
-        Path dstPath = new Path(dst);
 
-        FileSystem fs = TestSession.cluster.getFS();
-        fs.mkdirs(dstPath);
-        fs.copyFromLocalFile(srcPath, dstPath);
-        return dst;
+        if (dstRsrcName != null) {
+            dst += dstRsrcName;
+        }
+
+        return Util.copyFileToHDFS(src, dst);
     }
 
     private boolean runOozieJobAndGetResult(OozieJobProperties jobProps) throws Exception {
         // create job.properties
         createOozieJobPropertiesFile(jobProps);
         // copy workflow.xml & app.jar
-        createAndSetupOozieAppDir(jobProps.appName);
+        createAndSetupOozieAppDir(jobProps);
         // run the oozie job & get status
-        String[] temp = TestSession.exec.runProcBuilder(new String[]{OOZIE_COMMAND, "job", "-run", "-config", TMP_WORKSPACE + jobProps.appName +"/job.properties", "-oozie", oozieNodeURL +"/oozie/", "-auth", "kerberos"});
+        String[] temp = TestSession.exec.runProcBuilder(
+            new String[]{ OOZIE_COMMAND, "job", "-run", "-config",
+                TMP_WORKSPACE + jobProps.appName +"/job.properties",
+                "-oozie", oozieNodeURL +"/oozie/", "-auth", "kerberos"
+            }
+        );
         // The first entry is the result status of the command. The following entry is the value.
         String tempOozieJobID = temp[1];
         System.out.println("Oozie Job ID: " + tempOozieJobID);
@@ -358,6 +376,7 @@ class OozieJobProperties {
     public final String appJar;
     public final String sparkOpts;
     public final String sparkJobArgs;
+    public final boolean requireHiveCreds;
 
     public OozieJobProperties(
         String jobTracker
@@ -370,6 +389,7 @@ class OozieJobProperties {
         , String appJar
         , String sparkOpts
         , String sparkJobArgs
+        , boolean requireHiveCreds
     ) {
         this.jobTracker = jobTracker;
         this.nameNode = nameNode;
@@ -381,9 +401,10 @@ class OozieJobProperties {
         this.appJar = appJar;
         this.sparkOpts = sparkOpts;
         this.sparkJobArgs = sparkJobArgs;
+        this.requireHiveCreds = requireHiveCreds;
     }
 }
 
 enum ResourceType {
-    Workflow, AppLib, AppData
+    Workflow, WorkflowWithHiveCreds, AppLib, AppData
 }

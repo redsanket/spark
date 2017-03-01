@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+import hadooptest.TestSession;
 import hadooptest.TestSessionCore;
 
 /**
@@ -90,6 +94,17 @@ public class Util {
                 throw new Exception("Failed to read password from ykeykey for user " + test_user);
 	    }
 	    return output[1].trim();
+        }
 
+	// Copies a file from local to hdfs.
+	public static String copyFileToHDFS(String src, String dst ) throws Exception {
+
+		Path srcPath = new Path(src);
+		Path dstPath = new Path(dst);
+
+		FileSystem fs = TestSession.cluster.getFS();
+		fs.mkdirs(dstPath);
+		fs.copyFromLocalFile(srcPath, dstPath);
+		return dst;
 	}
 }

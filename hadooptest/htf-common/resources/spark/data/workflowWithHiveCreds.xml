@@ -1,0 +1,42 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkOozieTests'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+    <credentials>
+        <credential name='hcatauth' type='hcat'>
+            <property>
+                <name>hcat.metastore.uri</name>
+                <value>thrift://openqe41blue-n5.blue.ygrid.yahoo.com:9080/</value>
+            </property>
+            <property>
+                <name>hcat.metastore.principal</name>
+                <value>hadoopqa/openqe41blue-n5.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM</value>
+            </property>
+        </credential>
+    </credentials>
+    <start to="spark-node"/>
+    <action name='spark-node' cred='hcatauth'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sharelibAction}</value>
+                </property>
+            </configuration>
+            <master>${master}</master>
+            <mode>${deployMode}</mode>
+            <name>${appName}</name>
+            <class>${appClass}</class>
+            <jar>${appJar}</jar>
+            <spark-opts>${sparkOpts}</spark-opts>
+            <arg>${sparkJobArgs}</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+    <kill name="fail">
+        <message>Script failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name='end' />
+</workflow-app>
