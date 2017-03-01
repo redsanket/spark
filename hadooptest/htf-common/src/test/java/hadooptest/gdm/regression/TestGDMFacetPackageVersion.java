@@ -64,7 +64,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	String deployedGdmVersion = applicationSummaryMap.get("build.version");
 	TestSession.logger.info("INSTALLED_GDM_VERSION=" + deployedGdmVersion);
 	TestSession.logger.info(facetName + " is running on  " + deployedGdmVersion  + " version & package disted on gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest  is " + distedVersion);
-	if (! distedVersion.equals(deployedGdmVersion) ) {
+	if (! distedVersion.trim().equals(deployedGdmVersion.trim()) ) {
 	    throw new Exception("Current running " + facetName + " version is " +  deployedGdmVersion + "   & package disted on gdm_" + facetName + "_" + this.getEnvType() +  "_test_latest  is " + distedVersion);
 	}
     }
