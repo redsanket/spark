@@ -96,16 +96,30 @@ if [ $RC -eq 0 ]; then
       PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
   fi
 
+  PACKAGE_VERSION_HCAT_COMMON=hcat_common-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_common`
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
   echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
   exit 1
 fi
 
+yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_COMMON -branch quarantine
 yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE -branch quarantine
 yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF -branch quarantine
 yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER -branch quarantine
 
+# copy the hive-site.xml to hdfs
+echo "Copying the hive confs to sharelib"
+HIVE_CONF_PACKAGE=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f1`
+HIVE_CONF_VERSION=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f2`
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hive/conf/hive-site.xml /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/$HIVE_CONF_PACKAGE/
+
+# copy the hive-site.xml from hcat to hdfs
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/hive_conf/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hcat_server/conf/hive-site.xml /sharelib/v1/hive_conf/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/hive_conf/
 
 # hive yinst sets
 yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current

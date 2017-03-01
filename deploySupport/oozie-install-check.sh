@@ -36,6 +36,12 @@ if [ -z "$OOZIENODE" ]; then
 fi
 echo "INFO: Going to call Oozie installer for node $OOZIENODE..."
 
+OOZIE_GW_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.gateway)"`;
+if [ -z "$OOZIE_GW_NODE" ]; then
+  echo "ERROR: No Gateway node defined, OOZIE_GW_NODE for role grid_re.clusters.$CLUSTER.gateway is empty!"
+  echo "Is the Rolesdb role correctly set?"
+  exit 1
+fi
 
 # setup ssh cmd with parameters
 SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
@@ -73,7 +79,7 @@ echo "INFO: remove $OOZIENODE:/tmp/$HIVE_INSTALL_SCRIPT and $OOZIENODE:/tmp/$PIG
 $SSH $OOZIENODE "rm /tmp/$HIVE_INSTALL_SCRIPT /tmp/$PIG_INSTALL_SCRIPT"
 
 ##
-# install oozie
+# install oozie on oozie node and oozie_client on gateway with required packages.
 ##
 
 INSTALL_SCRIPT=oozie-install.sh
