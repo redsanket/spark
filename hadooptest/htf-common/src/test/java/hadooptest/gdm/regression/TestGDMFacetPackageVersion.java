@@ -27,6 +27,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
     private CommonFunctions commonFunctions;
     private List<String> facets;
     private String envType;
+    private String coloName;
 
     @BeforeClass
     public static void startTestSession() {
@@ -44,8 +45,10 @@ public class TestGDMFacetPackageVersion extends TestSession {
 	// get test environment type
 	if (this.consoleHandle.getConsoleURL().indexOf("stg") > -1) {
 	    this.setEnvType("staging");
+	    this.setColoName("gq1");
 	} else {
 	    this.setEnvType("qa");
+	    this.setColoName("ne1");
 	}
     }
     
@@ -75,7 +78,7 @@ public class TestGDMFacetPackageVersion extends TestSession {
      * @return
      */
     private Map<String , String> getHealthCheckDetails(String facetName) {
-	String	consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=gq1&facet=" + facetName;
+	String	consoleHealthCheckUpTestURL = this.consoleHandle.getConsoleURL()+ "/console/api/proxy/health?colo=" + this.getColoName() + "&facet=" + facetName;
 	TestSession.logger.info("consoleHealthCheckUpTestURL = " +consoleHealthCheckUpTestURL );
 	com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(consoleHealthCheckUpTestURL);
 	assertTrue("Failed to get the response for " + consoleHealthCheckUpTestURL , (response != null) );
@@ -97,5 +100,13 @@ public class TestGDMFacetPackageVersion extends TestSession {
 
     private void setEnvType(String envType) {
         this.envType = envType;
+    }
+
+    private String getColoName() {
+        return coloName;
+    }
+
+    private void setColoName(String coloName) {
+        this.coloName = coloName;
     }
 }
