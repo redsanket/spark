@@ -21,8 +21,10 @@ object SparkClusterHiveFull {
     // application is started.
 
     // $example on:spark_hive$
-    // warehouseLocation points to the default location for managed databases and tables
-    val warehouseLocation = "file:${system:user.dir}/spark-warehouse"
+    if (args.length < 2) {
+      System.err.println("Usage: SparkClusterHiveFull <dataFile>")
+      System.exit(1)
+    }
 
     val spark = SparkSession
       .builder()
@@ -34,9 +36,7 @@ object SparkClusterHiveFull {
     import spark.sql
 
     sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING)")
-    // copy this data to HDFS. USe the utility function and dump in home directory as of now.
-    // can clean it later.
-    sql("LOAD DATA INPATH 'kv1.txt' INTO TABLE src")
+    sql("LOAD DATA INPATH " + args(0) + " INTO TABLE src")
 
     // Queries are expressed in HiveQL
     sql("SELECT * FROM src").show()

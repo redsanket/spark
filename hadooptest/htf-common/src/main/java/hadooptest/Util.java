@@ -96,15 +96,39 @@ public class Util {
 	    return output[1].trim();
         }
 
-	// Copies a file from local to hdfs.
-	public static String copyFileToHDFS(String src, String dst ) throws Exception {
+    /***
+     *
+     * @param src - The resource to be copied.
+     * @param dst - The directory where the resource is to be copied. Retains the same name.
+     * @param dstRsrcName - If you want to copy the resource with a different name.
+     * @return
+     * @throws Exception
+     */
+	public static String copyFileToHDFS(String src, String dst, String dstRsrcName) throws Exception {
 
 		Path srcPath = new Path(src);
-		Path dstPath = new Path(dst);
+        Path dstPath = new Path(dst);
 
 		FileSystem fs = TestSession.cluster.getFS();
 		fs.mkdirs(dstPath);
+        if (dstRsrcName != null) {
+            dstPath = new Path(dst + "/" + dstRsrcName);
+        }
 		fs.copyFromLocalFile(srcPath, dstPath);
 		return dst;
 	}
+
+	public static boolean deleteFromHDFS(String path) throws Exception {
+        String[] paths = {path};
+	    return deleteFromHDFS(paths);
+    }
+
+    public static boolean deleteFromHDFS(String[] paths) throws Exception {
+        FileSystem fs = TestSession.cluster.getFS();
+        boolean result = true;
+        for(String path : paths) {
+            result &= fs.delete(new Path(path), true);
+        }
+        return result;
+    }
 }

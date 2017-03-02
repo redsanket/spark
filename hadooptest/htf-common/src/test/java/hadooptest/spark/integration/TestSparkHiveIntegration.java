@@ -20,19 +20,24 @@ import hadooptest.Util;
 public class TestSparkHiveIntegration extends TestSession {
 
     private static String localJar = null;
+    // Note: The hive data file should contain a list of key value pairs in the following format.
+    //key1 value1
+    //key2 value2
+    private static String hiveDataFile = "kv1.txt";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
         TestSession.start();
         localJar =
                 Util.getResourceFullPath("../htf-common/target/htf-common-1.0-SNAPSHOT-tests.jar");
-        //TODO: Copy the kv1.txt into hdfs here.
-        String dataFile = Util.getResourceFullPath("resources/spark/data/kv1.txt");
-        Util.copyFileToHDFS(dataFile, ".");
+        String dataFile = Util.getResourceFullPath("resources/spark/data/" + hiveDataFile);
+        Util.copyFileToHDFS(dataFile, ".", null);
     }
 
     @AfterClass
     public static void endTestSession() throws Exception {
+        String[] filePaths = {hiveDataFile};
+        Util.deleteFromHDFS(filePaths);
     }
 
     //===================================== TESTS ==================================================
@@ -48,7 +53,8 @@ public class TestSparkHiveIntegration extends TestSession {
         appUserDefault.setJarName(localJar);
         // We no longer need to supply hive-site.xml. Refer YOOZIE-716 and YOOZIE-715
         // appUserDefault.setDistributedCacheFiles("hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml");
-        appUserDefault.setArgs(null);
+        String[] argsArray = {hiveDataFile};
+        appUserDefault.setArgs(argsArray);
 
         appUserDefault.start();
 

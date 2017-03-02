@@ -23,6 +23,10 @@ import hadooptest.Util;
 public class TestSparkDataFormatIntegration extends TestSession {
 
     private static String localJar = null;
+    private static String jsonFile = "people.json";
+    private static String jsonOpFile = "people_name.json";
+    private static String avroFile = "users.avro";
+    private static String avroOpFile = "user_name.avro";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -32,21 +36,22 @@ public class TestSparkDataFormatIntegration extends TestSession {
         localJar = Util.getResourceFullPath(testJar);
 
         //Copy the resources to hdfs.
-        String jsonFile = Util.getResourceFullPath("resources/spark/data/people.json");
-        Util.copyFileToHDFS(jsonFile, ".");
-        String avroFile = Util.getResourceFullPath("resources/spark/data/users.avro");
-        Util.copyFileToHDFS(avroFile, ".");
+        String jsonFilePath = Util.getResourceFullPath("resources/spark/data/" + jsonFile);
+        Util.copyFileToHDFS(jsonFilePath, ".", null);
+        String avroFilePath = Util.getResourceFullPath("resources/spark/data/" + avroFile);
+        Util.copyFileToHDFS(avroFilePath, ".", null);
     }
 
     @AfterClass
     public static void endTestSession() throws Exception {
+        String[] filePaths = {jsonFile, jsonOpFile, avroFile, avroOpFile};
+        Util.deleteFromHDFS(filePaths);
     }
 
     //===================================== TESTS ==================================================
 
     @Test
     public void runSparkReadWriteAvro() throws Exception {
-
         SparkRunSparkSubmit appUserDefault = new SparkRunSparkSubmit();
         appUserDefault.setWorkerMemory("2g");
         appUserDefault.setNumWorkers(3);
@@ -56,7 +61,8 @@ public class TestSparkDataFormatIntegration extends TestSession {
         appUserDefault.setConf("spark.yarn.security.tokens.hive.enabled=false");
         // We no longer need to supply hive-site.xml. Refer YOOZIE-716 and YOOZIE-715
         //appUserDefault.setDistributedCacheFiles("hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml");
-        appUserDefault.setArgs(null);
+        String[] argsArray = {jsonFile, jsonOpFile, avroFile, avroOpFile};
+        appUserDefault.setArgs(argsArray);
 
         appUserDefault.start();
 

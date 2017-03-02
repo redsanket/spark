@@ -46,8 +46,8 @@ public class TestSparkOozieIntegration extends TestSession {
     public static void startTestSession() throws Exception {
         TestSession.start();
         TestSession.exec.runProcBuilder(HADOOPQA_KINIT_COMMAND);
-        jobTrackerURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "jobtracker", "8032").replace("http://","");
-        nameNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "namenode", "8020").replace("http://","");
+        jobTrackerURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "jobtracker", "8032").replace("http://", "");
+        nameNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "namenode", "8020").replace("http://", "hdfs://");
         oozieNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "oozie", "4080");
 
         System.out.println("System.user = " + System.getProperty("user.name"));
@@ -65,7 +65,8 @@ public class TestSparkOozieIntegration extends TestSession {
     @AfterClass
     public static void endTestSession() throws Exception {
         // Clean up the directors in local FS and HDFS
-        TestSession.cluster.getFS().delete(new Path(OOZIE_WORKFLOW_ROOT_HDFS), true);
+        String[] filePaths = {OOZIE_WORKFLOW_ROOT_HDFS};
+        Util.deleteFromHDFS(filePaths);
         FileUtils.deleteDirectory(new File(TMP_WORKSPACE));
     }
 
@@ -75,7 +76,7 @@ public class TestSparkOozieIntegration extends TestSession {
     public void runOozieSparkScalaPi() throws Exception {
         OozieJobProperties jobProps = new OozieJobProperties(
             jobTrackerURL
-            ,"hdfs://"+nameNodeURL
+            ,nameNodeURL
             ,"spark_latest"
             ,"yarn"
             ,"cluster"
@@ -95,7 +96,7 @@ public class TestSparkOozieIntegration extends TestSession {
     public void runOozieSparkJavaPi() throws Exception {
         OozieJobProperties jobProps = new OozieJobProperties(
                 jobTrackerURL
-                ,"hdfs://"+nameNodeURL
+                ,nameNodeURL
                 ,"spark_latest"
                 ,"yarn"
                 ,"cluster"
@@ -120,7 +121,7 @@ public class TestSparkOozieIntegration extends TestSession {
 
         OozieJobProperties jobProps = new OozieJobProperties(
                 jobTrackerURL
-                ,"hdfs://"+nameNodeURL
+                ,nameNodeURL
                 ,"spark_latest"
                 ,"yarn"
                 ,"cluster"
@@ -142,7 +143,7 @@ public class TestSparkOozieIntegration extends TestSession {
         copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
         OozieJobProperties jobProps = new OozieJobProperties(
                 jobTrackerURL
-                ,"hdfs://"+nameNodeURL
+                ,nameNodeURL
                 ,"spark_latest"
                 ,"yarn"
                 ,"cluster"
@@ -158,65 +159,26 @@ public class TestSparkOozieIntegration extends TestSession {
         assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
     }
 
-    @Test
-    public void runOozieSparkScalaHdfsLR() throws Exception {
-        OozieJobProperties jobProps = new OozieJobProperties(
-                jobTrackerURL
-                ,"hdfs://"+nameNodeURL
-                ,"spark_latest"
-                ,"yarn"
-                ,"cluster"
-                ,"oozieSparkScalaHdfsLR"
-                ,"hadooptest.spark.regression.JavaSparkPi"
-                ,"htf-common-1.0-SNAPSHOT-tests.jar"
-                ,"--queue=default"
-                ,"1"
-                ,false
-        );
-
-        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
-        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
-    }
-
-    @Test
-    public void runOozieSparkJavaHdfsLR() throws Exception {
-        OozieJobProperties jobProps = new OozieJobProperties(
-                jobTrackerURL
-                ,"hdfs://"+nameNodeURL
-                ,"spark_latest"
-                ,"yarn"
-                ,"cluster"
-                ,"oozieSparkJavaHdfsLR"
-                ,"hadooptest.spark.regression.JavaSparkPi"
-                ,"htf-common-1.0-SNAPSHOT-tests.jar"
-                ,"--queue=default"
-                ,"1"
-                ,false
-        );
-
-        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
-        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
-    }
-
-    @Test
-    public void runOozieSparkHiveScala() throws Exception {
-        OozieJobProperties jobProps = new OozieJobProperties(
-                jobTrackerURL
-                ,"hdfs://"+nameNodeURL
-                ,"spark_latest"
-                ,"yarn"
-                ,"cluster"
-                ,"oozieSparkClusterHive"
-                ,"hadooptest.spark.regression.SparkClusterHive"
-                ,"htf-common-1.0-SNAPSHOT-tests.jar"
-                ,"--queue default --conf spark.yarn.security.tokens.hive.enabled=false"
-                ,"1"
-                ,true
-        );
-
-        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
-        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
-    }
+    // Note: Uncomment the test after hive deployment gets fixed - refer YSPARK-575.
+//    @Test
+//    public void runOozieSparkHiveScala() throws Exception {
+//        OozieJobProperties jobProps = new OozieJobProperties(
+//                jobTrackerURL
+//                ,nameNodeURL
+//                ,"spark_latest"
+//                ,"yarn"
+//                ,"cluster"
+//                ,"oozieSparkClusterHive"
+//                ,"hadooptest.spark.regression.SparkClusterHive"
+//                ,"htf-common-1.0-SNAPSHOT-tests.jar"
+//                ,"--queue default --conf spark.yarn.security.tokens.hive.enabled=false"
+//                ,"1"
+//                ,true
+//        );
+//
+//        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
+//        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
+//    }
 
     //================================ HELPER UTILITIES ============================================
 
@@ -264,12 +226,7 @@ public class TestSparkOozieIntegration extends TestSession {
         } else if (rsrcType == ResourceType.AppData) {
             dst += "/data/";
         }
-
-        if (dstRsrcName != null) {
-            dst += dstRsrcName;
-        }
-
-        return Util.copyFileToHDFS(src, dst);
+        return Util.copyFileToHDFS(src, dst, dstRsrcName);
     }
 
     private boolean runOozieJobAndGetResult(OozieJobProperties jobProps) throws Exception {
@@ -291,7 +248,6 @@ public class TestSparkOozieIntegration extends TestSession {
         if (tempOozieJobID == null || tempOozieJobID.indexOf("Error") > -1) {
             oozieResult=false;
         } else {
-            int indexOfJobIdOutput = tempOozieJobID.indexOf("job:");
             String jobId = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1, tempOozieJobID.length());
             String jobResult = getResult(jobId);
             if (jobResult.indexOf("KILLED") > -1) {
@@ -323,14 +279,14 @@ public class TestSparkOozieIntegration extends TestSession {
                 JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
                 status = getResultStatus(oozieJsonResult);
                 if (status != null) {
+                    status = jsonPath.getString("status");
+                    if (! (status.indexOf("RUNNING") > -1)   ) {
+                        break;
+                    }
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
-                    status = jsonPath.getString("status");
-                    if (! (status.indexOf("RUNNING") > -1)   ) {
-                        break;
                     }
                 }
             }
