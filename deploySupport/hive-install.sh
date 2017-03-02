@@ -70,9 +70,7 @@ echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 # gridci-1937 allow installing from current branch
 if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
 
-  yinst i -same -live -downgrade  hive -branch current
-  yinst i -same -live -downgrade  hive_conf -branch current
-  yinst i -same -live -downgrade  hcat_server -branch current
+  yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
 
 # else use artifactory
 else
@@ -112,9 +110,7 @@ else
     exit 1
   fi
 
-  yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE -branch quarantine
-  yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF -branch quarantine
-  yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER -branch quarantine
+  yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF $PACKAGE_VERSION_HCAT_SERVER 
 fi
 
 
