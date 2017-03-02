@@ -6,12 +6,13 @@ WORKSPACE="$WORKSPACE_ROOT/flubber"
 `/bin/mkdir -p $WORKSPACE`
 
 CLUSTERS_FILE="$WORKSPACE/clusters"
-IGOR_NS="grid_re.clusters"
+NAMESPACE="grid_re"
+ROLE="clusters"
 if ([[ ! -f $CLUSTERS_FILE ]] || [[ $ALWAYS_FETCH == 1 ]]); then
-    echo "Fetch igor $IGOR_NS roles and create the clusters list file '$CLUSTERS_FILE'."
-    `igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$ > $CLUSTERS_FILE 2> /dev/null`
+    echo "Fetch $NAMESPACE roles $ROLE and create the clusters list file '$CLUSTERS_FILE'."
+    `rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$ > $CLUSTERS_FILE 2> /dev/null`
 else 
-    echo "Use existing cached file '$CLUSTERS_FILE' containing the igor $IGOR_NS roles"
+    echo "Use existing cached file '$CLUSTERS_FILE' containing the $NAMESPACE.$ROLE roles"
 fi
 
 NUM_CLUSTERS=`cat $CLUSTERS_FILE|wc -l`
@@ -22,7 +23,7 @@ printf "%-25s%-28s%s\n" "=======" "==" "======="
 OPSDB="opsdb_"
 for cluster in `cat $CLUSTERS_FILE|cut -d "." -f3`; do
     NEED_UPGRADE=0
-    NODES=`igor fetch -members $IGOR_NS.$cluster`;
+    NODES=`rocl -r $NAMESPACE.$ROLE.$cluster -m`;
     NUM_NODES=`echo $NODES|wc -w`
     printf "%-25s" "$cluster ($NUM_NODES),"
 

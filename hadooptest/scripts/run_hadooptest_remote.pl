@@ -101,15 +101,12 @@ if ($use_screwdriver) {
     $screwdriver_scp_opts = "hadoopqa\@";
 }
 
-# Retrieve the cluster gateway from Igor if not specified by remote_host.
-my $igor = "/home/y/bin/igor";
-my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
+# gridci-1898 replace igor
+# Retrieve the cluster gateway with rocl if not specified by remote_host.
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
-    note("fetch unspecified gateway host from igor role: '$rolename'");
-    $remote_host = (-e $igor) ?
-        `/home/y/bin/igor fetch -members $rolename` :
-        `ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $screwdriver_ssh_opts $re_host $igor fetch -members $rolename`;
+    note("fetch unspecified gateway host role: '$rolename'");
+    $remote_host = `rocl -r $rolename -m`;
     chomp($remote_host);
 }
 note("remote gateway host = '$remote_host'");

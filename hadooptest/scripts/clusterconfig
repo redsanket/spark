@@ -103,7 +103,7 @@ usage: $0  --cluster             |-c <cluster name> or --noneclustermode
           [--help                |-h ]
 
 --cluster            Name of the cluster
---always_fetch_nodes Always fetch nodes from igor (default is false, i.e. don't re-fetch)
+--always_fetch_nodes Always fetch nodes (default is false, i.e. don't re-fetch)
 --always_backup      Always backup the keytab files (default is false, i.e. don't backup if it's already been done)
 --noneclustermode    Run script for one off node that is not part of a cluster (e.g. gateway). Requires --node <value>
 --gatewaymode        Run script for all of the flubber cluster gateways.
@@ -151,7 +151,7 @@ yinst: /home/y/bin/expecter                             expecter-1.0.2
 EOF
 }
 
-# --fetch_nodes_only  Only fetch the cluster nodes from igor
+# --fetch_nodes_only  Only fetch the cluster nodes
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -244,12 +244,12 @@ if [[ -n $CLUSTER ]]; then
 
             # file=/tmp/gateways; touch $file; for host in `igor list -roles grid_re.clusters.*.gateway`;do echo -n "$host " >> $file; igor fetch -member $host >> $file ; done; 
             # for gateway in `cut -d" " -f2 /tmp/gateways |sort -u`;do if [[ -z $gateway ]];then continue; fi; echo -n "$gateway "; grep $gateway /tmp/gateways |cut -d"." -f3|tr '\n' ' ';echo;done
-            for host in `igor list -roles grid_re.clusters.*.gateway`;do 
+            for host in `rocl -n grid_re -r clusters.*.gateway`;do 
                 echo -n "$host " >> $CLUSTER_NODES ;
-                igor fetch -member $host >> $CLUSTER_NODES ;
+                rocl -r $host -m >> $CLUSTER_NODES ;
             done;
         else
-            `igor fetch -members grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
+            `rocl -r grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
         fi
     else 
         echo "Use existing cluster node list file '$CLUSTER_NODES'"

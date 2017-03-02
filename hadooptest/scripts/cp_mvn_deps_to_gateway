@@ -59,13 +59,9 @@ if [ -z $CLUSTER ]; then
 fi
 
 if [ -z $REMOTE_HOST ]; then
-	echo "gateway unspecified: fetch host from igor role: $rolename";
+	echo "gateway unspecified: fetch host role: $rolename";
 	rolename="grid_re.clusters.$CLUSTER.gateway"
-	if [ -f /home/y/bin/igor ];then
-		DEFAULT_REMOTE_HOST=`/home/y/bin/igor fetch -members $rolename`
-	else
-		DEFAULT_REMOTE_HOST=`ssh re101.ygrid.corp.gq1.yahoo.com /home/y/bin/igor fetch -members $rolename`
-	fi
+	DEFAULT_REMOTE_HOST=`rocl -r $rolename -m`
 fi
 REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 echo "remote gateway host=$DEFAULT_REMOTE_HOST";
