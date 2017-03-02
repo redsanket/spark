@@ -623,7 +623,6 @@ deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
 deploy_spark
 #oozie should be installed after installing other stack components as it relies on them.
 deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
-deploy_spark
 
 fetch_artifacts
 
