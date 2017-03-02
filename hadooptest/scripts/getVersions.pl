@@ -23,14 +23,9 @@ my $host;
 sub getIgorHost {
     my $role = $_[0];
     
-    my $igor = "/home/y/bin/igor";
-    my $re_host = "re103.ygrid.corp.gq1.yahoo.com";
-    
-    my $igorhost = (-e $igor) ?
-    `/home/y/bin/igor fetch -members $role` :
-    `ssh $re_host $igor fetch -members $role`;
-    chomp($igorhost);
-    return $igorhost;
+    my $roclhost = `/home/y/bin/rocl -r $role -m`;
+    chomp($roclhost);
+    return $roclhost;
 }
 
 # PIG

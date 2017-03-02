@@ -26,7 +26,7 @@ do
     esac
 done
 CLUSTERS_PARAM=$*
-CLUSTERS=${CLUSTERS_PARAM:=`IGOR_NS="grid_re.clusters";/home/y/bin/igor list -roles $IGOR_NS.*|grep $IGOR_NS.[a-zA-Z0-9]*$|cut -d "." -f3`}
+CLUSTERS=${CLUSTERS_PARAM:=`NAMESPACE="grid_re"; ROLE="clusters";/home/y/bin/rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$|cut -d "." -f3`}
 
 function get_info() {
     host=$1
@@ -56,7 +56,7 @@ for cluster in $CLUSTERS; do
 
     hosts=`yinst range -ir "(@grid_re.clusters.$cluster)"`;
     if [[ $? -ne 0 ]]; then
-	echo "Error: cluster $cluster has invalid igor role: $hosts"
+	echo "Error: cluster $cluster has invalid role: $hosts"
 	echo "Skipping cluster $cluster:"
 	continue
     fi

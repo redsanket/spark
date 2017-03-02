@@ -4,9 +4,7 @@
 # This script is inteded to provide support for rolling upgrade on a Hadoop QE
 # Cluster.
 # 
-# Because the script need ot perform "igor list -roles grid_re.clusters.$cluster*",
-# it requires that this script be run on the corp side in order to access the 
-# igor db.
+# Needs to be run on corp node in order to access roles tools
 #################################################################################
 
 VERBOSE=0
@@ -28,7 +26,7 @@ usage: $0  --cluster             |-c <cluster name>
 --cluster            Name of the cluster
 --version            Output only the single active hadoop version on each nodes
 --versions           Output all the hadoop versions deployed on each nodes
---force              Force fetching from igor instead of using cache file
+--force              Force fetching instead of using cache file
 --verbose            Use verbose
 --help               Display usage
 
@@ -79,9 +77,9 @@ then
     if [[ -f $ROLES_FILE ]]; then
         rm $ROLES_FILE 
     fi 
-    echo "--> Get roles from igor"
+    echo "--> Get roles "
     # igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
-    /home/y/bin/igor list -roles grid_re.clusters.$cluster* > $ROLES_FILE
+    /home/y/bin/rocl -n grid_re -r clusters.$cluster.* > $ROLES_FILE
 else
     echo "--> Get roles using existing file '$ROLES_FILE'"
 fi
@@ -146,7 +144,7 @@ else
                 hosts=`yinst range -ir @$role| paste -d, -s`
 	    fi
 
-	    # Get the component name from the igor role
+	    # Get the component name from the role
 	    components=`echo $role|cut -d"." -f4`
 	    # echo "role='$role', components='$components'";
 	    if [[ -z $components ]]; then
@@ -205,8 +203,7 @@ else
     #################################################
     # Get the hostnames for each cluster components
     #################################################
-        # for host in `/home/y/bin/igor list -roles grid_re.clusters.$cluster.*`;do 
-        echo "--> Get host member from igor"
+        echo "--> Get host member "
         for role in `cat $ROLES_FILE`;do 
 	    echo -n "role $role " 2>&1 |tee -a $TARGET_CACHE_FILE;
 
