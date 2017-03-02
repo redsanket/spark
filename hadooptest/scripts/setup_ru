@@ -203,7 +203,6 @@ else
     #################################################
     # Get the hostnames for each cluster components
     #################################################
-        # for host in `/home/y/bin/igor list -roles grid_re.clusters.$cluster.*`;do 
         echo "--> Get host member "
         for role in `cat $ROLES_FILE`;do 
 	    echo -n "role $role " 2>&1 |tee -a $TARGET_CACHE_FILE;
