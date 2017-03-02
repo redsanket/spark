@@ -79,7 +79,7 @@ then
     fi 
     echo "--> Get roles "
     # igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
-    rocl -n grid_re -r clusters.$cluster.* > $ROLES_FILE
+    /home/y/bin/rocl -n grid_re -r clusters.$cluster.* > $ROLES_FILE
 else
     echo "--> Get roles using existing file '$ROLES_FILE'"
 fi

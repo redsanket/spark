@@ -244,12 +244,12 @@ if [[ -n $CLUSTER ]]; then
 
             # file=/tmp/gateways; touch $file; for host in `igor list -roles grid_re.clusters.*.gateway`;do echo -n "$host " >> $file; igor fetch -member $host >> $file ; done; 
             # for gateway in `cut -d" " -f2 /tmp/gateways |sort -u`;do if [[ -z $gateway ]];then continue; fi; echo -n "$gateway "; grep $gateway /tmp/gateways |cut -d"." -f3|tr '\n' ' ';echo;done
-            for host in `rocl -n grid_re -r clusters.*.gateway`;do 
+            for host in `/home/y/bin/rocl -n grid_re -r clusters.*.gateway`;do 
                 echo -n "$host " >> $CLUSTER_NODES ;
-                rocl -r $host -m >> $CLUSTER_NODES ;
+                /home/y/bin/rocl -r $host -m >> $CLUSTER_NODES ;
             done;
         else
-            `rocl -r grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
+            `/home/y/bin/rocl -r grid_re.clusters.$CLUSTER > "$CLUSTER_NODES" 2> /dev/null`
         fi
     else 
         echo "Use existing cluster node list file '$CLUSTER_NODES'"

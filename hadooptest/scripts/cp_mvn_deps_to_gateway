@@ -61,7 +61,7 @@ fi
 if [ -z $REMOTE_HOST ]; then
 	echo "gateway unspecified: fetch host role: $rolename";
 	rolename="grid_re.clusters.$CLUSTER.gateway"
-	DEFAULT_REMOTE_HOST=`rocl -r $rolename -m`
+	DEFAULT_REMOTE_HOST=`/home/y/bin/rocl -r $rolename -m`
 fi
 REMOTE_HOST=${REMOTE_HOST:=$DEFAULT_REMOTE_HOST}
 echo "remote gateway host=$DEFAULT_REMOTE_HOST";

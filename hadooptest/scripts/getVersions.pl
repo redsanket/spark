@@ -23,7 +23,7 @@ my $host;
 sub getIgorHost {
     my $role = $_[0];
     
-    my $roclhost = `rocl -r $role -m`;
+    my $roclhost = `/home/y/bin/rocl -r $role -m`;
     chomp($roclhost);
     return $roclhost;
 }

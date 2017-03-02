@@ -26,7 +26,7 @@ do
     esac
 done
 CLUSTERS_PARAM=$*
-CLUSTERS=${CLUSTERS_PARAM:=`NAMESPACE="grid_re"; ROLE="clusters";rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$|cut -d "." -f3`}
+CLUSTERS=${CLUSTERS_PARAM:=`NAMESPACE="grid_re"; ROLE="clusters";/home/y/bin/rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$|cut -d "." -f3`}
 
 function get_info() {
     host=$1

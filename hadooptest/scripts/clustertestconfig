@@ -67,7 +67,7 @@ if ([[ ! -f $ROLES_FILE ]] || [[ $FORCE == 1 ]])
 then 
     echo "--> Get roles "
     #igor list -roles grid_re.clusters.$cluster.* > $ROLES_FILE
-    rocl -n grid_re -r clusters.$cluster.* > $ROLES_FILE
+    /home/y/bin/rocl -n grid_re -r clusters.$cluster.* > $ROLES_FILE
 else
     echo "--> Get roles using existing file '$ROLES_FILE'"
 fi
@@ -86,7 +86,7 @@ then
     touch $MEMBERS_FILE
     for role in `cat $ROLES_FILE`;do 
         echo -n "role $role " 2>&1 |tee -a $MEMBERS_FILE; 
-        rocl -r $role -m  2>&1 |tee -a $MEMBERS_FILE;
+        /home/y/bin/rocl -r $role -m  2>&1 |tee -a $MEMBERS_FILE;
     done;
 else
     echo "--> Get role members using existing file '$MEMBERS_FILE'"

@@ -106,7 +106,7 @@ if ($use_screwdriver) {
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host role: '$rolename'");
-    $remote_host = `rocl -r $rolename -m`;
+    $remote_host = `/home/y/bin/rocl -r $rolename -m`;
     chomp($remote_host);
 }
 note("remote gateway host = '$remote_host'");

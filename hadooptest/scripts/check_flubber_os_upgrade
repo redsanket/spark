@@ -10,7 +10,7 @@ NAMESPACE="grid_re"
 ROLE="clusters"
 if ([[ ! -f $CLUSTERS_FILE ]] || [[ $ALWAYS_FETCH == 1 ]]); then
     echo "Fetch $NAMESPACE roles $ROLE and create the clusters list file '$CLUSTERS_FILE'."
-    `rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$ > $CLUSTERS_FILE 2> /dev/null`
+    `/home/y/bin/rocl -n $NAMESPACE -r $ROLE.*|grep $NAMESPACE.$ROLE.[a-zA-Z0-9]*$ > $CLUSTERS_FILE 2> /dev/null`
 else 
     echo "Use existing cached file '$CLUSTERS_FILE' containing the $NAMESPACE.$ROLE roles"
 fi
@@ -23,7 +23,7 @@ printf "%-25s%-28s%s\n" "=======" "==" "======="
 OPSDB="opsdb_"
 for cluster in `cat $CLUSTERS_FILE|cut -d "." -f3`; do
     NEED_UPGRADE=0
-    NODES=`rocl -r $NAMESPACE.$ROLE.$cluster -m`;
+    NODES=`/home/y/bin/rocl -r $NAMESPACE.$ROLE.$cluster -m`;
     NUM_NODES=`echo $NODES|wc -w`
     printf "%-25s" "$cluster ($NUM_NODES),"
 
