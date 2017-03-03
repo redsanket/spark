@@ -2784,7 +2784,7 @@
                     <version>0.9.2</version>
                     <scope>system</scope>
                     <systemPath>
-+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-hive_${spark.scala.version}.jar
+                        ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-hive_${spark.scala.version}.jar
                     </systemPath>
                 </dependency>
 
