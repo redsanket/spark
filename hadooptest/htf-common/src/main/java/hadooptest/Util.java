@@ -48,30 +48,29 @@ public class Util {
 		return fullPath;
 	}
 
-	/**
-         * Reads a file of the following format,
-         * 
-         * Key1: value1
-         * Key2: value2
-         *
-         * into a map and return it.
-         */
-	public static HashMap<String, Integer> readMapFromFile(String filePath) throws Exception {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line;
-            HashMap<String, Integer> resultWordCount = new HashMap<String, Integer>();
+    /**
+     * Reads a file of the following format,
+     *
+     * Key1: value1
+     * Key2: value2
+     *
+     * into a map and return it.
+     */
+    public static HashMap<String, Integer> readMapFromFile(String filePath) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        HashMap<String, Integer> resultWordCount = new HashMap<String, Integer>();
 
-            while ((line = reader.readLine()) != null) {
-                if (line.length()>0){
-                    String word = line.split(":")[0];
-                    Integer count = Integer.parseInt(line.split(":")[1].trim());
-                    resultWordCount.put(word, count);
-                }
+        while ((line = reader.readLine()) != null) {
+            if (line.length()>0){
+                String word = line.split(":")[0];
+                Integer count = Integer.parseInt(line.split(":")[1].trim());
+                resultWordCount.put(word, count);
             }
-            reader.close();
-
-	    return resultWordCount;
-	}
+        }
+        reader.close();
+        return resultWordCount;
+    }
 
 	/**
          * get a test user's password from ykeykey 
@@ -106,21 +105,21 @@ public class Util {
      */
 	public static String copyFileToHDFS(String src, String dst, String dstRsrcName) throws Exception {
 
-		Path srcPath = new Path(src);
+        Path srcPath = new Path(src);
         Path dstPath = new Path(dst);
 
-		FileSystem fs = TestSession.cluster.getFS();
-		fs.mkdirs(dstPath);
+        FileSystem fs = TestSession.cluster.getFS();
+        fs.mkdirs(dstPath);
         if (dstRsrcName != null) {
             dstPath = new Path(dst + "/" + dstRsrcName);
         }
-		fs.copyFromLocalFile(srcPath, dstPath);
-		return dst;
+        fs.copyFromLocalFile(srcPath, dstPath);
+        return dst;
 	}
 
 	public static boolean deleteFromHDFS(String path) throws Exception {
         String[] paths = {path};
-	    return deleteFromHDFS(paths);
+        return deleteFromHDFS(paths);
     }
 
     public static boolean deleteFromHDFS(String[] paths) throws Exception {
