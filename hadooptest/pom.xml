@@ -3877,8 +3877,8 @@
                     <artifactId>spark-avro_2.11</artifactId>
                     <version>3.2.0</version>
                 </dependency>
-            </dependencies>
 -->
+            </dependencies>
 
         </profile>
 
