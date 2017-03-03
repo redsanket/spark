@@ -110,13 +110,8 @@ else
     exit 1
   fi
 
-  PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
-else
-  echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
-  exit 1
+  yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF $PACKAGE_VERSION_HCAT_SERVER 
 fi
-
-yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF $PACKAGE_VERSION_HCAT_SERVER 
 
 # copy the hive-site.xml to hdfs
 echo "Copying the hive confs to sharelib"
