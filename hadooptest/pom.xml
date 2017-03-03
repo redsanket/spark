@@ -14,7 +14,6 @@
 
     <!-- HTF Maven Modules -->
     <modules>
-        <module>topologies</module>
         <module>htf-common</module>
     </modules>
 
