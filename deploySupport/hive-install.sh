@@ -67,46 +67,56 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 
-# make sure we have tools to talk to artifactory
-yinst i hadoop_releases_utils
-RC=$?
-if [ "$RC" -ne 0 ]; then
-  echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
-  exit 1
-fi
+# gridci-1937 allow installing from current branch
+if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
 
-# check we got a valid reference cluster 
-RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
-RC=$?
-if [ $RC -eq 0 ]; then 
-  # get Artifactory URI and log it
-  ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
-  echo "Artifactory URI with most recent versions:"
-  echo $ARTI_URI
+  yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
 
-  # get component version to use from Artifactory
-  HIVE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
-  PACKAGE_VERSION_HIVE="hive-${HIVE_VERSION}"
+# else use artifactory
+else
 
-  # GRIDCI-1525
-  if [ "$REFERENCE_CLUSTER" == "LATEST" ]; then
-      echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${HIVE_VERSION}'"
-      PACKAGE_VERSION_HIVE_CONF="hive_conf-${HIVE_VERSION}"
-  else
-      PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
+  # make sure we have tools to talk to artifactory
+  yinst i hadoop_releases_utils
+  RC=$?
+  if [ "$RC" -ne 0 ]; then
+    echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
+    exit 1
   fi
 
-  PACKAGE_VERSION_HCAT_COMMON=hcat_common-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_common`
+  # check we got a valid reference cluster 
+  RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+  RC=$?
+  if [ $RC -eq 0 ]; then 
+    # get Artifactory URI and log it
+    ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+    echo "Artifactory URI with most recent versions:"
+    echo $ARTI_URI
+
+    # get component version to use from Artifactory
+    HIVE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
+    PACKAGE_VERSION_HIVE="hive-${HIVE_VERSION}"
+
+    # GRIDCI-1525
+    if [ "$REFERENCE_CLUSTER" == "LATEST" ]; then
+        echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${HIVE_VERSION}'"
+        PACKAGE_VERSION_HIVE_CONF="hive_conf-${HIVE_VERSION}"
+    else
+        PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
+    fi
+
+    PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
+  else
+    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
+    exit 1
+  fi
+
   PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
 else
   echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
   exit 1
 fi
 
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_COMMON -branch quarantine
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE -branch quarantine
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HIVE_CONF -branch quarantine
-yinst i -same -live -downgrade  $PACKAGE_VERSION_HCAT_SERVER -branch quarantine
+yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF $PACKAGE_VERSION_HCAT_SERVER 
 
 # copy the hive-site.xml to hdfs
 echo "Copying the hive confs to sharelib"
