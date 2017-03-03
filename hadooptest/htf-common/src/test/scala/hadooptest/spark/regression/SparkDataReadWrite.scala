@@ -1,6 +1,6 @@
 package hadooptest.spark.regression;
 
-import com.databricks.spark.avro._
+//import com.databricks.spark.avro._
 
 import org.apache.spark._
 import org.apache.spark.sql.SparkSession
@@ -28,10 +28,10 @@ object SparkDataReadWrite {
     jsonDF.select("name").write.format("json").save(jsonOpFile)
     spark.read.format("json").load(jsonOpFile).show()
 
-    val avroDF = spark.read.avro(avroFile)
-    avroDF.show()
-    avroDF.select("name").write.avro(avroOpFile)
-    spark.read.avro(avroOpFile).show
+    //val avroDF = spark.read.avro(avroFile)
+    //avroDF.show()
+    //avroDF.select("name").write.avro(avroOpFile)
+    //spark.read.avro(avroOpFile).show
 
     spark.stop()
   }

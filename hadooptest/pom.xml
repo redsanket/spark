@@ -401,11 +401,13 @@
                     <version>${spark.version.full}</version>
                     <scope>provided</scope>
                 </dependency>
+<!--
                 <dependency>
                     <groupId>com.databricks</groupId>
                     <artifactId>spark-avro_2.11</artifactId>
                     <version>3.2.0</version>
                 </dependency>
+-->
 
 
                 <!-- HBase Client -->
@@ -3869,12 +3871,14 @@
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-hive_${spark.scala.version}.jar
                     </systemPath>
                 </dependency>
+<!--
                 <dependency>
                     <groupId>com.databricks</groupId>
                     <artifactId>spark-avro_2.11</artifactId>
                     <version>3.2.0</version>
                 </dependency>
             </dependencies>
+-->
 
         </profile>
 
