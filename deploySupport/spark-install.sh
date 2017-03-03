@@ -95,7 +95,7 @@ do
     label=$(echo $label | tr '[:upper:]' '[:lower:]')
 
     spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \ "
+    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/"
     
     if [[ $version == "2."* ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
