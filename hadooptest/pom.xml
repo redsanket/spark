@@ -2847,6 +2847,12 @@
                     <classifier>jdk15</classifier>
                 </dependency>
 
+                <dependency>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                    <version>1.4</version>
+                </dependency>
+
                 <!-- GDM automation dependencies for using REST API -->
                 <dependency>
                     <groupId>com.jayway.restassured</groupId>
