@@ -61,7 +61,15 @@ if [ $RC -ne 0 ]; then
   exit 1
 fi
 
-$SSH $OOZIENODE "/tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+# gridci-1937 check if hive wants to use current branch
+if [[ "$STACK_COMP_VERSION_HIVE" == "current" ]]; then
+  echo "INFO: Hive install on Oozie node will use current branch"
+  REFERENCE_CLUSTER_FOR_HIVE=current
+else
+  echo "INFO: Hive install on Oozie node will use $REFERENCE_CLUSTER"
+  REFERENCE_CLUSTER_FOR_HIVE="$REFERENCE_CLUSTER"
+fi
+$SSH $OOZIENODE "/tmp/$HIVE_INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER_FOR_HIVE"
 RC=$?
 if [ $RC -ne 0 ]; then
   echo "ERROR: Hive install to Oozie node failed!"

@@ -30,7 +30,8 @@ HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.$CLUSTER |grep hadoopcoretr
 TEZ_VERSION=`ls /home/gs/tez/current/tez-common-*|cut -d'-' -f3|cut -d'.' -f1-5`
 
 TMPFILE="/tmp/yinst_tmp.out$$"
-yinst ls|egrep 'hive-|hcat_server|hbase|pig-' > $TMPFILE
+# gridci-1937 part of change for using hive current branch, filter out hcat_server_migration pkg
+yinst ls|egrep 'hive-|hcat_server|hbase|pig-' | grep -v hcat_server_migration > $TMPFILE
 PIG_VERSION=`grep pig $TMPFILE | cut -d'-' -f2`
 HIVE_VERSION=`grep hive- $TMPFILE | cut -d'-' -f2`
 HCAT_VERSION=`grep hcat_server $TMPFILE | cut -d'-' -f2`
