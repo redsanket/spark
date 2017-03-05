@@ -19,6 +19,13 @@ echo "INFO: Pig node being installed: $PIGNODE"
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_PIG is: $REFERENCE_CLUSTER"
 
+# gridci-1937 allow hive to use branch 'current' but keep Pig using
+# axonite-red version from artifactory
+if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
+  echo "INFO: Hive is using branch current but will use AR version for Pig"
+  REFERENCE_CLUSTER="axonitered"
+fi
+
 # make sure we have tools to talk to artifactory
 yinst i hadoop_releases_utils
 RC=$?
