@@ -1,13 +1,13 @@
 <settings>
 
-	<proxies>
-   		<proxy>
-      		<active>true</active>
-      		<protocol>http</protocol>
-		<host>httpproxy-res.blue.ygrid.yahoo.com</host>
-      		<port>4080</port>
-    	</proxy>
-  	</proxies>
+  <proxies>
+    <proxy>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>httpproxy-ext.blue.ygrid.yahoo.com</host>
+      <port>4080</port>
+    </proxy>
+  </proxies>
   
   <pluginGroups>
     <pluginGroup>yahoo.yinst.maven_plugins</pluginGroup>
