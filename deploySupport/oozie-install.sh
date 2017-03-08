@@ -34,6 +34,8 @@ TMPFILE="/tmp/yinst_tmp.out$$"
 yinst ls|egrep 'hive-|hcat_server|hbase|pig-' | grep -v hcat_server_migration > $TMPFILE
 PIG_VERSION=`grep pig $TMPFILE | cut -d'-' -f2`
 HIVE_VERSION=`grep hive- $TMPFILE | cut -d'-' -f2`
+HIVE_CONF_PACKAGE=`grep hive_conf $TMPFILE | cut -d'-' -f1`
+HIVE_CONF_VERSION=`grep hive_conf $TMPFILE | cut -d'-' -f2`
 HCAT_VERSION=`grep hcat_server $TMPFILE | cut -d'-' -f2`
 HBASE_VERSION=`grep hbase $TMPFILE | cut -d'-' -f2`
 echo HADOOP_VERSION $HADOOP_VERSION
@@ -43,6 +45,21 @@ echo HIVE_VERSION $HIVE_VERSION
 echo HCAT_VERSION $HCAT_VERSION
 echo HBASE_VERSION $HBASE_VERSION
 rm $TMPFILE
+
+OOZIE_GW_NODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.gateway)"`;
+if [ -z "$OOZIE_GW_NODE" ]; then
+  echo "ERROR: No Gateway node defined, OOZIE_GW_NODE for role grid_re.clusters.$CLUSTER.gateway is empty!"
+  echo "Is the Rolesdb role correctly set?"
+  exit 1
+fi
+
+# setup ssh cmd with parameters
+SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+SSH="ssh $SSH_OPT"
+
+# Get the spark installation versions to set the oozie ygrid_sharelib settings.
+SPARK_LATEST_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/latest/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
+SPARK_CURRENT_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/current/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
 
 # check that the oozie node's local-superuser-conf.xml is correctly
 # setup with doAs users, if not then oozie operations will fail. 
@@ -144,6 +161,7 @@ else
   exit 1
 fi
 
+# Install oozie and oozie_client on the oozie_node
 # gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
 yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
 if [ $? -ne 0 ]; then
@@ -156,6 +174,15 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+##
+# Install oozie_client and ygrid_cacert on gateway
+##
+$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert"
+RC=$?
+
+if [ $RC =ne 0]; then
+  echo "ERROR: Failed to install oozie_client and ygrid_cacert on the gateway - $OOZIE_GW_NODE"
+fi
 
 #
 # apply oozie settings
@@ -292,6 +319,26 @@ yinst set ygrid_sharelib.oozie_tag_tez_current=hdfs:///tmp/ygrid_sharelib_dir/yt
 yinst set ygrid_sharelib.oozie_tag_hbase_current=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib \
   ygrid_sharelib.oozie_tag_hbase_latest=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib \
   ygrid_sharelib.oozie_tag_hbase_94=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib
+##
+function setOozieSparkTag() {
+  SPARK_LABEL=$1
+  SPARK_VERSION=$2
+  if [[ $SPARK_VERSION == "2.1"* ]]; then
+    yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/yspark-jars-$SPARK_VERSION.tgz,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.10.4-src.zip,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
+  elif [[ $SPARK_VERSION == "2.0"* ]]; then
+    yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/yspark-jars-$SPARK_VERSION.tgz,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.10.3-src.zip,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
+  elif [[ $SPARK_VERSION == "1.6"* ]]; then
+    yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib/spark-assembly.jar,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.9-src.zip,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib/datanucleus-api-jdo.jar,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib/datanucleus-core.jar,hdfs:///sharelib/v1/spark/yspark_yarn-$SPARK_VERSION/share/spark/lib/datanucleus-rdbms.jar,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
+  fi
+}
+
+if [ -n "$SPARK_LATEST_VERSION" ]; then
+  setOozieSparkTag latest $SPARK_LATEST_VERSION 
+fi
+
+if [ -n "$SPARK_CURRENT_VERSION" ]; then
+  setOozieSparkTag current $SPARK_CURRENT_VERSION 
+fi
 
 ##
 ### if sharelib will not be used, then turn off ShareLib,

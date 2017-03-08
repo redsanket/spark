@@ -606,6 +606,7 @@ function deploy_spark () {
       # call the default deploy behavior.
       deploy_stack spark $STACK_COMP_VERSION_SPARK spark-install-check.sh
     else
+      echo "INFO: Installing a individual spark version which is different from the gateway setup."
       start=`date +%s`
       h_start=`date +%Y/%m/%d-%H:%M:%S`
 
@@ -613,7 +614,7 @@ function deploy_spark () {
       echo "INFO: Install stack component ${STACK_COMP} on $h_start"
       banner "START INSTALL STEP: Stack Component ${STACK_COMP}"
       set -x
-      time ./spark-install-check.sh $CLUSTER $STACK_COMP_VERSION 2>&1 | tee $artifacts_dir/deploy_stack_${STACK_COMP}-${PACKAGE_VERSION}.log
+      time ./spark-install-check.sh $CLUSTER $STACK_COMP_VERSION_SPARK 2>&1 | tee $artifacts_dir/deploy_stack_${STACK_COMP}-${PACKAGE_VERSION}.log
       st=$?
       set +x
       if [ $st -ne 0 ]; then
@@ -627,8 +628,9 @@ function deploy_spark () {
 echo "CHECK IF WE NEED TO INSTALL STACK COMPONENTS:"
 deploy_stack pig $STACK_COMP_VERSION_PIG pig-install-check.sh
 deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
-deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 deploy_spark
+#oozie should be installed after installing other stack components as it relies on them.
+deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 
 fetch_artifacts
 

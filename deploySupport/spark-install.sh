@@ -51,7 +51,7 @@ if [[ ${REFERENCE_CLUSTER:=none} != none ]]; then
   # check what comp version we need to use
   echo "STACK_COMP_VERSION_SPARK is: $REFERENCE_CLUSTER"
   get_spark_label_version_from_artifactory 
-elif [[ $SPARKVERSION == "2.0"* ]]; then
+elif [[ $SPARKVERSION == "2."* ]]; then
   label_version_arr[0]="TWO_ZERO=$SPARKVERSION"
   label_version_arr[1]="LATEST=$SPARKVERSION"
 elif [[ $SPARKVERSION == "1.6"* ]]; then
@@ -95,9 +95,9 @@ do
     label=$(echo $label | tr '[:upper:]' '[:lower:]')
 
     spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \ "
+    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/"
     
-    if [[ $version == "2.0."* ]]; then
+    if [[ $version == "2."* ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
       $HADOOP fs -put /home/gs/spark/$label/lib/ /sharelib/v1/spark/yspark_yarn-$version/share/spark/ ; \
       $HADOOP fs -put /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/spark/yspark_yarn-$version/share/spark/"
@@ -120,6 +120,16 @@ do
     eval "$cmd"
     st=$?
     [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install yspark_yarn-$version jars to sharelib <<<<<<<<<<" && exit $st
+
+    echo "INFO: Copying yspark_yarn-$version conf to hdfs://sharelib/v1/spark_conf/"
+    cmd="echo Creating hdfs://sharelib/v1/spark_conf/yspark_yarn_conf-$version/ ; \
+    $HADOOP fs -mkdir -p /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/ ; \
+    $HADOOP fs -put /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/"
+
+    echo "$cmd"
+    eval "$cmd"
+    set=$?
+    [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install yspark_yarn-$version conf to sharelib <<<<<<<<<<" && exit $st
   fi
 done
 
