@@ -4,11 +4,11 @@
 # The oozie installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference cluster name 
+# inputs: cluster being installed, reference cluster name, flag to setup spark sharelib 
 # outputs: 0 on success
 
-if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference cluster name"
+if [ $# -ne 3 ]; then
+  echo "ERROR: need the cluster name, reference cluster name and flag to install spark sharelib"
   exit 1
 fi
 
