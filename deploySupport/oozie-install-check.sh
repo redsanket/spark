@@ -87,7 +87,7 @@ INSTALL_SCRIPT=oozie-install.sh
 # copy the installer to the target node and run it
 $SCP $INSTALL_SCRIPT  $OOZIENODE:/tmp/
   
-$SSH $OOZIENODE "/tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER"
+$SSH $OOZIENODE "/tmp/$INSTALL_SCRIPT $CLUSTER $REFERENCE_CLUSTER $STACK_COMP_INSTALL_SPARK"
 RC=$?
 
 if [ $RC -ne 0 ]; then
