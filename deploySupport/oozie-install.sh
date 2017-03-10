@@ -4,16 +4,17 @@
 # The oozie installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference cluster name 
+# inputs: cluster being installed, reference cluster name, flag to setup spark sharelib 
 # outputs: 0 on success
 
-if [ $# -ne 2 ]; then
-  echo "ERROR: need the cluster name and reference cluster name"
+if [ $# -ne 3 ]; then
+  echo "ERROR: need the cluster name, reference cluster name and flag to install spark sharelib"
   exit 1
 fi
 
 CLUSTER=$1
 REFERENCE_CLUSTER=$2
+STACK_COMP_INSTALL_SPARK=$3
 
 OOZIENODE=`hostname`
 OOZIENODE_SHORT=`echo $OOZIENODE | cut -d'.' -f1`
@@ -56,10 +57,6 @@ fi
 # setup ssh cmd with parameters
 SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
 SSH="ssh $SSH_OPT"
-
-# Get the spark installation versions to set the oozie ygrid_sharelib settings.
-SPARK_LATEST_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/latest/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
-SPARK_CURRENT_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/current/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
 
 # check that the oozie node's local-superuser-conf.xml is correctly
 # setup with doAs users, if not then oozie operations will fail. 
@@ -332,12 +329,18 @@ function setOozieSparkTag() {
   fi
 }
 
-if [ -n "$SPARK_LATEST_VERSION" ]; then
-  setOozieSparkTag latest $SPARK_LATEST_VERSION 
-fi
+if [[ $STACK_COMP_INSTALL_SPARK != false ]]; then 
+  # Get the spark installation versions to set the oozie ygrid_sharelib settings.
+  SPARK_LATEST_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/latest/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
+  SPARK_CURRENT_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/current/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
 
-if [ -n "$SPARK_CURRENT_VERSION" ]; then
-  setOozieSparkTag current $SPARK_CURRENT_VERSION 
+  if [ -n "$SPARK_LATEST_VERSION" ]; then
+    setOozieSparkTag latest $SPARK_LATEST_VERSION 
+  fi
+
+  if [ -n "$SPARK_CURRENT_VERSION" ]; then
+    setOozieSparkTag current $SPARK_CURRENT_VERSION 
+  fi
 fi
 
 ##
