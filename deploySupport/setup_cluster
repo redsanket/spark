@@ -1,0 +1,139 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use FindBin qw($Bin $Script);
+use Test::More;
+use Data::Dumper;
+
+my $cluster;
+
+# Secondary namenode is not included here for the default. The intention is to
+# get the essential components for a hadoop cluster to be running. User can
+# passing in namenode2 if they choose.
+my $comp_str='namenode,datanode,resourcemanager,nodemanager';
+
+my $do_restart=0;
+
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+
+sub usage {
+    my ($err_msg) = @_;
+    print STDERR <<  "EOF";
+  Usage: setup_cluster <cluster> [comma separated components] [-start]
+-----------------------------------------------------------------------------------
+Example:
+setup_cluster -c openqe27blue -status
+setup_cluster -c openqe27blue -components resourcemanager,nodemanager
+EOF
+    print($err_msg) if ($err_msg);
+    exit 1;
+}
+
+my $result = GetOptions ("cluster|c=s"    => \$cluster,
+			 "components|t=s" => \$comp_str,
+			 "start|s"        => sub { $do_restart = 1 },
+			 "help|h|?"
+    ) or usage(1);
+
+usage("Invalid arguments!!!") if (!$result);
+usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
+
+note("cluster='$cluster'");
+
+my @comps=split(',', $comp_str);
+note("components: $comp_str");
+# note(Data::Dumper->Dump(\@comps));
+
+my $dsrange = { 'namenode'        => "\@grid_re.clusters.${cluster}.namenode",
+		'namenode2'       => "\@grid_re.clusters.${cluster}.namenode2",
+		'datanode'        => "\@grid_re.clusters.${cluster},-\@grid_re.clusters.${cluster}.namenode,-\@grid_re.clusters.${cluster}.namenode2,-\@grid_re.clusters.${cluster}.jobtracker",
+		'resourcemanager' => "\@grid_re.clusters.${cluster}.jobtracker",
+		'nodemanager'     => "\@grid_re.clusters.${cluster},-\@grid_re.clusters.${cluster}.namenode,-\@grid_re.clusters.${cluster}.namenode2,-\@grid_re.clusters.${cluster}.jobtracker"
+};
+
+my @nn  = split('\n', `yinst range -ir "($dsrange->{namenode})"`);
+my @nn2 = split('\n', `yinst range -ir "($dsrange->{namenode2})"`);
+my @dn  = split('\n', `yinst range -ir "($dsrange->{datanode})"`);
+my @rm  = split('\n', `yinst range -ir "($dsrange->{resourcemanager})"`);
+my @nm  = split('\n', `yinst range -ir "($dsrange->{nodemanager})"`);
+
+my $ds = { 'namenode'        => \@nn,
+	   'namenode2'       => \@nn2,
+	   'datanode'        => \@dn,
+	   'resourcemanager' => \@rm,
+	   'nodemanager'     => \@nm
+};
+note(Dumper(\%$ds));
+
+my $yinst_root="/home/gs/gridre/yroot.${cluster}/";
+
+my $ssh_opt="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
+# export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
+
+my $RC=0;
+my $EC=0;
+my $command;
+my $num_hosts;
+
+sub system_ {
+    my ($command) = @_;
+    note($command);
+    system($command);
+    my $RC = $? >> 8;
+    note("RC=$RC");
+}
+
+sub qx_ {
+    my ($command) = @_;
+    note($command);
+    my $output = `$command`;
+    return $output;
+}
+
+sub get_comp_status {
+    my ($component, $dsrange) = @_;
+    my $grep_command = "ps auxww|grep java|grep $component|grep -v grep";
+    my $output = qx_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${grep_command}\"");
+    $RC = $? >> 8;
+    note("RC=$RC");
+    # note("output='$output'");
+    my @out = split('\n', $output);
+    # note(Data::Dumper->Dump(\@out));
+    my $user = (($component =~ 'namenode') || ($component =~ 'datanode')) ? 'hdfsqa' : 'mapredqa';
+    my @match = grep(/.* $user .*proc_$component/i, @out);
+    note(Data::Dumper->Dump(\@match));
+    my $num_match = scalar(@match);
+    note("Found $num_match out of $num_hosts $component processes running");
+}
+
+sub get_comps_status {
+    my ($comps, $ds, $dsrange) = @_;
+    for my $component (@comps) {
+	$num_hosts = scalar(@{$ds->{$component}});
+	note("*********************************************************************************");
+	note("Status for component '$component' [$num_hosts]:");
+	note("*********************************************************************************");
+	get_comp_status($component, $dsrange);
+    }
+}
+
+# Restart 
+if ($do_restart == 1) {
+    # This can be changed by tests and not get changed back, causing subsequent
+    # restart to fail if the custom directory were to be removed.
+    my $hadoop_conf_dir="${yinst_root}/conf/hadoop";
+    for my $component (@comps) {
+	$num_hosts = scalar(@{$ds->{$component}});
+	note("*********************************************************************************");
+	note("Restart component '$component' [$num_hosts]: ".join(',', @{$ds->{$component}})."");
+	note("*********************************************************************************");
+	$command="export HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root $yinst_root $component";
+	system_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${command}\"");
+    }
+}
+
+# Get the cluster status
+get_comps_status(\@comps, $ds, $dsrange);
