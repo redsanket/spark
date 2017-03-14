@@ -8,7 +8,12 @@ use Test::More;
 use Data::Dumper;
 
 my $cluster;
+
+# Secondary namenode is not included here for the default. The intention is to
+# get the essential components for a hadoop cluster to be running. User can
+# passing in namenode2 if they choose.
 my $comp_str='namenode,datanode,resourcemanager,nodemanager';
+
 my $do_restart=0;
 
 $Data::Dumper::Indent = 1;
@@ -49,13 +54,13 @@ my $dsrange = { 'namenode'        => "\@grid_re.clusters.${cluster}.namenode",
 		'nodemanager'     => "\@grid_re.clusters.${cluster},-\@grid_re.clusters.${cluster}.namenode,-\@grid_re.clusters.${cluster}.namenode2,-\@grid_re.clusters.${cluster}.jobtracker"
 };
 
-my @nn1 = split('\n', `yinst range -ir "($dsrange->{namenode})"`);
+my @nn  = split('\n', `yinst range -ir "($dsrange->{namenode})"`);
 my @nn2 = split('\n', `yinst range -ir "($dsrange->{namenode2})"`);
 my @dn  = split('\n', `yinst range -ir "($dsrange->{datanode})"`);
 my @rm  = split('\n', `yinst range -ir "($dsrange->{resourcemanager})"`);
 my @nm  = split('\n', `yinst range -ir "($dsrange->{nodemanager})"`);
 
-my $ds = { 'namenode'        => \@nn1,
+my $ds = { 'namenode'        => \@nn,
 	   'namenode2'       => \@nn2,
 	   'datanode'        => \@dn,
 	   'resourcemanager' => \@rm,
