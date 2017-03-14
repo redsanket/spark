@@ -142,6 +142,23 @@ if ($do_restart == 1) {
     }
 }
 
+# Setup artifacts directory
+my $artifacts_dir="$Bin/../artifacts";
+mkdir $artifacts_dir unless (-d $artifacts_dir);
+my $webui_html = "$artifacts_dir/webui.html";
+unlink($webui_html) if (-e $webui_html);
+
+# Write NN and RM webui URL to html file for convenient access
+my $NN_URL="http://".$nn[0].":50070/dfshealth.html";
+my $RM_URL="http://".$rm[0].":8088/cluster";
+open(my $fh, '>', $webui_html) or die "Could not open file '$webui_html' $!";
+print $fh "<Pre>\n";
+print $fh "<Pre>\n";
+print $fh "<Pre>\n";
+printf $fh "%-12s %s %s %s\n", "$cluster", "NN", '-', "<a href=${NN_URL}>${NN_URL}</a>";
+printf $fh "%-12s %s %s %s\n", "$cluster", "RM", '-', "<a href=${RM_URL}>${RM_URL}</a>";
+close $fh;
+
 # Get the cluster status
 $RC  = get_comps_status(\@comps, $ds, $dsrange);
 $EC += $RC;
