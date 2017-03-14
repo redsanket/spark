@@ -84,6 +84,7 @@ sub system_ {
     system($command);
     my $RC = $? >> 8;
     note("RC=$RC");
+    return $RC;
 }
 
 sub qx_ {
@@ -97,7 +98,7 @@ sub get_comp_status {
     my ($component, $dsrange) = @_;
     my $grep_command = "ps auxww|grep java|grep $component|grep -v grep";
     my $output = qx_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${grep_command}\"");
-    $RC = $? >> 8;
+    my $RC = $? >> 8;
     note("RC=$RC");
     # note("output='$output'");
     my @out = split('\n', $output);
@@ -107,17 +108,22 @@ sub get_comp_status {
     note(Data::Dumper->Dump(\@match));
     my $num_match = scalar(@match);
     note("Found $num_match out of $num_hosts $component processes running");
+    return $RC;
 }
 
 sub get_comps_status {
     my ($comps, $ds, $dsrange) = @_;
+    my $RC;
+    my $status=0;
     for my $component (@comps) {
 	$num_hosts = scalar(@{$ds->{$component}});
 	note("*********************************************************************************");
 	note("Status for component '$component' [$num_hosts]:");
 	note("*********************************************************************************");
-	get_comp_status($component, $dsrange);
+	$RC = get_comp_status($component, $dsrange);
+        $status += $RC;
     }
+    return $status;
 }
 
 # Restart 
@@ -131,9 +137,13 @@ if ($do_restart == 1) {
 	note("Restart component '$component' [$num_hosts]: ".join(',', @{$ds->{$component}})."");
 	note("*********************************************************************************");
 	$command="export HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root $yinst_root $component";
-	system_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${command}\"");
+        $RC = system_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${command}\"");
+        $EC += $RC;
     }
 }
 
 # Get the cluster status
-get_comps_status(\@comps, $ds, $dsrange);
+$RC  = get_comps_status(\@comps, $ds, $dsrange);
+$EC += $RC;
+
+exit $EC
