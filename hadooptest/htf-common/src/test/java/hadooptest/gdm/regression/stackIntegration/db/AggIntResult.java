@@ -44,20 +44,20 @@ public class AggIntResult {
 			e.printStackTrace();
 		}
 
-                // set the aggregated run's start date and time
-                java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
-                this.setStartDateTime(currentStartDateTime);
-                // set placeholder for end date and time
-                this.setEndDateTime("To Be Set");
-                // set placeholder for Unique ID 
-                this.setUniqueId("To Be Set");
+		// set the aggregated run's start date and time
+		java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+		this.setStartDateTime(currentStartDateTime);
+		// set placeholder for end date and time
+		this.setEndDateTime("To Be Set");
+		// set placeholder for Unique ID 
+		this.setUniqueId("To Be Set");
 
 		TestSession.logger.info("GRIDCI-1667, currentStartDateTime is: " + this.getStartDateTime());
 		TestSession.logger.info("GRIDCI-1667, currentEndDatTime is: " + this.getEndDateTime());
 		TestSession.logger.info("GRIDCI-1667, currentUniqueId is: " + this.getUniqueId());
 	}
-	
+
 	public String getCurrentPipeLineName() {
 		return currentPipeLineName;
 	}
@@ -77,30 +77,30 @@ public class AggIntResult {
 	public void setCurrentDate(String currentDate) {
 		this.currentDate = currentDate;
 	}
-	
-        public String getStartDateTime() {
-                return startDateTime;
-        }
 
-        public void setStartDateTime(String currentStartDateTime) {
-                this.startDateTime = currentStartDateTime;
-        }
+	public String getStartDateTime() {
+		return startDateTime;
+	}
 
-        public String getEndDateTime() {
-                return endDateTime;
-        }
+	public void setStartDateTime(String currentStartDateTime) {
+		this.startDateTime = currentStartDateTime;
+	}
 
-        public void setEndDateTime(String currentEndDateTime) {
-                this.endDateTime = currentEndDateTime;
-        }
+	public String getEndDateTime() {
+		return endDateTime;
+	}
 
-        public String getUniqueId() {
-                return uniqueId;
-        }
+	public void setEndDateTime(String currentEndDateTime) {
+		this.endDateTime = currentEndDateTime;
+	}
 
-        public void setUniqueId(String currentUniqueId) {
-                this.uniqueId = currentUniqueId;
-        }
+	public String getUniqueId() {
+		return uniqueId;
+	}
+
+	public void setUniqueId(String currentUniqueId) {
+		this.uniqueId = currentUniqueId;
+	}
 
 
 	public void finalResult() {
@@ -115,15 +115,15 @@ public class AggIntResult {
 					TestSession.logger.info("query - " + query);
 					getToDaysAllTheResult(query);
 				}
-				
+
 				// Incase integration is run more than once  i,e manually
 				if (recordCount > 3 ) {
 					TestSession.logger.info("More than once integration test is run..!");
-					
+
 					//check whether current date and current build is shown in integration dashboard db. 
 					int aggTableRecordCount = getRecordCount(DBCommands.FINAL_RESULT_TABLE_NAME , this.getCurrentPipeLineName() , version ,  getCurrentDate() );
 					if (aggTableRecordCount == 0) {
-						
+
 						// insert the result in to the agg table
 						String query = "select * from  " + DBCommands.TABLE_NAME + "  where date like  " + "\"" + getCurrentDate() + "\""  +"  and  " + this.getCurrentPipeLineName() + "Version"+ "  like  " +  "\"" +  version + "\"";
 						getToDaysAllTheResult(query);
@@ -139,10 +139,10 @@ public class AggIntResult {
 			TestSession.logger.info("Looks like today integration did not run..");
 		}
 	}
-	
+
 	public java.util.List<String> getToDaysResult() {
 		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion  from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\""  
-						+ " group by  " + this.getCurrentPipeLineName() + "Version";
+				+ " group by  " + this.getCurrentPipeLineName() + "Version";
 		TestSession.logger.info("query - " + query);
 		java.sql.ResultSet resultSet = this.getResultSet(query);
 		java.util.List<String> compondentVersionList = new java.util.ArrayList<>();
@@ -160,7 +160,7 @@ public class AggIntResult {
 		}
 		return compondentVersionList;
 	}
-	
+
 	public int getRecordCount(String tableName , String componentName , String componentVersion , String date) {
 		int recordCount = 0;
 		String QUERY = "select count(*) recordCount from  " + tableName + "  where " + componentName + "Version" + "  like  " +  "\"" +  componentVersion  + "\"" + "  and date like  "  + "\"" + date + "\"";
@@ -179,7 +179,7 @@ public class AggIntResult {
 		}
 		return recordCount;
 	}
-	
+
 	public void getToDaysAllTheResult(String query) {
 		java.sql.ResultSet resultSet = getResultSet(query);
 		String compVersion = null , dataSetName1 = null;
@@ -298,11 +298,11 @@ public class AggIntResult {
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
-                                        String startDateTime =  resultSet.getString("startDateTime");
-                                        String endDateTime =  resultSet.getString("endDateTime");
-                                        String uniqueId =  resultSet.getString("uniqueId");
+					String startDateTime =  resultSet.getString("startDateTime");
+					String endDateTime =  resultSet.getString("endDateTime");
+					String uniqueId =  resultSet.getString("uniqueId");
 
-					
+
 					dbTableColumnsReplicaList.add(new DBTableColumnsReplica(dataSetName1,date,
 							hadoopVersion,hadoopCurrentState,hadoopResult,hadoopComments,
 							gdmVersion,gdmCurrentState,gdmResult,gdmComments,
@@ -326,7 +326,7 @@ public class AggIntResult {
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
 							comments, result, startDateTime, endDateTime, uniqueId));
-					
+
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
 					if(  (result.indexOf("PASS") > -1)  == false) {
 						isTestFailed = true;
@@ -359,7 +359,7 @@ public class AggIntResult {
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
 									comments, result, startDateTime, endDateTime, uniqueId
-								);
+									);
 						}else {
 							TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist.");
 						}
@@ -370,7 +370,7 @@ public class AggIntResult {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (isTestFailed == false) {
 			TestSession.logger.info("All components are passed.");
 			if (compVersion != null) {
@@ -395,11 +395,11 @@ public class AggIntResult {
 								dbTableColumnsReplicaObject.getDataSetName(),dbTableColumnsReplicaObject.getDate(),
 								dbTableColumnsReplicaObject.getHadoopVersion(),dbTableColumnsReplicaObject.getHadoopCurrentState(),dbTableColumnsReplicaObject.getHadoopResult(),dbTableColumnsReplicaObject.getHadoopComments(),
 								dbTableColumnsReplicaObject.getGdmVersion(),dbTableColumnsReplicaObject.getGdmCurrentState(),dbTableColumnsReplicaObject.getGdmResult(),dbTableColumnsReplicaObject.getGdmComments(),
-								
+
 								// pig
 								dbTableColumnsReplicaObject.getPigVersion(), dbTableColumnsReplicaObject.getPigCurrentState(),dbTableColumnsReplicaObject.getPigMRJobURL(),
 								dbTableColumnsReplicaObject.getPigResult(),dbTableColumnsReplicaObject.getPigComments(),
-								
+
 								// tez
 								dbTableColumnsReplicaObject.getTezVersion(),dbTableColumnsReplicaObject.getTezCurrentState(),dbTableColumnsReplicaObject.getTezMRJobURL(),dbTableColumnsReplicaObject.getTezResult(),dbTableColumnsReplicaObject.getTezComments(),
 								dbTableColumnsReplicaObject.getHiveVersion(),dbTableColumnsReplicaObject.getHiveCurrentState(),dbTableColumnsReplicaObject.getHiveResult(),dbTableColumnsReplicaObject.getHiveComment(),
@@ -420,7 +420,7 @@ public class AggIntResult {
 								dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
 								dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
 								dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult(),dbTableColumnsReplicaObject.getStartDateTime(),dbTableColumnsReplicaObject.getEndDateTime(),dbTableColumnsReplicaObject.getUniqueId()
-							);
+								);
 					}
 				}else {
 					TestSession.logger.info("Record for " +  getCurrentDate() +  " and for " +  this.getCurrentPipeLineName()  + " - " + this.getCurrentPipeLineName() + "Version" + " already exist, updating the result for this new run.");
@@ -428,7 +428,7 @@ public class AggIntResult {
 			}
 		}
 	}
-	
+
 	public void insertFinalResultIntoDB( String dataSetName, String  date,
 			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
 			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
@@ -545,9 +545,9 @@ public class AggIntResult {
 					"hive_verifyComments" , hive_verifyComments,
 					"comments",comments,
 					"result",result,
-                                        "startDateTime",startDateTime,
-                                        "endDateTime",endDateTime,
-                                        "uniqueId",uniqueId,
+					"startDateTime",startDateTime,
+					"endDateTime",endDateTime,
+					"uniqueId",uniqueId,
 					dsName
 					);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
@@ -562,32 +562,32 @@ public class AggIntResult {
 		getComponentResult("hbase"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
 		createTestReport(dsName , comments);
-                createJsonReport(dataSetName, date, hadoopVersion, hadoopCurrentState, hadoopResult, hadoopComments, gdmVersion, gdmCurrentState, gdmResult,
-                                gdmComments, pigVersion, pigCurrentState, pigMRJobURL, pigResult, pigComments, tezVersion, tezCurrentState, tezMRJobURL, tezResult,
-                                tezComments, hiveVersion, hiveCurrentState, hiveResult, hiveComment, hiveDropTable, hiveDropTableCurrentState, hiveDropTableComment,
-                                hiveCreateTable, hiveCreateTableCurrentState, hiveCreateTableComment, hiveCopyDataToHive, hiveCopyDataToHiveMRJobURL,
-                                hiveCopyDataToHiveCurrentState, hiveCopyDataToHiveComment, hiveLoadDataToTable, hiveLoadDataToTableComment, hiveLoadDataToTableCurrentState, 
-                                hcatVersion, hcatCurrentState, hcatResult, hcatMRJobURL, hcatComment, hbaseVersion, hbaseCurrentState, hbaseResult, hbaseComment,
-                                hbaseCreateTable, hbaseCreateTableCurrentState, hbaseCreateTableComment, hbaseInsertRecordTable, hbaseInsertRecordTableMRJobURL,
-                                hbaseInsertTableCurrentState, hbaseInsertRecordTableComment, hbaseScanRecordTable, hbaseScanRecordTableMRJobURL, hbaseScanRecordTableCurrentState,
-                                hbaseScanRecordTableComment, hbaseDeleteTable, hbaseDeleteTableCurrentState, hbaseDeleteTableComment, oozieVersion, oozieResult, oozieCurrentState,
-                                oozieComments, cleanup_outputResult, cleanup_outputCurrentState, cleanup_outputMRJobURL, cleanup_outputComments, check_inputResult,
-                                check_inputCurrentState, check_inputMRJobURL, check_inputComments, pig_abf_input_PageValidNewsResult, pig_abf_input_PageValidNewsCurrentState,
-                                pig_abf_input_PageValidNewsMRJobURL, pig_abf_input_PageValidNewsComments, hive_storageResult, hive_storageCurrentState, hive_storageMRJobURL,
-                                hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments, comments, result, startDateTime, 
-				endDateTime, uniqueId);
 
-				TestSession.logger.info("GRIDCI-1667, mark5"); 
+		createJsonReport(dataSetName, date, hadoopVersion, hadoopCurrentState, hadoopResult, hadoopComments, gdmVersion, gdmCurrentState, gdmResult,
+				gdmComments, pigVersion, pigCurrentState, pigMRJobURL, pigResult, pigComments, tezVersion, tezCurrentState, tezMRJobURL, tezResult,
+				tezComments, hiveVersion, hiveCurrentState, hiveResult, hiveComment, hiveDropTable, hiveDropTableCurrentState, hiveDropTableComment,
+				hiveCreateTable, hiveCreateTableCurrentState, hiveCreateTableComment, hiveCopyDataToHive, hiveCopyDataToHiveMRJobURL,
+				hiveCopyDataToHiveCurrentState, hiveCopyDataToHiveComment, hiveLoadDataToTable, hiveLoadDataToTableComment, hiveLoadDataToTableCurrentState, 
+				hcatVersion, hcatCurrentState, hcatResult, hcatMRJobURL, hcatComment, hbaseVersion, hbaseCurrentState, hbaseResult, hbaseComment,
+				hbaseCreateTable, hbaseCreateTableCurrentState, hbaseCreateTableComment, hbaseInsertRecordTable, hbaseInsertRecordTableMRJobURL,
+				hbaseInsertTableCurrentState, hbaseInsertRecordTableComment, hbaseScanRecordTable, hbaseScanRecordTableMRJobURL, hbaseScanRecordTableCurrentState,
+				hbaseScanRecordTableComment, hbaseDeleteTable, hbaseDeleteTableCurrentState, hbaseDeleteTableComment, oozieVersion, oozieResult, oozieCurrentState,
+				oozieComments, cleanup_outputResult, cleanup_outputCurrentState, cleanup_outputMRJobURL, cleanup_outputComments, check_inputResult,
+				check_inputCurrentState, check_inputMRJobURL, check_inputComments, pig_abf_input_PageValidNewsResult, pig_abf_input_PageValidNewsCurrentState,
+				pig_abf_input_PageValidNewsMRJobURL, pig_abf_input_PageValidNewsComments, hive_storageResult, hive_storageCurrentState, hive_storageMRJobURL,
+				hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments, comments, result, startDateTime, 
+				endDateTime, uniqueId);
+		TestSession.logger.info("GRIDCI-1667, mark5"); 
 	}
-	
-	
+
+
 	public void insertRecordIntoFinalTable(String dataSetName, String componentName, String version, String date ) {
 
-                // set the aggregated run's end date and time
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+		// set the aggregated run's end date and time
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
 		TestSession.logger.info("GRIDCI-1667, currentEndDatTime is: " + currentEndDateTime);
 
@@ -600,13 +600,13 @@ public class AggIntResult {
 			pStatment.setString(1, dsName);
 			pStatment.setString(2, version);
 			pStatment.setString(3, date);
-                        pStatment.setString(4, currentEndDateTime);
+			pStatment.setString(4, currentEndDateTime);
 			boolean isRecordInserted = pStatment.execute();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	public ResultSet getResultSet( final String query ) {
 		java.sql.Statement statement = null;
 		java.sql.ResultSet resultSet = null;
@@ -650,7 +650,7 @@ public class AggIntResult {
 		}
 		return flag;
 	}
-	
+
 	public void createTestReport(String dataSetName , String comments) {
 		int total = 0, fail = 0, pass = 0 , skipped = 0;
 		String absolutePath = new File("").getAbsolutePath();
@@ -665,7 +665,7 @@ public class AggIntResult {
 					String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
 					TestSession.logger.info("test list - " + currentStackComponentTestList);
 					List<String> tempStackComponentList = Arrays.asList(currentStackComponentTestList.split(" "));
-					
+
 					if (tempStackComponentList != null && tempStackComponentList.size() > 0 ) {
 						for ( String component : tempStackComponentList) {
 							TestSession.logger.info("component - " + component);
@@ -717,143 +717,143 @@ public class AggIntResult {
 		this.addResultToMap(componentName, total + ":" + pass + ":" + fail + ":" + skipped);
 	}
 
-        public void createJsonReport(String dataSetName, String  date,
-                        String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
-                        String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
-                        String  pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
-                        String  tezVersion, String  tezCurrentState, String  tezMRJobURL, String tezResult, String  tezComments,
-                        String  hiveVersion, String  hiveCurrentState, String  hiveResult, String  hiveComment,
-                        String  hiveDropTable, String  hiveDropTableCurrentState, String  hiveDropTableComment,
-                        String  hiveCreateTable, String  hiveCreateTableCurrentState, String  hiveCreateTableComment,
-                        String  hiveCopyDataToHive, String  hiveCopyDataToHiveMRJobURL, String  hiveCopyDataToHiveCurrentState, String  hiveCopyDataToHiveComment,
-                        String  hiveLoadDataToTable, String  hiveLoadDataToTableComment, String hiveLoadDataToTableCurrentState,
-                        String  hcatVersion, String  hcatCurrentState, String  hcatResult, String  hcatMRJobURL, String  hcatComment,
-                        String  hbaseVersion, String   hbaseCurrentState, String  hbaseResult, String  hbaseComment,
-                        String  hbaseCreateTable, String  hbaseCreateTableCurrentState, String hbaseCreateTableComment,
-                        String  hbaseInsertRecordTable, String hbaseInsertRecordTableMRJobURL, String hbaseInsertTableCurrentState, String  hbaseInsertRecordTableComment,
-                        String  hbaseScanRecordTable, String  hbaseScanRecordTableMRJobURL, String  hbaseScanRecordTableCurrentState, String  hbaseScanRecordTableComment,
-                        String  hbaseDeleteTable, String  hbaseDeleteTableCurrentState, String  hbaseDeleteTableComment,
-                        String  oozieVersion, String  oozieResult, String  oozieCurrentState, String  oozieComments,
-                        String  cleanup_outputResult, String  cleanup_outputCurrentState, String  cleanup_outputMRJobURL, String  cleanup_outputComments,
-                        String  check_inputResult, String  check_inputCurrentState, String check_inputMRJobURL, String check_inputComments,
-                        String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
-                        String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
-                        String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
-                        String  comments, String result, String startDateTime, String endDateTime, String uniqueId) {
+	public void createJsonReport(String dataSetName, String  date,
+			String  hadoopVersion, String  hadoopCurrentState, String  hadoopResult, String  hadoopComments,
+			String  gdmVersion, String  gdmCurrentState, String  gdmResult, String  gdmComments,
+			String  pigVersion, String pigCurrentState, String pigMRJobURL , String pigResult , String pigComments, 
+			String  tezVersion, String  tezCurrentState, String  tezMRJobURL, String tezResult, String  tezComments,
+			String  hiveVersion, String  hiveCurrentState, String  hiveResult, String  hiveComment,
+			String  hiveDropTable, String  hiveDropTableCurrentState, String  hiveDropTableComment,
+			String  hiveCreateTable, String  hiveCreateTableCurrentState, String  hiveCreateTableComment,
+			String  hiveCopyDataToHive, String  hiveCopyDataToHiveMRJobURL, String  hiveCopyDataToHiveCurrentState, String  hiveCopyDataToHiveComment,
+			String  hiveLoadDataToTable, String  hiveLoadDataToTableComment, String hiveLoadDataToTableCurrentState,
+			String  hcatVersion, String  hcatCurrentState, String  hcatResult, String  hcatMRJobURL, String  hcatComment,
+			String  hbaseVersion, String   hbaseCurrentState, String  hbaseResult, String  hbaseComment,
+			String  hbaseCreateTable, String  hbaseCreateTableCurrentState, String hbaseCreateTableComment,
+			String  hbaseInsertRecordTable, String hbaseInsertRecordTableMRJobURL, String hbaseInsertTableCurrentState, String  hbaseInsertRecordTableComment,
+			String  hbaseScanRecordTable, String  hbaseScanRecordTableMRJobURL, String  hbaseScanRecordTableCurrentState, String  hbaseScanRecordTableComment,
+			String  hbaseDeleteTable, String  hbaseDeleteTableCurrentState, String  hbaseDeleteTableComment,
+			String  oozieVersion, String  oozieResult, String  oozieCurrentState, String  oozieComments,
+			String  cleanup_outputResult, String  cleanup_outputCurrentState, String  cleanup_outputMRJobURL, String  cleanup_outputComments,
+			String  check_inputResult, String  check_inputCurrentState, String check_inputMRJobURL, String check_inputComments,
+			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
+			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
+			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
+			String  comments, String result, String startDateTime, String endDateTime, String uniqueId) {
 
-                JSONObject jsonObj = new JSONObject();
-                JSONObject jsonObjTop = new JSONObject();
+		JSONObject jsonObj = new JSONObject();
+		JSONObject jsonObjTop = new JSONObject();
 
-                String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
-                jsonObj.put("dataSetName", dsName);
-                jsonObj.put("date" , date);
-                jsonObj.put("hadoopVersion", hadoopVersion);
-                jsonObj.put("hadoopCurrentState" , hadoopCurrentState);
-                jsonObj.put("hadoopResult" , hadoopResult);
-                jsonObj.put("hadoopComments" , hadoopComments);
-                jsonObj.put("gdmVersion" , gdmVersion);
-                jsonObj.put("gdmCurrentState" , gdmCurrentState);
-                jsonObj.put("gdmResult" , gdmResult);
-                jsonObj.put("gdmComments" , gdmComments);
-                jsonObj.put("pigVersion" , pigVersion);
-                jsonObj.put("pigCurrentState" , pigCurrentState);
-                jsonObj.put("pigMRJobURL" , pigMRJobURL);
-                jsonObj.put("pigResult" , pigResult);
-                jsonObj.put("pigComments" , pigComments); 
-                jsonObj.put("tezVersion" , tezVersion);
-                jsonObj.put("tezCurrentState" , tezCurrentState);
-                jsonObj.put("tezMRJobURL",tezMRJobURL);
-                jsonObj.put("tezResult" , tezResult);
-                jsonObj.put("tezComments" , tezComments);
-                jsonObj.put("hiveVersion" , hiveVersion);
-                jsonObj.put("hiveCurrentState" , hiveCurrentState);
-                jsonObj.put("hiveResult" , hiveResult);
-                jsonObj.put("hiveComment",hiveComment);
-                jsonObj.put("hiveDropTable", hiveDropTable);
-                jsonObj.put("hiveDropTableCurrentState" , hiveDropTableCurrentState);
-                jsonObj.put("hiveDropTableComment" , hiveDropTableComment);
-                jsonObj.put("hiveCreateTable", hiveCreateTable);
-                jsonObj.put("hiveCreateTableCurrentState" , hiveCreateTableCurrentState);
-                jsonObj.put("hiveCreateTableComment",hiveCreateTableComment);
-                jsonObj.put("hiveCopyDataToHive" , hiveCopyDataToHive);
-                jsonObj.put("hiveCopyDataToHiveMRJobURL" , hiveCopyDataToHiveMRJobURL);
-                jsonObj.put("hiveCopyDataToHiveCurrentState", hiveCopyDataToHiveCurrentState);
-                jsonObj.put("hiveCopyDataToHiveComment",hiveCopyDataToHiveComment);
-                jsonObj.put("hiveLoadDataToTable",hiveLoadDataToTable);
-                jsonObj.put("hiveLoadDataToTableComment", hiveLoadDataToTableComment);
-                jsonObj.put("hiveLoadDataToTableCurrentState", hiveLoadDataToTableCurrentState);
-                jsonObj.put("hcatVersion",hcatVersion);
-                jsonObj.put("hcatCurrentState" , hcatCurrentState);
-                jsonObj.put("hcatResult" , hcatResult);
-                jsonObj.put("hcatMRJobURL" , hcatMRJobURL);
-                jsonObj.put("hcatComment" , hcatComment);
-                jsonObj.put("hbaseVersion",hbaseVersion);
-                jsonObj.put("hbaseCurrentState" , hbaseCurrentState);
-                jsonObj.put("hbaseResult", hbaseResult);
-                jsonObj.put("hbaseComment",hbaseComment);
-                jsonObj.put("hbaseCreateTable", hbaseCreateTable);
-                jsonObj.put("hbaseCreateTableCurrentState",hbaseCreateTableCurrentState);
-                jsonObj.put("hbaseCreateTableComment",hbaseCreateTableComment);
-                jsonObj.put("hbaseInsertRecordTable" , hbaseInsertRecordTable);
-                jsonObj.put("hbaseInsertRecordTableMRJobURL",hbaseInsertRecordTableMRJobURL);
-                jsonObj.put("hbaseInsertTableCurrentState",hbaseInsertTableCurrentState);
-                jsonObj.put("hbaseInsertRecordTableComment" , hbaseInsertRecordTableComment);
-                jsonObj.put("hbaseScanRecordTable", hbaseScanRecordTable);
-                jsonObj.put("hbaseScanRecordTableMRJobURL" , hbaseScanRecordTableMRJobURL);
-                jsonObj.put("hbaseScanRecordTableCurrentState" , hbaseScanRecordTableCurrentState);
-                jsonObj.put("hbaseScanRecordTableComment" , hbaseScanRecordTableComment);
-                jsonObj.put("hbaseDeleteTable",hbaseDeleteTable);
-                jsonObj.put("hbaseDeleteTableCurrentState" , hbaseDeleteTableCurrentState);
-                jsonObj.put("hbaseDeleteTableComment" , hbaseDeleteTableComment);
-                jsonObj.put("oozieVersion",oozieVersion);
-                jsonObj.put("oozieResult", oozieResult);
-                jsonObj.put("oozieCurrentState", oozieCurrentState);
-                jsonObj.put("oozieComments" , oozieComments);
-                jsonObj.put("cleanup_outputResult", cleanup_outputResult);
-                jsonObj.put("cleanup_outputCurrentState" , cleanup_outputCurrentState);
-                jsonObj.put("cleanup_outputMRJobURL", cleanup_outputMRJobURL);
-                jsonObj.put("cleanup_outputComments",cleanup_outputComments);
-                jsonObj.put("check_inputResult",check_inputResult);
-                jsonObj.put("check_inputCurrentState",check_inputCurrentState);
-                jsonObj.put("check_inputMRJobURL",check_inputMRJobURL);
-                jsonObj.put("check_inputComments",check_inputComments);
-                jsonObj.put("pig_abf_input_PageValidNewsResult",pig_abf_input_PageValidNewsResult);
-                jsonObj.put("pig_abf_input_PageValidNewsCurrentState" , pig_abf_input_PageValidNewsCurrentState);
-                jsonObj.put("pig_abf_input_PageValidNewsMRJobURL" , pig_abf_input_PageValidNewsMRJobURL);
-                jsonObj.put("pig_abf_input_PageValidNewsComments" , pig_abf_input_PageValidNewsComments);
-                jsonObj.put("hive_storageResult" , hive_storageResult);
-                jsonObj.put("hive_storageCurrentState" , hive_storageCurrentState);
-                jsonObj.put("hive_storageMRJobURL" , hive_storageMRJobURL);
-                jsonObj.put("hive_storageComments" , hive_storageComments);
-                jsonObj.put("hive_verifyResult" , hive_verifyResult);
-                jsonObj.put("hive_verifyCurrentState" , hive_verifyCurrentState);
-                jsonObj.put("hive_verifyMRJobURL" , hive_verifyMRJobURL);
-                jsonObj.put("hive_verifyComments" , hive_verifyComments);
-                jsonObj.put("comments",comments);
-                jsonObj.put("result",result);
-                jsonObj.put("startDateTime",startDateTime);
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
+		jsonObj.put("dataSetName", dsName);
+		jsonObj.put("date" , date);
+		jsonObj.put("hadoopVersion", hadoopVersion);
+		jsonObj.put("hadoopCurrentState" , hadoopCurrentState);
+		jsonObj.put("hadoopResult" , hadoopResult);
+		jsonObj.put("hadoopComments" , hadoopComments);
+		jsonObj.put("gdmVersion" , gdmVersion);
+		jsonObj.put("gdmCurrentState" , gdmCurrentState);
+		jsonObj.put("gdmResult" , gdmResult);
+		jsonObj.put("gdmComments" , gdmComments);
+		jsonObj.put("pigVersion" , pigVersion);
+		jsonObj.put("pigCurrentState" , pigCurrentState);
+		jsonObj.put("pigMRJobURL" , pigMRJobURL);
+		jsonObj.put("pigResult" , pigResult);
+		jsonObj.put("pigComments" , pigComments); 
+		jsonObj.put("tezVersion" , tezVersion);
+		jsonObj.put("tezCurrentState" , tezCurrentState);
+		jsonObj.put("tezMRJobURL",tezMRJobURL);
+		jsonObj.put("tezResult" , tezResult);
+		jsonObj.put("tezComments" , tezComments);
+		jsonObj.put("hiveVersion" , hiveVersion);
+		jsonObj.put("hiveCurrentState" , hiveCurrentState);
+		jsonObj.put("hiveResult" , hiveResult);
+		jsonObj.put("hiveComment",hiveComment);
+		jsonObj.put("hiveDropTable", hiveDropTable);
+		jsonObj.put("hiveDropTableCurrentState" , hiveDropTableCurrentState);
+		jsonObj.put("hiveDropTableComment" , hiveDropTableComment);
+		jsonObj.put("hiveCreateTable", hiveCreateTable);
+		jsonObj.put("hiveCreateTableCurrentState" , hiveCreateTableCurrentState);
+		jsonObj.put("hiveCreateTableComment",hiveCreateTableComment);
+		jsonObj.put("hiveCopyDataToHive" , hiveCopyDataToHive);
+		jsonObj.put("hiveCopyDataToHiveMRJobURL" , hiveCopyDataToHiveMRJobURL);
+		jsonObj.put("hiveCopyDataToHiveCurrentState", hiveCopyDataToHiveCurrentState);
+		jsonObj.put("hiveCopyDataToHiveComment",hiveCopyDataToHiveComment);
+		jsonObj.put("hiveLoadDataToTable",hiveLoadDataToTable);
+		jsonObj.put("hiveLoadDataToTableComment", hiveLoadDataToTableComment);
+		jsonObj.put("hiveLoadDataToTableCurrentState", hiveLoadDataToTableCurrentState);
+		jsonObj.put("hcatVersion",hcatVersion);
+		jsonObj.put("hcatCurrentState" , hcatCurrentState);
+		jsonObj.put("hcatResult" , hcatResult);
+		jsonObj.put("hcatMRJobURL" , hcatMRJobURL);
+		jsonObj.put("hcatComment" , hcatComment);
+		jsonObj.put("hbaseVersion",hbaseVersion);
+		jsonObj.put("hbaseCurrentState" , hbaseCurrentState);
+		jsonObj.put("hbaseResult", hbaseResult);
+		jsonObj.put("hbaseComment",hbaseComment);
+		jsonObj.put("hbaseCreateTable", hbaseCreateTable);
+		jsonObj.put("hbaseCreateTableCurrentState",hbaseCreateTableCurrentState);
+		jsonObj.put("hbaseCreateTableComment",hbaseCreateTableComment);
+		jsonObj.put("hbaseInsertRecordTable" , hbaseInsertRecordTable);
+		jsonObj.put("hbaseInsertRecordTableMRJobURL",hbaseInsertRecordTableMRJobURL);
+		jsonObj.put("hbaseInsertTableCurrentState",hbaseInsertTableCurrentState);
+		jsonObj.put("hbaseInsertRecordTableComment" , hbaseInsertRecordTableComment);
+		jsonObj.put("hbaseScanRecordTable", hbaseScanRecordTable);
+		jsonObj.put("hbaseScanRecordTableMRJobURL" , hbaseScanRecordTableMRJobURL);
+		jsonObj.put("hbaseScanRecordTableCurrentState" , hbaseScanRecordTableCurrentState);
+		jsonObj.put("hbaseScanRecordTableComment" , hbaseScanRecordTableComment);
+		jsonObj.put("hbaseDeleteTable",hbaseDeleteTable);
+		jsonObj.put("hbaseDeleteTableCurrentState" , hbaseDeleteTableCurrentState);
+		jsonObj.put("hbaseDeleteTableComment" , hbaseDeleteTableComment);
+		jsonObj.put("oozieVersion",oozieVersion);
+		jsonObj.put("oozieResult", oozieResult);
+		jsonObj.put("oozieCurrentState", oozieCurrentState);
+		jsonObj.put("oozieComments" , oozieComments);
+		jsonObj.put("cleanup_outputResult", cleanup_outputResult);
+		jsonObj.put("cleanup_outputCurrentState" , cleanup_outputCurrentState);
+		jsonObj.put("cleanup_outputMRJobURL", cleanup_outputMRJobURL);
+		jsonObj.put("cleanup_outputComments",cleanup_outputComments);
+		jsonObj.put("check_inputResult",check_inputResult);
+		jsonObj.put("check_inputCurrentState",check_inputCurrentState);
+		jsonObj.put("check_inputMRJobURL",check_inputMRJobURL);
+		jsonObj.put("check_inputComments",check_inputComments);
+		jsonObj.put("pig_abf_input_PageValidNewsResult",pig_abf_input_PageValidNewsResult);
+		jsonObj.put("pig_abf_input_PageValidNewsCurrentState" , pig_abf_input_PageValidNewsCurrentState);
+		jsonObj.put("pig_abf_input_PageValidNewsMRJobURL" , pig_abf_input_PageValidNewsMRJobURL);
+		jsonObj.put("pig_abf_input_PageValidNewsComments" , pig_abf_input_PageValidNewsComments);
+		jsonObj.put("hive_storageResult" , hive_storageResult);
+		jsonObj.put("hive_storageCurrentState" , hive_storageCurrentState);
+		jsonObj.put("hive_storageMRJobURL" , hive_storageMRJobURL);
+		jsonObj.put("hive_storageComments" , hive_storageComments);
+		jsonObj.put("hive_verifyResult" , hive_verifyResult);
+		jsonObj.put("hive_verifyCurrentState" , hive_verifyCurrentState);
+		jsonObj.put("hive_verifyMRJobURL" , hive_verifyMRJobURL);
+		jsonObj.put("hive_verifyComments" , hive_verifyComments);
+		jsonObj.put("comments",comments);
+		jsonObj.put("result",result);
+		jsonObj.put("startDateTime",startDateTime);
 		jsonObj.put("endDateTime",endDateTime);
 		jsonObj.put("uniqueId",uniqueId);
 
 
-                String pipelineName = this.getCurrentPipeLineName();
-                jsonObjTop.put("pipeline", pipelineName);
-                jsonObjTop.put("resultset", jsonObj);
+		String pipelineName = this.getCurrentPipeLineName();
+		jsonObjTop.put("pipeline", pipelineName);
+		jsonObjTop.put("resultset", jsonObj);
 
-                String absolutePath = new File("").getAbsolutePath();
-                File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
-                if (!folderPath.exists()) {
-                        if (folderPath.mkdirs() == true ) {
-                                File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
-                                TestSession.logger.info("Final test results json file - " + reportFile.toString());
-                                try {
-                                        PrintWriter printWriter = new PrintWriter(reportFile);
-                                        printWriter.write(jsonObjTop.toJSONString());
-                                        printWriter.close();
-                                } catch (IOException e) {
-                                        e.printStackTrace();
-                                }
-                        }
-                }
-        }
+		String absolutePath = new File("").getAbsolutePath();
+		File folderPath = new File(absolutePath + "/target/surefire-reports/integration_result");
+		if (!folderPath.exists()) {
+			if (folderPath.mkdirs() == true ) {
+				File reportFile = new File(folderPath.toString() + File.separator + "IntegrationReport.json");
+				TestSession.logger.info("Final test results json file - " + reportFile.toString());
+				try {
+					PrintWriter printWriter = new PrintWriter(reportFile);
+					printWriter.write(jsonObjTop.toJSONString());
+					printWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
