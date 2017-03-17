@@ -34,7 +34,7 @@ yinst install mysql_dba_privileges mysql_server
 MYSQLROOT_KEYDBFILE="/home/y/conf/keydb/mysqlroot.keydb"
 if ! [ -r "$MYSQLROOT_KEYDBFILE" ]; then
   echo "Error!"
-  echo "mysql_server requires a readable $MYSQLROOT_KEYDBFILE file!'
+  echo "mysql_server requires a readable $MYSQLROOT_KEYDBFILE file!"
   echo "Please make sure $MYSQLROOT_KEYDBFILE has at least read permission!"
   echo "Error!"
   exit 1
