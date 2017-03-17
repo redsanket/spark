@@ -5,13 +5,13 @@
     <formats>
         <format>jar</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>hadooptest:htf-common</include>
-   <!--             <include>com.databricks:spark-avro_2.11</include> -->
+                <include>com.databricks:spark-avro_2.11</include>
             </includes>
             <useProjectArtifact>false</useProjectArtifact>
             <!-- we're creating the test-jar as an attachement -->
