@@ -26,8 +26,19 @@ echo "INFO: Hive node being installed: $HIVENODE"
 #
 # pkgs, should get everything we need from mysql_server
 #yinst i yjava_jdk
-yinst install mysql_server
+# gridci-1973, install dba passwd pkg from S1 jira
+yinst install mysql_dba_privileges mysql_server
 #yinst install mysql_client
+
+# make sure keydb file is readable by hadoopqa
+MYSQLROOT_KEYDBFILE="/home/y/conf/keydb/mysqlroot.keydb"
+if ! [ -r "$MYSQLROOT_KEYDBFILE" ]; then
+  echo "Error!"
+  echo "mysql_server requires a readable $MYSQLROOT_KEYDBFILE file!"
+  echo "Please make sure $MYSQLROOT_KEYDBFILE has at least read permission!"
+  echo "Error!"
+  exit 1
+fi 
 
 # settings, the duplication is likely unnecessary, there were versions of hive that
 # installed either mysql_config or mysql_config_multi, it appears that current hive
@@ -52,7 +63,8 @@ echo "GRANT ALL PRIVILEGES ON hivemetastoredb.* TO 'hive'@'$HIVENODE' WITH GRANT
 echo "flush privileges;" >> /tmp/sql_setup.sql
 
 # apply sql script to DB
-mysql -u root < /tmp/sql_setup.sql
+# gridci-1973, add passwd field to fetch from keydb
+mysql -A -u root -p`/home/y/bin64/keydbgetkey mysqlroot`  < /tmp/sql_setup.sql
 
 # install supporting packages
 yinst install hbase
