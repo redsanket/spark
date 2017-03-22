@@ -708,14 +708,6 @@
 
                 <dependency>
                     <groupId>system</groupId>
-                    <artifactId>system38</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-client-${HADOOP_VERSION}.jar</systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
                     <artifactId>system40</artifactId>
                     <version>0.9.2</version>
                     <scope>system</scope>
@@ -1562,14 +1554,6 @@
                     <version>0.9.2</version>
                     <scope>system</scope>
                     <systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-${HADOOP_VERSION}.jar</systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system38</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>${HADOOP_SHARE}/hdfs/hadoop-hdfs-client-${HADOOP_VERSION}.jar</systemPath>
                 </dependency>
 
                 <dependency>
