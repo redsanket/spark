@@ -18,6 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import java.io.*;
+import java.util.*;
+
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
@@ -39,7 +42,31 @@ public class DataBaseOperations {
      */
     public void createDB() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Class.forName(DRIVER).newInstance();
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" ,"root","");
+
+        // gridci-1973, get local mysql DB passwd from keydb
+        String passwd="";
+        try {
+                ProcessBuilder pb = new ProcessBuilder("/home/y/bin64/keydbgetkey", "mysqlroot");
+                Process p = pb.start();
+                BufferedReader stdout = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getInputStream())));
+                int exitStatus = p.waitFor();
+                String line;
+                while((line = stdout.readLine())!=null)
+                {
+                        passwd+=line;
+                } 
+                stdout.close();
+                //TestSession.logger.info("Keydb fetch returns passwd: " + passwd);
+                TestSession.logger.info("Keydb local mysql passwd fetch return value is: " + exitStatus);
+        } catch (IOException ioe) {
+                TestSession.logger.error("Mysql local DB passwd fetch IO exception, is the keydb mysqlroot file readable? Exception: " + ioe);
+        } catch (IllegalThreadStateException itse) {
+                TestSession.logger.error("Mysql local DB passwd fetch got illegal thread state ex: " + itse);
+        } catch (InterruptedException ie) {
+                TestSession.logger.error("Mysql local DB passwd fetch got interrupted ex: " + ie);
+        }
+
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" ,"root", passwd);
         if (con != null ) {
             Statement stmt = con.createStatement();
             stmt.executeUpdate(DBCommands.CREATE_DB); 
@@ -61,7 +88,31 @@ public class DataBaseOperations {
      */
     public Connection getConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
         Class.forName(DRIVER).newInstance();
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.DB_NAME ,"root","");
+
+        // gridci-1973, get local mysql DB passwd from keydb
+        String passwd="";
+        try {
+                ProcessBuilder pb = new ProcessBuilder("/home/y/bin64/keydbgetkey", "mysqlroot");
+                Process p = pb.start();
+                BufferedReader stdout = new BufferedReader(new InputStreamReader(new BufferedInputStream(p.getInputStream())));
+                int exitStatus = p.waitFor();
+                String line;
+                while((line = stdout.readLine())!=null)
+                {
+                        passwd+=line;
+                } 
+                stdout.close();
+                //TestSession.logger.info("Keydb fetch returns passwd: " + passwd);
+                TestSession.logger.info("Keydb local mysql passwd fetch return value is: " + exitStatus);
+        } catch (IOException ioe) {
+                TestSession.logger.error("Mysql local DB passwd fetch IO exception, is the keydb mysqlroot file readable? Exception: " + ioe);
+        } catch (IllegalThreadStateException itse) {
+                TestSession.logger.error("Mysql local DB passwd fetch got illegal thread state ex: " + itse);
+        } catch (InterruptedException ie) {
+                TestSession.logger.error("Mysql local DB passwd fetch got interrupted ex: " + ie);
+        }
+
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/" + DBCommands.DB_NAME ,"root", passwd);
         if (con != null ) {
             return con;
         } else {
