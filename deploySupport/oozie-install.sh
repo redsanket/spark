@@ -311,7 +311,7 @@ yinst set ygrid_sharelib.oozie_tag_pig_current=hdfs:///tmp/ygrid_sharelib_dir/pi
   ygrid_sharelib.oozie_tag_pig_10=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib \
   ygrid_sharelib.oozie_tag_pig_11=hdfs:///tmp/ygrid_sharelib_dir/pig/pig-$PIG_VERSION/share/pig/lib
 ##
-yinst set ygrid_sharelib.oozie_tag_tez_current=hdfs:///tmp/ygrid_sharelib_dir/ytez/ytez-$TEZ_VERSION/libexec/tez
+yinst set ygrid_sharelib.oozie_tag_tez_current=hdfs:///sharelib/v1/tez/ytez-$TEZ_VERSION/libexec/tez
 ##
 yinst set ygrid_sharelib.oozie_tag_hbase_current=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib \
   ygrid_sharelib.oozie_tag_hbase_latest=hdfs:///tmp/ygrid_sharelib_dir/hbase/hbase-$HBASE_VERSION/libexec/hbase/lib \
