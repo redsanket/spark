@@ -177,7 +177,7 @@ fi
 $SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert"
 RC=$?
 
-if [ $RC =ne 0]; then
+if [ $RC -ne 0 ]; then
   echo "ERROR: Failed to install oozie_client and ygrid_cacert on the gateway - $OOZIE_GW_NODE"
 fi
 
