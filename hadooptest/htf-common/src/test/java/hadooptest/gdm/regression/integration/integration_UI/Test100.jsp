@@ -55,7 +55,7 @@
   		}
   %>
 		<%@ include file="header.jsp" %>
-		<%@ page import="java.util.Calendar,java.text.SimpleDateFormat,java.sql.*,java.util.*,java.util.Date"%>
+		<%@ page import="java.util.Calendar,java.text.SimpleDateFormat,java.sql.*,java.util.*,java.util.Date,java.io.BufferedReader,java.io.InputStreamReader"%>
 		<%
 			SimpleDateFormat feed_sdf = new SimpleDateFormat("yyyyMMddHH");
 			Calendar currentTimeStampCal = Calendar.getInstance();
@@ -84,9 +84,17 @@
 			Connection con = null;
 			try {
 		%>
-		<%
+		<%		
+				String password = "";
+		        String[] command = { "/home/y/bin64/keydbgetkey", "mysqlroot" };
+		        Process process = Runtime.getRuntime().exec(command);
+		        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		        String pswd;
+		        while ((pswd = reader.readLine()) != null) {
+		            password = password.concat(pswd);
+		        }
 				Class.forName("com.mysql.jdbc.Driver").newInstance();
-		con = DriverManager.getConnection("jdbc:mysql://localhost/stackIntegrationTestDB", "root", "");
+				con = DriverManager.getConnection("jdbc:mysql://localhost/stackIntegrationTestDB", "root", password);
 			  } catch(Exception e) {
 				  
 		%>
