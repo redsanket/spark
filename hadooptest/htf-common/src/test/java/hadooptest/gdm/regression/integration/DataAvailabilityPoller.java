@@ -468,7 +468,7 @@ public class DataAvailabilityPoller {
                     this.searchDataAvailablity.setState("START_OOZIE_JOB");
                     if ( this.searchDataAvailablity.getState().equals("START_OOZIE_JOB")) {
 
-                        String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.HADOOPQA_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "http://" + this.oozieHostName + ":4080/oozie -auth kerberos"   + " \"";
+                        String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.HADOOPQA_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/" + this.currentFrequencyHourlyTimeStamp + "-job.properties" + " -oozie " + "https://" + this.oozieHostName + ":4443/oozie -auth kerberos"   + " \"";
                         TestSession.logger.info("oozieCommand  = " + oozieCommand);
 
                         String tempOozieJobID = this.executeCommand(oozieCommand);
@@ -792,7 +792,7 @@ public class DataAvailabilityPoller {
         JSONObject finalFailedJSONObject = null;
         boolean flag = false;
         String oozieCommand = "ssh " + this.oozieHostName + "   \" " + this.HADOOPQA_KINIT_COMMAND + ";"  +  "curl  -s --negotiate -u :  -H \\\"Content-Type: application/xml;charset=UTF-8\\\"  " 
-                + "http://" + this.oozieHostName + ":4080/oozie/v2/job/" + jobIdValue   + "?timezone=GMT" + "\"";
+                + "https://" + this.oozieHostName + ":4443/oozie/v2/job/" + jobIdValue   + "?timezone=GMT" + "\"";
         TestSession.logger.info("command - " + oozieCommand);
         String  tempOozieResult= this.executeCommand(oozieCommand);
         TestSession.logger.info("tempOozieResult = " + tempOozieResult);
@@ -908,7 +908,7 @@ public class DataAvailabilityPoller {
      */
     public String getOoozieJobDetails(String jobId) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
         String jobIdValue =  Arrays.asList(jobId.split(" ")).get(1).trim();
-        String command = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + "  job -oozie  " +  "http://" + this.oozieHostName + ":4080/oozie -auth kerberos -info  " + jobIdValue  + "\"";
+        String command = "ssh " + this.oozieHostName +  " \"" + this.OOZIE_COMMAND + "  job -oozie  " +  "https://" + this.oozieHostName + ":4443/oozie -auth kerberos -info  " + jobIdValue  + "\"";
 
         TestSession.logger.info("command - " + command);
         String oozieResult = this.executeCommand(command);
