@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "BASE IS:"
+echo ${base}
+echo "DONE"
+
+
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 
 echo == verify Core SSL certs are in place
@@ -10,7 +15,7 @@ fanout "if [ ! -d ${CERT_HOME} ] ; then
            chmod 755 ${CERT_HOME};
         fi"
 
-fanoutcmd "scp -r *.jks __HOSTNAME__:/${CERT_HOME}/" "$SLAVELIST"
+fanoutcmd "scp -r ${base}/*.jks __HOSTNAME__:${CERT_HOME}/" "$SLAVELIST"
  
 
 
