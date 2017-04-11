@@ -203,6 +203,7 @@ datanode*.sh \
 dump*.sh \
 namenode*.sh \
 setup_nm_health_check_script.sh \
+core_ssl_certs/* \
 "
 
 for script in $scripts; do
