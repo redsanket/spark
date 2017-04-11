@@ -15,7 +15,7 @@ fanout "if [ ! -d ${CERT_HOME} ] ; then
            chmod 755 ${CERT_HOME};
         fi"
 
-fanoutcmd "scp -r ${base}/*.jks __HOSTNAME__:${CERT_HOME}/" "$SLAVELIST"
+fanoutcmd "scp -r ${base}/core_ssl_certs/*.jks __HOSTNAME__:${CERT_HOME}/" "$SLAVELIST"
  
 
 
