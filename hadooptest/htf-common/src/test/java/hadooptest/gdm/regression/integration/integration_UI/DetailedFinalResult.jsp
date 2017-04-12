@@ -1,5 +1,5 @@
 <%@ include file="header.jsp" %>
-<%@ page import="java.text.SimpleDateFormat,java.util.TimeZone,java.util.Calendar,java.sql.*" %>
+<%@ page import="java.text.SimpleDateFormat,java.util.TimeZone,java.util.Calendar,java.sql.*,java.io.BufferedReader,java.io.InputStreamReader" %>
 <%
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 	Calendar calendar = Calendar.getInstance();
@@ -111,10 +111,17 @@
 			try {
 		%>
 		<%
-				Class.forName("com.mysql.jdbc.Driver").newInstance();
-		con = DriverManager.getConnection("jdbc:mysql://localhost/stackIntegrationTestDB", "root", "");
-			  } catch(Exception e) {
-				  
+				String password = "";
+		        String[] command = { "/home/y/bin64/keydbgetkey", "mysqlroot" };
+		        Process process = Runtime.getRuntime().exec(command);
+		        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		        String pswd;
+		        while ((pswd = reader.readLine()) != null) {
+		            password = password.concat(pswd);
+		        }
+		        Class.forName("com.mysql.jdbc.Driver").newInstance();
+		        con = DriverManager.getConnection("jdbc:mysql://localhost/stackIntegrationTestDB", "root", password);
+			  } catch(Exception e) {		  
 		%>
 		<%@ include file="JDBCErrorPage.jsp" %>
 		<%
