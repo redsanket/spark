@@ -1,5 +1,5 @@
 ================
-Oozie User Guide 
+Oozie User Guide
 ================
 
 .. 05/13/15: Edited.
@@ -23,6 +23,7 @@ Oozie User Guide
    ts  
    references
    resources
+   oozie_https
 
 This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
