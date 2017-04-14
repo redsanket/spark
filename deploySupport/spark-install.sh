@@ -61,6 +61,36 @@ else
   echo "ERROR: Aborting installation for an unexpected version of Spark" && exit 1
 fi
 
+#-------------------------------------------------------------------------------
+
+# Uninstall any existing yspark_yarn_install package to ensure we run in a clean env.
+cmd="yinst ls yspark_yarn_install"
+
+echo "$cmd"
+eval "$cmd"
+
+st=$?
+if [[ $st -eq 0 ]]; then
+  cmd="yinst rm yspark_yarn_install -live"
+
+  echo "INFO: Removing existing yspark_yarn_install package."
+  echo "$cmd"
+  eval "$cmd"
+
+  st=$?
+  [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to remove existing yspark_yarn_install package <<<<<<<<<<" && exit $st
+else
+  echo "INFO: No existing yspark_yarn_install package found."
+fi
+
+#Explicitly clean any existing settings.
+cmd="yinst clean -settings yspark_yarn_install -yes"
+echo "INFO: Removing any existing settings for yspark_yarn_install."
+
+echo "$cmd"
+eval "$cmd"
+
+#-------------------------------------------------------------------------------
 spark_install_cmd="yinst i yspark_yarn_install -br current -same -live"
 
 for i in "${label_version_arr[@]}"
