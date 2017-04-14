@@ -142,7 +142,7 @@
       <configuration>
         <property>
           <name>hive.execution.engine</name>
-          <value>mr</value>
+          <value>tez</value>
         </property>
         <property>
           <name>mapred.job.queue.name</name>
