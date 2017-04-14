@@ -4,6 +4,8 @@ import hadooptest.TestSession;
 import hadooptest.TestSessionCore;
 import hadooptest.Util;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.automation.utils.http.EasySSLProtocolSocketFactory;
+import hadooptest.automation.utils.http.EasyX509TrustManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -20,6 +22,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 
@@ -38,6 +41,11 @@ public class HTTPHandle {
 	Logger logger = Logger.getLogger(HTTPHandle.class);
 
 	public HTTPHandle() {
+                // The following configs are required to use self signed certs - this should NOT 
+                // be used in production
+                Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
+                Protocol.registerProtocol("https", easyhttps);
+
 		this.httpClient = new HttpClient();
 
 		this.baseURL = null;
