@@ -68,7 +68,7 @@ my $ds = { 'namenode'        => \@nn,
 };
 note(Dumper(\%$ds));
 
-my $yinst_root="/home/gs/gridre/yroot.${cluster}/";
+my $yinst_root="/home/gs/gridre/yroot.${cluster}";
 
 my $ssh_opt="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
 # export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
@@ -136,7 +136,12 @@ if ($do_restart == 1) {
 	note("*********************************************************************************");
 	note("Restart component '$component' [$num_hosts]: ".join(',', @{$ds->{$component}})."");
 	note("*********************************************************************************");
-	$command="export HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root $yinst_root $component";
+        # Reset HADOOP_CONF_DIR because sometimes this could be overwritten by
+        # the tests and not be put back correctly. This will cause subsequent
+        # start to fail.
+        # e.g.
+        # $ yinst set hadoop_qa_restart_config.HADOOP_CONF_DIR=/home/gs/gridre/yroot.qe15blue
+	$command="yinst set -root ${yinst_root} hadoop_qa_restart_config.HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root ${yinst_root} $component";
         $RC = system_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${command}\"");
         $EC += $RC;
     }
@@ -149,8 +154,9 @@ my $webui_html = "$artifacts_dir/webui.html";
 unlink($webui_html) if (-e $webui_html);
 
 # Write NN and RM webui URL to html file for convenient access
-my $NN_URL="http://".$nn[0].":50070/dfshealth.html";
-my $RM_URL="http://".$rm[0].":8088/cluster";
+my $NN_URL="https://".$nn[0].":50070/dfshealth.html";
+my $RM_URL="https://".$rm[0].":8088/cluster";
+
 open(my $fh, '>', $webui_html) or die "Could not open file '$webui_html' $!";
 print $fh "<Pre>\n";
 print $fh "<Pre>\n";
