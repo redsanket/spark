@@ -78,11 +78,11 @@ for cluster in $CLUSTERS; do
     echo "Get the namenode and resourcemanager"
     namenode=`yinst range -ir "(@grid_re.clusters.$cluster.namenode)"|head -1`;
     echo "NN=$namenode"
-    echo "WEBUI: $cluster NN http://$namenode:50070/dfshealth.html"
+    echo "WEBUI: $cluster NN https://$namenode:50070/dfshealth.html"
 
     rm=`yinst range -ir "(@grid_re.clusters.$cluster.jobtracker)"|tr -s '\n' ','|sed -e  's/,$//'`;
     echo "RM=$rm"
-    echo "WEBUI: $cluster RM http://$rm:8088/cluster"
+    echo "WEBUI: $cluster RM https://$rm:8088/cluster"
 
     NN_STAT=$(PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" perl -e 'alarm shift @ARGV; exec @ARGV' 5 pdsh -t 30 -u 30 $PDSH_OPT -w $namenode "ls /home/gs/hadoop/current/bin/hadoop");
     if [[ -n "$namenode" ]] && [[ "$NN_STAT" =~ "/home/gs/hadoop/current/bin/hadoop" ]]; then
@@ -111,11 +111,11 @@ for cluster in $CLUSTERS; do
     fi
 
     # Get Hadoop version from JMX
-    # Version=`curl -s http://$namenode:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeInfo::SoftwareVersion`
+    # Version=`curl -s https://$namenode:50070/jmx?get=Hadoop:service=NameNode,name=NameNodeInfo::SoftwareVersion`
     # version=`echo $version|cut -d':' -f6|awk '{print $1}'`
 
     # Get time stamp of last job from url
-    # last_job=`curl -s http://$rm:19888/jobhistory|grep job_|tail -1`
+    # last_job=`curl -s https://$rm:19888/jobhistory|grep job_|tail -1`
     # echo "Last recorded job in History Server:" `echo $last_job| cut -d, -f3,5,6,8`
 
     # Get time stamp of last job from log file
