@@ -74,7 +74,7 @@ public class TestAlertAPI extends TestSession {
 	public void testAlertWithWarningServerityAndTypeSlaForAcquisitionFacet() {
 		String severityType = "Warning";
 		String facetType = "acquisition";
-		String alertType = "sla";
+		String alertType = "sla-miss";
 		this.executeAlertQuery(facetType , alertType ,severityType );
 	}
 
