@@ -32,7 +32,7 @@ The options
         [ -storm                            ] : Run with a Storm environment
         [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
-        [ -spark                            ] : Run with a Spark environment which has Spark specific dependencies
+        [ -spark                            ] : Run with an environment which has Spark setup same as the gateways with specific dependencies
         [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark15                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -sparktag    <dist tag>           ] : Use the specified dist tag for spark installation on gateway
@@ -78,11 +78,13 @@ sub writeSparkConf {
     print FILE "USER=hadoopqa\n";
     print FILE "LOG_LEVEL=DEBUG\n";
     print FILE "CLUSTER_TYPE=hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster\n";
-    print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
-    print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
-    print FILE "SPARK_HOME=/home/y/share/spark/\n";
-    print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
     print FILE "CHECK_CLUSTER_STATE=false\n";
+    if ($version) {
+        print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
+        print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
+        print FILE "SPARK_HOME=/home/y/share/spark/\n";
+        print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
+    }
     close(FILE);
 }
 
@@ -307,6 +309,8 @@ if ($sparkversion) {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
     execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
 } else {
+    writeSparkConf("$workspace/$sparkconf");
+    $conf = "$workspace/$sparkconf";
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
 

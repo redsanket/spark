@@ -72,8 +72,16 @@ public class SparkRunSparkSubmit extends App {
     /** class name */
     private String className = "";
 
+    private String sparkHome = getSparkHome();
+
+    private String sparkBin = sparkHome + "/bin/spark-class";
+
+    private String sparkSubmitBin = sparkHome + "/bin/spark-submit";
+
     /** jar name */
-    private String jarName = TestSession.conf.getProperty("SPARK_EXAMPLES_JAR");
+    private String jarName = sparkHome + "/lib/spark-examples.jar";
+
+    private String sparkConfDir = System.getenv("SPARK_CONF_DIR");
 
     /** distributed cache files */
     private String distCacheFiles = "";
@@ -102,6 +110,17 @@ public class SparkRunSparkSubmit extends App {
 
     /** additional confs **/
     private Map<String, String> additionalConfs = new HashMap<String, String>();
+
+    private String getSparkHome() {
+        String sparkHome = System.getenv("SPARK_HOME");
+        if (sparkHome == null || sparkHome.isEmpty()) {
+            sparkHome = TestSession.conf.getProperty("SPARK_HOME");
+        }
+        if (sparkHome == null || sparkHome.isEmpty()) {
+            TestSession.logger.error("Error SPARK_HOME is not set! Set it in env or config file.");
+        }
+        return sparkHome;
+    }
 
     /**
      * Set the master
@@ -308,7 +327,10 @@ public class SparkRunSparkSubmit extends App {
 
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
-        newEnv.put("SPARK_HOME",  TestSession.conf.getProperty("SPARK_HOME"));
+        newEnv.put("SPARK_HOME",  sparkHome);
+        if (sparkConfDir != null || !sparkConfDir.isEmpty()) {
+            newEnv.put("SPARK_CONF_DIR", sparkConfDir);
+        }
         newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
 
         TestSession.logger.info("JAVA_HOME=" + newEnv.get("JAVA_HOME"));
@@ -395,17 +417,6 @@ public class SparkRunSparkSubmit extends App {
      * @return String[] the string array representation of the system command to launch the app.
      */
     private String[] assembleCommand() throws Exception {
-        String sparkSubmitBin = TestSession.conf.getProperty("SPARK_SUBMIT_BIN");
-        if ((sparkSubmitBin == null) || (sparkSubmitBin.isEmpty())) {
-            TestSession.logger.error("Error SPARK_SUBMIT_BIN is not set!");
-        }
-
-        String hadoopHome = TestSession.cluster.getConf().getHadoopProp("HADOOP_COMMON_HOME") + "/share/hadoop/";
-        String jarPath = hadoopHome + "hdfs/lib/YahooDNSToSwitchMapping-*.jar";
-        String[] output = TestSession.exec.runProcBuilder(new String[] {"bash", "-c", "ls " + jarPath});
-        String yahooDNSjar = output[1].trim();
-        TestSession.logger.info("YAHOO DNS JAR = " + yahooDNSjar);
-        String gplCompression = hadoopHome + "common/hadoop-gpl-compression.jar";
 
         ArrayList<String> cmd = new ArrayList<String>(20);
         cmd.add(sparkSubmitBin);
@@ -455,29 +466,38 @@ public class SparkRunSparkSubmit extends App {
             cmd.add(this.driverLibraryPath);
         }
 
-        cmd.add("--driver-class-path");
-        if (!this.driverClassPath.isEmpty()) {
-            cmd.add(this.driverClassPath + ":" + yahooDNSjar + ":" + gplCompression);
-        } else {
-            cmd.add(yahooDNSjar + ":" + gplCompression);
-        }
-
         if (!this.executorJavaOptions.isEmpty()) {
             cmd.add("--conf");
             cmd.add("spark.executor.extraJavaOptions=" + this.executorJavaOptions);
         }
 
-        cmd.add("--conf");
-        if (!this.executorClassPath.isEmpty()) {
-            cmd.add("spark.executor.extraClassPath=" +
-                this.executorClassPath + ":" + yahooDNSjar + ":" + gplCompression);
-        } else {
-            cmd.add("spark.executor.extraClassPath=" + yahooDNSjar + ":" + gplCompression);
-        }
-
         if (!this.executorLibraryPath.isEmpty()) {
             cmd.add("--conf");
             cmd.add("spark.executor.extraLibraryPath=" + this.executorLibraryPath);
+        }
+
+        if (sparkConfDir == null || sparkConfDir.isEmpty()) {
+            String hadoopHome = TestSession.cluster.getConf().getHadoopProp("HADOOP_COMMON_HOME") + "/share/hadoop/";
+            String jarPath = hadoopHome + "hdfs/lib/YahooDNSToSwitchMapping-*.jar";
+            String[] output = TestSession.exec.runProcBuilder(new String[] {"bash", "-c", "ls " + jarPath});
+            String yahooDNSjar = output[1].trim();
+            TestSession.logger.info("YAHOO DNS JAR = " + yahooDNSjar);
+            String gplCompression = hadoopHome + "common/hadoop-gpl-compression.jar";
+
+            cmd.add("--driver-class-path");
+            if (!this.driverClassPath.isEmpty()) {
+                cmd.add(this.driverClassPath + ":" + yahooDNSjar + ":" + gplCompression);
+            } else {
+                cmd.add(yahooDNSjar + ":" + gplCompression);
+            }
+
+            cmd.add("--conf");
+            if (!this.executorClassPath.isEmpty()) {
+                cmd.add("spark.executor.extraClassPath=" +
+                        this.executorClassPath + ":" + yahooDNSjar + ":" + gplCompression);
+            } else {
+                cmd.add("spark.executor.extraClassPath=" + yahooDNSjar + ":" + gplCompression);
+            }
         }
 
         for (String confString: confsArray) {

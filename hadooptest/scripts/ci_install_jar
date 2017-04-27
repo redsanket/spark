@@ -50,13 +50,11 @@ then
   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
 else
-  if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark-1.6.2.0_2.8.0.1.1608041516_1608052051" ]
-  then
+  spark_version=`yinst set yspark_yarn_install.LATEST | cut -d' ' -f2 | cut -d- -f2`
   rm -rf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch
-  /usr/local/bin/yinst fetch yspark_yarn-1.6.2.0_2.8.0.1.1608041516_1608052051 -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz -br quarantine
+  /usr/local/bin/yinst fetch yspark_yarn-$spark_version -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz 
   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
-  fi
 fi
 
 # hbase
