@@ -74,8 +74,6 @@ public class SparkRunSparkSubmit extends App {
 
     private String sparkHome = getSparkHome();
 
-    private String sparkBin = sparkHome + "/bin/spark-class";
-
     private String sparkSubmitBin = sparkHome + "/bin/spark-submit";
 
     /** jar name */
