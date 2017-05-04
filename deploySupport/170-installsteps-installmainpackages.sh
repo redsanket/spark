@@ -3,7 +3,8 @@ if [ "$INSTALLNEWPACKAGES" = true ]
 then
     echo == installing YINST packages.
 
-    # For spark integration tests we want to deploy packages from the quarantine branch. We separate out spark shuffle jar to explicitly specify the branch is spark is selected.
+    # For spark integration tests we want to deploy packages from the quarantine branch.
+    # We separate out spark shuffle jar to explicitly specify the branch is spark is selected.
     spark_shuffle_cmd=""
     if [ "$SPARK_SHUFFLE_VERSION" != "none" ]; then
         HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING | sed "s/yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION//g"`
