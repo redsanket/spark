@@ -4,10 +4,10 @@ then
     echo == installing YINST packages.
 
     slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
-    slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -br quarantine -same -live -downgrade"
     fanoutGW "/usr/bin/yum makecache"
     fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64 compat-readline5.x86_64"
-    fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -br quarantine -same -live -downgrade"
 
     # GRIDCI-501
     # fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
@@ -35,7 +35,7 @@ then
    if [ "$QA_PACKAGES" != "none" ]
    then
         echo "====Install additional QA packages: $QA_PACKAGES"
-        slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -same -live"
+        slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -br quarantine -same -live"
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
    fi
 echo ......
