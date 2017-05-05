@@ -326,7 +326,7 @@ public class SparkRunSparkSubmit extends App {
         // setup spark env
         Map<String, String> newEnv = new HashMap<String, String>();
         newEnv.put("SPARK_HOME",  sparkHome);
-        if (sparkConfDir != null || !sparkConfDir.isEmpty()) {
+        if (sparkConfDir != null && !sparkConfDir.isEmpty()) {
             newEnv.put("SPARK_CONF_DIR", sparkConfDir);
         }
         newEnv.put("JAVA_HOME", HadooptestConstants.Location.JDK64);
