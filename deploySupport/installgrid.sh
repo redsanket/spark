@@ -85,7 +85,6 @@ echo MAPREDUSER = $MAPREDUSER
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=$hadoopgridrollout__TEZ_QUEUE
 [ -z "$SPARKVERSION" ] && export SPARKVERSION=$hadoopgridrollout__SPARKVERSION
 [ -z "$SPARK_HISTORY_VERSION" ] && export SPARK_HISTORY_VERSION=$hadoopgridrollout__SPARK_HISTORY_VERSION
-[ -z "$SPARK_SHUFFLE_VERSION" ] && export SPARK_SHUFFLE_VERSION=$hadoopgridrollout__SPARK_SHUFFLE_VERSION
 [ -z "$SPARK_QUEUE" ] && export SPARK_QUEUE=$hadoopgridrollout__SPARK_QUEUE
 [ -z "$PIGVERSION" ] && export PIGVERSION=$hadoopgridrollout__PIGVERSION
 [ -z "$HITVERSION" ] && export HITVERSION=$hadoopgridrollout__HITVERSION
