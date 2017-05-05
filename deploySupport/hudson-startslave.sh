@@ -111,7 +111,7 @@ if [ "$RC" -ne 0 ]; then
 fi
 
 if [[ $SPARK_SHUFFLE_DIST_TAG != "same_as_STACK_COMP_VERSION_SPARK" ]]; then
-    export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+    export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | head -1 | awk '{print $1}' | cut -d- -f2`
 elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" ]]; then
     export SPARK_SHUFFLE_VERSION=`/home/y/bin/query_releases -c $STACK_COMP_VERSION_SPARK -b spark -p SPARK_DOT_LATEST`
 elif [[ $SPARK_SHUFFLE_VERSION == "" ]]; then
@@ -238,11 +238,11 @@ if [ -n "$TEZ_DIST_TAG" ]; then
 fi
 
 if [ -n "$SPARK_DIST_TAG" ]; then
-    export SPARKVERSION=`dist_tag list $SPARK_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+    export SPARKVERSION=`dist_tag list $SPARK_DIST_TAG | head -1 |awk '{print $1}' | cut -d- -f2`
 fi
 
 if [ -n "$SPARK_HISTORY_SERVER_DIST_TAG" ]; then
-    export SPARK_HISTORY_VERSION=`dist_tag list $SPARK_HISTORY_SERVER_DIST_TAG | awk '{print $1}' | cut -d- -f2`
+    export SPARK_HISTORY_VERSION=`dist_tag list $SPARK_HISTORY_SERVER_DIST_TAG | head -1 | awk '{print $1}' | cut -d- -f2`
 fi
 
 if [ -n "$AUTO_CREATE_RELEASE_TAG" ]; then
@@ -348,6 +348,7 @@ done
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
 [ -z "$SPARKVERSION" ] && export SPARKVERSION=none
+[ -z "$SPARK_SHUFFLE_VERSION" ] && export SPARK_SHUFFLE_VERSION=none
 [ -z "$SPARK_HISTORY_VERSION" ] && export SPARK_HISTORY_VERSION=none
 [ -z "$SPARK_QUEUE" ] && export SPARK_QUEUE=default
 [ -z "$PIGVERSION" ] && export PIGVERSION=none
