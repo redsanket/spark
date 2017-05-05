@@ -3,23 +3,11 @@ if [ "$INSTALLNEWPACKAGES" = true ]
 then
     echo == installing YINST packages.
 
-    # For spark integration tests we want to deploy packages from the quarantine branch.
-    # We separate out spark shuffle jar to explicitly specify the branch is spark is selected.
-    spark_shuffle_cmd=""
-    if [ "$SPARK_SHUFFLE_VERSION" != "none" ]; then
-        HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING | sed "s/yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION//g"`
-        spark_shuffle_cmd="$yinst install -yes -os rhel-6.x -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
-    fi
-
-    cmd="$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
-    
     slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
-    slownogwfanout "$cmd"
-    [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && slownogwfanout "$spark_shuffle_cmd"
+    slownogwfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     fanoutGW "/usr/bin/yum makecache"
     fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64 compat-readline5.x86_64"
-    fanoutGW "$cmd"
-    [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutGW "$spark_shuffle_cmd"
+    fanoutGW "$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
 
     # GRIDCI-501
     # fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
