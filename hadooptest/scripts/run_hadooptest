@@ -32,7 +32,8 @@ The options
         [ -storm                            ] : Run with a Storm environment
         [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
-        [ -spark                            ] : Run with an environment which has Spark setup same as the gateways with specific dependencies
+        [ -spark                            ] : Run with a Spark environment which has Spark specific dependencies
+        [ -sparkgw                          ] : Run with an environment which has Spark setup same as the gateways with specific dependencies
         [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark15                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -sparktag    <dist tag>           ] : Use the specified dist tag for spark installation on gateway
@@ -109,6 +110,7 @@ my $hadoop27 = 0;
 my $hadoop28 = 0;
 my $pig = 0;
 my $spark = 0;
+my $sparkgw = 0;
 my $spark12 = 0;
 my $spark13 = 0;
 my $spark14 = 0;
@@ -147,6 +149,7 @@ GetOptions(\%options,
     "hadoop28"           => \$hadoop28,
     "pig"                => \$pig,
     "spark"              => \$spark,
+    "sparkgw"            => \$sparkgw,
     "spark12"            => \$spark12,
     "spark13"            => \$spark13,
     "spark14"            => \$spark14,
@@ -308,10 +311,9 @@ if ($sparkversion) {
 } elsif ($spark15) {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
     execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
-} else {
+} elsif ($sparkgw) {
     writeSparkConf("$workspace/$sparkconf");
     $conf = "$workspace/$sparkconf";
-    execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
 }
 
 # Temporarily removing help:active-profiles as the maven-help-plugin is not
@@ -329,13 +331,13 @@ my $java_lib_path="-Djava.library.path=/home/gs/gridre/yroot.$cluster/share/hado
 execute("mkdir /grid/0/tmp/htf_mvn_repo");
 my $dependencies_opt = "-Dmaven.repo.local=/grid/0/tmp/htf_mvn_repo";
 
-# If we are building spark, we require the correct spark dependencies to be picked up.
-if ($spark) {
-    $dependencies_opt .= " -Pprofile-spark";
-}
-
 # This relies on the hadoop options adding the correct dependencies below
-if ($sparkversion) {
+if ($sparkgw) {
+    my $spark_version = `yinst set yspark_yarn_install.LATEST | cut -d' ' -f2 | cut -d- -f2`;
+    chomp($spark_version);
+    $dependencies_opt .= " -Dspark.hadoop.version=$spark_version -Dspark.version=$spark_version -Dspark.version.full=$spark_version";
+}
+elsif ($sparkversion) {
     $dependencies_opt .= " -Dspark.hadoop.version=$sparkhadoopversion -Dspark.version=$sparkversion -Dspark.version.full=$sparkversionfull";
 }
 elsif ($spark14) {
@@ -377,9 +379,6 @@ elsif ($spark) {
 }
 elsif ($hadoop28) {
     $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
-}
-elsif ($spark) {
-    $dependencies_opt .= " -Pprofile-spark  -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
 }
 elsif ($hadoop27) {
     $dependencies_opt .= " -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
@@ -509,14 +508,14 @@ if ($use_mvn) {
 
     # Call the script that gets a number of required system dependencies
     # through "yinst fetch".
-    if ($sparkversion) {
+    if ($sparkgw) {
+      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
+    } elsif ($sparkversion) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar sparkversion $sparkversionfull $sparkbranch");
     } elsif ($spark14) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark14");
     } elsif ($spark15) {
       execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar spark15");
-    } else {
-      execute("WORKSPACE=$workspace $workspace/scripts/ci_install_jar");
     }
 
     if ($storm||$storm090) {
