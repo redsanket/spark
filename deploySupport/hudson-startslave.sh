@@ -442,7 +442,7 @@ function fetch_artifacts() {
     # if oozie was selected, add the oozie node's GUI URI
     if [ "$STACK_COMP_VERSION_OOZIE" != "none" ]; then
       oozienode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"|head -1`;
-      URL="https://$oozienode:4080/oozie"
+      URL="http://$oozienode:4080/oozie"
       echo "WEBUI: $cluster Oozie $URL"
       printf "%-12s %s %s %s\n" "$CLUSTER" "Oozie" "-" "<a href=$URL>$URL</a>" >> $webui_file;
     fi
