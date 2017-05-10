@@ -422,12 +422,12 @@ function fetch_artifacts() {
 
     echo "Get the namenode and resourcemanager"
     namenode=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)"|head -1`;
-    URL="http://$namenode:50070/dfshealth.html"
+    URL="https://$namenode:50504/dfshealth.html"
     echo "WEBUI: $cluster NN $URL"
     printf "%-12s %s %s %s\n" "$CLUSTER" "NN" "-" "<a href=$URL>$URL</a>" >> $webui_file;
 
     rm=`yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"|tr -s '\n' ','|sed -e  's/,$//'`;
-    URL="http://$rm:8088/cluster"
+    URL="https://$rm:50505/cluster"
     echo "WEBUI: $cluster RM $URL"
     printf "%-12s %s %s %s\n" "$CLUSTER" "RM" "-" "<a href=$URL>$URL</a>"  >> $webui_file;
 
