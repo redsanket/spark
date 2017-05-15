@@ -214,7 +214,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
         conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
         conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
         conf.set("hadoop.security.authentication", "true");
-        conf.set("dfs.checksum.type" , "CRC32");
+        conf.set("dfs.checksum.type" , "CRC32C");
         TestSession.logger.info(conf);
         return conf;
     }
