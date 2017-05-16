@@ -119,7 +119,7 @@ public class HTTPHandle
         } catch (Exception localException) {
             TestSession.logger.error(new StringBuilder().append("SSO authentication failed. ").append(localException.toString()).toString());
         }
-
+        System.out.println("str - " + str);
         cookie = str; 
         YBYCookieHeader = new Header("Cookie", str);
         //this.httpClient.getParams().setParameter("Cookie", str);
