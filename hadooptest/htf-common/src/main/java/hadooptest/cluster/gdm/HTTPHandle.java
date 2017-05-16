@@ -110,7 +110,7 @@ public class HTTPHandle
     
     public void logonToBouncer(String paramString1, String paramString2)
     {
-        //TestSession.logger.info("*****************  user name = " + paramString1);
+        TestSession.logger.info("*****************  user name = " + paramString1);
         
         HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
         String str = null;
