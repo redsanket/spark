@@ -12,9 +12,15 @@ my $cluster;
 # Secondary namenode is not included here for the default. The intention is to
 # get the essential components for a hadoop cluster to be running. User can
 # passing in namenode2 if they choose.
-my $comp_str='namenode,datanode,resourcemanager,nodemanager';
+my $comp_str = 'namenode,datanode,resourcemanager,nodemanager';
 
-my $do_restart=0;
+# Restart cluster
+my $RESTART_ENV = $ENV{'RESTART'};
+my $RESTART = ($RESTART_ENV eq 'true') ? 1 : 0;
+
+# Yinst install/upgrade restart dist packages
+my $UPDATE_PKG_ENV = $ENV{'UPDATE_PKG'};
+my $UPDATE_PKG = ($UPDATE_PKG_ENV eq 'true') ? 1 : 0;
 
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
@@ -22,11 +28,15 @@ $Data::Dumper::Sortkeys = 1;
 sub usage {
     my ($err_msg) = @_;
     print STDERR <<  "EOF";
-  Usage: setup_cluster <cluster> [comma separated components] [-start]
+  Usage: setup_cluster <cluster> [comma separated components] [-restart]
 -----------------------------------------------------------------------------------
 Example:
-setup_cluster -c openqe27blue -status
+setup_cluster -c openqe27blue
+setup_cluster -c openqe27blue -restart
+setup_cluster -c openqe27blue -restart -update
 setup_cluster -c openqe27blue -components resourcemanager,nodemanager
+setup_cluster -c openqe27blue -components datanode -restart
+setup_cluster -c openqe27blue -components datanode -restart -update
 EOF
     print($err_msg) if ($err_msg);
     exit 1;
@@ -34,7 +44,8 @@ EOF
 
 my $result = GetOptions ("cluster|c=s"    => \$cluster,
 			 "components|t=s" => \$comp_str,
-			 "start|s"        => sub { $do_restart = 1 },
+			 "restart|r"      => sub { $RESTART = 1 },
+			 "update|u"       => sub { $UPDATE_PKG = 1 },
 			 "help|h|?"
     ) or usage(1);
 
@@ -42,9 +53,11 @@ usage("Invalid arguments!!!") if (!$result);
 usage("ERROR: Required cluster value not defined!!!") if (!defined($cluster));
 
 note("cluster='$cluster'");
+note("components: '$comp_str'");
+note("RESTART='$RESTART'");
+note("UPDATE_PKG='$UPDATE_PKG'");
 
-my @comps=split(',', $comp_str);
-note("components: $comp_str");
+my @comps = split(',', $comp_str);
 # note(Data::Dumper->Dump(\@comps));
 
 my $dsrange = { 'namenode'        => "\@grid_re.clusters.${cluster}.namenode",
@@ -72,6 +85,8 @@ my $yinst_root="/home/gs/gridre/yroot.${cluster}";
 
 my $ssh_opt="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
 # export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
+my $pdsh_opt="PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'";
+my $PDSH="$pdsh_opt pdsh -S";
 
 my $RC=0;
 my $EC=0;
@@ -97,7 +112,7 @@ sub qx_ {
 sub get_comp_status {
     my ($component, $dsrange) = @_;
     my $grep_command = "ps auxww|grep java|grep $component|grep -v grep";
-    my $output = qx_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${grep_command}\"");
+    my $output = qx_("$PDSH -r \"(".$dsrange->{$component}.")\" \"${grep_command}\"");
     my $RC = $? >> 8;
     note("RC=$RC");
     # note("output='$output'");
@@ -107,7 +122,14 @@ sub get_comp_status {
     my @match = grep(/.* $user .*proc_$component/i, @out);
     note(Data::Dumper->Dump(\@match));
     my $num_match = scalar(@match);
-    note("Found $num_match out of $num_hosts $component processes running");
+    my $msg = "Found $num_match out of $num_hosts $component processes running";
+    if ($num_match == $num_hosts) {
+        $msg = "SUCCESS: $msg";
+    } else {
+        my $num_failed = ($num_hosts - $num_match);
+        $msg = "ERROR: $msg: $num_failed processes not running!!!";
+    }
+    note("$msg");
     return $RC;
 }
 
@@ -117,32 +139,51 @@ sub get_comps_status {
     my $status=0;
     for my $component (@comps) {
 	$num_hosts = scalar(@{$ds->{$component}});
-	note("*********************************************************************************");
-	note("Status for component '$component' [$num_hosts]:");
-	note("*********************************************************************************");
+	note("#################################################################################");
+	note("Status for [$num_hosts] '$component' component:");
+	note("#################################################################################");
 	$RC = get_comp_status($component, $dsrange);
         $status += $RC;
     }
     return $status;
 }
 
-# Restart 
-if ($do_restart == 1) {
+#################################################################################
+# Update restart dist packages
+#################################################################################
+if ($UPDATE_PKG == 1) {
+    note("#################################################################################");
+    note("Update restart dist packages:");
+    note("#################################################################################");
+    $command="yinst install -root /home/gs/gridre/yroot.${cluster}/ ".join(' ', @comps)." -br test";
+    $RC = system_("$PDSH -r \@grid_re.clusters.${cluster} $command");
+    if ($RC != 0) {
+        note("ERROR: command failed: $command");
+        exit 1;
+    }
+}
+
+#################################################################################
+# Restart
+#################################################################################
+if ($RESTART == 1) {
     # This can be changed by tests and not get changed back, causing subsequent
     # restart to fail if the custom directory were to be removed.
     my $hadoop_conf_dir="${yinst_root}/conf/hadoop";
+
+    # $command="kinit -kt ~/hadoopqa.dev.headless.keytab hadoopqa";
     for my $component (@comps) {
 	$num_hosts = scalar(@{$ds->{$component}});
-	note("*********************************************************************************");
-	note("Restart component '$component' [$num_hosts]: ".join(',', @{$ds->{$component}})."");
-	note("*********************************************************************************");
+        note("#################################################################################");
+	note("Restart [$num_hosts] '$component' component: ".join(',', @{$ds->{$component}})."");
+        note("#################################################################################");
         # Reset HADOOP_CONF_DIR because sometimes this could be overwritten by
         # the tests and not be put back correctly. This will cause subsequent
         # start to fail.
         # e.g.
         # $ yinst set hadoop_qa_restart_config.HADOOP_CONF_DIR=/home/gs/gridre/yroot.qe15blue
 	$command="yinst set -root ${yinst_root} hadoop_qa_restart_config.HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root ${yinst_root} $component";
-        $RC = system_("pdsh -S -r \"(".$dsrange->{$component}.")\" \"${command}\"");
+        $RC = system_("$PDSH -r \"(".$dsrange->{$component}.")\" \"${command}\"");
         $EC += $RC;
     }
 }
