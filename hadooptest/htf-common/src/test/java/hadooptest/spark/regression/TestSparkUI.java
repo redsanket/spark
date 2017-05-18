@@ -181,7 +181,7 @@ public class TestSparkUI extends TestSession {
     public String getBouncerPassword() throws Exception {
         String password = TestSession.conf.getProperty("DEFAULT_BOUNCER_PASSWORD");
         if (password == null) {
-            password = Util.getTestUserPasswordFromYkeykey("headless_user_hitusr_1"); 
+            password = Util.getTestUserPasswordFromYkeykey("hadoop_re"); 
         }
         return password;
     }
