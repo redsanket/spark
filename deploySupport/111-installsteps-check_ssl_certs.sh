@@ -21,11 +21,27 @@ fanout "if [ ! -d ${CERT_HOME} ] ; then
            chmod 755 ${CERT_HOME};
         fi"
 
-NODES=`yinst range -ir @grid_re.clusters.$CLUSTER|tr '\n' ','|sed 's/.$//'`
+NODES=`yinst range -ir @grid_re.clusters.$CLUSTER`
+for NODE in $NODES; do
 
-$SSH $ADM_HOST "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' sudo pdcp -w $NODES $CERT_REFERENCE_PATH $CERT_HOME"
-if [ $? -ne 0 ]; then
-  echo "Error:  failed to scp JKS files!"
-  exit 1
-fi
+  $SSH $ADM_HOST "sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
+  if [ $? -ne 0 ]; then
+    echo "Error: node $NODE failed to scp JKS files!"
+    exit 1
+  fi
+
+done
+
+###### TODO - pdcp would be more efficient because it will parallel scp instead
+# of iterate like the while loop, but there's no support for '-S' in pdcp command
+# or other efficient way to catch a node error
+######
+# NODES=`yinst range -ir @grid_re.clusters.$CLUSTER|tr '\n' ','|sed 's/.$//'`
+#
+# $SSH $ADM_HOST "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' \
+#   sudo pdcp -w $NODES $CERT_REFERENCE_PATH $CERT_HOME"
+# if [ $? -ne 0 ]; then
+#  echo "Error:  failed to scp JKS files!"
+#   exit 1
+# fi
 
