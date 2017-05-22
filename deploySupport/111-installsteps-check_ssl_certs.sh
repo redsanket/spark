@@ -21,16 +21,11 @@ fanout "if [ ! -d ${CERT_HOME} ] ; then
            chmod 755 ${CERT_HOME};
         fi"
 
-NODES=`yinst range -ir @grid_re.clusters.$CLUSTER`
-for NODE in $NODES; do
+NODES=`yinst range -ir @grid_re.clusters.$CLUSTER|tr '\n' ','|sed 's/.$//'`
 
-  $SSH $ADM_HOST "sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
-  if [ $? -ne 0 ]; then
-    echo "Error: node $NODE failed to scp JKS files!"
-    exit 1
-  fi
-
-done
-
-
+$SSH $ADM_HOST "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' sudo pdcp -w $NODES $CERT_REFERENCE_PATH $CERT_HOME"
+if [ $? -ne 0 ]; then
+  echo "Error: node $NODE failed to scp JKS files!"
+  exit 1
+fi
 
