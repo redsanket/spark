@@ -110,8 +110,6 @@ public class HTTPHandle
     
     public void logonToBouncer(String paramString1, String paramString2)
     {
-        TestSession.logger.info("*****************  user name = " + paramString1);
-        
         HttpClientBouncerAuth localHttpClientBouncerAuth = new HttpClientBouncerAuth();
         String str = null;
         try {
@@ -119,7 +117,6 @@ public class HTTPHandle
         } catch (Exception localException) {
             TestSession.logger.error(new StringBuilder().append("SSO authentication failed. ").append(localException.toString()).toString());
         }
-        System.out.println("str - " + str);
         cookie = str; 
         YBYCookieHeader = new Header("Cookie", str);
         //this.httpClient.getParams().setParameter("Cookie", str);
