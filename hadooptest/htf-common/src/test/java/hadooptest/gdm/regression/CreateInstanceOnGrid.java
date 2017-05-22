@@ -27,6 +27,7 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
     private String dataPath;
     private String instanceId;
     private String nameNodeName;
+    private String crcValue;
     private ConsoleHandle consoleHandle;
     private Configuration configuration;
     private String instanceFileName = "instanceFile.gz";
@@ -55,6 +56,9 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
         this.supportingData.put(HadooptestConstants.UserNames.DFSLOAD,fileOwnerUserDetails);
         this.consoleHandle = new ConsoleHandle();
         this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
+        org.apache.commons.configuration.Configuration configuration = this.consoleHandle.getConf();
+        this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
+        TestSession.logger.info("-------- crcValue = " + this.crcValue);
     }
     
     /**
@@ -78,7 +82,7 @@ public class CreateInstanceOnGrid implements PrivilegedExceptionAction<String> {
         conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
         conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
         conf.set("hadoop.security.authentication", "true");
-        conf.set("dfs.checksum.type" , "CRC32C");
+        conf.set("dfs.checksum.type" , this.crcValue);
         TestSession.logger.debug(conf);
         return conf;
     }
