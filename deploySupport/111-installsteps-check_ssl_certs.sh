@@ -25,7 +25,7 @@ NODES=`yinst range -ir @grid_re.clusters.$CLUSTER|tr '\n' ','|sed 's/.$//'`
 
 $SSH $ADM_HOST "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' sudo pdcp -w $NODES $CERT_REFERENCE_PATH $CERT_HOME"
 if [ $? -ne 0 ]; then
-  echo "Error: node $NODE failed to scp JKS files!"
+  echo "Error:  failed to scp JKS files!"
   exit 1
 fi
 
