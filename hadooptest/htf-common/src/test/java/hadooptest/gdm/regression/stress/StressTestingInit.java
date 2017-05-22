@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
-import src.test.java.hadooptest.gdm.regression.integration.org;
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;

@@ -4,7 +4,6 @@ package hadooptest.gdm.regression.integration;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
-import src.test.java.hadooptest.gdm.regression.org;
 
 import java.io.BufferedWriter;
 import java.io.File;
