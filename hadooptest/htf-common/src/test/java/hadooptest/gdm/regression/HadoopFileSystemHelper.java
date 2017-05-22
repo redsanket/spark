@@ -24,6 +24,7 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
     private UserGroupInformation ugi;
     private CommandEnum command = CommandEnum.CreateDir;
     private FileStatus fileStatus;
+    private String crcValue;
     
     
     /**
@@ -35,6 +36,9 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
     public HadoopFileSystemHelper(String gridName) throws IOException {
         this.configuration = this.getConfiguration(gridName);
         this.ugi = getUGI();
+        ConsoleHandle consoleHandle = new ConsoleHandle();
+        org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
+        this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
     }
     
     /**
@@ -197,7 +201,11 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         conf.set("fs.defaultFS", defaultFs);
         conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
         conf.set("hadoop.security.authentication", "true");
-        conf.set("dfs.checksum.type" , "CRC32C");
+        if (this.crcValue != null) {
+            conf.set("dfs.checksum.type" , this.crcValue);
+        } else {
+            conf.set("dfs.checksum.type" , "CRC32");
+        }
         return conf;
     }
     
