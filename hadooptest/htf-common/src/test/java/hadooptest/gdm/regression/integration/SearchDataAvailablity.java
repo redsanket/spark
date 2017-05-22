@@ -4,6 +4,7 @@ package hadooptest.gdm.regression.integration;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.gdm.ConsoleHandle;
+import src.test.java.hadooptest.gdm.regression.org;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -52,6 +53,7 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
     private String pipeLineInstance;
     private String currentFrequencyValue;
     private String currentFeedName;
+    private String crcValue;
     private DataBaseOperations dbOperations; 
     private String state;
     private Connection con;
@@ -93,7 +95,9 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
         TestSession.logger.info("CHECK:" + this.supportingData);
         this.consoleHandle = new ConsoleHandle();
         this.nameNodeName = this.consoleHandle.getClusterNameNodeName(this.clusterName);
-
+        org.apache.commons.configuration.Configuration configuration = this.consoleHandle.getConf();
+        this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
+        
         this.instanceList = new ArrayList<String>();
 
         Calendar cal = Calendar.getInstance();
@@ -214,7 +218,11 @@ public class SearchDataAvailablity implements PrivilegedExceptionAction<String> 
         conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
         conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
         conf.set("hadoop.security.authentication", "true");
-        conf.set("dfs.checksum.type" , "CRC32C");
+        if (this.crcValue != null) {
+            conf.set("dfs.checksum.type" , this.crcValue);
+        } else {
+            conf.set("dfs.checksum.type" , "CRC32");
+        }
         TestSession.logger.info(conf);
         return conf;
     }
