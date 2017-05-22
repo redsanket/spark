@@ -37,7 +37,7 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         this.configuration = this.getConfiguration(gridName);
         this.ugi = getUGI();
         ConsoleHandle consoleHandle = new ConsoleHandle();
-        org.apache.commons.configuration.Configuration configuration = this.consoleHandle.getConf();
+        org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
         this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
     }
     

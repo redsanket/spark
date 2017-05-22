@@ -89,7 +89,6 @@ public class Util {
                 TestSession.logger.info("stderr: " + output[2]);
                 throw new Exception("Failed to read password from ykeykey for user " + test_user);
 	    }
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!   password - " +  output[1].trim());
 	    return output[1].trim();
 
 	}

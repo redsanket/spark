@@ -57,7 +57,7 @@ public class StressTestingInit   {
 		this.nameNodeName = nameNodeName;
 		
 		ConsoleHandle consoleHandle = new ConsoleHandle();
-		org.apache.commons.configuration.Configuration configuration = this.consoleHandle.getConf();
+		org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
 	        this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
 		
 		// Populate the details for DFSLOAD
