@@ -142,9 +142,18 @@ do
     echo "INFO: Copying yspark_yarn-$version jars to hdfs://sharelib/v1/spark/"
 
     cmd="echo Creating hdfs://sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-    $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-    $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $spark_install_jars_cmds"
+        export SPARK_HOME=/home/gs/spark/latest ; \
+        export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
+        export HADOOP_HOME=/home/gs/hadoop/current ; \
+        export HADOOP_PREFIX=/home/gs/hadoop/current ; \
+        export HADOOP_CONF_DIR=/home/gs/conf/current ; \
+        export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
+	export JAVA_HOME="/home/gs/java8/jdk64/current" ; \
+        export JAVA_HOME=$JAVA_HOME ; \
+        echo installing yspark_yarn to hdfs ; \
+        $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
+        $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
+        $spark_install_jars_cmds"
 
     echo "$cmd"
     eval "$cmd"
