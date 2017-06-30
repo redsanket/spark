@@ -16,22 +16,22 @@
    <mirror>
      <id> local glassfish-repo-archive</id>
      <mirrorOf>glassfish-repo-archive</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local glassfish-repo</id>
      <mirrorOf>glassfish-repository</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local m.g.o-public</id>
      <mirrorOf>m.g.o-public</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
     <mirror>
       <id>local central mirror</id>
       <mirrorOf>central</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local codehaus snapshot mirror</id>
