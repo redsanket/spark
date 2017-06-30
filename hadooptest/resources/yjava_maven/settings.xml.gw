@@ -1,18 +1,10 @@
 <settings>
 
-  <proxies>
-    <proxy>
-      <active>true</active>
-      <protocol>http</protocol>
-      <host>httpproxy-ext.blue.ygrid.yahoo.com</host>
-      <port>4080</port>
-    </proxy>
-  </proxies>
-  
   <pluginGroups>
     <pluginGroup>yahoo.yinst.maven_plugins</pluginGroup>
   </pluginGroups>
   <mirrors>
+   <!-- gridci-2189, changed to use local repo which is a flubber-nfs path -->
    <mirror>
      <id> local glassfish-repo-archive</id>
      <mirrorOf>glassfish-repo-archive</mirrorOf>
