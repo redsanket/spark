@@ -52,7 +52,8 @@ then
 else
   spark_version=`yinst set yspark_yarn_install.LATEST | cut -d' ' -f2 | cut -d- -f2`
   rm -rf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch
-  /usr/local/bin/yinst fetch yspark_yarn-$spark_version -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz 
+  branch=`/usr/local/bin/yinst package yspark_yarn-$spark_version | awk '{print $2}' | cut -d'(' -f2 | cut -d')' -f1`
+  /usr/local/bin/yinst fetch yspark_yarn-$spark_version -br $branch -outputfile $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   gunzip -f $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tgz
   tar -xf $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/yspark_yarn.tar -C $WORKSPACE/yinst_fetch_dependencies/yspark_yarn_fetch/
 fi
