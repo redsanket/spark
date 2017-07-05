@@ -33,7 +33,8 @@ The options
         [ -storm090                         ] : Run with a Storm-0.9.0 environment
         [ -stormconf    <conf file>         ] : Specify the full path to a yaml configuration file describing the Storm cluster nodes
         [ -spark                            ] : Run with a Spark environment which has Spark specific dependencies
-        [ -sparkgw                          ] : Run with an environment which has Spark setup same as the gateways with specific dependencies
+        [ -sparkgw                          ] : Run with an environment which has Spark setup same as the gateways with specific dependencies.
+                                                This option assumes that Spark has already been deployed by another job on the gateway.
         [ -spark14                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -spark15                          ] : Install and setup a Spark environment on the gateway prior to running tests
         [ -sparktag    <dist tag>           ] : Use the specified dist tag for spark installation on gateway
