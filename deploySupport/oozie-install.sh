@@ -191,8 +191,8 @@ yinst set yjava_jetty.PATH="/bin:/sbin:/usr/bin:/usr/sbin:/home/y/bin:/home/y/sb
   yjava_jetty.java_opts="-Doozie.config.dir=/home/y/conf/yoozie -Doozie.home.dir=/home/y/var/yoozie -Duser.timezone=UTC -Djava.security.egd=file:///dev/urandom -XX:PermSize=256m -XX:MaxPermSize=256m -Dlog4j.debug" \
   yjava_jetty.max_heap_size_mb=8192 \
   yjava_jetty.min_heap_size_mb=8192 \
-  yjava_jetty.port=4080 \
-  yjava_jetty.ports="-port 4080" \
+  yjava_jetty.port=4443 \
+  yjava_jetty.ports="-port 4443" \
   yjava_jetty.user_name=oozie \
   yjava_jetty.webapps=/home/y/libexec/yjava_jetty/webapps \
   yjava_jetty.http_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript"
@@ -247,7 +247,7 @@ yinst set yoozie.CLUSTER_NAME=$CLUSTER \
   yoozie.OOZIE_USER=oozie \
   yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
 
-yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
+yinst set yoozie.conf_oozie_base_url=https://$OOZIENODE:4443/oozie \
   yoozie.conf_oozie_service_HadoopAccessorService_keytab_file=/etc/grid-keytabs/oozie.$OOZIENODE_SHORT.service.keytab
 
 
