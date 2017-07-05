@@ -1,37 +1,29 @@
 <settings>
 
-  <proxies>
-    <proxy>
-      <active>true</active>
-      <protocol>http</protocol>
-      <host>httpproxy-ext.blue.ygrid.yahoo.com</host>
-      <port>4080</port>
-    </proxy>
-  </proxies>
-  
   <pluginGroups>
     <pluginGroup>yahoo.yinst.maven_plugins</pluginGroup>
   </pluginGroups>
   <mirrors>
+   <!-- gridci-2189, changed to use local repo which is a flubber-nfs path -->
    <mirror>
      <id> local glassfish-repo-archive</id>
      <mirrorOf>glassfish-repo-archive</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local glassfish-repo</id>
      <mirrorOf>glassfish-repository</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local m.g.o-public</id>
      <mirrorOf>m.g.o-public</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
     <mirror>
       <id>local central mirror</id>
       <mirrorOf>central</mirrorOf>
-     <url>http://central.maven.org/maven2</url>
+     <url>file:///homes/htf_mvn_deps</url>
    </mirror>
    <mirror>
      <id>local codehaus snapshot mirror</id>
