@@ -112,6 +112,11 @@ else
     if [ "$REFERENCE_CLUSTER" == "LATEST" ]; then
         echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${HIVE_VERSION}'"
         PACKAGE_VERSION_HIVE_CONF="hive_conf-${HIVE_VERSION}"
+
+        # gridci-2227, oozie's ssl changes cause a ykeydb and mysql_secure conflict, need to pull mysql_secure from test
+        # error from yinst:  mysql_secure-2.2.6 [active] requires ykeydb (2.0.0.19 <= ver <= 2.0.9999.9999)
+        echo "Installing mysql_secure from test branch, needed by ykeydb dependency..."
+        yinst i mysql_secure -br test
     else
         PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
     fi
