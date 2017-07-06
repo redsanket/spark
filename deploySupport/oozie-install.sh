@@ -112,7 +112,20 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # 0.23 hadoop)
 #
 set -x
-yinst i ygrid_cacert
+yinst i ygrid_cacert 
+
+# gridci-2227, needed for oozie webui change to https/4443, NOTE this will prompt
+# for passwd since it's a keyed pkg, per oozie team, pkg should be manually installed so if 
+# this is not installed deploy will fail
+yinst i -br current ygrid_services_cert
+if [ $? -ne 0 ]; then
+  echo "FAIL     Install of ygrid_services_cert pkg failed!!"
+  echo "FAIL     This is a keyed pkg that needs to be manually installed, please install from"
+  echo "FAIL     branch CURRENT on node $OOZIENODE as: "
+  echo "FAIL         yinst i -br current ygrid_services_cert"
+
+  exit 1
+fi
 
 #
 ## install oozie
@@ -192,10 +205,15 @@ yinst set yjava_jetty.PATH="/bin:/sbin:/usr/bin:/usr/sbin:/home/y/bin:/home/y/sb
   yjava_jetty.max_heap_size_mb=8192 \
   yjava_jetty.min_heap_size_mb=8192 \
   yjava_jetty.port=4080 \
-  yjava_jetty.ports="-port 4080" \
   yjava_jetty.user_name=oozie \
   yjava_jetty.webapps=/home/y/libexec/yjava_jetty/webapps \
-  yjava_jetty.http_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript"
+  yjava_jetty.https_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript" \
+  yjava_jetty.https_compression_min_size=1000 \
+  yjava_jetty.enable_spdy=true \
+  yjava_jetty.spdyPort=4443 \
+  yjava_jetty.key_file=/home/y/conf/yjava_jetty/ssl.key/server.key \
+  yjava_jetty.crt_file=/home/y/conf/yjava_jetty/ssl.crt/server.crt
+
 # log
 yinst set yjava_jetty.enable_centralized_logging=false \
   yjava_jetty.logback_root_priority=INFO \
@@ -211,7 +229,7 @@ yinst set yjava_jdk.HTTP_KEEPALIVE=true \
   yjava_jdk.NETWORKADDRESS_CACHE_TTL=120 \
   yjava_jdk.platform=x86_64-rhel4-gcc3
 
-yinst set yoozie.ssl_enable=false \
+yinst set yoozie.ssl_enable=true \
   yoozie.JAVA_HOME=/home/y/libexec64/java \
   yoozie.oozie_out_log=/home/y/logs/yoozie/oozie.out \
   yoozie.oozie_admin_users=wrkflow,oozie,hadoopqa \
@@ -247,7 +265,7 @@ yinst set yoozie.CLUSTER_NAME=$CLUSTER \
   yoozie.OOZIE_USER=oozie \
   yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
 
-yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
+yinst set yoozie.conf_oozie_base_url=https://$OOZIENODE:4443/oozie \
   yoozie.conf_oozie_service_HadoopAccessorService_keytab_file=/etc/grid-keytabs/oozie.$OOZIENODE_SHORT.service.keytab
 
 
