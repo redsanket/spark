@@ -191,11 +191,16 @@ yinst set yjava_jetty.PATH="/bin:/sbin:/usr/bin:/usr/sbin:/home/y/bin:/home/y/sb
   yjava_jetty.java_opts="-Doozie.config.dir=/home/y/conf/yoozie -Doozie.home.dir=/home/y/var/yoozie -Duser.timezone=UTC -Djava.security.egd=file:///dev/urandom -XX:PermSize=256m -XX:MaxPermSize=256m -Dlog4j.debug" \
   yjava_jetty.max_heap_size_mb=8192 \
   yjava_jetty.min_heap_size_mb=8192 \
-  yjava_jetty.port=4443 \
-  yjava_jetty.ports="-port 4443" \
+  yjava_jetty.port=4080 \
   yjava_jetty.user_name=oozie \
   yjava_jetty.webapps=/home/y/libexec/yjava_jetty/webapps \
-  yjava_jetty.http_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript"
+  yjava_jetty.https_compressable_mime_type="text/html,text/xml,text/plain,text/css,text/javascript,application/json,application/xml,application/x-javascript" \
+  yjava_jetty.https_compression_min_size=1000 \
+  yjava_jetty.enable_spdy=true \
+  yjava_jetty.spdyPort=4443 \
+  yjava_jetty.key_file=/home/y/conf/yjava_jetty/ssl.key/server.key \
+  yjava_jetty.crt_file=/home/y/conf/yjava_jetty/ssl.crt/server.crt
+
 # log
 yinst set yjava_jetty.enable_centralized_logging=false \
   yjava_jetty.logback_root_priority=INFO \
@@ -211,7 +216,7 @@ yinst set yjava_jdk.HTTP_KEEPALIVE=true \
   yjava_jdk.NETWORKADDRESS_CACHE_TTL=120 \
   yjava_jdk.platform=x86_64-rhel4-gcc3
 
-yinst set yoozie.ssl_enable=false \
+yinst set yoozie.ssl_enable=true \
   yoozie.JAVA_HOME=/home/y/libexec64/java \
   yoozie.oozie_out_log=/home/y/logs/yoozie/oozie.out \
   yoozie.oozie_admin_users=wrkflow,oozie,hadoopqa \
