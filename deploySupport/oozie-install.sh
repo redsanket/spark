@@ -112,7 +112,20 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # 0.23 hadoop)
 #
 set -x
-yinst i ygrid_cacert
+yinst i ygrid_cacert 
+
+# gridci-2227, needed for oozie webui change to https/4443, NOTE this will prompt
+# for passwd since it's a keyed pkg, per oozie team, pkg should be manually installed so if 
+# this is not installed deploy will fail
+yinst i -br test ygrid_services_cert
+if [ $? -ne 0 ]; then
+  echo "FAIL     Install of ygrid_services_cert pkg failed!!"
+  echo "FAIL     This is a keyed pkg that needs to be manually installed, please install on"
+  echo "FAIL     node $OOZIENODE as: "
+  echo "FAIL         yinst i -br test ygrid_services_cert"
+
+  exit 1
+fi
 
 #
 ## install oozie
