@@ -496,7 +496,9 @@ Optional properties
 - ``athens.max.expiry`` : It specifies that the returned role token must be at most valid (max/upper bound) 
   for specified number of seconds.
 
-
+  By default Athens will issue a token that is valid for 2 hours. Set the ``athens.min.expiry`` and
+  ``athens.max.expiry`` to a higher value if your job is going to run for a longer period of time
+  and will be accessing the token after 2 hours of job submission.
 .. _athens_auth_wf_ex:
 
 
@@ -523,6 +525,10 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
             <property>
                <name>athens.user.domain</name>
                <value>yby</value>
+           </property>
+           <property>
+               <name>athens.min.expiry</name>
+               <value>10800</value>
            </property>
        </credential> 
     </credentials>
