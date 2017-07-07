@@ -37,6 +37,13 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import hadooptest.Util;
 
 public final class ConsoleHandle {
@@ -1066,6 +1073,8 @@ public final class ConsoleHandle {
     public List<String> getUniqueGrids() {
         try {
             List<String> grids = new ArrayList<String>();
+            List<String> healthyGrids = new ArrayList<String>();
+            List<String> unHealthyGrids = new ArrayList<String>();
             
             JSONArray dataSourceResult = this.getDataSources();
             if (dataSourceResult != null) {
@@ -1097,13 +1106,71 @@ public final class ConsoleHandle {
                 listString += s + "  ";
             }
             TestSession.logger.info(listString);
+            Collection<Callable<String>> componentsHostList = new ArrayList<Callable<String>>();
+            for ( String grid : grids) {
+        	componentsHostList.add(new ClusterHealthCheckup(grid));
+            }
             
-            return grids;
+            ExecutorService executor = Executors.newFixedThreadPool(5);
+            List<Future<String>> executorResultList = executor.invokeAll(componentsHostList);
+            for (Future<String> result : executorResultList) {
+		List<String> value = Arrays.asList(result.get().split("~"));
+		String gName = value.get(0).trim();
+		String hStatus = value.get(1).trim();
+		if (hStatus.equals("UP")) {
+        	    healthyGrids.add(gName);
+        	} else if (hStatus.equals("DOWN")) {
+        	    unHealthyGrids.add(gName);
+        	}
+            }
+	    
+            TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
+            if (unHealthyGrids.size() > 0) {
+        	TestSession.logger.info("UnHealthy Grids = " + unHealthyGrids.toString());
+            }
+            
+            return healthyGrids;
         } catch (Exception e) {
             TestSession.logger.error("Unexpected exception", e);
             Assert.fail("Unexpected exception - " + e.getMessage());
             return null;
         }
+    }
+    
+    class ClusterHealthCheckup implements java.util.concurrent.Callable<String>{
+	private String clusterName;
+	
+	public ClusterHealthCheckup(String clusterName){
+	    this.clusterName = clusterName;
+	}
+	
+	@Override
+	public String call() {
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.clusterName +  "  \"" + "hadoop version\"";
+	    TestSession.logger.info("command - " + command);
+	    WorkFlowHelper workFlowHelper = new WorkFlowHelper();
+	    String result = workFlowHelper.executeCommand(command);
+	    return this.getHadoopVersion(result) ? this.clusterName + ":UP" : this.clusterName +":DOWN"; 
+	}
+	
+	private boolean getHadoopVersion(String result) {
+	    String hadoopVersion = null;
+	    boolean flag = false;
+	    if (result != null) {
+		TestSession.logger.info("hadoop version result = " + result);
+		java.util.List<String>outputList = Arrays.asList(result.split("\n"));
+		for ( String str : outputList) {
+		    TestSession.logger.info(str);
+		    if ( str.startsWith("Hadoop") == true ) {
+			hadoopVersion = Arrays.asList(str.split(" ")).get(1);
+			flag = true;
+			break;
+		    }
+		}
+		TestSession.logger.info("Hadoop Version - " + hadoopVersion);	
+	    }
+	    return flag;
+	}
     }
     
     /**
