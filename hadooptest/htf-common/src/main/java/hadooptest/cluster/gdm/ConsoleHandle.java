@@ -22,6 +22,7 @@ import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -1073,9 +1074,6 @@ public final class ConsoleHandle {
     public List<String> getUniqueGrids() {
         try {
             List<String> grids = new ArrayList<String>();
-            List<String> healthyGrids = new ArrayList<String>();
-            List<String> unHealthyGrids = new ArrayList<String>();
-            
             JSONArray dataSourceResult = this.getDataSources();
             if (dataSourceResult != null) {
                 Iterator iterator = dataSourceResult.iterator();
@@ -1105,31 +1103,7 @@ public final class ConsoleHandle {
             for (String s : grids) {
                 listString += s + "  ";
             }
-            TestSession.logger.info(listString);
-            Collection<Callable<String>> componentsHostList = new ArrayList<Callable<String>>();
-            for ( String grid : grids) {
-        	componentsHostList.add(new ClusterHealthCheckup(grid));
-            }
-            
-            ExecutorService executor = Executors.newFixedThreadPool(5);
-            List<Future<String>> executorResultList = executor.invokeAll(componentsHostList);
-            for (Future<String> result : executorResultList) {
-		List<String> value = Arrays.asList(result.get().split("~"));
-		String gName = value.get(0).trim();
-		String hStatus = value.get(1).trim();
-		if (hStatus.equals("UP")) {
-        	    healthyGrids.add(gName);
-        	} else if (hStatus.equals("DOWN")) {
-        	    unHealthyGrids.add(gName);
-        	}
-            }
-	    
-            TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
-            if (unHealthyGrids.size() > 0) {
-        	TestSession.logger.info("UnHealthy Grids = " + unHealthyGrids.toString());
-            }
-            
-            return healthyGrids;
+            return getHealthGrids(grids);
         } catch (Exception e) {
             TestSession.logger.error("Unexpected exception", e);
             Assert.fail("Unexpected exception - " + e.getMessage());
@@ -1137,20 +1111,61 @@ public final class ConsoleHandle {
         }
     }
     
+    public List<String> getHealthGrids(List<String> gridList) {
+	Collection<Callable<String>> gridHostList = new ArrayList<Callable<String>>();
+	Collection<Callable<String>> tGridHostList = new ArrayList<Callable<String>>();
+	List<String> healthyGrids = new ArrayList<String>();
+	List<String> unHealthyGrids = new ArrayList<String>();
+	ExecutorService executor = Executors.newFixedThreadPool(5);
+	
+	for ( String grid : gridList) {
+	    gridHostList.add(new GetStackComponentHostName(grid, "namenode"));
+	}
+	
+	// get namenode hostname of all the grid
+	List<Future<String>> executorResultList = executor.invokeAll(gridHostList);
+	for (Future<String> result : executorResultList) {
+	    List<String> value = Arrays.asList(result.get().split("~"));
+	    tGridHostList.add(new ClusterHealthCheckup(value.get(0) , value.get(1)));
+	}
+
+	// check whether the given grid is healthy
+	executorResultList = executor.invokeAll(tGridHostList);
+	for (Future<String> result : executorResultList) {
+	    List<String> value = Arrays.asList(result.get().split(":"));
+	    String gName = value.get(0).trim();
+	    String hStatus = value.get(1).trim();
+	    if (hStatus.equals("UP")) {
+		healthyGrids.add(gName);
+	    } else if (hStatus.equals("DOWN")) {
+		unHealthyGrids.add(gName);
+	    }
+	}
+	
+	TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
+	if (unHealthyGrids.size() > 0) {
+	    TestSession.logger.info("UnHealthy Grids = " + unHealthyGrids.toString());
+	}
+	
+	return healthyGrids;
+    }
+    
     class ClusterHealthCheckup implements java.util.concurrent.Callable<String>{
 	private String clusterName;
+	private String nameNodeHostName;
 	
-	public ClusterHealthCheckup(String clusterName){
+	public ClusterHealthCheckup(String clusterName, String nameNodeHostName) {
 	    this.clusterName = clusterName;
+	    this.nameNodeHostName = nameNodeHostName;
 	}
 	
 	@Override
 	public String call() {
-	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.clusterName +  "  \"" + "hadoop version\"";
-	    TestSession.logger.info("command - " + command);
 	    WorkFlowHelper workFlowHelper = new WorkFlowHelper();
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.nameNodeHostName +  "  \"" + "hadoop version\"";
+	    TestSession.logger.info("command - " + command);
 	    String result = workFlowHelper.executeCommand(command);
-	    return this.getHadoopVersion(result) ? this.clusterName + ":UP" : this.clusterName +":DOWN"; 
+	    return this.getHadoopVersion(result) ? this.clusterName + ":UP" : this.clusterName +":DOWN";
 	}
 	
 	private boolean getHadoopVersion(String result) {
