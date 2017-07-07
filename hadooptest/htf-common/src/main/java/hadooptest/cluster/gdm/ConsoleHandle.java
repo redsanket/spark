@@ -1127,6 +1127,8 @@ public final class ConsoleHandle {
 	    List<String> value = Arrays.asList(result.get().split("~"));
 	    tGridHostList.add(new ClusterHealthCheckup(value.get(0) , value.get(1)));
 	}
+	
+	executor.shutdown();
 
 	// check whether the given grid is healthy
 	executorResultList = executor.invokeAll(tGridHostList);
@@ -1140,6 +1142,8 @@ public final class ConsoleHandle {
 		unHealthyGrids.add(gName);
 	    }
 	}
+	
+	executor.shutdown();
 	
 	TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
 	if (unHealthyGrids.size() > 0) {
