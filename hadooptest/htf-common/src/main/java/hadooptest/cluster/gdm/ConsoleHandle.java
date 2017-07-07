@@ -22,7 +22,6 @@ import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import hadooptest.gdm.regression.stackIntegration.healthCheckUp.GetStackComponentHostName;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -1111,7 +1110,7 @@ public final class ConsoleHandle {
         }
     }
     
-    public List<String> getHealthGrids(List<String> gridList) {
+    public List<String> getHealthGrids(List<String> gridList) throws Exception {
 	Collection<Callable<String>> gridHostList = new ArrayList<Callable<String>>();
 	Collection<Callable<String>> tGridHostList = new ArrayList<Callable<String>>();
 	List<String> healthyGrids = new ArrayList<String>();
@@ -1119,7 +1118,7 @@ public final class ConsoleHandle {
 	ExecutorService executor = Executors.newFixedThreadPool(5);
 	
 	for ( String grid : gridList) {
-	    gridHostList.add(new GetStackComponentHostName(grid, "namenode"));
+	    gridHostList.add(new GetGridNameNodeName(grid));
 	}
 	
 	// get namenode hostname of all the grid
@@ -1149,6 +1148,24 @@ public final class ConsoleHandle {
 	
 	return healthyGrids;
     }
+    
+    class GetGridNameNodeName implements Callable<String> {
+	private String clusterName;
+	
+	public GetGridNameNodeName(String clusterName ) {
+		this.clusterName = clusterName;
+	}
+	
+	@Override
+	public String call() throws Exception {
+		String command = "yinst range -ir \"(@grid_re.clusters." + this.clusterName + "." + "namenode" +")\"";
+		TestSession.logger.info("Command = " + command);
+		WorkFlowHelper workFlowHelper = new WorkFlowHelper();
+		String hostName = workFlowHelper.executeCommand(command);
+		Thread.sleep(100);
+		return this.clusterName  + "~" + hostName;
+	}
+}
     
     class ClusterHealthCheckup implements java.util.concurrent.Callable<String>{
 	private String clusterName;
