@@ -1116,6 +1116,7 @@ public final class ConsoleHandle {
 	List<String> healthyGrids = new ArrayList<String>();
 	List<String> unHealthyGrids = new ArrayList<String>();
 	ExecutorService executor = Executors.newFixedThreadPool(5);
+	ExecutorService executor1 = Executors.newFixedThreadPool(5);
 	
 	for ( String grid : gridList) {
 	    gridHostList.add(new GetGridNameNodeName(grid));
@@ -1131,7 +1132,7 @@ public final class ConsoleHandle {
 	executor.shutdown();
 
 	// check whether the given grid is healthy
-	executorResultList = executor.invokeAll(tGridHostList);
+	executorResultList = executor1.invokeAll(tGridHostList);
 	for (Future<String> result : executorResultList) {
 	    List<String> value = Arrays.asList(result.get().split(":"));
 	    String gName = value.get(0).trim();
@@ -1143,7 +1144,7 @@ public final class ConsoleHandle {
 	    }
 	}
 	
-	executor.shutdown();
+	executor1.shutdown();
 	
 	TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
 	if (unHealthyGrids.size() > 0) {
