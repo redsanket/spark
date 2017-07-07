@@ -1126,7 +1126,7 @@ public final class ConsoleHandle {
 	List<Future<String>> executorResultList = executor.invokeAll(gridHostList);
 	for (Future<String> result : executorResultList) {
 	    List<String> value = Arrays.asList(result.get().split("~"));
-	    tGridHostList.add(new ClusterHealthCheckup(value.get(0) , value.get(1)));
+	    tGridHostList.add(new ClusterHealthCheckup(value.get(0) , value.get(1).trim()));
 	}
 	
 	executor.shutdown();
@@ -1184,7 +1184,7 @@ public final class ConsoleHandle {
 	@Override
 	public String call() {
 	    WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.nameNodeHostName +  "  \"" + "hadoop version\"";
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.nameNodeHostName.trim() +  "  \"" + "hadoop version\"";
 	    TestSession.logger.info("command - " + command);
 	    String result = workFlowHelper.executeCommand(command);
 	    return this.getHadoopVersion(result) ? this.clusterName + ":UP" : this.clusterName +":DOWN";
