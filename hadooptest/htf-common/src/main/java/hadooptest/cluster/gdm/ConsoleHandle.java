@@ -37,6 +37,13 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import hadooptest.Util;
 
 public final class ConsoleHandle {
@@ -1066,7 +1073,6 @@ public final class ConsoleHandle {
     public List<String> getUniqueGrids() {
         try {
             List<String> grids = new ArrayList<String>();
-            
             JSONArray dataSourceResult = this.getDataSources();
             if (dataSourceResult != null) {
                 Iterator iterator = dataSourceResult.iterator();
@@ -1096,14 +1102,110 @@ public final class ConsoleHandle {
             for (String s : grids) {
                 listString += s + "  ";
             }
-            TestSession.logger.info(listString);
-            
-            return grids;
+            return getHealthyGrids(grids);
         } catch (Exception e) {
             TestSession.logger.error("Unexpected exception", e);
             Assert.fail("Unexpected exception - " + e.getMessage());
             return null;
         }
+    }
+    
+    public List<String> getHealthyGrids(List<String> gridList) throws Exception {
+	Collection<Callable<String>> gridHostList = new ArrayList<Callable<String>>();
+	Collection<Callable<String>> tGridHostList = new ArrayList<Callable<String>>();
+	List<String> healthyGrids = new ArrayList<String>();
+	List<String> unHealthyGrids = new ArrayList<String>();
+	ExecutorService executor = Executors.newFixedThreadPool(5);
+	ExecutorService executor1 = Executors.newFixedThreadPool(5);
+	
+	for ( String grid : gridList) {
+	    gridHostList.add(new GetGridNameNodeName(grid));
+	}
+	
+	// get namenode hostname of all the grid
+	List<Future<String>> executorResultList = executor.invokeAll(gridHostList);
+	for (Future<String> result : executorResultList) {
+	    List<String> value = Arrays.asList(result.get().split("~"));
+	    tGridHostList.add(new ClusterHealthCheckup(value.get(0) , value.get(1).trim()));
+	}
+	
+	executor.shutdown();
+
+	// check whether the given grid is healthy
+	executorResultList = executor1.invokeAll(tGridHostList);
+	for (Future<String> result : executorResultList) {
+	    List<String> value = Arrays.asList(result.get().split(":"));
+	    String gName = value.get(0).trim();
+	    String hStatus = value.get(1).trim();
+	    if (hStatus.equals("UP")) {
+		healthyGrids.add(gName);
+	    } else if (hStatus.equals("DOWN")) {
+		unHealthyGrids.add(gName);
+	    }
+	}
+	
+	executor1.shutdown();
+	
+	TestSession.logger.info("Healthy Grids = " + healthyGrids.toString());
+	if (unHealthyGrids.size() > 0) {
+	    TestSession.logger.info("UnHealthy Grids = " + unHealthyGrids.toString());
+	}
+	return healthyGrids;
+    }
+    
+    class GetGridNameNodeName implements Callable<String> {
+	private String clusterName;
+	
+	public GetGridNameNodeName(String clusterName ) {
+		this.clusterName = clusterName;
+	}
+	
+	@Override
+	public String call() throws Exception {
+		String command = "yinst range -ir \"(@grid_re.clusters." + this.clusterName + "." + "namenode" +")\"";
+		TestSession.logger.info("Command = " + command);
+		WorkFlowHelper workFlowHelper = new WorkFlowHelper();
+		String hostName = workFlowHelper.executeCommand(command);
+		return this.clusterName  + "~" + hostName;
+	}
+}
+    
+    class ClusterHealthCheckup implements java.util.concurrent.Callable<String>{
+	private String clusterName;
+	private String nameNodeHostName;
+	
+	public ClusterHealthCheckup(String clusterName, String nameNodeHostName) {
+	    this.clusterName = clusterName;
+	    this.nameNodeHostName = nameNodeHostName;
+	}
+	
+	@Override
+	public String call() {
+	    WorkFlowHelper workFlowHelper = new WorkFlowHelper();
+	    String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.nameNodeHostName.trim() +  "  \"" + "hadoop version\"";
+	    TestSession.logger.info("command - " + command);
+	    String result = workFlowHelper.executeCommand(command);
+	    return this.getHadoopVersion(result) ? this.clusterName + ":UP" : this.clusterName +":DOWN";
+	}
+	
+	private boolean getHadoopVersion(String result) {
+	    String hadoopVersion = null;
+	    boolean flag = false;
+	    if (result != null) {
+		TestSession.logger.info("hadoop version result = " + result);
+		java.util.List<String>outputList = Arrays.asList(result.split("\n"));
+		for ( String str : outputList) {
+		    TestSession.logger.info(str);
+		    if ( str.startsWith("Hadoop") == true ) {
+			hadoopVersion = Arrays.asList(str.split(" ")).get(1);
+			flag = true;
+			break;
+		    }
+		}
+		TestSession.logger.info("Hadoop Version - " + hadoopVersion);	
+	    }
+	    return flag;
+	}
     }
     
     /**
