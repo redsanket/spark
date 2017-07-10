@@ -1102,7 +1102,7 @@ public final class ConsoleHandle {
             for (String s : grids) {
                 listString += s + "  ";
             }
-            return getHealthGrids(grids);
+            return getHealthyGrids(grids);
         } catch (Exception e) {
             TestSession.logger.error("Unexpected exception", e);
             Assert.fail("Unexpected exception - " + e.getMessage());
@@ -1110,7 +1110,7 @@ public final class ConsoleHandle {
         }
     }
     
-    public List<String> getHealthGrids(List<String> gridList) throws Exception {
+    public List<String> getHealthyGrids(List<String> gridList) throws Exception {
 	Collection<Callable<String>> gridHostList = new ArrayList<Callable<String>>();
 	Collection<Callable<String>> tGridHostList = new ArrayList<Callable<String>>();
 	List<String> healthyGrids = new ArrayList<String>();
@@ -1150,7 +1150,6 @@ public final class ConsoleHandle {
 	if (unHealthyGrids.size() > 0) {
 	    TestSession.logger.info("UnHealthy Grids = " + unHealthyGrids.toString());
 	}
-	
 	return healthyGrids;
     }
     
@@ -1167,7 +1166,6 @@ public final class ConsoleHandle {
 		TestSession.logger.info("Command = " + command);
 		WorkFlowHelper workFlowHelper = new WorkFlowHelper();
 		String hostName = workFlowHelper.executeCommand(command);
-		Thread.sleep(100);
 		return this.clusterName  + "~" + hostName;
 	}
 }
