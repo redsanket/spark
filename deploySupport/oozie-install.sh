@@ -16,6 +16,17 @@ CLUSTER=$1
 REFERENCE_CLUSTER=$2
 STACK_COMP_INSTALL_SPARK=$3
 
+export JAVA_HOME="/home/gs/java8/jdk64/current"
+export PARTITIONHOME=/home
+export GSHOME=$PARTITIONHOME/gs
+export yroothome=$GSHOME/gridre/yroot.$CLUSTER
+export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
+export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
+export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
+export YARN_HOME=${yroothome}/share/hadoop
+export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
+export HADOOP_PREFIX=${yroothome}/share/hadoop
+
 OOZIENODE=`hostname`
 OOZIENODE_SHORT=`echo $OOZIENODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"

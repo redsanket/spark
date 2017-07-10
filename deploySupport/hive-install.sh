@@ -16,6 +16,18 @@ fi
 CLUSTER=$1
 REFERENCE_CLUSTER=$2
 
+export JAVA_HOME="/home/gs/java8/jdk64/current"
+export PARTITIONHOME=/home
+export GSHOME=$PARTITIONHOME/gs
+export yroothome=$GSHOME/gridre/yroot.$CLUSTER
+export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
+export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
+export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
+export YARN_HOME=${yroothome}/share/hadoop
+export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
+export HADOOP_PREFIX=${yroothome}/share/hadoop
+
+
 HIVENODE=`hostname`
 HIVENODE_SHORT=`echo $HIVENODE | cut -d'.' -f1`
 echo "INFO: Cluster being installed: $CLUSTER"
@@ -134,6 +146,7 @@ fi
 echo "Copying the hive confs to sharelib"
 HIVE_CONF_PACKAGE=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f1`
 HIVE_CONF_VERSION=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f2`
+
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hive/conf/hive-site.xml /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/$HIVE_CONF_PACKAGE/
@@ -176,6 +189,7 @@ yinst restart hcat_server
 # create hive warehouse path for gdm db
 #
 echo "Creating path \"/user/hive/warehouse/gdm.db/user1\""
+
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse/gdm.db/user1
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 777 /user/hive/warehouse/gdm.db/user1
 
