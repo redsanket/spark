@@ -24,7 +24,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	private CommonFunctions commonFunctionsObj;
 	private final String COMPONENT_NAME = "oozie";
 	private final String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
-	private final static String QUERY = ":4080/oozie/v1/admin/build-version";
+	private final static String QUERY = ":4443/oozie/v1/admin/build-version";
 
 	public OozieHealthCheckUp(String hostName) {
 		this.setHostName(hostName);
@@ -45,7 +45,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setHostName(this.getHostName());
 		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
-		String query = "http://" + this.getHostName() + QUERY;
+		String query = "https://" + this.getHostName() + QUERY;
 		TestSession.logger.info("query = " + query);
 		this.executeRestQuery(query);
 		return this.stackComponent;

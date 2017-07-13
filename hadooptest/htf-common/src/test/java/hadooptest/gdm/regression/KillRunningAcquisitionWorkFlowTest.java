@@ -86,7 +86,7 @@ public class KillRunningAcquisitionWorkFlowTest extends TestSession {
         com.jayway.restassured.response.Response response = null;
         int i = 1 , runningCount = 0, killedCount = 0;
         while (i <= 10)  {
-            String runningWorkFlow =  this.hostName.replaceAll("9999", "4080") + "/acquisition/api/workflows/running?datasetname="+ this.dataSetName +"&instancessince=F&joinType=innerJoin";
+            String runningWorkFlow =  this.hostName.replaceAll("9999", "4443") + "/acquisition/api/workflows/running?datasetname="+ this.dataSetName +"&instancessince=F&joinType=innerJoin";
             TestSession.logger.info("testURL = " + runningWorkFlow);
             response = given().cookie( this.cookie).get(runningWorkFlow);
             
@@ -110,7 +110,7 @@ public class KillRunningAcquisitionWorkFlowTest extends TestSession {
                         
                     //  kill the running workflow
                         resourceArray.add(new JSONObject().element("ExecutionID",executionId).element("FacetName", fName).element("FacetColo", facetColo));
-                        String killTestURL = this.hostName.replace("9999","4080") + "/acquisition/api/admin/workflows";
+                        String killTestURL = this.hostName.replace("9999","4443") + "/acquisition/api/admin/workflows";
                         TestSession.logger.info("url  = " + killTestURL);
                         com.jayway.restassured.response.Response jobKilledResponse = given().cookie(this.cookie).param("command", "kill").param("workflowIds" , resourceArray.toString()).post(killTestURL);
                         JsonPath jsonPath = jobKilledResponse.getBody().jsonPath();
