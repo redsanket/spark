@@ -1,0 +1,262 @@
+#!/usr/bin/env perl
+
+######################################################################
+# Script to promote the latest test tag to latest certified tag
+# https://re101.ygrid.corp.gq1.yahoo.com:9999/yhudson/job/Hadoop-y-branch-2.8-9-Promote-CD-Tag/
+######################################################################
+
+use strict;
+use warnings;
+
+use DBI;
+use Data::Dumper;
+use FindBin qw($Bin $Script);
+use Getopt::Long;
+use Test::More;
+use ykeykey;
+
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+
+sub execute {
+    my ($command) = @_;
+    note($command);
+    system($command);
+}
+
+sub logger {
+    my ($msg) = @_;
+    note(scalar localtime(), ": $msg");
+}
+
+my ($dbh, $sth, $command);
+my $yds_db_host = 'db-rw.cloud006.corp.yahoodns.net';
+my $yds_db_name = 'Gridci';
+my $yds_db_user = 'hadoopqa';
+my $yds_db_keyname = 'db_pass_yds_hadoopqa';
+
+# Get database handle
+sub get_dbh {
+    # Open dbh connection if undefined
+    if (defined($dbh)) {
+        $dbh = DBI->connect("dbi:mysql:database=$yds_db_name;host=$yds_db_host", $yds_db_user, ykeykey_get_secret($yds_db_keyname))
+            or die("Error: $DBI::errstr");
+    }
+    return $dbh;
+}
+
+# Get statement handle
+sub get_sth {
+    my ($command) = @_;
+    note("$command");
+    $dbh = get_dbh();
+    my $sql = qq/$command/;         # the query to execute
+    my $sth = $dbh->prepare($sql);  # prepare the query statement handle
+    return $sth;
+}
+
+sub usage {
+    my ($err_msg) = @_;
+    print STDERR << "EOF";
+  Usage: promote_pkgs -test_tag <test tag> -cert_tag <cert tag> -clusters [<clusters>] [-skip_validation]
+-----------------------------------------------------------------------------------
+Example:
+promote_pkgs -test_tag HADOOP_2_8_0_LATEST -cert_tag hadoop_2_8_latest_certified_release
+promote_pkgs -test_tag HADOOP_2_8_0_LATEST -cert_tag hadoop_2_8_latest_certified_release -clusters all
+promote_pkgs -test_tag HADOOP_2_8_0_LATEST -cert_tag hadoop_2_8_latest_certified_release -clusters all -skip_validation
+
+EOF
+    print($err_msg) if ($err_msg);
+    exit 1;
+}
+
+my $prod="hadoop";
+my $test_tag = "${prod}_latest";
+my $cert_tag = "${prod}_latest_certified_release";
+my $clusters = 'all';
+my $skip_validation = 0;
+my $result = GetOptions ("test_tag=s"      => \$test_tag,
+                         "cert_tag=s"      => \$cert_tag,
+                         "clusters=s"      => \$clusters,
+                         "skip_validation" => \$skip_validation );
+
+# Suppport jenkins boolean variables
+my $skip_env = $ENV{'SKIP_VALIDATION'};
+if ($skip_env eq 'true') {
+    $skip_validation = 1;
+} elsif ($skip_env eq 'false') {
+    $skip_validation = 0;
+}
+
+my $DIST_TAG     = '/home/y/bin/dist_tag';
+my $yds_db_table = 'gridci_result_summary';
+chomp(my $time = `/bin/date +%s`);
+
+note("Install required packages");
+execute("yinst i dist_tools");
+
+#################################################################################
+# Fetch the package version based on the test tag
+#################################################################################
+my $test_version;
+my $component = ($test_tag =~ 'HADOOP_2_8') ? 'hadoop-2.8' : 'hadoop';
+if ($test_tag eq "LAST_TESTED") {
+    note("Get the last tested version from the result summary database:");
+    $command = "SELECT buildId FROM $yds_db_table where component='$component' ORDER BY buildDate DESC LIMIT 1";
+    $sth = get_sth($command);
+    $sth->execute();             # execute the query
+    my @build_ids;
+    my $result;
+    while (my @row = $sth->fetchrow_array) {  # retrieve one row
+        $result = join(' ', @row);
+        push(@build_ids, $result);
+    }
+    $test_version = (@build_ids) ? $build_ids[0] : '';
+} else {
+    logger("Fetch test version using dist_tag list $test_tag hadoopcoretree:");
+    chomp($test_version=`$DIST_TAG list $test_tag hadoopcoretree | cut -d'-' -f2,3 | cut -d' ' -f 1`);
+}
+logger("test_version='$test_version'");
+
+# Check if TEST_VERSION is a valid version number
+if ($test_version =~ "^[0-9]+\.[0-9]+") {
+    note("Hadoop version with test tag '$test_tag' = '$test_version'");
+} else {
+    note("ERROR: Invalid version value: Hadoop version with test tag '$test_tag' = '$test_version'");
+    exit 1;
+}
+
+#################################################################################
+# Unless SKIP_VALIDATION is true, validate the package version under test
+# against the last set of unit, regression, and integration test results.
+#
+# E.g.
+# $ ssh openqe55blue-n9.blue.ygrid.yahoo.com "/home/y/bin64/mysql -u root gridci -N -e \"select releasable from result_summary where component='hadoop' and buildId='2.7.2.12.1605310234' order by buildDate DESC LIMIT 1\""
+# 1 - if all tests passed
+# 0 - if any tests failed
+#################################################################################
+if ($skip_validation == 1) {
+    note("WARN: skip validation!!!");
+} else {
+    # output results for logging
+    $command =
+        "SELECT * FROM $yds_db_table ".
+        "WHERE component='$component' and buildId='$test_version' ".
+        "ORDER BY buildDate DESC LIMIT 1";
+    $sth = get_sth($command);
+    $sth->execute();             # execute the query
+    my ($releasable, $row);
+    my ($ut_result, $rt_result, $it_result);
+    while ($row = $sth->fetchrow_hashref) {  # retrieve one row
+        note(Data::Dumper->Dump([$row], [qw(result_summary)]));
+        $releasable = $row->{releasable};
+        $ut_result = $row->{unitTestResult};
+        $rt_result = $row->{regressionTestResult};
+        $it_result = $row->{integrationTestResult};
+    }
+    note("releasable='$releasable'");
+    if ($releasable == 1) {
+        note("SUCCESS: Build '$test_version' passed validation. Continue with promote.");
+    } else {
+        note("unitTestResult='$ut_result'");
+        note("regressionTestResult='$rt_result'");
+        note("integrationTestResult='$it_result'");
+        note("FAILURE: Build '$test_version' did not pass validation: Exiting!!!");
+        exit 1;
+    }
+}
+
+#################################################################################
+# Clone the certified tag based on the test tag
+#################################################################################
+note("----> Update last certified release tag '$cert_tag' based on latest test tag '$test_tag':");
+execute("$DIST_TAG rename $cert_tag ${cert_tag}_${time}");
+if ($test_tag eq 'LAST_TESTED') {
+    note("WARN: Certify the latest tested version from the result summary database:");
+    note("WARN: This will only dist tag the tested hadoopcoretree package version");
+    note("WARN: This will NOT tag other related packages such as configs, jkd, spark, etc.");
+    execute("$DIST_TAG add $cert_tag hadoopcoretree-${test_version}");
+} else {
+    execute("$DIST_TAG clone $test_tag $cert_tag");
+}
+
+if ($? != 0) {
+    note("ERROR: dist_tag failed!!!");
+    exit 1;
+}
+
+#################################################################################
+# Validate the clone above was successful
+#################################################################################
+note("Validate dist_tag clone was successful:");
+my $tmp_dir = "/tmp/hadoop_releases.$time";
+mkdir $tmp_dir unless (-d $tmp_dir);
+my $test_tag_file = "/$tmp_dir/latest_test_packages";
+my $cert_tag_file = "/$tmp_dir/latest_cert_packages";
+execute("$DIST_TAG list $test_tag > $test_tag_file");
+execute("$DIST_TAG list $cert_tag > $cert_tag_file");
+execute("diff $test_tag_file $cert_tag_file");
+if ($? != 0) {
+    note("ERROR: dist_tag clone of '$test_tag' to '$cert_tag' failed!!!");
+    exit 1;
+}
+
+# Log the hadoop version
+chomp(my $hadoop_version = `$DIST_TAG list $cert_tag hadoopcoretree`);
+note("Updated tag '$cert_tag' ($hadoop_version)");
+
+#################################################################################
+# Generate cluster and hadoop component specific deployment artifacts
+#################################################################################
+my $all_pkgs_file  = "$tmp_dir/hadoop_pkgs";
+my $base_pkgs_file = "$tmp_dir/hadoop_base_pkgs";
+
+# Generate the complete package list based on the last_certified_release tag
+note("----> Generate the complete packages list file based on the tag $cert_tag:");
+execute("mv $cert_tag_file $all_pkgs_file");
+note("$all_pkgs_file");
+
+# Generate the common package list file
+note("----> Generate the common packages list file based on the tag $cert_tag:");
+system("cat $all_pkgs_file |grep -v HadoopConfig|grep -v hadoopmapreduceonhdfs|grep -v openstack|grep -v mvn > $base_pkgs_file");
+note("$base_pkgs_file");
+
+# Generate cluster and hadoop component specific packages
+note("----> Generate cluster and hadoop component specific deployment artifacts:");
+
+if ("$clusters" eq 'all') {
+    #cluster=`rocl -r grid.clusters.sandbox -m | awk 'BEGIN {FS="."}{print $1$2}'`
+    $clusters='axonite.red';
+}
+
+# Support promoting a single cluster at a time for now
+my $cluster = $clusters;
+$cluster =~ s/\.//;
+if ($cluster eq '') {
+    note("ERROR: cluster value cannot be empty string!!!");
+    exit 1;
+}
+my $cluster_pkgs_file="$tmp_dir/pkgs-$cluster-$component";
+
+note("--> Generate certified packages file for cluster $cluster component $component: $cluster_pkgs_file");
+execute("cp $base_pkgs_file $cluster_pkgs_file");
+system("grep $cluster $all_pkgs_file >> $cluster_pkgs_file");
+execute("cat $cluster_pkgs_file");
+
+# cluster based latestcertified tag
+# convert component name character '-' and '.' to '_' for dist tag name
+my $comp_tagname = $component;
+$comp_tagname =~ s/\-|\./_/g;
+my $latest_certified_cluster_tag = "${prod}_${cluster}_${comp_tagname}_latest_certified_release";
+note("--> Dist tag certified packages for $cluster $component: ${latest_certified_cluster_tag}");
+execute("$DIST_TAG rename ${latest_certified_cluster_tag} ${latest_certified_cluster_tag}_${time}");
+execute("$DIST_TAG add ${latest_certified_cluster_tag} `cat $cluster_pkgs_file | sed 's/ .*\$//g'`");
+
+note("----> Output files:");
+
+execute("ls -l $tmp_dir");
+execute("rm -rf $tmp_dir");
+
+$dbh->disconnect if (defined($dbh));
+
+exit 0;
