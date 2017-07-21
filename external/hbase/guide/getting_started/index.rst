@@ -2,15 +2,6 @@
 Getting Started
 ===============
 
-.. _hbase_getting_started-installation:
-
-Installation
-============
-
-In the `HBase documentation <http://hbase.apache.org/0.94/book.html>`_, follow 
-the instructions in `Download and unpack the latest stable release <http://hbase.apache.org/book/quickstart.html#d2417e128>`_.
-
-
 .. _hbase_getting_started-run:
 
 Run Modes
@@ -52,7 +43,7 @@ a bugzilla ticket and provide the following information:
 - project information: design doc, Twiki links
 - colo preference (tan, blue, red)
 
-Ready? Great, `file a ticket <http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite>`_ 
+Ready? Great, `file a ticket <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hbase>`_ 
 with the information listed above.
 
 .. _gs_onboard-prod:
@@ -62,7 +53,7 @@ Production On-Boarding
 
 Production onboarding requires review and approval of the application usage 
 (i.e., schema, access patterns, etc.) as well as planning for capacity required to support 
-the application. Please `file a request <http://supportshop.cloud.corp.yahoo.com/ydrupal/?q=grid-services-request>`_ with the following information:
+the application. Please `file a request <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hbase>`_ with the following information:
 
 - Table names and schema
 - Design doc describing how the table will be used:
@@ -85,34 +76,84 @@ HBase provides a number of environments. A service level is tied to a namespace
 that will be created on a given HBase instance. 
 
 See the `HBase tech talk slides <http://twiki.corp.yahoo.com/pub/Grid/HBaseHome/HBase_as_a_Service_Mar_2013_Talk_Final.pptx>`_
-on more detail about namespace and resource guarantees.
+on more detail about namespace and resource guarantees.  (Note that this talk is from 2013 and out of date at this point.)
 
-#. Instant (WIP)
-   - Development tier
-   - A self-help service will provide requesting users with a namespace
-   - Namespace created in this level will be deployed on a shared set of region 
-     servers. No resource isolation guarantees are provided.
-   - Namespace will have a quota on the number of tables (5) and number of total 
-     regions (20). These limits are under observation.
-   - Loose guarantees on uptime and data storage.
+#. Shared Sandbox
 
-#. Development
-   - Development/Research tier.
-   - Unlike #1, a Research/Project namespace may be provided a dedicated set of 
-     region servers with a quota appropriately set.
-   - HBase capacity requirements needs to be provided.
-   - HBase team to review and approve usage and schema.
-
-#. On Demand (WIP)
    - Development/Research tier
-   - A self-help service where users can temporarily have exclusive access to a 
-     set of region servers. Current limit is one week.
-   - Pool of region servers available is limited.
+   - Namespace created in this level will be deployed on a set of region servers shared with other users
+   - No resource isolation guarantees are provided
+   - Loose guarantees on uptime and data storage
+   - Namespace will have a quota on the number of tables (5) and number of total regions (200)
+   - Users create and update their own table schemas with relatively little supervision
+
+#. Development Environment
+
+   - Development/Research tier
+   - Unlike #1, uses a dedicated set of region servers
+   - More generous table/region quotas
+   - Capacity requirements need to be provided to HBase team
+   - HBase team to review and approve usage and schema changes
+
+#. Perf Environment
+
+   - Development/Research tier
+   - A small testing environment 
+   - Exclusive access to a set of region servers for a limited period of time
+   - This is similar to #2 except that it is temporary and will be reclaimed after the performance test is complete (
+   - Lifetime of 1-3 months
 
 #. Production
-   - Production tier
-   - HBase capacity requirements needs to be provided.
-   - HBase team to review and approve usage and schema. Please engage with HBase 
-     team early to avoid any delays.
-   - Highest level of guarantees on uptime and data integrity.
 
+   - Production tier.
+   - HBase capacity requirements needs to be provided
+   - Dedicated servers and very high quotas
+   - HBase team to review and approve usage and schema. 
+   - Please engage with HBase team early to avoid any delays
+   - Highest level of guarantees on uptime and data integrity
+
+Support/Help at Yahoo
+=====================
+
+At Yahoo there are various ways to get help/support with HBase.
+
+Hipchat / Slackchat
+-------------------
+
+   - This is the quickest way to get assistance with minor questions.
+   - The name of the public Yahoo HBase Hipchat room is ``yhbase``.  Later on, we will migrate to Slackchat with a similar name.
+   - This room is generally only for quick questions about APIs, use cases, and so on.
+
+Support E-mails
+---------------
+
+   - There are 2 e-mails: ``yahoo-hbase-dev@yahoo-inc.com`` and ``yahoo-hbase-users@yahoo-inc.com``
+   - The former e-mail address contacts the HBase team only while the latter contacts everyone who uses Yahoo at HBase (who has subscribed to that list)
+   - If you have a complicated question that is specific to your circumstances, ask the former list.
+   - If you have a general question about HBase, we recommend you ask the latter list first.
+   - HBase team monitors both lists.
+
+Announcement E-mails
+--------------------
+
+   - Whenever there are upgrades or incidents that impact users, grid-ops team will send announcements
+   - Please subscribe to ``ygrid-production-announce@yahoo-inc.com`` and ``ygrid-sandbox-announce@yahoo-inc.com``
+
+Jira
+----
+
+   - If you are running into a problem with your HBase environment (poor performance, unavailability, etc) you should file a Jira
+   - File the Jira under the `HADOOPPF project <https://jira.corp.yahoo.com/servicedesk/customer/hadooppf/create/support%20request>`_.
+   - Provide all details up front
+
+      - what is not working for you
+      - the affected colo, namespace, and table name
+      - the approximate start time of the incident
+      - links to failed job(s) and logs
+      - links to any client-side yamas graphs
+
+Doppler
+-------
+   - If you need to create a new environment or update an existing one 
+   - For example, requests for more machines, schema alterations, enabling replication, adding user perms
+   - Doppler can be found `here <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hbase>`_.
