@@ -635,16 +635,6 @@ deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 
 fetch_artifacts
 
-echo "Cloning the dist tag for regression" $HADOOP_RELEASE_TAG
-if [[ "$HADOOPVERSION" > "2.7" ]]; then
-	export HADOOP_LATEST_REGRESSION=HADOOP_2_8_LATEST_REGRESSION
-else
-	export HADOOP_LATEST_REGRESSION=HADOOP_2_7_LATEST_REGRESSION
-fi
-
-/home/y/bin/dist_tag clone $HADOOP_RELEASE_TAG $HADOOP_LATEST_REGRESSION
-echo "The dist_tag name for regression is cloned"
-
 # Copy HIT test results back if there is any
 if [ $RUN_HIT_TESTS = "true" ]; then
     echo "Clean up workspace and remove old HIT test results from previous runs.."
