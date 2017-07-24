@@ -276,7 +276,7 @@ yinst set yoozie.CLUSTER_NAME=$CLUSTER \
   yoozie.OOZIE_USER=oozie \
   yoozie.KERBEROS_REALM=DEV.YGRID.YAHOO.COM
 
-yinst set yoozie.conf_oozie_base_url=https://$OOZIENODE:4443/oozie \
+yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
   yoozie.conf_oozie_service_HadoopAccessorService_keytab_file=/etc/grid-keytabs/oozie.$OOZIENODE_SHORT.service.keytab
 
 
