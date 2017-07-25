@@ -38,7 +38,7 @@ my $yds_db_keyname = 'db_pass_yds_hadoopqa';
 # Get database handle
 sub get_dbh {
     # Open dbh connection if undefined
-    if (defined($dbh)) {
+    if (!defined($dbh)) {
         $dbh = DBI->connect("dbi:mysql:database=$yds_db_name;host=$yds_db_host", $yds_db_user, ykeykey_get_secret($yds_db_keyname))
             or die("Error: $DBI::errstr");
     }
@@ -137,6 +137,12 @@ if ($test_version =~ "^[0-9]+\.[0-9]+") {
 #################################################################################
 if ($skip_validation == 1) {
     note("WARN: skip validation!!!");
+    # We should not use the latest tag to promote since it can get updated and can cause a newer version of hadoop to get promoted
+    # Instead we should use specific version dist tag like HADOOP_2_8_1_1_1707250303 
+    if ($test_tag =~ "LATEST") {
+	    note("ERROR: Should not use the $test_tag when skipping validation!\n");
+	    exit 1;
+    }
 } else {
     # output results for logging
     $command =
