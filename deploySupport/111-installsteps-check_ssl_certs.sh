@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# gridci-2138, copy jks files from devadm102:/dev/shm/ygrid_certs/*.jks to each
-# cluster node, needed to support webui https/ssl connections on any server run
-# on said node, includes certs for Core and HBase
+# gridci-2138/gridci-2292, copy jks files from devadm102:/grid/3/dev/ygrid_certs_flubber/*.jks
+# to each  cluster node, needed to support webui https/ssl connections on any server run on
+# said node, includes certs for Core and HBase
 
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SSH="ssh $SSH_OPT"
@@ -10,7 +10,7 @@ SCP="scp $SSH_OPT"
 ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 
 
-CERT_REFERENCE_PATH="/dev/shm/ygrid_certs/*.jks"
+CERT_REFERENCE_PATH="/grid/3/dev/ygrid_certs_flubber/*.jks"
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 
 echo == verify Core SSL certs are in place
