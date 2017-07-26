@@ -31,7 +31,7 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         ln -s ${yroothome}/tez-$TEZVERSION/libexec/tez $TEZ_HOME ; \
 	yinst inst -root ${yroothome}/ -same -live -yes ytez_ui-$TEZVERSION -br test ; \
 	chattr -a ${yroothome}/tez_ui/var/yinst/log/yinstlog ; \
-	ln -s ${yroothome}/share/tez-ui-$TEZVERSION $TEZ_UI ; \
+	ln -s ${yroothome}/share/tez-ui.war $TEZ_UI ; \
         echo Tez version as I see it ; \
         readlink $TEZ_HOME "
 
