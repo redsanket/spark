@@ -38,7 +38,7 @@ echo "INFO: Spark history server node being installed: $SPARK_HISTORY_NODE"
 #-------------------------------------------------------------------------------
 # Install Spark history server and set required hdfs directories.
 echo "INFO: Installing yspark_yarn_history_server-$SPARK_HISTORY_VERSION & setting up hdfs://mapred/sparkhistory/"
-cmd="yinst i yspark_yarn_history_server-$SPARK_HISTORY_VERSION -same -live -down ; \
+cmd="yinst i yspark_yarn_history_server-$SPARK_HISTORY_VERSION -br quarantine -same -live -down ; \
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
 echo Creating hdfs://mapred/sparkhistory ; \
 $HADOOP fs -mkdir -p /mapred/sparkhistory/ ; \
