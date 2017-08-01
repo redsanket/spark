@@ -111,6 +111,8 @@ st=$?
 
 #-------------------------------------------------------------------------------
 
+JAVA_HOME="$GSHOME/java8/jdk64/current"
+
 # Obtain the kerberos tokens to talk to hdfs.
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
@@ -148,7 +150,6 @@ do
         export HADOOP_PREFIX=/home/gs/hadoop/current ; \
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
-	export JAVA_HOME="/home/gs/java8/jdk64/current" ; \
         export JAVA_HOME=$JAVA_HOME ; \
         echo installing yspark_yarn to hdfs ; \
         $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
@@ -183,7 +184,7 @@ export HADOOP_HOME=$GSHOME/hadoop/current ; \
 export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
 export HADOOP_CONF_DIR=/home/gs/conf/current ; \
 export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
-export JAVA_HOME="$GSHOME/java8/jdk64/current""
+export JAVA_HOME=$JAVA_HOME"
 
 echo "$cmd"
 eval "$cmd"
