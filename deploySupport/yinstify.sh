@@ -187,6 +187,12 @@ pkg=hadoopgridrollout
 
 install_script=installgrid.sh
 
+which rocl
+if [ $? -ne 0 ]; then
+    yinst i rocl
+fi
+rocl -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
+
 cmd="conf/hadoop/hadoopAutomation/$install_script \"\${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
 # echo "YINST start 100 env" >> $pkg.yicf
@@ -204,6 +210,7 @@ datanode*.sh \
 dump*.sh \
 namenode*.sh \
 setup_nm_health_check_script.sh \
+${CLUSTER}.rolelist.txt \
 "
 
 for script in $scripts; do
