@@ -25,12 +25,15 @@ banner2() {
 #            igor list -roles 'grid_re.clusters.*'
 #
 
-#export roleList=undefined
-#base=conf/hadoop/hadoopAutomation
+export roleList=undefined
+base=conf/hadoop/hadoopAutomation
 initRoleList()
 {
-	export base=conf/hadoop/hadoopAutomation
-	export roleList=$base/$cluster.rolelist.txt
+            if [ ! -e $roleList  -a  -x $base/dumpAllRoles.sh ] 
+            then
+            	echo  Creating $roleList...
+                 $base/dumpAllRoles.sh  > $roleList
+            fi
 }
 
 #
@@ -46,7 +49,7 @@ initRoleList()
 #
 #
 roleExists() {
-        #initRoleList
+        initRoleList
         egrep -q "^grid_re.clusters.$1\$"  $roleList
 }
 
@@ -78,19 +81,18 @@ roleExists() {
 # Note: THE FAILURE CASE EXITS THE PROGRAM.
 #
 
-#export base=conf/hadoop/hadoopAutomation
-#export roleList=$base/$cluster.rolelist.txt
-#setroleList() {
-#	export roleList=$1
-#        if [[ -e $roleList ]]; then
-#            rm -f $roleList
-#        fi
-#	}
+export roleList=/tmp/$cluster.rolelist.txt
+setroleList() {
+	export roleList=$1
+        if [[ -e $roleList ]]; then
+            rm -f $roleList
+        fi
+	}
 	
 setGridParameters() {
     export cluster=`echo $1 | tr   A-Z   a-z`
 	
-	#setroleList    $base/$cluster.rolelist.txt
+	setroleList    /tmp/$cluster.rolelist.txt
 
 # step 1: make sure that we have a list-of-roles to work from.
     initRoleList
@@ -100,9 +102,7 @@ setGridParameters() {
     then
         # step 2a: the machine-list itself
         echo cluster $cluster exists according to rolesdb
-
-        /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway)" > hostlist.$cluster.txt
-        # $base/dumpMembershipList.sh  $cluster > hostlist.$cluster.txt
+        $base/dumpMembershipList.sh  $cluster > hostlist.$cluster.txt
 
         # step 2b: use certain defaults if not provided in IGOR
         export namenode=`tail -1 hostlist.$cluster.txt`
@@ -136,12 +136,9 @@ setGridParameters() {
         then
               if roleExists $cluster.namenode2 
               then
-                  # $base/dumpMembershipList.sh $cluster.namenode   | sort | uniq > nn.$cluster.txt
-                  /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode)" | sort | uniq > nn.$cluster.txt
-                  # $base/dumpMembershipList.sh $cluster.namenode2  | sort | uniq > sn.$cluster.txt
-                  /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode2)" | sort | uniq > sn.$cluster.txt
-                  # $base/dumpMembershipList.sh $cluster.namenode_alias  | sort | uniq > namenodehaalias.$cluster.txt
-                  /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode_alias)" | sort | uniq > namenodehaalias.$cluster.txt
+                  $base/dumpMembershipList.sh $cluster.namenode   | sort | uniq > nn.$cluster.txt
+                  $base/dumpMembershipList.sh $cluster.namenode2  | sort | uniq > sn.$cluster.txt
+                  $base/dumpMembershipList.sh $cluster.namenode_alias  | sort | uniq > namenodehaalias.$cluster.txt
                   # Ignore Federation setting when HA is enabled. They can coexist if Federation 
                   # was properly supported in config and deployment. Currently the federation
                   # config is generated during deployment using a script.
@@ -172,43 +169,34 @@ setGridParameters() {
 
         if roleExists $cluster.regionserver
         then
-            # $base/dumpMembershipList.sh $cluster.regionserver | sort | uniq > regionservernodes.$cluster.txt
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.regionserver)" | sort | uniq > regionservernodes.$cluster.txt
+            $base/dumpMembershipList.sh $cluster.regionserver | sort | uniq > regionservernodes.$cluster.txt
         fi
 
         if roleExists $cluster.master
         then
-            # $base/dumpMembershipList.sh $cluster.master | sort | uniq > hbasemasternodes.$cluster.txt
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.master)" | sort | uniq > hbasemasternodes.$cluster.txt
+            $base/dumpMembershipList.sh $cluster.master | sort | uniq > hbasemasternodes.$cluster.txt
         fi
 
         if roleExists $cluster.zookeeper
         then
-            # $base/dumpMembershipList.sh $cluster.zookeeper | sort | uniq > hbasezookeepernodes.$cluster.txt
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.zookeeper)" | sort | uniq > hbasezookeepernodes.$cluster.txt
+            $base/dumpMembershipList.sh $cluster.zookeeper | sort | uniq > hbasezookeepernodes.$cluster.txt
         fi
 
 
         roleExists $cluster.jobtracker && \
-             # export jobtrackernode=`$base/dumpMembershipList.sh  $cluster.jobtracker`
-             export jobtrackernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.jobtracker)"`
+             export jobtrackernode=`$base/dumpMembershipList.sh  $cluster.jobtracker`
         roleExists $cluster.gateway && \
-             # export gateway=`$base/dumpMembershipList.sh  $cluster.gateway`
-             export gateway=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateway)"`
+             export gateway=`$base/dumpMembershipList.sh  $cluster.gateway`
         roleExists $cluster.hdfsproxy && \
-             # export hdfsproxynode=`$base/dumpMembershipList.sh  $cluster.hdfsproxy`
-             export hdfsproxynode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hdfsproxynode)"`
+             export hdfsproxynode=`$base/dumpMembershipList.sh  $cluster.hdfsproxy`
         roleExists $cluster.hcat&& \
-             # export hcatservernode=`$base/dumpMembershipList.sh  $cluster.hcat`
-             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hcat)"`
+             export hcatservernode=`$base/dumpMembershipList.sh  $cluster.hcat`
         roleExists $cluster.daq&& \
-             # export daqnode=`$base/dumpMembershipList.sh  $cluster.daq`
-             export daqnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.daq)"`
+             export daqnode=`$base/dumpMembershipList.sh  $cluster.daq`
         roleExists $cluster.oozie && \
-             # export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
-             export oozienode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.oozie)"`
+             export oozienode=`$base/dumpMembershipList.sh  $cluster.oozie`
 	if roleExists $cluster; then
-            teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway)"`
+            teznode=`$base/dumpMembershipList.sh $cluster`
             if [[ -n gateway ]]; then
                 teznode+="\n$gateway"
             fi
@@ -216,38 +204,27 @@ setGridParameters() {
             export teznode=$teznode
 	fi
         roleExists $cluster.yroots && \
-             # export yroots=`$base/dumpMembershipList.sh  $cluster.yroots`
-             export yroots=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.yroots)"`
+             export yroots=`$base/dumpMembershipList.sh  $cluster.yroots`
         roleExists $cluster.gateways && \
-             # export gateways=`$base/dumpMembershipList.sh  $cluster.gateways`
-             export gateways=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateways)"`
+             export gateways=`$base/dumpMembershipList.sh  $cluster.gateways`
         roleExists $cluster.zookeeper && \
-             # export zookeepernodes=`$base/dumpMembershipList.sh  $cluster.zookeeper`
-             export zookeepernodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.zookeeper)"`
+             export zookeepernodes=`$base/dumpMembershipList.sh  $cluster.zookeeper`
         roleExists $cluster.hit-yroots && \
-             # export hitnodes=`$base/dumpMembershipList.sh  $cluster.hit-yroots`
-             export hitnodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hit-yroots)"`
+             export hitnodes=`$base/dumpMembershipList.sh  $cluster.hit-yroots`
         roleExists $cluster.hs2 && \
-             # export hs2_nodes=`$base/dumpMembershipList.sh  $cluster.hs2`
-             export hs2_nodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2)"`
+             export hs2_nodes=`$base/dumpMembershipList.sh  $cluster.hs2`
         roleExists $cluster.server && \
-             # export hcat_server=`$base/dumpMembershipList.sh  $cluster.server`
-             export hcat_server=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.server)"`
+             export hcat_server=`$base/dumpMembershipList.sh  $cluster.server`
         roleExists $cluster.jdbc && \
-             # export jdbc_client=`$base/dumpMembershipList.sh  $cluster.jdbc`
-             export jdbc_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.jdbc)"`
+             export jdbc_client=`$base/dumpMembershipList.sh  $cluster.jdbc`
         roleExists $cluster.hs2.masters && \
-             # export hs2_masters=`$base/dumpMembershipList.sh  $cluster.hs2_masters`
-             export hs2_masters=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2_masters)"`
+             export hs2_masters=`$base/dumpMembershipList.sh  $cluster.hs2_masters`
         roleExists $cluster.hs2.slaves && \
-             # export hs2_slaves=`$base/dumpMembershipList.sh  $cluster.hs2_slaves`
-             export hs2_slaves=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2_slaves)"`
+             export hs2_slaves=`$base/dumpMembershipList.sh  $cluster.hs2_slaves`
         roleExists $cluster.client && \
-             # export hive_client=`$base/dumpMembershipList.sh  $cluster.client`
-             export hive_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.client)"`
+             export hive_client=`$base/dumpMembershipList.sh  $cluster.client`
         roleExists $cluster.database && \
-             # export hive_mysql=`$base/dumpMembershipList.sh  $cluster.database`
-             export hive_mysql=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.database)"`
+             export hive_mysql=`$base/dumpMembershipList.sh  $cluster.database`
 
        echo "=============INSTALL_GW_IN_YROOT=$INSTALL_GW_IN_YROOT ============"
        if [ "$INSTALL_GW_IN_YROOT" == "true" ]
