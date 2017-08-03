@@ -94,13 +94,14 @@ on more detail about namespace and resource guarantees.  (Note that this talk is
    - More generous table/region quotas
    - Capacity requirements need to be provided to HBase team
    - HBase team to review and approve usage and schema changes
+   - Requires CAR approval
 
 #. Perf Environment
 
    - Development/Research tier
    - A small testing environment 
    - Exclusive access to a set of region servers for a limited period of time
-   - This is similar to #2 except that it is temporary and will be reclaimed after the performance test is complete (
+   - This is similar to #2 except that it is temporary and will be reclaimed after the performance test is complete
    - Lifetime of 1-3 months
 
 #. Production
@@ -111,6 +112,7 @@ on more detail about namespace and resource guarantees.  (Note that this talk is
    - HBase team to review and approve usage and schema. 
    - Please engage with HBase team early to avoid any delays
    - Highest level of guarantees on uptime and data integrity
+   - Requires CAR approval
 
 Support/Help at Yahoo
 =====================

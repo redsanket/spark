@@ -25,8 +25,11 @@ Installation
 ------------
 
 - Note that Yahoo uses a heavily customized internal version of HBase.  Do not download and use Apache HBase jars from open source, as the client may be incompatible.
-- Instead, use packages from Yahoo's internal dist.  For example, if you want your HBase client to target the reluxred sandbox cluster, you would use the `hbase <https://dist.corp.yahoo.com//by-package/hbase/>`_ package and the `hbase_conf_reluxred <https://dist.corp.yahoo.com/by-package/hbase_conf_reluxred/>`_ package.
-- For the following tutorial using the hbase shell, it is assumed that you have a copy of the ``hbase`` package locally.
+- Instead, use packages from Yahoo's internal dist.  For example, if you want your HBase client to target the relux-red sandbox cluster, you would use the `hbase <https://dist.corp.yahoo.com//by-package/hbase/>`_ package and the `hbase_conf_reluxred <https://dist.corp.yahoo.com/by-package/hbase_conf_reluxred/>`_ package.
+- Both packages are needed.  The former package provides code (eg jars) and the latter package provides most of the configs (eg hbase-site.xml with the ZooKeeper quorum location)
+- The right versions to get for these packages depends on the cluster you are targeting.
+- For example if you are targeting relux-red and need the ``hbase`` package, you would check yo/gridversions and look up relux-red in the table and use that version (eg ``0.98.7.29.1707251800_h2``) as your version for the ``hbase`` package.
+- If you are targeting relux-red and need the ``hbase_conf_reluxred`` package, you would go to the relux-red gateway (relux-gw.red.ygrid.yahoo.com) and then execute a command like ``ls -lht $HBASE_CONF_DIR`` and use the version in the path.
 
 Maven POM
 ---------
@@ -44,10 +47,10 @@ Maven POM
         </dependency>
 
 - Note that within Yahoo's network your Maven lookup for ``org.apache.hbase`` ``hbase-client`` will not be forwarded to one of the external open source Maven repositories.  Instead, the lookup will be forwarded to Yahoo's dist and fetch the correct internal jars.
-- You will want to make sure you are downloading a fairly recent ``${hbase.version}``.  To do so, check your target cluster for the version it is using.
-- For example if you are targeting relux-red, you would check the `reluxred HBase master <https://reluxred-hb.red.ygrid.yahoo.com:50502/master-status>`_.
-- You will see a section on the webpage like ``HBase Version 	0.98.7.28.1706221657_h2, r157f26e4e38fd4421a4a77b611b576f8e1ad5b51``.
-- The HBase version you will put in your POM would thus be ``0.98.7.28.1706221657_h2``.
+- You will want to make sure you are downloading a fairly recent ``${hbase.version}``.
+- This ``${hbase.version}`` will be something like ``0.98.7.29.1707251800_h2`` (obtain from yo/gridversions as mentioned in the Installation section)
+- You will also have to add the ``hbase_conf`` files (eg hbase-site.xml) to your classpath
+- There are several ways to do this but one way is to add it as a resource under ``src/main/resources`` (part of Maven's Standard Directory Layout convention)
 
 Using HBase Shell
 =================
@@ -397,10 +400,9 @@ To access your HBase table in Yahoo, you will not only need to write the appropr
 
 .. code-block:: java
 
-  UserGroupInformation.setConfiguration(HBaseConfiguration.create());
   UserGroupInformation.loginUserFromKeytab(userPrincipalNameInKeytabFile, keytabFilePath);
 
-You should call this exactly once in your program at the very start and before you call any HBase code.
+You should call this **exactly once** in your program at the very start and before you call any HBase code.
 
 Map/Reduce Operations 
 =====================
