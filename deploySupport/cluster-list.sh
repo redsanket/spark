@@ -144,6 +144,8 @@ setGridParameters() {
                   if roleExists $cluster.namenode_alias 
                   then
                     /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode_alias)" | sort | uniq > namenodehaalias.$cluster.txt
+                  else
+                    touch namenodehaalias.$cluster.txt
                   fi 
                   # Ignore Federation setting when HA is enabled. They can coexist if Federation 
                   # was properly supported in config and deployment. Currently the federation
