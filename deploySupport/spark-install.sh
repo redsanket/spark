@@ -1,5 +1,8 @@
 # script to install spark on the cluster's gateway node
 #
+# Note: We use hardcoded paths to circumvent the issue of encountering different environments in
+#       different QE clusters.
+#
 # inputs: cluster being installed, reference cluster name 
 # outputs: 0 on success
 
@@ -43,6 +46,16 @@ SPARKNODE=`hostname`
 SPARKNODE_SHORT=`echo $SPARKNODE | cut -d'.' -f1`
 
 HADOOP="/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop"
+JAVA_HOME="/home/gs/java8/jdk64/current"
+
+cmd="echo INFO: Exporting JAVA_HOME ; \
+export JAVA_HOME=/home/gs/java8/jdk64/current"
+
+echo "$cmd"
+eval "$cmd"
+st=$?
+[[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to export JAVA_HOME.<<<<<<<<<<" && exit $st
+
 
 echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Spark node being installed: $SPARKNODE"
@@ -111,8 +124,6 @@ st=$?
 
 #-------------------------------------------------------------------------------
 
-JAVA_HOME="$GSHOME/java8/jdk64/current"
-
 # Obtain the kerberos tokens to talk to hdfs.
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
@@ -150,7 +161,6 @@ do
         export HADOOP_PREFIX=/home/gs/hadoop/current ; \
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
-        export JAVA_HOME=$JAVA_HOME ; \
         echo installing yspark_yarn to hdfs ; \
         $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
         $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
@@ -180,11 +190,10 @@ $HADOOP fs -chmod -R 755 /sharelib/
 cmd="echo INFO: Setting up the environment variables ; \
 export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
 export SPARK_HOME=/home/gs/spark/latest ; \
-export HADOOP_HOME=$GSHOME/hadoop/current ; \
-export HADOOP_PREFIX=$GSHOME/hadoop/current ; \
+export HADOOP_HOME=/home/gs/hadoop/current ; \
+export HADOOP_PREFIX=/home/gs/hadoop/current ; \
 export HADOOP_CONF_DIR=/home/gs/conf/current ; \
-export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
-export JAVA_HOME=$JAVA_HOME"
+export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*""
 
 echo "$cmd"
 eval "$cmd"
