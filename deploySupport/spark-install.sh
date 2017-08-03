@@ -124,8 +124,6 @@ st=$?
 
 #-------------------------------------------------------------------------------
 
-JAVA_HOME="$GSHOME/java8/jdk64/current"
-
 # Obtain the kerberos tokens to talk to hdfs.
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
