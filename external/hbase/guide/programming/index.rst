@@ -4,7 +4,7 @@ Programming HBase
 
 The following sections get into the details of writing code for HBase, and thus,
 we'll present short code examples that work with HBase tables.
-You'll need to complete :ref:`Setting Up <setup>` before you can begin to HBase
+You'll need to complete :ref:`Setting Up <setup>` before you can begin to use HBase
 in the proceeding sections.
 
 Overview
@@ -24,10 +24,33 @@ Setting Up
 Installation
 ------------
 
-#. `Download HBase <http://www.apache.org/dyn/closer.cgi/hbase/>`_ from one
-   of the mirrors.
-#. Unzip and tar the ``hbase-{version}`` package.
-#. Change to the directory of the ``hbase`` package.
+- Note that Yahoo uses a heavily customized internal version of HBase.  Do not download and use Apache HBase jars from open source, as the client may be incompatible.
+- Instead, use packages from Yahoo's internal dist.  For example, if you want your HBase client to target the relux-red sandbox cluster, you would use the `hbase <https://dist.corp.yahoo.com//by-package/hbase/>`_ package and the `hbase_conf_reluxred <https://dist.corp.yahoo.com/by-package/hbase_conf_reluxred/>`_ package.
+- Both packages are needed.  The former package provides code (eg jars) and the latter package provides most of the configs (eg hbase-site.xml with the ZooKeeper quorum location)
+- The right versions to get for these packages depends on the cluster you are targeting.
+- For example if you are targeting relux-red and need the ``hbase`` package, you would check yo/gridversions and look up relux-red in the table and use that version (eg ``0.98.7.29.1707251800_h2``) as your version for the ``hbase`` package.
+- If you are targeting relux-red and need the ``hbase_conf_reluxred`` package, you would go to the relux-red gateway (relux-gw.red.ygrid.yahoo.com) and then execute a command like ``ls -lht $HBASE_CONF_DIR`` and use the version in the path.
+
+Maven POM
+---------
+
+- Once you reach the stage where you want to create a full Java project you will probably want to use Maven or another build system to automatically download jars and compile your project
+- If you use Maven, your POM file would have something like this:
+
+  .. code-block:: xml
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+- Note that within Yahoo's network your Maven lookup for ``org.apache.hbase`` ``hbase-client`` will not be forwarded to one of the external open source Maven repositories.  Instead, the lookup will be forwarded to Yahoo's dist and fetch the correct internal jars.
+- You will want to make sure you are downloading a fairly recent ``${hbase.version}``.
+- This ``${hbase.version}`` will be something like ``0.98.7.29.1707251800_h2`` (obtain from yo/gridversions as mentioned in the Installation section)
+- You will also have to add the ``hbase_conf`` files (eg hbase-site.xml) to your classpath
+- There are several ways to do this but one way is to add it as a resource under ``src/main/resources`` (part of Maven's Standard Directory Layout convention)
 
 Using HBase Shell
 =================
@@ -88,7 +111,6 @@ Disable/Drop Tables
 
 Using Java With HBase
 =====================
-
 
 Setting Up
 ----------
@@ -370,6 +392,17 @@ finally deletes the table.
 		 zkb course:math 1390612871130 97
 		 zkb grade: 1390612871117 5
 
+Security
+--------
+
+HBase supports security for native RPCs using Kerberos.  (In REST, either YCA or Kerberos can be used.  See Stargate section for details.)
+To access your HBase table in Yahoo, you will not only need to write the appropriate get and scan operations as seen earlier in this tutorial, but you will also need to initialize UGI and login to your keytab, like so:
+
+.. code-block:: java
+
+  UserGroupInformation.loginUserFromKeytab(userPrincipalNameInKeytabFile, keytabFilePath);
+
+You should call this **exactly once** in your program at the very start and before you call any HBase code.
 
 Map/Reduce Operations 
 =====================
@@ -1190,9 +1223,14 @@ merge the data, and then write it to a table.
 Stargate: HBase REST Client/Server
 ==================================
 
-Stargate is the HBase REST Client and Server that lets you make HTTP REST calls to HBase. 
+Stargate is the HBase REST Client and Server that lets you make HTTP REST calls to HBase.
+Where possible, you should instead prefer to use native RPCs in Java to access HBase, as the performance is better and the API feature set is larger.
+
 We'll go through a short tutorial, look at the structure of resource identifiers, and then
 give some sample code for making HTTP requests in the Yahoo environment.
+
+Note that this quick tutorial doesn't go into detail on REST security, which is mandatory and used at Yahoo.
+Check our Twiki `here <https://twiki.corp.yahoo.com/view/Grid/HBase_Stargate#Security>`_ for how to use YCA or Kerberos to access HBase.
 
 Quick Walkthrough
 -----------------
