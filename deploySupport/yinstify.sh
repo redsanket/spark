@@ -209,7 +209,6 @@ HIT-hdfsproxy-install.sh \
 cleangrid.sh \
 cluster-list.sh *-rw.sh \
 datanode*.sh \
-dump*.sh \
 namenode*.sh \
 setup_nm_health_check_script.sh \
 ${CLUSTER}.rolelist.txt \
