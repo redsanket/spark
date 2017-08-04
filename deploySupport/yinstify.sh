@@ -187,11 +187,13 @@ pkg=hadoopgridrollout
 
 install_script=installgrid.sh
 
-which rocl
-if [ $? -ne 0 ]; then
+# dumpMembershipList.sh and dumpAllRoles.sh scripts is deprecated after GRIDCI-2332
+# Now the cluster specific roles file is included as a part of the yinst package 
+# which gets installed in the dev box.
+if [[ ! -x /home/y/bin/rocl ]]; then
     yinst i rocl
 fi
-rocl -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
+/home/y/bin/rocl -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
 
 cmd="conf/hadoop/hadoopAutomation/$install_script \"\${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
