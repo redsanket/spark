@@ -12,7 +12,9 @@ Speculative Execution Configuration
 
 Note that the following recommendations are based on Hadoop's 2.8.0 speculator implementation.
 
-- Speculative execution should be enabled for HBase jobs but the settings need to be conservative
+- Speculative execution can be enabled for HBase jobs but the settings need to be conservative
+- Before enabling speculative execution, make sure that if you write to HBase in your job that your writes are idempotent and will work correctly even if more than 1 attempt is running, or that tasks that perform writes do not have speculation enabled (eg oftentimes only reducers write to HBase)
+- If you only read from HBase in your job speculative execution is usually pretty safe
 - ``mapreduce.job.speculative.speculative-cap-total-tasks`` and ``mapreduce.job.speculative.speculative-cap-running-tasks`` need to be set such that the absolute maximum number of total/running tasks that are speculated number in the 2 or 3 range, as bad nodes in the compute cluster are not that common.
 - Currently, ``mapreduce.job.speculative.speculative-cap-total-tasks`` looks to default to 0.01 (1%) which seems fair.  ``mapreduce.job.speculative.speculative-cap-running-tasks`` defaults to 0.1 (10%) which seems a bit too aggressive. Probably 1 or at most 5% is better here for HBase. But better would be to tune this percentage according to the user's job based on the absolute number of tasks.
 - maxSimultaneousSpeculations = max(``mapreduce.job.speculative.minimum-allowed-tasks``, numRunningTasks * ``mapreduce.job.speculative.speculative-cap-running-tasks``) so need to also set ``mapreduce.job.speculative.minimum-allowed-tasks`` to a lower number, maybe like 1 or 2 at most.
