@@ -195,7 +195,7 @@ if [[ ! -x /home/y/bin/rocl ]]; then
 fi
 /home/y/bin/rocl -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
 
-cmd="conf/hadoop/hadoopAutomation/$install_script \"\${CLUSTER}\""
+cmd="conf/hadoop/hadoopAutomation/$install_script \"${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
 # echo "YINST start 100 env" >> $pkg.yicf
 echo "f 0755 - - conf/hadoop/hadoopAutomation/$install_script  $install_script " >> $pkg.yicf
