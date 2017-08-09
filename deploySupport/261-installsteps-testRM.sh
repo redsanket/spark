@@ -23,6 +23,7 @@ then
 
 debug=
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
+set -e
 cd ${yroothome}
    export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
    export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
@@ -92,7 +93,6 @@ done
 zz
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
 fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred ~mapred; \
-chsh -s /bin/bash mapred; \
 su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
