@@ -45,8 +45,14 @@ REFERENCE_CLUSTER=$2
 SPARKNODE=`hostname`
 SPARKNODE_SHORT=`echo $SPARKNODE | cut -d'.' -f1`
 
-HADOOP="/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop"
+HADOOP="/home/gs/hadoop/currentbin/hadoop"
 JAVA_HOME="/home/gs/java8/jdk64/current"
+hadoopenvcmd="export HADOOP_HOME=/home/gs/hadoop/current; \
+export HADOOP_PREFIX=/home/gs/hadoop/current; \
+export HADOOP_CONF_DIR=/home/gs/conf/current"
+
+echo "$hadoopenvcmd"
+eval "$hadoopenvcmd"
 
 cmd="echo INFO: Exporting JAVA_HOME ; \
 export JAVA_HOME=/home/gs/java8/jdk64/current"
