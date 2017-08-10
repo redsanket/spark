@@ -45,7 +45,7 @@ REFERENCE_CLUSTER=$2
 SPARKNODE=`hostname`
 SPARKNODE_SHORT=`echo $SPARKNODE | cut -d'.' -f1`
 
-HADOOP="/home/gs/hadoop/currentbin/hadoop"
+HADOOP="/home/gs/hadoop/current/bin/hadoop"
 JAVA_HOME="/home/gs/java8/jdk64/current"
 hadoopenvcmd="export HADOOP_HOME=/home/gs/hadoop/current; \
 export HADOOP_PREFIX=/home/gs/hadoop/current; \
