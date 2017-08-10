@@ -51,7 +51,9 @@ cd ${yroothome}
 #
 # At least one namenode must be able to work with the JT.
 #
+set -x
 kinit -k -t $HOMEDIR/mapred/mapred.dev.headless.keytab mapred
+set +x
 export written=0
 export read=0
 tmpfile=tmp-\`date +%y%m%d%H%M\`
