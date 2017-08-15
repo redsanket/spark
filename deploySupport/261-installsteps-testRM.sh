@@ -93,9 +93,9 @@ do
 done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
+# gridci-2393, use new nfs server, which has updated mapred keytab
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred ~mapred; \
-su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
+fanoutGW "su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " 
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
 #    for c in mapred yarn
