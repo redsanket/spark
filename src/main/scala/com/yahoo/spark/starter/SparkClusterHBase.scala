@@ -19,10 +19,10 @@ object SparkClusterHBase {
         }
 
         // Use the new 2.0 API. If you are using 1.6.2 create the spark conf and context as in 1.6 examples.
-        val spark = SparkSession
-          .builder
-          .appName("Spark HBase Example")
-          .getOrCreate()
+        val spark = SparkSession.
+          builder.
+          appName("Spark HBase Example").
+          getOrCreate()
 
         val hconf = HBaseConfiguration.create()
         val tableName = s"spark_test:${args(0)}"
