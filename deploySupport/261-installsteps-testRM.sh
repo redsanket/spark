@@ -94,7 +94,8 @@ done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-fanoutGW "mount gridnfs-b.blue.ygrid.yahoo.com:/vol/gridhomevol/mapred ~mapred; \
+# gridci-2393, use new nfs server, which has updated mapred keytab
+fanoutGW "mount flubber-nfs.blue.ygrid.yahoo.com:/home/vol/mapred ~mapred; \
 su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
