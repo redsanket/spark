@@ -52,7 +52,7 @@ cd ${yroothome}
 # At least one namenode must be able to work with the JT.
 #
 set -x
-kinit -k -t $HOMEDIR/mapred/mapred.dev.headless.keytab mapred
+kinit -k -t $HOMEDIR/mapredqa/mapredqa.dev.headless.keytab mapredqa
 set +x
 export written=0
 export read=0
