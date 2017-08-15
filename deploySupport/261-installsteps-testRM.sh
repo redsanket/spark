@@ -95,7 +95,7 @@ done
 zz
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
 # gridci-2393, use new nfs server, which has updated mapred keytab
-fanoutGW "mount flubber-nfs.blue.ygrid.yahoo.com:/home/vol/mapred ~mapred; \
+#fanoutGW "mount flubber-nfs.blue.ygrid.yahoo.com:/home/vol/mapred ~mapred; \
 su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " # > /dev/null 2>&1"
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
