@@ -409,7 +409,8 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 				HadooptestConstants.Schema.HDFS,
 				TestSession.cluster.getClusterName(), dirInHdfs + "/Output1/*");
 
-		String stringToLookFor = "<property><name>mapreduce.job.working.dir</name><value>/tmp</value><source>because mapred.working.dir is deprecated</source><source>job.xml</source></property>";
+		// gridci-2383, property changed to include 'final'
+		String stringToLookFor = "<property><name>mapreduce.job.working.dir</name><value>/tmp</value><final>false</final><source>because mapred.working.dir is deprecated</source><source>job.xml</source></property>";
 		Assert.assertTrue(genericCliResponse.response + " DID NOT CONTAIN "
 				+ stringToLookFor,
 				genericCliResponse.response.contains(stringToLookFor));
