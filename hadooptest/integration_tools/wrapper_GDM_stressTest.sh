@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Replace console_host and console_port passed from jenkins
+ehco "${GDM_ONE_NODE_HOST}:${GDM_CONSOLE_PORT}"
+sed 's/[$()]//g' hadooptest/htf-common/resources/gdm/conf/config.xml > hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/CONSOLE_HOST:CONSOLE_PORT/${GDM_ONE_NODE_HOST}:${GDM_CONSOLE_PORT}/g" hadooptest/htf-common/resources/gdm/conf/config.xml.1 > hadooptest/htf-common/resources/gdm/conf/config.xml
+ehco "${GDM_ONE_NODE_HOST}:${GDM_CONSOLE_PORT}"
+
+
+# Replace console_host and console_port passed from jenkins
+echo "${NUMBER_OF_DATASETS}"
+sed 's/[$()]//g' hadooptest/htf-common/resources/gdm/conf/config.xml > hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/NUMBER_OF_DATASETS/${NUMBER_OF_DATASETS}/g" hadooptest/htf-common/resources/gdm/conf/config.xml.1 > hadooptest/htf-common/resources/gdm/conf/config.xml
+echo "${NUMBER_OF_DATASETS}"
+
+
+# Replace console_host and console_port passed from jenkins
+echo "${NUMBER_OF_INSTANCES_PER_DATASET}"
+sed 's/[$()]//g' hadooptest/htf-common/resources/gdm/conf/config.xml > hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/NUMBER_OF_INSTANCES_PER_DATASET/${NUMBER_OF_INSTANCES_PER_DATASET}/g" hadooptest/htf-common/resources/gdm/conf/config.xml.1 > hadooptest/htf-common/resources/gdm/conf/config.xml
+echo "${NUMBER_OF_INSTANCES_PER_DATASET}"
+
+
+# Replace console_host and console_port passed from jenkins
+echo "${NUMBER_OF_INSTANCE_FILES_INSTANCE}"
+sed 's/[$()]//g' hadooptest/htf-common/resources/gdm/conf/config.xml > hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/NUMBER_OF_INSTANCE_FILES_INSTANCE/${NUMBER_OF_INSTANCE_FILES_INSTANCE}/g" hadooptest/htf-common/resources/gdm/conf/config.xml.1 > hadooptest/htf-common/resources/gdm/conf/config.xml
+echo "${NUMBER_OF_INSTANCE_FILES_INSTANCE}"
+
+# replace environment value
+sed 's/[$()]//g' hadooptest/htf-common/resources/gdm/conf/config.xml > hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/TEST_EXECUTION_ENV/${TEST_EXECUTION_ENV}/g" hadooptest/htf-common/resources/gdm/conf/config.xml.1 > hadooptest/htf-common/resources/gdm/conf/config.xml
+
+# check to see if GDM_RUN_REGRESSION is set 
+if [[ $GDM_RUN_QE_REGRESSION == "true" ]]
+then
+    ${WORKSPACE}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${WORKSPACE}/hadooptest -f /homes/hadoopqa/hadooptest_gdm_regression_configs/hadooptest.conf -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS}
+else
+    echo "Jenkins param GDM_RUN_QE_REGRESSION is set to false, HTF Regression not invoked"
+fi
+
