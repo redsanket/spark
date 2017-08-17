@@ -110,9 +110,9 @@ public class SparkRunSparkSubmit extends App {
     private Map<String, String> additionalConfs = new HashMap<String, String>();
 
     private String getSparkHome() {
-        String sparkHome = System.getenv("SPARK_HOME");
+        String sparkHome = TestSession.conf.getProperty("SPARK_HOME");
         if (sparkHome == null || sparkHome.isEmpty()) {
-            sparkHome = TestSession.conf.getProperty("SPARK_HOME");
+            sparkHome = System.getenv("SPARK_HOME");
         }
         if (sparkHome == null || sparkHome.isEmpty()) {
             TestSession.logger.error("Error SPARK_HOME is not set! Set it in env or config file.");
