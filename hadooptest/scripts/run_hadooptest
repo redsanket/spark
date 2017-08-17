@@ -82,10 +82,15 @@ sub writeSparkConf {
     print FILE "CLUSTER_TYPE=hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster\n";
     print FILE "CHECK_CLUSTER_STATE=false\n";
     if ($version) {
-        print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
-        print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
-        print FILE "SPARK_HOME=/home/y/share/spark/\n";
-        print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
+       if ($version eq "sparkgw") {
+           print FILE "SPARK_HOME=/home/gs/spark/latest/\n";
+           print FILE "SPARK_CONF_DIR=/home/gs/conf/spark/latest/\n";
+        } else {
+           print FILE "SPARK_BIN=/home/y/share/spark/bin/spark-class\n";
+           print FILE "SPARK_SUBMIT_BIN=/home/y/share/spark/bin/spark-submit\n";
+           print FILE "SPARK_HOME=/home/y/share/spark/\n";
+           print FILE "SPARK_EXAMPLES_JAR=/home/y/share/spark/lib/$examples\n";
+        }
     }
     close(FILE);
 }
@@ -313,7 +318,7 @@ if ($sparkversion) {
     execute("WORKSPACE=$workspace rm -rf $workspace/htf-common/src/test/scala/hadooptest/spark/regression/spark1_2");
     execute("yinst i yspark_yarn -tag yspark_yarn_1_5_latest_hadoop2 -live -downgrade -br quarantine");
 } elsif ($sparkgw) {
-    writeSparkConf("$workspace/$sparkconf");
+    writeSparkConf("$workspace/$sparkconf", "sparkgw");
     $conf = "$workspace/$sparkconf";
 }
 
