@@ -360,8 +360,6 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 		String timeStamp = "-" + System.currentTimeMillis();
 		String dirInHdfs = "/user/" + user + "/" + testName + "-" + timeStamp;
 
-		String clusterVersion = TestSession.cluster.getVersion();
-
 		// mkdir
 		genericCliResponse = dfsCommonCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
 				user, HadooptestConstants.Schema.HDFS,
@@ -413,6 +411,7 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 
 		// gridci-2383, property changed in 2.8.1 to include 'final' so need to leave
 		// 2.7 and 2.8.0 as-is but check for 'final' block in 2.8.1 and forward
+		String clusterVersion = TestSession.cluster.getVersion();
 		TestSession.logger.debug("\nHadoop cluster version is: " + clusterVersion());
 		String stringToLookFor;
 		if (clusterVersion().contains("2.8.0") || clusterVersion().contains("2.7."))
