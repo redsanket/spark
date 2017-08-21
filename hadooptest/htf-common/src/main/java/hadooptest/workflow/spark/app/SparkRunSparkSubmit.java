@@ -79,7 +79,7 @@ public class SparkRunSparkSubmit extends App {
     /** jar name */
     private String jarName = sparkHome + "/lib/spark-examples.jar";
 
-    private String sparkConfDir = System.getenv("SPARK_CONF_DIR");
+    private String sparkConfDir = getSparkConfDir();
 
     /** distributed cache files */
     private String distCacheFiles = "";
@@ -118,6 +118,14 @@ public class SparkRunSparkSubmit extends App {
             TestSession.logger.error("Error SPARK_HOME is not set! Set it in env or config file.");
         }
         return sparkHome;
+    }
+
+    private String getSparkConfDir() {
+        String sparkConf = TestSession.conf.getProperty("SPARK_CONF_DIR");
+        if (sparkConf == null || sparkConf.isEmpty()) {
+            sparkConf = System.getenv("SPARK_CONF_DIR");
+        }
+        return sparkConf;
     }
 
     /**
