@@ -253,16 +253,19 @@ public class TestSparkUI extends TestSession {
             String stagesUIURL = uiURL + "/proxy/" + appUserDefault.getID() + "/stages/";
             logger.info("Test default bouncer user doesn't work on ui: " + stagesUIURL);
             getWithBouncer(HadooptestConstants.UserNames.HITUSR_2, hitusr_2_password, stagesUIURL, 403);
-   
             int waitTime = 180;
             assertTrue("Job (default user) did not succeed.",
                appUserDefault.waitForSuccess(waitTime));
-   
+
+            // comment out test since now using spark history server, need to add
+            // back when its supported properly
+            /*
             String outputDone = getWithBouncer(getBouncerUser(), getBouncerPassword(), uiURL, 200);
             String yarnUIPattern = "Application Overview";
             Pattern doneAppPattern = Pattern.compile(yarnUIPattern);
             Matcher doneAppMatcher = doneAppPattern.matcher(outputDone);
             assertTrue("Did not find stages link in SparkUI", doneAppMatcher.find()); 
+            */
 
         } catch (Exception e) {
             TestSession.logger.error("Exception failure.", e);
