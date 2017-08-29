@@ -46,22 +46,6 @@ public class TestReplicationOnStaging extends TestSession {
 	}
 	
 	this.workFlowHelper = new WorkFlowHelper();
-	/*
-	List<String> datastores = this.consoleHandle.getUniqueGrids();
-	if (datastores.size() < 2) {
-	    Assert.fail("Only " + datastores.size() + " of 2 required grids exist");
-	}
-
-	// check whether the specified source cluster exists on the current console 
-	if (! datastores.contains(SOURCE_CLUSTER_NAME)) {
-	    Assert.fail( SOURCE_CLUSTER_NAME + " cluster does not exists.");
-	}
-
-	// check whether the specified target cluster exists on the current console		
-	if (! datastores.contains(TARGET_CLUSTER_NAME)) {
-	    Assert.fail( TARGET_CLUSTER_NAME + " cluster does not exists.");
-	}
-	*/
     }
 
     @Test
