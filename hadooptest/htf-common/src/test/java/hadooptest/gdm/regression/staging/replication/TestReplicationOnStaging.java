@@ -46,6 +46,7 @@ public class TestReplicationOnStaging extends TestSession {
 	}
 	
 	this.workFlowHelper = new WorkFlowHelper();
+	/*
 	List<String> datastores = this.consoleHandle.getUniqueGrids();
 	if (datastores.size() < 2) {
 	    Assert.fail("Only " + datastores.size() + " of 2 required grids exist");
@@ -60,6 +61,7 @@ public class TestReplicationOnStaging extends TestSession {
 	if (! datastores.contains(TARGET_CLUSTER_NAME)) {
 	    Assert.fail( TARGET_CLUSTER_NAME + " cluster does not exists.");
 	}
+	*/
     }
 
     @Test
