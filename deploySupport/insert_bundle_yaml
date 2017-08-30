@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#################################################################################
+# Insert a new bundle yaml file in the hadoop_releases git repo
+# Required Parameters:
+# 1) component - (e.g. hadoop_core)
+# 2) serial - the serial id
+# 3) labels - optional lable/version key value pairs.
+# E.g. {label-a,version-a;lable-b,version-b;...}
+#
+# USAGE:
+# $ ./insert_bundle_yaml hadoop_core 20150803184432
+#################################################################################
+
+echo "Insert bundle yaml file to the hadoop_releases git repo:"
+
+# Get the full path script directory
+SCRIPT_DIR=`dirname $(readlink -f $0)`
+TS=`date +%s`
+GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
+GIT_DIR="$SCRIPT_DIR/hadoop_releases.$TS"
+
+component=$1
+# E.g. `date -u +\%Y\%m\%d\%H\%M\%S`
+serial=$2
+
+labels=$3
+
+if [[ -z $component ]]; then
+  echo "ERROR: Required component parameter is empty!!!"
+  exit 1
+fi
+
+if [[ -z $serial ]]; then
+  echo "ERROR: Required serial parameter is empty!!!"
+  exit 1
+fi
+
+echo "component='$component'"
+echo "serial='$serial'"
+echo "labels='$labels'"
+
+#################################################################################
+# Clone git repo
+#################################################################################
+echo "---> Clone git repo '$GIT_REPO':"
+set -x
+git clone $GIT_REPO $GIT_DIR
+ls -ld $GIT_DIR
+cd $GIT_DIR
+pwd
+set +x
+
+#################################################################################
+# Update the bundle yaml file
+#################################################################################
+$GIT_DIR/scripts/insert_bundle -component $component -serial $serial -labels $labels -write
