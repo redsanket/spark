@@ -26,6 +26,8 @@ export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
 export YARN_HOME=${yroothome}/share/hadoop
 export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
 export HADOOP_PREFIX=${yroothome}/share/hadoop
+export HIVE_DB_NODE=openqeoradb2blue-n1.blue.ygrid.yahoo.com
+export HIVE_DB=YHADPDB2
 
 
 HIVENODE=`hostname`
@@ -34,49 +36,18 @@ echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Hive node being installed: $HIVENODE"
 
 #
-# install the backing mysql db
+# install the backing oracle DB client 
 #
-# pkgs, should get everything we need from mysql_server
-#yinst i yjava_jdk
-# gridci-1973, install dba passwd pkg from S1 jira
-yinst install mysql_dba_privileges mysql_server
-#yinst install mysql_client
-
-# make sure keydb file is readable by hadoopqa
-MYSQLROOT_KEYDBFILE="/home/y/conf/keydb/mysqlroot.keydb"
-if ! [ -r "$MYSQLROOT_KEYDBFILE" ]; then
-  echo "Error!"
-  echo "mysql_server requires a readable $MYSQLROOT_KEYDBFILE file!"
-  echo "Please make sure $MYSQLROOT_KEYDBFILE has at least read permission!"
-  echo "Error!"
-  exit 1
-fi 
-
-# settings, the duplication is likely unnecessary, there were versions of hive that
-# installed either mysql_config or mysql_config_multi, it appears that current hive
-# releases have settled on mysql_config_multi so in the future we can remove the sets
-# for mysql_config 
-yinst set mysql_config_multi.read_only=off
-yinst set mysql_config.read_only=off
-yinst set mysql_config_multi.binlog_format=ROW
-yinst set mysql_config.binlog_format=ROW
-yinst set mysql_config_multi.skip_name_resolve=UNDEF
-yinst set mysql_config.skip_name_resolve=UNDEF
-
-yinst restart mysql_server 
+yinst install ora11gclient-1.0.3 
 
 # kinit as dfsload, the dfsload keytab should already be there from the Configure job
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
-# mysql server config script
-echo "CREATE USER 'hive'@'$HIVENODE' IDENTIFIED BY 'dbpassword';" > /tmp/sql_setup.sql
-echo "CREATE DATABASE hivemetastoredb DEFAULT CHARACTER SET latin1 DEFAULT COLLATE latin1_swedish_ci;" >> /tmp/sql_setup.sql
-echo "GRANT ALL PRIVILEGES ON hivemetastoredb.* TO 'hive'@'$HIVENODE' WITH GRANT OPTION;" >> /tmp/sql_setup.sql
-echo "flush privileges;" >> /tmp/sql_setup.sql
-
-# apply sql script to DB
-# gridci-1973, add passwd field to fetch from keydb
-mysql -A -u root -p`/home/y/bin64/keydbgetkey mysqlroot`  < /tmp/sql_setup.sql
+# switched to using oracle per gridci-2434 
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+   Now using oracle DB on $HIVE_DB_NODE 
+echo "+   using SID $HIVE_DB
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 # install supporting packages
 yinst install hbase
@@ -125,10 +96,6 @@ else
         echo "Use the same version of hive_conf as hive for reference cluster '${REFERENCE_CLUSTER}': '${HIVE_VERSION}'"
         PACKAGE_VERSION_HIVE_CONF="hive_conf-${HIVE_VERSION}"
 
-        # gridci-2227, oozie's ssl changes cause a ykeydb and mysql_secure conflict, need to pull mysql_secure from test
-        # error from yinst:  mysql_secure-2.2.6 [active] requires ykeydb (2.0.0.19 <= ver <= 2.0.9999.9999)
-        echo "Installing mysql_secure from test branch, needed by ykeydb dependency..."
-        yinst i mysql_secure -br test
     else
         PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
     fi
@@ -161,7 +128,8 @@ yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
 yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
 yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
 yinst set hcat_server.JAVA_HOME=/home/gs/java/jdk
-yinst set hcat_server.database_connect_url=jdbc:mysql://$HIVENODE:3306/hivemetastoredb?createDatabaseIfNotExist=true
+# yinst set hcat_server.database_connect_url=jdbc:mysql://$HIVENODE:3306/hivemetastoredb?createDatabaseIfNotExist=true
+yinst set hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
 yinst set hcat_server.database_user=hive
 yinst set hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
 yinst set hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
@@ -180,7 +148,7 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 #yinst set hcat_server.jdbc_driver=yjava.database.jdbc.mysql.KeyDbDriverWrapper
 #yinst install hcat_dbaccess-0.0.1.1360014220.T38813-rhel.tgz
 #yinst set hcat_server.keydb_passkey=hcatPassword
-yinst set hcat_server.jdbc_driver=com.mysql.jdbc.Driver
+yinst set hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper
 yinst set hcat_server.keydb_passkey=dbpassword
 
 yinst restart hcat_server
