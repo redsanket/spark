@@ -26,8 +26,13 @@ export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop
 export YARN_HOME=${yroothome}/share/hadoop
 export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
 export HADOOP_PREFIX=${yroothome}/share/hadoop
+
+# oracle db support vars
 export HIVE_DB_NODE=openqeoradb2blue-n1.blue.ygrid.yahoo.com
 export HIVE_DB=YHADPDB2
+export PATH=$PATH:/home/y/lib64/ora11gclient/
+export ORACLE_HOME=/home/y/lib64/ora11gclient/
+export LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
 
 
 HIVENODE=`hostname`
@@ -38,15 +43,22 @@ echo "INFO: Hive node being installed: $HIVENODE"
 #
 # install the backing oracle DB client 
 #
+# this needs the headless keys pkg in order to fetch the ora DB
+# key 'hiveqeint' from ykeykey
+#
+yinst install hadoopqa_headless_keys
 yinst install ora11gclient-1.0.3 
+
+# make sure we support hybrid mode for legacy keydb calls
+yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
 
 # kinit as dfsload, the dfsload keytab should already be there from the Configure job
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
 # switched to using oracle per gridci-2434 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "+   Now using oracle DB on $HIVE_DB_NODE 
-echo "+   using SID $HIVE_DB
+echo "+   Now using oracle DB on $HIVE_DB_NODE                " 
+echo "+   using SID $HIVE_DB                                  "
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 # install supporting packages
@@ -149,7 +161,7 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 #yinst install hcat_dbaccess-0.0.1.1360014220.T38813-rhel.tgz
 #yinst set hcat_server.keydb_passkey=hcatPassword
 yinst set hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper
-yinst set hcat_server.keydb_passkey=dbpassword
+yinst set hcat_server.keydb_passkey=hiveqeint
 
 yinst restart hcat_server
 
