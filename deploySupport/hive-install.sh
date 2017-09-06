@@ -28,8 +28,11 @@ export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
 export HADOOP_PREFIX=${yroothome}/share/hadoop
 
 # oracle db support vars
-export HIVE_DB_NODE=openqeoradb2blue-n1.blue.ygrid.yahoo.com
-export HIVE_DB=YHADPDB2
+export HIVE_DB_NODE=openqeoradb1blue-n1.blue.ygrid.yahoo.com
+# use the oradb SID associated with this target cluster
+export HIVE_DB=`echo $CLUSTER | cut -c 1-8`
+echo "DEBUG: our ora db is: $HIVE_DB"
+
 export PATH=$PATH:/home/y/lib64/ora11gclient/
 export ORACLE_HOME=/home/y/lib64/ora11gclient/
 export LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
