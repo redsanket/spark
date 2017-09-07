@@ -173,8 +173,9 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
             TestSession.logger.info("-- tempOozieJobID = " + tempOozieJobID );
             int indexOfJobIdOutput = tempOozieJobID.indexOf("job:");
             TestSession.logger.info("indexOfJobIdOutput = " + indexOfJobIdOutput);
-            String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1 , tempOozieJobID.length());
+            String jobID  = tempOozieJobID.substring(tempOozieJobID.indexOf("job:") + 5 , tempOozieJobID.length());
             this.setOozieJobID(jobID);
+	    TestSession.logger.debug("Our jobID is = " + jobID);
             
             String result = getResult();
             if (result.indexOf("KILLED") > -1) {
