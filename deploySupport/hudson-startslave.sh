@@ -110,6 +110,17 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
+#################################################################################
+# Set default values for SPARK parameters if not set via Jenkins
+#################################################################################
+# STACK_COMP_VERSION_SPARK
+# Install Spark component on the Spark node using a reference cluster's package version(s)
+# none - do not install (DEFAULT VALUE)
+# LATEST - use version from Artifactory LATEST
+# axonitered - use same version as on AR cluster.
+STACK_COMP_VERSION_SPARK=${STACK_COMP_VERSION_SPARK:='none'}
+SPARK_SHUFFLE_DIST_TAG=${SPARK_SHUFFLE_DIST_TAG:='same_as_STACK_COMP_VERSION_SPARK'}
+
 if [[ $SPARK_SHUFFLE_DIST_TAG != "same_as_STACK_COMP_VERSION_SPARK" ]]; then
     export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | head -1 | awk '{print $1}' | cut -d- -f2`
 elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" ]]; then
@@ -269,7 +280,7 @@ echo "===  Hadoop Version (short)='$HADOOPVERSION'"
 echo "===  HADOOP_27='$HADOOP_27'"
 [ -n $TEZVERSION ] && echo "===  Tez Version='$TEZVERSION'"
 [ -n $SPARKVERSION ] && echo "===  Spark Version='$SPARKVERSION'"
-[ -n $SPARK_HISTORY_VERSION ] && echo "=== Spark History Version='$SPARK_HISTORY_VERSION'"
+[ -n $SPARK_HISTORY_VERSION ] && echo "===  Spark History Version='$SPARK_HISTORY_VERSION'"
 echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
 echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
 echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
