@@ -157,7 +157,7 @@ public class TestIntHive implements java.util.concurrent.Callable<String> {
 		boolean result = isTableDropped && isTableCreated && isDataCopied && isDataInserted &&  isDataFetchedUsingHCatalog;
 		String componentName =  this.stackComponent.getStackComponentName() + "-" + result;
 		
-		TestSession.logger.info("--------------------------------------------------------------- TestIntHive  start ------------------------------------------------------------------------");
+		TestSession.logger.info("--------------------------------------------------------------- TestIntHive  finished ------------------------------------------------------------------------");
 		return  componentName ;
 	}
 }
