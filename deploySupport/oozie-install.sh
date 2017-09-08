@@ -360,7 +360,7 @@ function setOozieSparkTag() {
   fi
 }
 
-if [[ $STACK_COMP_INSTALL_SPARK != false ]]; then 
+if [[ $STACK_COMP_INSTALL_SPARK == true ]]; then
   # Get the spark installation versions to set the oozie ygrid_sharelib settings.
   SPARK_LATEST_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/latest/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`
   SPARK_CURRENT_VERSION=`$SSH $OOZIE_GW_NODE "readlink -f /home/gs/spark/current/ | grep -o yspark_yarn.* | cut -d'/' -f1 | cut -d- -f2"`

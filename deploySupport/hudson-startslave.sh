@@ -123,7 +123,7 @@ SPARK_SHUFFLE_DIST_TAG=${SPARK_SHUFFLE_DIST_TAG:='same_as_STACK_COMP_VERSION_SPA
 
 if [[ $SPARK_SHUFFLE_DIST_TAG != "same_as_STACK_COMP_VERSION_SPARK" ]]; then
     export SPARK_SHUFFLE_VERSION=`dist_tag list $SPARK_SHUFFLE_DIST_TAG | head -1 | awk '{print $1}' | cut -d- -f2`
-elif [[ $STACK_COMP_INSTALL_SPARK != false && $STACK_COMP_VERSION_SPARK != "none" ]]; then
+elif [[ $STACK_COMP_INSTALL_SPARK == true && $STACK_COMP_VERSION_SPARK != "none" ]]; then
     export SPARK_SHUFFLE_VERSION=`/home/y/bin/query_releases -c $STACK_COMP_VERSION_SPARK -b spark -p SPARK_DOT_LATEST`
 elif [[ $SPARK_SHUFFLE_VERSION == "" ]]; then
     HADOOP_CORE_PKGS+=" yspark_yarn_shuffle"
@@ -256,17 +256,16 @@ if [ -n "$SPARK_HISTORY_SERVER_DIST_TAG" ]; then
     export SPARK_HISTORY_VERSION=`dist_tag list $SPARK_HISTORY_SERVER_DIST_TAG | head -1 | awk '{print $1}' | cut -d- -f2`
 fi
 
-if [ -n "$AUTO_CREATE_RELEASE_TAG" ]; then
-    if [ $AUTO_CREATE_RELEASE_TAG = 1 ] && [ -n "$HADOOP_RELEASE_TAG" ]; then
-        if [ -n "$CUST_DIST_TAG" ]; then
-            export NEW_DIST_TAG="$CUST_DIST_TAG"_${DATESTRING}
-        else
-            export NEW_DIST_TAG=hadoop_2_0_${DATESTRING}
-        fi
-        echo "`date +%H:%M:%S` Clone dist tag '$HADOOP_RELEASE_TAG' to '$NEW_DIST_TAG':"
-        dist_tag clone $HADOOP_RELEASE_TAG $NEW_DIST_TAG
-        dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
+AUTO_CREATE_RELEASE_TAG=${AUTO_CREATE_RELEASE_TAG:=0}
+if [ $AUTO_CREATE_RELEASE_TAG = 1 ]; then
+    if [ -n "$CUST_DIST_TAG" ]; then
+        export NEW_DIST_TAG="$CUST_DIST_TAG"_${DATESTRING}
+    else
+        export NEW_DIST_TAG=hadoop_2_0_${DATESTRING}
     fi
+    echo "`date +%H:%M:%S` Clone dist tag '$HADOOP_RELEASE_TAG' to '$NEW_DIST_TAG':"
+    dist_tag clone $HADOOP_RELEASE_TAG $NEW_DIST_TAG
+    dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
 fi
 echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Completed dist tag processing."
 
@@ -299,7 +298,7 @@ PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/nul
                     /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl'
 
 #		default values, if not set by a Hudson/user environment variable.
-[ -z "$ADMIN_HOST" ] && export ADMIN_HOST=adm102.blue.ygrid.yahoo.com
+[ -z "$ADMIN_HOST" ] && export ADMIN_HOST=devadm102.blue.ygrid.yahoo.com
 [ -z "$CLUSTER" ] && export CLUSTER=none
 [ -z "$JOB_NAME" ] && export JOB_NAME=none
 [ -z "$BUILD_NUMBER" ] && export BUILD_NUMBER=none
@@ -380,7 +379,17 @@ done
 [ -z "$HDFSPROXYVERSION" ] && export HDFSPROXYVERSION=none
 [ -z "$HDFSPROXY_TEST_PKG" ] && export HDFSPROXY_TEST_PKG=none
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=none
-[ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
+# Additional packages maintained by Hadoop Core QA team
+# [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
+[ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
+hadoop_qe_runasroot-stable \
+datanode-test \
+hadoop_qa_restart_config-test \
+namenode-test \
+secondarynamenode-test \
+resourcemanager-test \
+nodemanager-test \
+historyserver-test"
 [ -z "$SEND_LOG_TO_STDOUT" ] && export SEND_LOG_TO_STDOUT=false
 [ -z "$NO_CERTIFICATION" ] && export NO_CERTIFICATION=false
 [ -z "$HBASE_SHORTCIRCUIT" ] && export HBASE_SHORTCIRCUIT=false
@@ -613,7 +622,7 @@ function deploy_stack() {
 # you can specify the version of spark and spark history server to be installed.
 #################################################################################
 function deploy_spark () {
-  if [[ $STACK_COMP_INSTALL_SPARK != false ]]; then
+  if [[ $STACK_COMP_INSTALL_SPARK == true ]]; then
     if [[ $STACK_COMP_VERSION_SPARK != "none" ]]; then
       # call the default deploy behavior.
       deploy_stack spark $STACK_COMP_VERSION_SPARK spark-install-check.sh
