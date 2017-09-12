@@ -103,8 +103,7 @@ my $storm090 = 0;
 my $stormconf;
 my $spark = 0;
 my $tez = 0;
-# $hadoop26 $hadoop27 $hadoop28 are now deprecated
-my $hadoop26 = 0;
+# $hadoop27 $hadoop28 are now deprecated
 my $hadoop27 = 0;
 my $hadoop28 = 0;
 my $pig = 0;
@@ -141,7 +140,6 @@ GetOptions(\%options,
     "gdm"                => \$gdm,
     "gdmVersion"          => \$gdmVersion,
     "tez"                => \$tez,
-    "hadoop26"           => \$hadoop26,
     "hadoop27"           => \$hadoop27,
     "hadoop28"           => \$hadoop28,
     "pig"                => \$pig,
@@ -177,7 +175,7 @@ if ($sparkversion) {
   # -sparkver 1.5.1.1 -sparkhadoopver 2.6.0.16.1506060127 
   # -sparkfullver 1.5.1.1_2.6.0.16.1506060127_1510071630 
   # -sparktag yspark_yarn_1_5_latest_hadoop2 -sparkbranch quarantine 
-  # -m -hadoop26 -t TestSparkHdfsLrCli
+  # -m -hadoop27 -t TestSparkHdfsLrCli
   note("you must specify all sparkver, sparkfullver and sparkhadoopver");
   if (!$sparkversionfull || !$sparkhadoopversion) {
        exit 1;
@@ -246,14 +244,13 @@ note($cmd);
 chomp($hadoop_version = `$cmd`);
 note("Hadoop version = '$hadoop_version'");
 
-if (($hadoop26) || ($hadoop27) || ($hadoop28)) {
-    note("WARN: Deprecated parameters are used {-hadoop26, -hadoop27, -hadoop28}!!!");
+if (($hadoop27) || ($hadoop28)) {
+    note("WARN: Deprecated parameters are used {-hadoop27, -hadoop28}!!!");
     note("WARN: This will now be auto-set based on the installed hadoop version '$hadoop_version' on the cluster '$cluster'.");
+    $hadoop27=0;
+    $hadoop28=0;
 }
-if ($hadoop_version =~ '^2.6') {
-    $hadoop26=1;
-}
-elsif ($hadoop_version =~ '^2.7') {
+if ($hadoop_version =~ '^2.7') {
     $hadoop27=1;
 } elsif ($hadoop_version =~ '^2.8') {
     $hadoop28=1;
@@ -362,16 +359,10 @@ elsif ($storm090) {
     $dependencies_opt .= " -Pprofile-storm-090 -Pprofile-all";
 }
 elsif ($tez){
-    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
-}
-elsif ($hadoop28) {
-    $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
+    $dependencies_opt .= " -Pprofile-tez -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }
 elsif ($hadoop27) {
     $dependencies_opt .= " -Pprofile-hadoop-2-7 -Pprofile-ci -Pprofile-all";
-}
-elsif ($hadoop26) {
-    $dependencies_opt .= " -Pprofile-hadoop-2-6-plus -Pprofile-ci -Pprofile-all";
 }
 else {
 	# When Hadoop is used, this profile must be called before profile-ci
@@ -383,7 +374,9 @@ else {
 	# profile-hadoop first in the maven profile order, it ensures
 	# that Hadoop API calls and configuration will be using the
 	# deployed Hadoop jars. -->
-    $dependencies_opt .= " -Pprofile-hadoop -Pprofile-ci -Pprofile-all";
+    
+    # Making the hadoop 2.8 profile as default as hadoop 2.7 is almost EOL
+    $dependencies_opt .= " -Pprofile-hadoop-2-8 -Pprofile-ci -Pprofile-all";
 }
 
 my $stormClusterConf =
@@ -442,9 +435,9 @@ if ($use_mvn) {
     # RUN TESTS VIA MAVEN
     execute("/usr/local/bin/yinst install yjava_maven -br test -yes") unless (-e "/home/y/bin/mvn");
 
-    unless ($storm||$storm090) {
-        $pom_opt .= " -Pprofile-hadoop";
-    }
+    # unless ($storm||$storm090) {
+    #     $pom_opt .= " -Pprofile-hadoop";
+    # }
 
     my $hadoop_share = "/home/gs/gridre/yroot.$cluster/share/hadoop-$hadoop_version/share/hadoop/";
     if ($gdm) {
