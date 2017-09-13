@@ -161,7 +161,6 @@ eval "$cmd"
 st=$?
 [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install python and R to sharelib <<<<<<<<<<" && exit $st
 
-
 # Setup the sharelib in hdfs for the current and latest spark version.
 for i in "${label_version_arr[@]}"
 do
