@@ -149,12 +149,18 @@ st=$?
 # Obtain the kerberos tokens to talk to hdfs.
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
-$HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_R32
-$HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-3.2.1.3.tgz /sharelib/v1/yspark_yarn_R32/
-$HADOOP fs -mkdir -p /sharelib/v1/python36
-$HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python27/python36.tgz
-$HADOOP fs -mkdir -p /sharelib/v1/python27
-$HADOOP fs -put /home/y/share/python27_grid/python_build_python2.7.tgz /sharelib/v1/python27/python27.tgz
+cmd="$HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_R32; \
+     $HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-3.2.1.3.tgz /sharelib/v1/yspark_yarn_R32/; \
+     $HADOOP fs -mkdir -p /sharelib/v1/python36; \
+     $HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz; \
+     $HADOOP fs -mkdir -p /sharelib/v1/python27; \
+     $HADOOP fs -put /home/y/share/python27_grid/python_build_python2.7.tgz /sharelib/v1/python27/python27.tgz;"
+
+echo "$cmd"
+eval "$cmd"
+st=$?
+[[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install python and R to sharelib <<<<<<<<<<" && exit $st
+
 
 # Setup the sharelib in hdfs for the current and latest spark version.
 for i in "${label_version_arr[@]}"
