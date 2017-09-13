@@ -150,7 +150,7 @@ st=$?
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
 cmd="$HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_R32; \
-     $HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-3.2.1.3.tgz /sharelib/v1/yspark_yarn_R32/; \
+     $HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-3.2.1.3.tgz /sharelib/v1/yspark_yarn_R32/yspark_yarn_R32.tgz; \
      $HADOOP fs -mkdir -p /sharelib/v1/python36; \
      $HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz; \
      $HADOOP fs -mkdir -p /sharelib/v1/python27; \
