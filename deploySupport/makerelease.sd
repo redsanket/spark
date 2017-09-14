@@ -215,11 +215,11 @@ if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   set -x
   BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
 
-  # Update the clusters yaml file
-  $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
-
-  # DISABLED FOR NOW: Update the clusters yaml file
+  # insert_bundle_yaml and update_clusters_yaml is disabled for now
   # Should be enabled once makerelease on re101 is obsolete
+  # Update the clusters yaml file
+  # $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+
   # $SCRIPT_DIR/update_clusters_yaml hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE
   set +x
 else
