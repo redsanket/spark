@@ -29,11 +29,7 @@ DIST_TAG="/home/y/bin/dist_tag"
 set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_latest_certified_release"}
 packages=${packages:="hadoop conf"}
-yroot_name=${YROOT_NAME:="make-release"}
 CLEAN_YROOT=${CLEAN_YROOT:="false"}
-ADM=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
-CFG_ADM=${CFG_ADM_HOST:="adm.ygrid.yahoo.com"}
-CFG_NFS_MOUNT=${CFG_NFS_MOUNT:="/net/adm.ygrid.yahoo.com/home/y/share/adm/pub/Releases"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging"}
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
@@ -47,7 +43,7 @@ MR_DIR="$TMP_DIR/gridPush"
 
 REL_GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
-UPLOAD_RELEASE=${UPLOAD_RELEASE:="true"}
+UPLOAD_RELEASE=${UPLOAD_RELEASE:="false"}
 
 yroot_release_dir="${SOURCE_DIR}/grid/0/releases"
 cfg_release_dir="/pub/Releases"
@@ -111,7 +107,7 @@ ls -ld $MR_DIR
 #################################################################################
 # Run makerelease on remote host
 #################################################################################
-#!echo "--> Generate a a copy of the script that can runs makerelease from inside the yroot on the remote host:"
+#!echo "--> Generate a a copy of the script that can runs makerelease"
 run_script_file="run_makerelease"
 run_script_file_path="$TMP_DIR/$run_script_file"
 
@@ -202,10 +198,10 @@ if [ $? -eq 0 ]; then
 	scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
      done
   else
-     echo "Skip artifactory upload"
+     echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
   fi
 else
-  echo "UPLOAD_RELEASE=false: Skipping upload of pkgs to artifactory"
+  echo "Error: Something went wrong with $run_script_file_path"
   exit -1
 fi
 
