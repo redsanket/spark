@@ -36,7 +36,7 @@ screwdriver: release cleanbuild build
 .PHONY: build 
 
 release:
-	@echo "Creating version"
+	@echo "Creating version ${VERSION}"
 	@echo ${VERSION} > ${SOURCE_DIR}/RELEASE
 
 cleanbuild:
