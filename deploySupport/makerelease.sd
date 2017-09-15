@@ -62,9 +62,6 @@ fi
 
 # set +x
 
-# Clone generic certified tag to version based certified tag.
-# If version based certified tag already exists, just use it.
-echo "----> Clone generic release tag '$CERTIFIED_TAG' to version based certified tag '$CERTIFIED_VERSION_TAG':"
 # Check if the version based certified tag already exists.
 $DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
 RC=$?
@@ -80,7 +77,7 @@ fi
 echo "---> Clone gridPush git repo '$GIT_REPO':"
 set -x
 mkdir $TMP_DIR
-#!## Replace git repo gridPush with ygrid_makerelease yinst pkg
+# Replace git repo gridPush with ygrid_makerelease yinst pkg
 
 git clone $GIT_REPO gridPush
 
@@ -88,7 +85,7 @@ set +x
 #################################################################################
 # Run makerelease on remote host
 #################################################################################
-#!echo "--> Generate a a copy of the script that can runs makerelease"
+#echo "--> Generate a a copy of the script that can runs makerelease"
 run_script_file="run_makerelease"
 run_script_file_path="$TMP_DIR/$run_script_file"
 
@@ -174,6 +171,8 @@ set +x
 $run_script_file_path
 if [ $? -eq 0 ]; then
   if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
+     # For GDM we often got timeout error and it was not obvious to see which pkg is causing it
+     # Upload one pkg at a time, in case of failure it is easy to debug
      for pkg in `ls ${SOURCE_DIR}/grid/0/releases/*.tgz*`; do
 	echo "Uploading $pkg..."
 	scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
