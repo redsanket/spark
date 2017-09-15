@@ -27,7 +27,7 @@ TMP_DIR="/tmp/makerelease.$TIME"
 DIST_TAG="/home/y/bin/dist_tag"
 
 set -x
-CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_latest_certified_release"}
+CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
 packages=${packages:="hadoop conf"}
 CLEAN_YROOT=${CLEAN_YROOT:="false"}
 CLUSTERS=${CLUSTERS:="all"}
@@ -35,22 +35,20 @@ CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,gri
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
 COMPONENTS=${COMPONENTS:='hadoop'}
 CLEANUP=${CLEANUP:="true"}
-UPLOAD_ARTIFACTORY:=${UPLOAD_ARTIFACTORY:="true"}
+UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
 set +x
 
 GIT_REPO="git@git.corp.yahoo.com:GridSE/gridPush.git"
-MR_DIR="$TMP_DIR/gridPush"
 
 REL_GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
-UPLOAD_RELEASE=${UPLOAD_RELEASE:="false"}
+UPDATE_RELEASE=${UPDATE_RELEASE:="false"}
 
-yroot_release_dir="${SOURCE_DIR}/grid/0/releases"
-cfg_release_dir="/pub/Releases"
+release_dir="${SOURCE_DIR}/grid/0/releases"
 
 # OVERRIDE_TAG=${OVERRIDE_TAG:="false"}
 
-set -x
+# set -x
 
 ################################################################################
 
@@ -63,7 +61,7 @@ else
   CERTIFIED_VERSION_TAG=$CERTIFIED_TAG
 fi
 
-set +x
+# set +x
 
 # Clone generic certified tag to version based certified tag.
 # If version based certified tag already exists, just use it.
@@ -78,10 +76,8 @@ if [[ $RC -eq 0 ]]; then
     $DIST_TAG rename $CERTIFIED_VERSION_TAG $CERTIFIED_VERSION_TAG"_"$TIME
     set +x
 fi
-
-set -x
-$DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
-set +x
+# We don't need this, we use version specific dist tag, if it is present no need to clone it again
+# $DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
 if [[ $? -ne 0 ]]; then
   echo "ERROR: dist_tag clone failed!!!"
   exit 1;
@@ -89,21 +85,19 @@ fi
 
 set -x
 
-#! Not installing ygrid_makerelease in screwdriver docker instance
+# Not installing ygrid_makerelease in screwdriver docker instance
 # yinst install ygrid_makerelease -br current -yes
 #################################################################################
 # Checkout GridPush from git
 #################################################################################
-echo "---> Clone makerelease git repo '$GIT_REPO':"
-echo "---> Install ygrid_makerelease pkg"
+echo "---> Clone gridPush git repo '$GIT_REPO':"
 set -x
 mkdir $TMP_DIR
 #!## Replace git repo gridPush with ygrid_makerelease yinst pkg
 
 git clone $GIT_REPO gridPush
-ls -ld $MR_DIR
 
-
+set +x
 #################################################################################
 # Run makerelease on remote host
 #################################################################################
@@ -133,7 +127,7 @@ set -x
 pwd
 hostname
 echo $PATH
-sudo mkdir -p $yroot_release_dir
+sudo mkdir -p $release_dir
 EOF
 
 labels=""
@@ -190,7 +184,7 @@ chmod a+x $run_script_file_path
 ls -l $run_script_file_path
 cat $run_script_file_path
 set +x
-sh -x $run_script_file_path
+$run_script_file_path
 if [ $? -eq 0 ]; then
   if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
      for pkg in `ls ${SOURCE_DIR}/grid/0/releases/*.tgz*`; do
@@ -205,8 +199,8 @@ else
   exit -1
 fi
 
-if [[ "$UPLOAD_RELEASE" == "true" ]]; then
-  echo "UPLOAD_RELEASE=true: Proceed to update the hadoop_releases git repo"
+if [[ "$UPDATE_RELEASE" == "true" ]]; then
+  echo "UPDATE_RELEASE=true: Proceed to update the hadoop_releases git repo"
 
   set -x
   BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
@@ -219,7 +213,7 @@ if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   # $SCRIPT_DIR/update_clusters_yaml hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE
   set +x
 else
-  echo "UPLOAD_RELEASE=false: Skipping updating hadoop_releases git repo"
+  echo "UPDATE_RELEASE=false: Skipping updating hadoop_releases git repo"
 fi
 
 # Cleanup 

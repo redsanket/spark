@@ -9,7 +9,7 @@ shared:
     steps:
         run_makerelease:
             description: Run makerelease 
-            command: sh -x deploySupport/makerelease.sd
+            command: ./deploySupport/makerelease.sd
 
     plugins:
       coverage:
