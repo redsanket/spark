@@ -2,14 +2,14 @@ platform: cpp
 
 shared:
     notifications:
-      email: rchopde@yahoo-inc.com
+      email: grid-re@oath.com
 
     build_containers: [rhel6]
     publish_containers: [rhel6]
     steps:
-        update_metadata:
-            description: Update_metadata
-            command: ./cicd/update_metadata.sh master
+        run_makerelease:
+            description: Run makerelease 
+            command: ./deploySupport/makerelease.sd
 
     plugins:
       coverage:
@@ -19,6 +19,6 @@ shared:
 
 jobs:
    component:
-      order: [init, install-jdk, clean, build, update_metadata]
+      order: [init, build, run_makerelease]
    pull-request:
-      order: [init, install-jdk, clean]
+      order: [init, build]

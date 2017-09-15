@@ -1,0 +1,215 @@
+#!/bin/bash
+
+#################################################################################
+# This script is run after a new hadoop core version has passed QE certification.
+# It will perform the following tasks:
+# 1) Generate the yinst freeze tgz files and upload them to artifactory at
+#    https://artifactory.ops.yahoo.com:9999/artifactory/ygrid/Releases/
+#    There it will be used by the SE deployment scripts
+#    for deploying hadoop to sandbox/research/production clusters.
+# 2) DISABLED FOR NOW - Update the hadoop_releases git repo, which is used to managed the package
+#    versions for all components and clusters. This script will do the following:
+#    2.1) Insert a new bundle yaml fille with the new tgz package versions for core
+#       (e.g. $REL_MR_DIR/bundles/hadoop_core/hadoop_core-$TIME.yaml).
+#    2.2) Update the clusters.yaml file to promote the new bundle serial number to
+#       the specified cluster or clusters. (By default, the cluster promoted will be
+#       axonitered)
+#################################################################################
+# Required packages:
+#   git
+#################################################################################
+
+# https://git.corp.yahoo.com/GridSE/hadoop_releases
+
+SCRIPT_DIR=`dirname $(readlink -f $0)`
+TIME=`date -u +\%y\%m\%d\%H\%M\%S`
+TMP_DIR="/tmp/makerelease.$TIME"
+DIST_TAG="/home/y/bin/dist_tag"
+
+set -x
+CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
+packages=${packages:="hadoop conf"}
+CLUSTERS=${CLUSTERS:="all"}
+CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging"}
+CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
+COMPONENTS=${COMPONENTS:='hadoop'}
+CLEANUP=${CLEANUP:="true"}
+UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
+set +x
+
+GIT_REPO="git@git.corp.yahoo.com:GridSE/gridPush.git"
+
+REL_GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
+REL_MR_DIR="$TMP_DIR/hadoop_releases"
+UPDATE_RELEASE=${UPDATE_RELEASE:="false"}
+
+release_dir="${SOURCE_DIR}/grid/0/releases"
+
+# OVERRIDE_TAG=${OVERRIDE_TAG:="false"}
+
+# set -x
+
+################################################################################
+
+HADOOP_VERSION=`$DIST_TAG list $CERTIFIED_TAG|grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g'`
+if [[ "$CERTIFIED_TAG" == "hadoop_2_8_latest_certified_release" ]]; then
+  CERTIFIED_VERSION_TAG="hadoop_certified_$HADOOP_VERSION"
+elif [[ "$CERTIFIED_TAG" == "hadoop_latest_certified_release" ]]; then
+  CERTIFIED_VERSION_TAG="hadoop_certified_$HADOOP_VERSION"
+else
+  CERTIFIED_VERSION_TAG=$CERTIFIED_TAG
+fi
+
+# set +x
+
+# Check if the version based certified tag already exists.
+$DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
+RC=$?
+if [[ $RC -eq 0 ]]; then
+    echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
+fi
+
+# Not installing ygrid_makerelease in screwdriver docker instance, instead using git repo
+# yinst install ygrid_makerelease -br current -yes
+#################################################################################
+# Checkout GridPush from git
+#################################################################################
+echo "---> Clone gridPush git repo '$GIT_REPO':"
+set -x
+mkdir $TMP_DIR
+# Replace git repo gridPush with ygrid_makerelease yinst pkg
+
+git clone $GIT_REPO gridPush
+
+set +x
+#################################################################################
+# Run makerelease on remote host
+#################################################################################
+#echo "--> Generate a a copy of the script that can runs makerelease"
+run_script_file="run_makerelease"
+run_script_file_path="$TMP_DIR/$run_script_file"
+
+# E.G. version="2.6.0.9.1503201324"
+
+set -x
+if [[ "$CLUSTERS" == "all" ]]; then
+  /home/y/bin/rocl -r $CLUSTER_ROLES -m -G|sort > $TMP_DIR/clusters.all
+  /home/y/bin/rocl -r grid.set.clusters_storm -m -G|sort > $TMP_DIR/clusters.storm
+  # Suppress lines unique to storm cluster and common in both
+  CLUSTERS=`/usr/bin/comm -23 $TMP_DIR/clusters.all $TMP_DIR/clusters.storm | awk 'BEGIN {FS="."}{print $1"."$2}'`
+  # CLUSTERS='axonite.red'
+else
+  CLUSTERS=`echo $CLUSTERS|sed 's/,/ /g'`
+fi
+set +x
+
+# Run makerelease for each cluster
+
+cat > $run_script_file_path << EOF
+#!/bin/bash
+set -x
+pwd
+hostname
+echo $PATH
+sudo mkdir -p $release_dir
+EOF
+
+labels=""
+YINST_FREEZE_DTS=`date +%Y%m%d-000`
+cluster_index=1
+for cluster in $CLUSTERS; do
+  # TODO: check cluster has the format of <cluster>.<color>
+  for package in $packages; do
+    if [[ "$cluster_index" -eq 1 ]]; then
+      # TODO: replace with: dist_tag list $CLUSTER_CERTIFIED_TAG
+      set -x
+      if [[ "$package" == "hadoop" ]]; then
+          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep coretree|awk '{print $1}'|cut -d - -f2`
+      elif [[ "$package" == "conf" ]]; then
+          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
+      else
+          echo "ERROR: invalidate package type '$package' found!!!"
+          exit 1;
+      fi
+      set +x
+
+      if [[ "$version" == "" ]]; then
+        echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
+        exit 1;
+      fi
+
+      # Only update the bundle file once because the packages versions will be
+      # the same across clusters
+      set -x
+      if [[ -n "$labels" ]]; then
+          labels+=","
+      fi
+      labels+="$package,$version-$YINST_FREEZE_DTS"
+      set +x
+      echo "${SOURCE_DIR}/gridPush/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+    else
+        if [[ "$package" == "conf" ]]; then
+          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
+          if [[ "$version" == "" ]]; then
+              echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
+              # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
+              # exit 1;
+          fi
+          echo "${SOURCE_DIR}/gridPush/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+        fi
+    fi
+  done
+  cluster_index=$(($cluster_index+1))
+done
+
+set -x
+hostname
+chmod a+x $run_script_file_path
+ls -l $run_script_file_path
+cat $run_script_file_path
+set +x
+$run_script_file_path
+if [ $? -eq 0 ]; then
+  if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
+     # For GDM we often got timeout error and it was not obvious to see which pkg is causing it
+     # Upload one pkg at a time, in case of failure it is easy to debug
+     for pkg in `ls ${SOURCE_DIR}/grid/0/releases/*.tgz*`; do
+	echo "Uploading $pkg..."
+	scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
+     done
+  else
+     echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
+  fi
+else
+  echo "Error: Something went wrong with $run_script_file_path"
+  exit -1
+fi
+
+if [[ "$UPDATE_RELEASE" == "true" ]]; then
+  echo "UPDATE_RELEASE=true: Proceed to update the hadoop_releases git repo"
+
+  set -x
+  BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
+
+  # insert_bundle_yaml and update_clusters_yaml is disabled for now
+  # Should be enabled once makerelease on re101 is obsolete
+  # Update the clusters yaml file
+  # $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+
+  # $SCRIPT_DIR/update_clusters_yaml hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE
+  set +x
+else
+  echo "UPDATE_RELEASE=false: Skipping updating hadoop_releases git repo"
+fi
+
+# Cleanup 
+echo "---> Cleanup tmp directory and files:"
+set -x
+if [[ "$CLEANUP" == "true" ]]; then
+  rm -rf $TMP_DIR
+fi
+set +x 
+
+exit;
+
+
