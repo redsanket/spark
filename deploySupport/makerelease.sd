@@ -70,21 +70,9 @@ $DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
 RC=$?
 if [[ $RC -eq 0 ]]; then
     echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
-    echo "WARN: rename existing version based certified tag '$CERTIFIED_VERSION_TAG':"
-    set -x
-    $DIST_TAG rename $CERTIFIED_VERSION_TAG $CERTIFIED_VERSION_TAG"_"$TIME
-    set +x
-fi
-# We don't need this, we use version specific dist tag, if it is present no need to clone it again
-# $DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
-if [[ $? -ne 0 ]]; then
-  echo "ERROR: dist_tag clone failed!!!"
-  exit 1;
 fi
 
-set -x
-
-# Not installing ygrid_makerelease in screwdriver docker instance
+# Not installing ygrid_makerelease in screwdriver docker instance, instead using git repo
 # yinst install ygrid_makerelease -br current -yes
 #################################################################################
 # Checkout GridPush from git
