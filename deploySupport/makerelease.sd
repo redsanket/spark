@@ -29,7 +29,6 @@ DIST_TAG="/home/y/bin/dist_tag"
 set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
 packages=${packages:="hadoop conf"}
-CLEAN_YROOT=${CLEAN_YROOT:="false"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging"}
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}

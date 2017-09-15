@@ -19,6 +19,6 @@ shared:
 
 jobs:
    component:
-      order: [init, install-jdk, clean, build, run_makerelease]
+      order: [init, build, run_makerelease]
    pull-request:
-      order: [init, install-jdk, clean]
+      order: [init, build]
