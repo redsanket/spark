@@ -21,7 +21,7 @@ sed "s/MY_SUFFIX/${JENKINS_SUFFIX_NAME}/g" hadooptest/htf-common/resources/gdm/c
 # check to see if GDM_RUN_REGRESSION is set 
 if [[ $GDM_RUN_QE_REGRESSION == "true" ]]
 then
-    ${WORKSPACE}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${WORKSPACE}/hadooptest -f /homes/hadoopqa/hadooptest_gdm_regression_configs/hadooptest.conf -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm ${HADOOP_VERSION} -t ${TESTS} 
+    ${WORKSPACE}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${WORKSPACE}/hadooptest -f /homes/hadoopqa/hadooptest_gdm_regression_configs/hadooptest.conf -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS} 
 else
     echo "Jenkins param GDM_RUN_QE_REGRESSION is set to false, HTF Regression not invoked"
 fi
@@ -29,7 +29,7 @@ fi
 # check to see if GDM_Multi_Hadoop is set
 if [[ $GDM_MULTI_HADOOP_REGRESSION == "true" ]]
 then
-   ${WORKSPACE}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${WORKSPACE}/hadooptest -f /homes/hadoopqa/hadooptest_gdm_regression_configs/hadooptest.conf -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm ${HADOOP_VERSION} -t ${TESTS}
+   ${WORKSPACE}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${WORKSPACE}/hadooptest -f /homes/hadoopqa/hadooptest_gdm_regression_configs/hadooptest.conf -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS}
 else
    echo "Jenkins param GDM_MULTI_HADOOP_REGRESSION is set to false, HTF Regression not invoked"
 fi

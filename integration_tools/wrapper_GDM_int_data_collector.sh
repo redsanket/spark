@@ -81,7 +81,7 @@ echo ${CLUSTER_NAME}
 # check to see if GDM_RUN_REGRESSION is set
 if [[ $GDM_RUN_INT_REGRESSION == "true" ]]
 then
-	${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER_NAME} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-${CLUSTER_NAME}/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm ${HADOOP_VERSION} -t ${TESTS}
+	${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER_NAME} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-${CLUSTER_NAME}/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS}
 else
 	echo "Jenkins param GDM_RUN_INT_REGRESSION is set to false, HTF Regression not invoked"
 fi

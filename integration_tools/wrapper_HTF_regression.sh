@@ -34,7 +34,7 @@ echo ${CLUSTER_NAME}
 # check to see if GDM_RUN_REGRESSION is set 
 if [[ $GDM_RUN_QE_REGRESSION == "true" ]]
 then
-   ${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-GDM-QE-HTF/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm ${HADOOP_VERSION} -t ${TESTS} 
+   ${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-GDM-QE-HTF/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS} 
 
 else
     echo "Jenkins param GDM_RUN_QE_REGRESSION is set to false, HTF Regression not invoked"
@@ -43,7 +43,7 @@ fi
 # check to see if GDM_Multi_Hadoop is set
 if [[ $GDM_MULTI_HADOOP_REGRESSION == "true" ]]
 then
-   ${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-GDM-QE-HTF/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm ${HADOOP_VERSION} -t ${TESTS}
+   ${SRCTOP}/hadooptest/scripts/run_hadooptest_remote -c ${CLUSTER} -s ${SRCTOP}/hadooptest -f /grid/0/tmp/hadooptest-hadoopqa-GDM-QE-HTF/hadooptest/conf/hadooptest/hadooptest_gdm_regression_configs/hadooptest.conf  -r ${GDM_ONE_NODE_HOST} ${EXEC_MODE} -gdm -t ${TESTS}
 else
    echo "Jenkins param GDM_MULTI_HADOOP_REGRESSION is set to false, HTF Regression not invoked"
 fi
