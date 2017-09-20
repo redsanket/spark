@@ -249,6 +249,10 @@ if (($hadoop27) || ($hadoop28)) {
     note("WARN: This will now be auto-set based on the installed hadoop version '$hadoop_version' on the cluster '$cluster'.");
     $hadoop27=0;
     $hadoop28=0;
+
+    note("WARN: This has been deprecated since August 2016. Please remove the parameter from Jenkins ASAP. In 2018, this will exit with an error.");
+    # After 2017, this should exit with an error so we can enforce the removal of these deprecated parameters.
+    # exit 1;
 }
 if ($hadoop_version =~ '^2.7') {
     $hadoop27=1;
