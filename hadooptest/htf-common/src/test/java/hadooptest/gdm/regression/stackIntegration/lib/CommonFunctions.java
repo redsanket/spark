@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.mail.MessagingException;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -210,7 +210,13 @@ public class CommonFunctions {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String cName = this.getClusterName();
-		currentHrPath = cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		if (StringUtils.isNotBlank(cName)) {
+		    currentHrPath = cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		} else {
+		    String tcName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		    currentHrPath = tcName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		
+		}
 		TestSession.logger.info("currentHrPath  = " + currentHrPath);
 		return currentHrPath;
 	}

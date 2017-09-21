@@ -35,7 +35,8 @@ public class TestHBaseInsertRecords {
 		this.setPath(path);
 		this.setTableName(tableName);
 		this.setNameNodeName(nameNodeName);
-		this.commonFunctions = new CommonFunctions();
+		String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		this.commonFunctions = new CommonFunctions(clusterName);
 	}
 
 	public String getHbaseGateWayHostName() {
