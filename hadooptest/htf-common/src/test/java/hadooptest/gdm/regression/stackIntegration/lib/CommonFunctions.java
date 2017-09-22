@@ -1,12 +1,7 @@
 package hadooptest.gdm.regression.stackIntegration.lib;
 
-import static com.jayway.restassured.RestAssured.given;
-import static java.nio.file.Paths.get;
-import static java.nio.file.Files.readAllBytes;
-
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,17 +81,14 @@ public class CommonFunctions {
 	public static final String TEZ_RESULT = "tez_result";
 	public static final String HADOOP_HOME="/home/gs/hadoop/current";
 	
+	@Deprecated
 	public CommonFunctions() {
-		this.consoleHandle = new ConsoleHandle();
-		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
-		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
-		dbOperations = new DataBaseOperations();
+		this("no-cluster-name");
+		TestSession.logger.warn("Default cluster does not specify cluster name!");
 	}
 
 	public CommonFunctions(String clusterName) {
 		this.setClusterName(clusterName);
-		//this.clusterName = clusterName;
 		this.consoleHandle = new ConsoleHandle();
 		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
 		this.constructCurrentHrMin();
@@ -241,7 +233,7 @@ public class CommonFunctions {
 			}
 		} else {
 			output = result.getRight();
-			TestSession.logger.info("log = " + output);
+			TestSession.logger.debug("log = " + output);
 		}
 		return output;
 	}
@@ -406,7 +398,7 @@ public class CommonFunctions {
 			Callable<String> testHbaseComponent = null;
 			if (hbaseStackComponent != null)  {
 				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
-				testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
+				testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName , this.getClusterName());
 				testList.add(testHbaseComponent);
 			}			
 		}

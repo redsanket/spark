@@ -86,7 +86,7 @@ public class TestHBaseScanTable {
 		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "RUNNING");
 		boolean scanRecordResult = false;
 		String mrJobURL = null;
-		String dataSetName = this.commonFunctions.getCurrentHourPath();
+                // Expects pig installed on HMaster
 		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce "
 				+ "-param \"TABLE_NAME=" + this.getTableName() + "\""
 				+ "  "

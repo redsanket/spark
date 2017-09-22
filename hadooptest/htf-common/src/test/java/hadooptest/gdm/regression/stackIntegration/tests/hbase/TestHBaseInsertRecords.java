@@ -27,7 +27,7 @@ public class TestHBaseInsertRecords {
 	public TestHBaseInsertRecords() {
 	}
 	
-	public TestHBaseInsertRecords( StackComponent stackComponent ,  String kinitCommand , String path , String tableName , String nameNodeName ) {
+	public TestHBaseInsertRecords( StackComponent stackComponent ,  String kinitCommand , String path , String tableName , String nameNodeName , String clusterName) {
 		this.setStackComponent(stackComponent);
 		this.setHostName(this.getStackComponent().getHostName());
 		this.setScriptPath(this.getStackComponent().getScriptLocation());
@@ -35,7 +35,7 @@ public class TestHBaseInsertRecords {
 		this.setPath(path);
 		this.setTableName(tableName);
 		this.setNameNodeName(nameNodeName);
-		this.commonFunctions = new CommonFunctions();
+		this.commonFunctions = new CommonFunctions(clusterName);
 	}
 
 	public String getHbaseGateWayHostName() {

@@ -1,13 +1,13 @@
 package hadooptest.gdm.regression.stackIntegration.tests.hbase;
 
 import hadooptest.TestSession;
-import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class TestIntHBase implements java.util.concurrent.Callable<String>{
 	
 	private String hostName;
+	private String clusterName;
 	private String nameNodeName;
 	private StackComponent stackComponent;
 	private CommonFunctions commonFunctions;
@@ -18,13 +18,15 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 	public static final String INTEGRATION_JAR="/tmp/integration_test_files/lib/*.jar";
 	
 	public TestIntHBase() {
+		// do nothing...
 	}
 	
-	public TestIntHBase(StackComponent stackComponent , String nameNodeName) {
+	public TestIntHBase(StackComponent stackComponent , String nameNodeName, String clusterName) {
+		this.clusterName = clusterName; 
 		this.setStackComponent(stackComponent);
 		this.setHostName(this.stackComponent.getHostName());
 		this.setNameNodeName(nameNodeName);
-		this.commonFunctions = new CommonFunctions();
+		this.commonFunctions = new CommonFunctions(this.clusterName);
 	}
 	
 	public String getNameNodeName() {
@@ -75,13 +77,12 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 		String currentDataSetName = this.commonFunctions.getDataSetName();
 		String tableName = this.commonFunctions.getPipeLineName() + "_" + currentDataSetName;
 		this.commonFunctions.updateDB(currentDataSetName, "hbaseCurrentState", "RUNNING");
-		TestSession.logger.info("Hbase Table name =-  " + tableName);
+		TestSession.logger.info("Hbase Table name = " + tableName);
 		TestHBaseCreateTable testHBaseCreateTable = new TestHBaseCreateTable(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName);
 		isHBaseTableCreated = testHBaseCreateTable.execute();
-		TestSession.logger.info("isTablecreated = " +isHBaseTableCreated );
-		
+		TestSession.logger.info("isHBaseTableCreated = " + isHBaseTableCreated );
 		if (isHBaseTableCreated == true) {
-			TestHBaseInsertRecords testHBaseInsertRecords = new TestHBaseInsertRecords(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName , this.getNameNodeName());
+			TestHBaseInsertRecords testHBaseInsertRecords = new TestHBaseInsertRecords(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName , this.getNameNodeName() , this.clusterName);
 			isHBaseRecordInserted = testHBaseInsertRecords.execute();
 			if (isHBaseRecordInserted == true) {
 				TestSession.logger.info("HBase Records inserted successfully into table");
@@ -119,9 +120,9 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 			this.commonFunctions.updateDB(currentDataSetName, "hbaseResult", "FAILED");
 			this.commonFunctions.updateDB(currentDataSetName, "hbaseComment", "Failed to create hbase table");
 		}
-		TestSession.logger.info(" ---------------------------------------------------------------  TestHBASE  start ------------------------------------------------------------------------");
-		TestSession.logger.info("HbaseTable created = " + isHBaseTableCreated  + "  records inserted - " + isHBaseRecordInserted  + "  table scanned - " + isTableScanned + " hbase deleted - " + isTableDeleted);
+		TestSession.logger.info("HbaseTable created: " + isHBaseTableCreated  + ", records inserted: " + isHBaseRecordInserted  + ", table scanned: " + isTableScanned + ", hbase deleted: " + isTableDeleted);
 		boolean hbaseTestResult = isHBaseTableCreated && isHBaseRecordInserted && isTableScanned && isTableDeleted;
+		TestSession.logger.info("\n --------------------------------------------------------------- TestHBASE end --------------------------------------------------------------- \n");
 		return COMPONENT_NAME + "-" + hbaseTestResult;
 	}
 
