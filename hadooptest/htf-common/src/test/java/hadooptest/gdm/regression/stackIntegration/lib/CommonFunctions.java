@@ -215,7 +215,6 @@ public class CommonFunctions {
 		} else {
 		    String tcName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
 		    currentHrPath = tcName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
-		
 		}
 		TestSession.logger.info("currentHrPath  = " + currentHrPath);
 		return currentHrPath;
