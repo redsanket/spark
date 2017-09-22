@@ -1604,7 +1604,7 @@ public final class ConsoleHandle {
                     }
                     String value = jsonObject.getString(key);
                     if (value.startsWith("hcat_common")) {
-                        if (! gridName.startsWith("gdm")) {
+                        if (! ( gridName.startsWith("gdm") && gridName.startsWith("s3") && gridName.startsWith("S3") ) ) {
                             hcatEnabledGridList.add(gridName);  
                         }
                     }
