@@ -10,7 +10,12 @@ SCP="scp $SSH_OPT"
 ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 
 
-CERT_REFERENCE_PATH="/grid/3/dev/ygrid_certs_flubber/*.jks"
+#
+# TODO in future we could deliver these certificates using ykeykey/chef
+# reference doc at;
+#   https://docs.google.com/document/d/1u57rymngcIKUKpw-qfcUv17yOYbPvlHqOP6i3y2Rl0I
+#
+CERT_REFERENCE_PATH="/grid/3/dev/ygrid_certs_flubber/*"
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 
 echo == verify Core SSL certs are in place
@@ -21,7 +26,7 @@ fanout "if [ ! -d ${CERT_HOME} ] ; then
            chmod 755 ${CERT_HOME};
         fi"
 
-NODES=`yinst range -ir @grid_re.clusters.$CLUSTER`
+NODES=`yinst range -ir @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway`
 for NODE in $NODES; do
 
   $SSH $ADM_HOST "sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
@@ -36,7 +41,7 @@ done
 # of iterate like the while loop, but there's no support for '-S' in pdcp command
 # or other efficient way to catch a node error
 ######
-# NODES=`yinst range -ir @grid_re.clusters.$CLUSTER|tr '\n' ','|sed 's/.$//'`
+# NODES=`yinst range -ir @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway|tr '\n' ','|sed 's/.$//'`
 #
 # $SSH $ADM_HOST "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' \
 #   sudo pdcp -w $NODES $CERT_REFERENCE_PATH $CERT_HOME"

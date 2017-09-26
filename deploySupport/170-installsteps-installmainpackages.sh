@@ -57,12 +57,51 @@ echo ......
 echo ......
 fi
 
+
 # make sure the permission on var and var/run is correct. the cfg-datanode-mkdirs.sh in old config packates have a bug.
 #
 # Need to remove the trailing ';' in the last 'fi', this causes pdsh -S to fail with:
 #    bash: -c: line 0: syntax error near unexpected token `;;'
-#    bash: -c: line 0: `<COMMAND_LINE> fi;;echo XXRETCODE:$?'
+#    bash: -c: line 0: `<COMMAND_LINE> fi;;echo XXRETCODE:$?' 
 # For details on the pdsh bug see:
 #  http://sourceforge.net/p/pdsh/mailman/message/290409/
 #
 fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi "
+
+
+##################################################################################
+# KMS Support Helper - Add SSL Certificates to Each Node's JDK
+#
+# Encryption Zones (KMS) are rolling out to all prod clusters, installing KMS
+# in flubber if cluster 'kms' node exists as a default action. KMS requires all
+# clients to support https connections to kms, since flubber has to use self-signed
+# certs these need to be added to a client's java jdk trststore, without it the
+# https connection will fail on CA validation.
+#
+# The certs have to be installed after the jdk is deployed but before the using
+# service starts up (RM, NN, KMS), so placing these certs here instead of in the
+# KMS installer (256-installsteps-KmsAndZookeeper.sh)
+#
+# Using cert from devadm102:/grid/3/dev/ygrid_certs_flubber/hadoop_kms.cert
+#
+##################################################################################
+if [ -z "$kmsnode" ]; then
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+     No KMS role or node defined!!                        +"
+  echo "+     Not deploying kms ssl certs to jdk truststore        +"
+  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  return
+else
+  echo "INFO: Installing ssl certs for KMS on all nodes, KMS node is: $kmsnode"
+fi
+
+CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
+# the JDK_CACERTS are from the base community jdk, updated with internal cert
+# changes, this is the truststore that is updated with our ssl certs
+JDK_CACERTS="/home/gs/java/jdk/jre/lib/security/cacerts"
+OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
+ALIAS="selfsigned"
+
+fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
+
+

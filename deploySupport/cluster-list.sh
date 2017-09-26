@@ -63,7 +63,9 @@ roleExists() {
 #				$hcatservernode
 #				$daqnode
 #				$oozienode
-#                               $teznode
+#				$teznode
+#				$kmsnode
+#				$zknode
 #				$cluster
 #				$scriptnames
 #				$confpkg
@@ -103,6 +105,8 @@ setGridParameters() {
         export daqnode=
         export oozienode=
         export teznode=
+        export kmsnode=
+        export zknode=
         
         # step 2c: Look for specific overrides via IGOR roles
 #
@@ -200,6 +204,10 @@ setGridParameters() {
              export yroots=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.yroots)"`
         roleExists $cluster.gateways && \
              export gateways=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateways)"`
+        roleExists $cluster.kms&& \
+             # KMS node also hosts ZK service on flubber
+             # only support single KMS node in Flubber
+             export kmsnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.kms)" | head -n 1`
         roleExists $cluster.zookeeper && \
              export zookeepernodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.zookeeper)"`
         roleExists $cluster.hit-yroots && \
@@ -240,6 +248,8 @@ setGridParameters() {
        echo "gateway='$gateway'"
        [ -n "$oozienode" ] && echo "oozienode='$oozienode'"
        [ -n "$teznode" ] && echo "teznode='$teznode'"
+       [ -n "$kmsnode" ] && echo "kmsnode='$kmsnode'"
+       [ -n "$zookeepernodes" ] && echo "zookeepernodes='$zookeepernodes'"
        [ -n "$hdfsproxynode" ] && echo "hdfsproxynode='$hdfsproxynode'"
        [ -n "$hcatservernode" ] && echo "hcatservernode='$hcatservernode'"
        [ -n "$daqnode" ] && echo "daqnode='$daqnode'"
