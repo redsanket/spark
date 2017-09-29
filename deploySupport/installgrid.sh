@@ -347,7 +347,7 @@ do
     # also skip error on 170 since it returns nonzero on GW ssl cert update for kms
     # unfortunately +/-e in the step still propogated fail out
     SKIP_ERROR_ON_STEP="false"
-    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]] || [[ $script =~ "170-"); then
+    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]] || [[ $script =~ "170-" ]]); then
         SKIP_ERROR_ON_STEP="true"
         set +e
     fi
