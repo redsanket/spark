@@ -104,4 +104,8 @@ ALIAS="selfsigned"
 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
 
+# HTF uses a different jdk, the default install, so get it too
+HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
+
+fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
 
