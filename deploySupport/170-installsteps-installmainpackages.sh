@@ -107,5 +107,9 @@ fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $
 # HTF uses a different jdk, the default install, so get it too
 HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
 
+# this will return nonzero if cert is already added, so don't fail the step for this
+echo "INFO: HTF uses default JDK on gateway so update it too" 
++e
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
+-e
 
