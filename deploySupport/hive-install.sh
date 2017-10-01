@@ -166,6 +166,9 @@ yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YA
 yinst set hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper
 yinst set hcat_server.keydb_passkey=hiveqeint
 
+# GRIDCI-2587 The hive metastore setting should be objectstore
+yinst set hcat_server.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.ObjectStore
+
 yinst restart hcat_server
 
 #
