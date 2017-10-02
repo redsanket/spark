@@ -25,6 +25,7 @@ SCRIPT_DIR=`dirname $(readlink -f $0)`
 TIME=`date -u +\%y\%m\%d\%H\%M\%S`
 TMP_DIR="/tmp/makerelease.$TIME"
 DIST_TAG="/home/y/bin/dist_tag"
+mkdir $TMP_DIR
 
 set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
@@ -65,22 +66,20 @@ fi
 # Check if the version based certified tag already exists.
 $DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
 RC=$?
-if [[ $RC -eq 0 ]]; then
+if [[ $RC -ne 0 ]]; then
     echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
 fi
 
-# Not installing ygrid_makerelease in screwdriver docker instance, instead using git repo
-# yinst install ygrid_makerelease -br current -yes
 #################################################################################
-# Checkout GridPush from git
+# Install yinst package: ygrid_makerelease
 #################################################################################
-echo "---> Clone gridPush git repo '$GIT_REPO':"
 set -x
-mkdir $TMP_DIR
-# Replace git repo gridPush with ygrid_makerelease yinst pkg
-
-git clone $GIT_REPO gridPush
-
+echo "Installing ygrid_makerelease -br quarantine"
+sudo yinst install ygrid_makerelease -br quarantine -yes
+RC=$?
+if [[ $RC -ne 0 ]]; then
+    echo "FATAL: Error in installing package ygrid_makerelease. Please check!"
+fi
 set +x
 #################################################################################
 # Run makerelease on remote host
@@ -146,7 +145,7 @@ for cluster in $CLUSTERS; do
       fi
       labels+="$package,$version-$YINST_FREEZE_DTS"
       set +x
-      echo "${SOURCE_DIR}/gridPush/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+      echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
     else
         if [[ "$package" == "conf" ]]; then
           version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
@@ -155,7 +154,7 @@ for cluster in $CLUSTERS; do
               # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
               # exit 1;
           fi
-          echo "${SOURCE_DIR}/gridPush/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+          echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
         fi
     fi
   done
