@@ -15,6 +15,7 @@ fi
 
 CLUSTER=$1
 REFERENCE_CLUSTER=$2
+# GRIDCI-2587 Fetching the hive oracle DB host from the roles db
 
 export JAVA_HOME="/home/gs/java8/jdk64/current"
 export PARTITIONHOME=/home
@@ -27,8 +28,63 @@ export YARN_HOME=${yroothome}/share/hadoop
 export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
 export HADOOP_PREFIX=${yroothome}/share/hadoop
 
+# GRIDCI-2587 Fetching the hive oracle DB host from the roles db
+HIVE_DB_NODE=""
+get_hive_oradb_server() {
+  host_name=$1
+  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep" |
+  while read -r line; do
+    CLUSTER_NAME=`echo ${line} | grep ora_pmon_ | cut -d'_' -f3 | tr [A-Z] [a-z]`
+    #echo $CLUSTER_NAME
+    if [[ $CLUSTER =~ $CLUSTER_NAME ]]; then
+      HIVE_DB_NODE=$host_name
+      echo "$HIVE_DB_NODE"
+    fi
+  done
+}
+
+find_hive_oradb_server() {
+  oracle_db_count=$1
+  if [ $oracle_db_count == 12 ]; then
+      continue
+  else
+      return 1
+  fi
+}
+
+for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
+    echo "***********************************************************************"
+    echo "Checking if host $host_name is the DB server for the cluster $CLUSTER..."
+    export HIVE_DB_NODE=$(get_hive_oradb_server $host_name)
+    if [ "${HIVE_DB_NODE}" == "" ]; then
+        echo "$host_name is not the DB for the cluster $CLUSTER!"
+        continue
+    else
+        echo "The hive oracle db server for $CLUSTER is: $HIVE_DB_NODE"
+        echo "***********************************************************************"
+        break
+    fi
+done
+
+if [ "${HIVE_DB_NODE}" == "" ]; then
+  echo "***********************************************************************"
+  echo "WARNING: There is no active DB in any server for the cluster $CLUSTER!"
+  echo "Finding the oracle db server based on the active DBs in that host..."
+  for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
+      export final_count=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep| wc -l"`
+      echo "Number of active DBs in $host_name is $final_count"
+      find_hive_oradb_server $final_count
+      db_found=$?
+      if [ "${db_found}" == 1 ]; then
+          export HIVE_DB_NODE=$host_name
+          echo "The hive oracle db server for $CLUSTER is: $HIVE_DB_NODE"
+          echo "Please configure the oracle DB in this host for hive to work!!!"
+          echo "***********************************************************************"
+          break
+      fi
+  done
+fi
 # oracle db support vars
-export HIVE_DB_NODE=openqeoradb1blue-n1.blue.ygrid.yahoo.com
 # use the oradb SID associated with this target cluster
 export HIVE_DB=`echo $CLUSTER | cut -c 1-8 | tr [a-z] [A-Z]`
 echo "DEBUG: our ora db is: $HIVE_DB"
