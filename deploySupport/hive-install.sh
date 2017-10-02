@@ -70,7 +70,7 @@ if [ "${HIVE_DB_NODE}" == "" ]; then
   echo "***********************************************************************"
   echo "WARNING: There is no active DB in any server for the cluster $CLUSTER!"
   echo "Finding the oracle db server based on the active DBs in that host..."
-  for host_name in `rocl -r $ORACLEDB_SERVER_ROLE -m`; do
+  for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
       export final_count=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep| wc -l"`
       echo "Number of active DBs in $host_name is $final_count"
       find_hive_oradb_server $final_count
