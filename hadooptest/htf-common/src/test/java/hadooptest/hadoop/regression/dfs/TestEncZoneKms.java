@@ -32,6 +32,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 public class TestEncZoneKms extends DfsTestsBaseClass {
         String protocol;
+	String pathToEz;
+	String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1 = "/tmp/hadoop3/BaseDirInEz1/";
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2 = "/tmp/hadoop3/BaseDirInEz2/";
@@ -51,8 +53,6 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_FilesInEz1_none() throws Exception { test_FilesInEz1(""); }
 	@Test public void test_FilesInEz2_hdfs() throws Exception { test_FilesInEz2(HadooptestConstants.Schema.HDFS); }
 
-
-	String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
         private void setupTest(String protocol, String pathToEz) throws Exception {
         	this.protocol = protocol;
