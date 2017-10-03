@@ -85,22 +85,15 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// as hdfsqa, create encryption zone
-                genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-
         }
 
 
         private void test_FilesInEz1(String protocol) throws Exception {
             	setupTest(protocol);
-
-		// create the EZ
-		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
-                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;

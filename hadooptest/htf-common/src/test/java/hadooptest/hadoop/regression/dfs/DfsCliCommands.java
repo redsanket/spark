@@ -1594,6 +1594,9 @@ public class DfsCliCommands {
         /**
          *
 	 * Create encryption zone using 'hdfs crypto -createZone'
+	 *
+	 * This gets called similar to other commands, main param to watch for is the path of the
+	 * EZ to create, this must be an already existing hdfs path
          */
         /**
          *
