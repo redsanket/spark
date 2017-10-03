@@ -25,6 +25,9 @@ import org.junit.runners.Parameterized.Parameters;
  *  at '/tmp/ez_hadoop3', the path is created and owned by user 'hadoop3', EZ is created by hdfsqa, and 
  *  then performs basic r/w operations in the EZ as hadoop3. 
  *
+ *  NOTES:
+ *  1. KMS/EZ does not currently support webhdfs protocol
+ *
 */
 
 public class TestEncZoneKms extends DfsTestsBaseClass {
@@ -44,14 +47,15 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
 
-	@Test public void test_FilesInEz1_hdfs() throws Exception { test_FilesInEz1(HadooptestConstants.Schema.HDFS); }
+	@Test public void test_FilesInEz1_none() throws Exception { test_FilesInEz1(""); }
+	@Test public void test_FilesInEz2_hdfs() throws Exception { test_FilesInEz2(HadooptestConstants.Schema.HDFS); }
 
+
+	String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
         private void setupTest(String protocol) throws Exception {
         	this.protocol = protocol;
         	logger.info("Test invoked for protocol/schema:" + protocol);
-
-		String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -102,8 +106,24 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, Recursive.NO);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-                TestSession.logger.info("Finished test FLOOOOPIE");
+                TestSession.logger.info("Finished test test_FilesInEz1");
 
         }
+
+        private void test_FilesInEz2(String protocol) throws Exception {
+                setupTest(protocol);
+
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
+
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, Recursive.NO);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                TestSession.logger.info("Finished test test_FilesInEz2");
+
+        }
+
 
 }

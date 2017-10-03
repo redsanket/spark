@@ -1597,7 +1597,7 @@ public class DfsCliCommands {
 	 *
 	 * This gets called similar to other commands, two params to watch for, the path of the
 	 * EZ to create, this must be an already existing hdfs path. Also the KMS key passed in 
-	 * must exist and be accessible.
+	 * must exist and be accessible in Ykeykey prod.
          */
         /**
          *
