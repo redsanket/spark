@@ -54,9 +54,12 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 	String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
-        private void setupTest(String protocol) throws Exception {
+        private void setupTest(String protocol, String pathToEz) throws Exception {
         	this.protocol = protocol;
+		this.pathToEz;
+
         	logger.info("Test invoked for protocol/schema:" + protocol);
+        	logger.info("Test invoked using path to Encryption Zone:" + pathToEz);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -66,39 +69,39 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 Recursive.YES, Force.YES, SkipTrash.YES,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+                                pathToEz);
 
                 Util.sleep(10);
 
                 // create user base hdfs path /tmp/ez_hadoop3/FilesInEz/
                 genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+                                pathToEz);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // list base hdfs path /tmp/ez_hadoop3/FilesInEz/
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
+                                pathToEz, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// as hdfsqa, create encryption zone
 		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, kmsKeyToUseForEzCreate);
+                                pathToEz, kmsKeyToUseForEzCreate);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
         }
 
 
         private void test_FilesInEz1(String protocol) throws Exception {
-            	setupTest(protocol);
+            	setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
 
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2, Recursive.NO);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.NO);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 TestSession.logger.info("Finished test test_FilesInEz1");
@@ -106,7 +109,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
         private void test_FilesInEz2(String protocol) throws Exception {
-                setupTest(protocol);
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
