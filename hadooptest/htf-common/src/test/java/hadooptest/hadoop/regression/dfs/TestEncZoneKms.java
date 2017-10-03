@@ -17,8 +17,6 @@ import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.net.InetAddress;
-
 
 /* 
  *  TestEncZoneKms.java
@@ -47,24 +45,6 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 { HadooptestConstants.Schema.WEBHDFS }, { "" },
                                 { HadooptestConstants.Schema.HDFS }, });
         }
-
-
-public class TestEncZoneKms {
-	private static Properties crossClusterProperties;
-	public static String FILE_SYSTEM_ENTITY_FILE = "FILE";
-	public static String FILE_SYSTEM_ENTITY_DIRECTORY = "DIRECTORY";
-	public static String KRB5CCNAME = "KRB5CCNAME";
-
-	public TestEncZoneKms() {
-		crossClusterProperties = new Properties();
-		try {
-			crossClusterProperties.load(new FileInputStream(
-			        HadooptestConstants.Location.TestProperties.CrossClusterProperties));
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-
-	}
 
 
 	@Test public void test_FilesInEz1_hdfs() throws Exception { test_FilesInEz1(HadooptestConstants.Schema.HDFS); }
@@ -103,6 +83,22 @@ public class TestEncZoneKms {
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+        }
+
+
+        private void test_FilesInEz1(String protocol) throws Exception {
+            	setupTest(protocol);
+
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
+
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, Recursive.NO);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                TestSession.logger.info("Finished test FLOOOOPIE");
 
         }
 
