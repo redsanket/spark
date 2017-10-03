@@ -104,5 +104,6 @@ public class TestEncZoneKms {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+        }
 
 }
