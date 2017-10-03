@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -x
+
+GRIDNAME=`hostname`
+DEST_HDFS="hdfs://${GRIDNAME}:8020"
+HADOOP_HOME=/home/gs/hadoop/current/
+JAVA_HOME=/home/gs/java/jdk64/current/
+HADOOP_CONF_DIR=/home/gs/conf/current/
+HDFS="$HADOOP_HOME/bin/hdfs --config $HADOOP_CONF_DIR"
+LOGTYPE="fsimage"
+GRID=`echo $DEST_HDFS | cut -d . -f 1 | cut -d '/' -f 3`
+
+/usr/kerberos/bin/kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@YGRID.YAHOO.COM
+
+fsimage_ctime=`stat -c %Y /grid/0/hadoop/var/hdfs/name/current/VERSION`
+if [ ! -z "$fsimage_ctime" ] ; then
+    now=`date +%s`
+    if [ $((now-fsimage_ctime)) -gt 3600 ] ; then
+        echo "`date +%FT%T` info: +++$+++"
+        TIME=`date +%F`
+        dest_pfx=${DEST_HDFS}/projects/starling/hadoopqa/logs/fsimage/$TIME
+        if ( $HDFS dfs -ls $dest_pfx ) ; then
+            echo "`date +%FT%T` info: skipping.. $dest_pfx exists " ;
+        else
+            $HDFS dfs -mkdir $dest_pfx
+        fsimage_files=`ls -tc /grid/0/hadoop/var/hdfs/name/current/ |grep -E "fsimage_[0-9]*" | grep -v "md5"`
+        fsimage_latest=`echo ${fsimage_files[*]} |awk '{print $NF}'`
+        cp /grid/0/hadoop/var/hdfs/name/current/${fsimage_latest} /grid/0/tmp/"${GRID}-${LOGTYPE}-${TIME}"
+        gzip -fv /grid/0/tmp/"${GRID}-${LOGTYPE}-${TIME}"
+        $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}-${TIME}".gz $dest_pfx/.
+        fi
+    else
+        echo "`date +%FT%T` info: ${GRIDNAME}:/grid/0/hadoop/var/hdfs/name/current/VERSION is less than 3600sec old, will try later"
+    fi
+else
+    echo "`date +%FT%T` error: invalid/incomplete storage dir ${GRIDNAME}:/grid/0/hadoop/var/hdfs/name/current/, may be a checkpoint in progress, skipping"
+fi
+exit 0;
