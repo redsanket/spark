@@ -1598,6 +1598,9 @@ public class DfsCliCommands {
 	 * This gets called similar to other commands, two params to watch for, the path of the
 	 * EZ to create, this must be an already existing hdfs path. Also the KMS key passed in 
 	 * must exist and be accessible in Ykeykey prod.
+	 *
+	 * Must be called by hdfs priv user
+	 *
          */
         /**
          *
@@ -1669,6 +1672,57 @@ public class DfsCliCommands {
                 return responseBO;
         }
 
+
+        /**
+         *
+         * List encryption zones using 'hdfs crypto -listZones'
+         *
+         */
+        /**
+         *
+         * @param envMapSentByTest
+         * @param user
+         * @param protocol
+         * @param cluster
+         * @return
+         * @throws Exception
+         */
+        public GenericCliResponseBO listZones(HashMap<String, String> envMapSentByTest,
+                        String user, String protocol, String cluster) throws Exception {
+
+                String nameNodePrependedWithProtocol = "";
+                HashMap<String, String> tempEnv = new HashMap<String, String>();
+                if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+                        tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(HadooptestConstants.Location.Binary.HDFS);
+                sb.append(" ");
+                sb.append("--config");
+                sb.append(" ");
+                sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+                sb.append(" ");
+                sb.append("crypto");
+                sb.append(" ");
+                sb.append("-listZones");
+                sb.append(" ");
+
+                String commandString = sb.toString();
+                TestSession.logger.info(commandString);
+                String[] commandFrags = commandString.split("\\s+");
+                Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                                envMapSentByTest);
+                environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+                Process process = null;
+                process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+                                commandFrags, user, environmentVariablesWrappingTheCommand);
+                String response = printResponseAndReturnItAsString(process);
+                GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+                                response);
+                return responseBO;
+        }
 
 
 	/**
