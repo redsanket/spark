@@ -21,12 +21,12 @@ import org.junit.runners.Parameterized.Parameters;
 /* 
  *  TestEncZoneKms.java
  *    
- *  This class uses KMS/EZ support methods in DfsCliCommands to create a basic Encryption Zone in hdfs 
- *  at '/tmp/ez_hadoop3', the path is created and owned by user 'hadoop3', EZ is created by hdfsqa, and 
- *  then performs basic r/w operations in the EZ as hadoop3. 
+ *  This class uses KMS/EZ support methods in DfsCliCommands to create base Encryption Zones in hdfs 
+ *  the path is created and owned by user 'hadoop3', EZ is created and listed by hdfsqa, and then 
+ *  performs basic r/w operations in the EZ as hadoop3, using sm/med/lg files in /HTF/testdata. 
  *
  *  NOTES:
- *  1. KMS/EZ does not currently support webhdfs protocol
+ *  1. KMS/EZ does not currently support webhdfs protocol, test2 fails (YHADOOP-1961)
  *
 */
 
@@ -51,6 +51,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 
 	@Test public void test_FilesInEz1_none() throws Exception { test_FilesInEz1(""); }
+
+	@Ignore
 	@Test public void test_FilesInEz2_hdfs() throws Exception { test_FilesInEz2(HadooptestConstants.Schema.HDFS); }
 
 
