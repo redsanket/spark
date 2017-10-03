@@ -1595,8 +1595,9 @@ public class DfsCliCommands {
          *
 	 * Create encryption zone using 'hdfs crypto -createZone'
 	 *
-	 * This gets called similar to other commands, main param to watch for is the path of the
-	 * EZ to create, this must be an already existing hdfs path
+	 * This gets called similar to other commands, two params to watch for, the path of the
+	 * EZ to create, this must be an already existing hdfs path. Also the KMS key passed in 
+	 * must exist and be accessible.
          */
         /**
          *
@@ -1605,12 +1606,13 @@ public class DfsCliCommands {
          * @param protocol
          * @param cluster
          * @param directoryHierarchy
+         * @param kmsKeyToUseForEzCreate
          * @return
          * @throws Exception
          */
         public GenericCliResponseBO createZone(HashMap<String, String> envMapSentByTest,
-                        String user, String protocol, String cluster,
-                        String directoryHierarchy) throws Exception {
+                        String user, String protocol, String cluster, String directoryHierarchy,
+                        String kmsKeyToUseForEzCreate) throws Exception {
                 String nameNodePrependedWithProtocol = "";
                 HashMap<String, String> tempEnv = new HashMap<String, String>();
                 if (envMapSentByTest.containsKey(KRB5CCNAME)) {
@@ -1627,9 +1629,15 @@ public class DfsCliCommands {
                 sb.append(" ");
                 sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
                 sb.append(" ");
-                sb.append("dfs");
+                sb.append("crypto");
                 sb.append(" ");
-                sb.append("crypto -createZone -keyName FlubberKmsKey1 -path ");
+                sb.append("-createZone");
+                sb.append(" ");
+                sb.append("-keyName");
+                sb.append(" ");
+                sb.append(kmsKeyToUseForEzCreate);
+                sb.append(" ");
+                sb.append("-path ");
                 sb.append(" ");
 
                 if ((protocol.trim()).isEmpty()) {

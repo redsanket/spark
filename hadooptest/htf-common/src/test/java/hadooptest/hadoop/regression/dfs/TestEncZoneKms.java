@@ -21,8 +21,9 @@ import org.junit.runners.Parameterized.Parameters;
 /* 
  *  TestEncZoneKms.java
  *    
- *  This class uses KMS to create a basic Encryption Zone in hdfs at '/tmp/ez_hadoop3',
- *  owned by user 'hadoop3', and performs basic r/w operations in the EZ. 
+ *  This class uses KMS/EZ support methods in DfsCliCommands to create a basic Encryption Zone in hdfs 
+ *  at '/tmp/ez_hadoop3', the path is created and owned by user 'hadoop3', EZ is created by hdfsqa, and 
+ *  then performs basic r/w operations in the EZ as hadoop3. 
  *
 */
 
@@ -30,10 +31,6 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         String protocol;
 
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR = "/tmp/hadoop3/FilesInEz/";
-   //     private static String PROPERTY = "FilesInGetListingOps";
-    //    private static String SERVICE = "Hadoop:name=NameNodeActivity,service=NameNode";
-
-     //   private String namenodeHostname;
         private static String localCluster = System.getProperty("CLUSTER_NAME");
         private static String SSH_OPTS_1 = "-o StrictHostKeyChecking=no";
         private static String SSH_OPTS_2 = "-o UserKnownHostsFile=/dev/null";
@@ -51,8 +48,10 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 
         private void setupTest(String protocol) throws Exception {
-        this.protocol = protocol;
-        logger.info("Test invoked for protocol/schema:" + protocol);
+        	this.protocol = protocol;
+        	logger.info("Test invoked for protocol/schema:" + protocol);
+
+		String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -87,7 +86,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// as hdfsqa, create encryption zone
 		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, kmsKeyToUseForEzCreate);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
         }
 
