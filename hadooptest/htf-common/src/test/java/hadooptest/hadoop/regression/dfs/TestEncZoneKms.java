@@ -56,7 +56,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
         private void setupTest(String protocol, String pathToEz) throws Exception {
         	this.protocol = protocol;
-		this.pathToEz;
+		this.pathToEz = pathToEz;
 
         	logger.info("Test invoked for protocol/schema:" + protocol);
         	logger.info("Test invoked using path to Encryption Zone:" + pathToEz);
