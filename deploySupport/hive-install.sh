@@ -17,6 +17,19 @@ CLUSTER=$1
 REFERENCE_CLUSTER=$2
 # GRIDCI-2587 Fetching the hive oracle DB host from the roles db
 
+# This is a design limitation currently. The DB server name in the oracle db hosts contain the first 8 characters
+# of the cluster name. For example if the cluster name is openqe55blue, the DB server name will have 'OPENQE55' in
+# its name. So if we are trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
+# with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
+# than 99.
+CLUSTER_NUM=`echo "${CLUSTER}"|sed 's/[^0-9]*//g'`
+LENGTH_CLUSTER_STRING=${#CLUSTER_NUM}
+if [[ $LENGTH_CLUSTER_STRING > 2 ]]; then
+  echo "Tring to deploy hive for a VM cluster which is not supported currently!"
+  echo "ERROR: Cannot install hive on $CLUSTER because the cluster number id > 100 and not supported!"
+  exit -1
+fi
+
 export JAVA_HOME="/home/gs/java8/jdk64/current"
 export PARTITIONHOME=/home
 export GSHOME=$PARTITIONHOME/gs
@@ -32,24 +45,13 @@ export HADOOP_PREFIX=${yroothome}/share/hadoop
 HIVE_DB_NODE=""
 get_hive_oradb_server() {
   host_name=$1
-  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep" |
-  while read -r line; do
-    CLUSTER_NAME=`echo ${line} | grep ora_pmon_ | cut -d'_' -f3 | tr [A-Z] [a-z]`
-    #echo $CLUSTER_NAME
-    if [[ $CLUSTER =~ $CLUSTER_NAME ]]; then
-      HIVE_DB_NODE=$host_name
-      echo "$HIVE_DB_NODE"
-    fi
-  done
-}
-
-find_hive_oradb_server() {
-  oracle_db_count=$1
-  if [ $oracle_db_count == 12 ]; then
-      continue
-  else
-      return 1
+  SHORT_CLUSTER=`echo $CLUSTER | cut -c1-8`
+  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep -w $SHORT_CLUSTER"
+  if [ $? == 0 ]; then
+    HIVE_DB_NODE=$host_name
+    echo "$HIVE_DB_NODE"
   fi
+  done
 }
 
 for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
@@ -71,11 +73,9 @@ if [ "${HIVE_DB_NODE}" == "" ]; then
   echo "WARNING: There is no active DB in any server for the cluster $CLUSTER!"
   echo "Finding the oracle db server based on the active DBs in that host..."
   for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
-      export final_count=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep| wc -l"`
+      final_count=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep| wc -l"`
       echo "Number of active DBs in $host_name is $final_count"
-      find_hive_oradb_server $final_count
-      db_found=$?
-      if [ "${db_found}" == 1 ]; then
+      if [[ $final_count < 12 ]]; then
           export HIVE_DB_NODE=$host_name
           echo "The hive oracle db server for $CLUSTER is: $HIVE_DB_NODE"
           echo "Please configure the oracle DB in this host for hive to work!!!"
@@ -83,7 +83,15 @@ if [ "${HIVE_DB_NODE}" == "" ]; then
           break
       fi
   done
+  # If all the 3 DB hosts have 12 DB servers already running on them, then fail the job with an error
+  # message saying create a new oracle DB host.
+  if [ "${HIVE_DB_NODE}" == "" ]; then
+    echo "WARNING: All the oracle DB hosts are full. Please configure a new host with DB servers!"
+    echo "ERROR: Failed to install hive!"
+    exit -1
+  fi
 fi
+
 # oracle db support vars
 # use the oradb SID associated with this target cluster
 export HIVE_DB=`echo $CLUSTER | cut -c 1-8 | tr [a-z] [A-Z]`
