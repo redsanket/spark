@@ -22,10 +22,11 @@ REFERENCE_CLUSTER=$2
 # its name. So if we are trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
 # with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
 # than 99.
-LENGTH_CLUSTER_STRING=${#CLUSTER}
-if [[ $LENGTH_CLUSTER_STRING > 12 ]]; then
+CLUSTER_NUM=`echo "${CLUSTER}"|sed 's/[^0-9]*//g'`
+LENGTH_CLUSTER_STRING=${#CLUSTER_NUM}
+if [[ $LENGTH_CLUSTER_STRING > 2 ]]; then
   echo "Tring to deploy hive for a VM cluster which is not supported currently!"
-  echo "ERROR: Cannot install hive on $CLUSTER because the length of the cluster name is not supported!"
+  echo "ERROR: Cannot install hive on $CLUSTER because the cluster number id > 100 and not supported!"
   exit -1
 fi
 
@@ -82,14 +83,13 @@ if [ "${HIVE_DB_NODE}" == "" ]; then
           break
       fi
   done
-fi
-
-# If all the 3 DB hosts have 12 DB servers already running on them, then fail the job with an error
-# message saying create a new oracle DB host.
-if [ "${HIVE_DB_NODE}" == "" ]; then
-  echo "WARNING: All the oracle DB hosts are full. Please configure a new host with DB servers!"
-  echo "ERROR: Failed to install hive!"
-  exit -1
+  # If all the 3 DB hosts have 12 DB servers already running on them, then fail the job with an error
+  # message saying create a new oracle DB host.
+  if [ "${HIVE_DB_NODE}" == "" ]; then
+    echo "WARNING: All the oracle DB hosts are full. Please configure a new host with DB servers!"
+    echo "ERROR: Failed to install hive!"
+    exit -1
+  fi
 fi
 
 # oracle db support vars
