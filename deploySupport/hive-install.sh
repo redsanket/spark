@@ -17,9 +17,9 @@ CLUSTER=$1
 REFERENCE_CLUSTER=$2
 # GRIDCI-2587 Fetching the hive oracle DB host from the roles db
 
-# This is a design limitation currently. The DB server name in the oracle db hosts contain the forst 8 characters
+# This is a design limitation currently. The DB server name in the oracle db hosts contain the first 8 characters
 # of the cluster name. For example if the cluster name is openqe55blue, the DB server name will have 'OPENQE55' in
-# its name. So if we care trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
+# its name. So if we are trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
 # with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
 # than 99.
 LENGTH_CLUSTER_STRING=${#CLUSTER}
@@ -45,7 +45,7 @@ HIVE_DB_NODE=""
 get_hive_oradb_server() {
   host_name=$1
   SHORT_CLUSTER=`echo $CLUSTER | cut -c1-8`
-  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep $SHORT_CLUSTER"
+  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep -w $SHORT_CLUSTER"
   if [ $? == 0 ]; then
     HIVE_DB_NODE=$host_name
     echo "$HIVE_DB_NODE"
