@@ -1590,6 +1590,76 @@ public class DfsCliCommands {
 
 	}
 
+
+        /**
+         *
+	 * Create encryption zone using 'hdfs crypto -createZone'
+         */
+        /**
+         *
+         * @param envMapSentByTest
+         * @param user
+         * @param protocol
+         * @param cluster
+         * @param directoryHierarchy
+         * @return
+         * @throws Exception
+         */
+        public GenericCliResponseBO createZone(HashMap<String, String> envMapSentByTest,
+                        String user, String protocol, String cluster,
+                        String directoryHierarchy) throws Exception {
+                String nameNodePrependedWithProtocol = "";
+                HashMap<String, String> tempEnv = new HashMap<String, String>();
+                if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+                        tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+                }
+                if (directoryHierarchy.charAt(directoryHierarchy.length() - 1) != '/') {
+                        directoryHierarchy = directoryHierarchy + "/";
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(HadooptestConstants.Location.Binary.HDFS);
+                sb.append(" ");
+                sb.append("--config");
+                sb.append(" ");
+                sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+                sb.append(" ");
+                sb.append("dfs");
+                sb.append(" ");
+                sb.append("crypto -createZone -keyName FlubberKmsKey1 -path ");
+                sb.append(" ");
+
+                if ((protocol.trim()).isEmpty()) {
+                        nameNodePrependedWithProtocol = "";
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+                } else if (protocol
+                                .equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+                }    
+                sb.append(nameNodePrependedWithProtocol);
+                sb.append(directoryHierarchy);
+
+                String commandString = sb.toString();
+                TestSession.logger.info(commandString);
+                String[] commandFrags = commandString.split("\\s+");
+                Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                                envMapSentByTest);
+                environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", ""); 
+
+                Process process = null;
+                process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+                                commandFrags, user, environmentVariablesWrappingTheCommand);
+                String response = printResponseAndReturnItAsString(process);
+                GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+                                response);
+                return responseBO;
+        }
+
+
+
 	/**
 	 * 
 	 * @param user

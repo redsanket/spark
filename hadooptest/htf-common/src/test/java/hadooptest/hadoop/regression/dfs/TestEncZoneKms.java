@@ -29,11 +29,11 @@ import org.junit.runners.Parameterized.Parameters;
 public class TestEncZoneKms extends DfsTestsBaseClass {
         String protocol;
 
-        private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR = "/user/hadoop3/FilesInEz/";
-        private static String PROPERTY = "FilesInGetListingOps";
-        private static String SERVICE = "Hadoop:name=NameNodeActivity,service=NameNode";
+        private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR = "/tmp/hadoop3/FilesInEz/";
+   //     private static String PROPERTY = "FilesInGetListingOps";
+    //    private static String SERVICE = "Hadoop:name=NameNodeActivity,service=NameNode";
 
-        private String namenodeHostname;
+     //   private String namenodeHostname;
         private static String localCluster = System.getProperty("CLUSTER_NAME");
         private static String SSH_OPTS_1 = "-o StrictHostKeyChecking=no";
         private static String SSH_OPTS_2 = "-o UserKnownHostsFile=/dev/null";
@@ -84,11 +84,23 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+		// as hdfsqa, create encryption zone
+                genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
         }
 
 
         private void test_FilesInEz1(String protocol) throws Exception {
             	setupTest(protocol);
+
+		// create the EZ
+		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
