@@ -81,7 +81,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 // list base hdfs path /tmp/ez_hadoop3/FilesInEz/
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
         }
