@@ -74,8 +74,8 @@ fi
 # Install yinst package: ygrid_makerelease
 #################################################################################
 set -x
-echo "Installing ygrid_makerelease -br test"
-sudo yinst install ygrid_makerelease -br test -yes
+echo "Installing ygrid_makerelease -br current"
+sudo yinst install ygrid_makerelease -br current -yes
 RC=$?
 if [[ $RC -ne 0 ]]; then
     echo "FATAL: Error in installing package ygrid_makerelease. Please check!"
