@@ -91,9 +91,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 pathToEz, kmsKeyToUseForEzCreate);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// list the encryption zones
+		// as hdfsqa, list the encryption zones
                 genericCliResponse = dfsCliCommands.listZones(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster);
+                                HadooptestConstants.UserNames.HDFSQA, protocol, localCluster);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
         }
 
