@@ -337,10 +337,11 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 HashMap<String, String> jobParams = new HashMap<String, String>();
                 jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
 
-		String randomWriterOutDir = "/tmp/KmsEzDfsTest/rw_job1"; 
+		String randomWriterBase = "/tmp/KmsEzDfsTest/"; 
+		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
 
-		// create job's output path as an EZ
-                setupTest(protocol, randomWriterOutDir);
+		// create job's output base path as an EZ
+                setupTest(protocol, randomWriterBase);
 
                 // chmod to allow hadoopqa to write the output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
@@ -366,7 +367,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// chmod to allow other users to read the job output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-                                randomWriterOutDir, "755", Recursive.YES);
+                                randomWriterBase, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 
