@@ -193,7 +193,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// list the dest, should be empty
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
+                                completePathOfDest, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // copy all data from EZ to completePathOfDest 
@@ -240,7 +240,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
                 
                 // copy all data from local GW to the EZ path
-                genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
+                genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 completePathOfLocalSource, 
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
