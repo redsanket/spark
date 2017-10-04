@@ -1771,7 +1771,7 @@ public class DfsCliCommands {
                         nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
                 }
                 sb.append(nameNodePrependedWithProtocol);
-                sb.append(ezPath);
+                sb.append(ezFile);
 
                 String commandString = sb.toString();
                 TestSession.logger.info(commandString);
