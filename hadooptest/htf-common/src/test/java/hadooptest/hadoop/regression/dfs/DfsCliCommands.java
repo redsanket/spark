@@ -1759,6 +1759,8 @@ public class DfsCliCommands {
                 sb.append(" ");
                 sb.append("-getFileEncryptionInfo");
                 sb.append(" ");
+                sb.append("-path");
+                sb.append(" ");
 
                 if ((protocol.trim()).isEmpty()) {
                         nameNodePrependedWithProtocol = "";

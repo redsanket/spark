@@ -188,10 +188,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         private void test_GetEzFileMetadata(String protocol) throws Exception {
 
                 String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1 +
-			"dfs/file_256MB";
+			"testdata/dfs/file_256MB";
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
+
+                TestSession.logger.info("File in EZ that we are fetching metadata for: " + 
+			completePathOfEzFile1);
 
                 // get the file's EZ metadata info 
                 genericCliResponse = dfsCliCommands.getFileEncryptionInfo(EMPTY_ENV_HASH_MAP,
@@ -318,10 +321,16 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// create job's output path as an EZ
                 setupTest(protocol, randomWriterOutDir);
 
-		// chmod to allow other users to write the EZ data
+                // chmod to allow other users to read the src data from EZ
+                genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+                                randomWriterOutDir, "755", Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+		// chmod to allow other users to read the output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                randomWriterOutDir, "777", Recursive.YES);
+                                randomWriterOutDir, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 
