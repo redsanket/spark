@@ -6,6 +6,7 @@ import hadooptest.automation.constants.HadooptestConstants;
 import hadooptest.cluster.hadoop.HadoopCluster.Action;
 import hadooptest.cluster.hadoop.fullydistributed.FullyDistributedCluster;
 import hadooptest.hadoop.regression.dfs.DfsCliCommands.GenericCliResponseBO;
+import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,13 +52,20 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
 
-	// create/verify/usage of EZ without qualified protocol/nn (use hdfs '/' as root fs path)
+	/*
+	 * create/verify/usage of EZ without qualified protocol/nn (use hdfs '/' as root fs path)
+	 *
+	*/
 	@Test public void test_CopyFilesToEz_none() throws Exception { test_CopyFilesToEz(""); }
 	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
+	@Test public void test_RunYarnRWJobUsingEzSrc_none() throws Exception { test_RunYarnRWJobUsingEzSrc(""); }
 
-	// create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
-	// product bug YHADOOP-1961
+	/*
+	 * create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
+	 * NOTE:  ignored for now due to product bug YHADOOP-1961
+	 *
+	*/
 	@Ignore
 	@Test public void test_CopyFilesToEz_hdfs() throws Exception { 
 		test_CopyFilesToEz("HadooptestConstants.Schema.HDFS"); }
@@ -67,6 +75,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Ignore
 	@Test public void test_CopyFilesToEzFromLocal_hdfs() throws Exception { 
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
+	@Ignore
+	@Test public void test_RunYarnRWJobUsingEzSrc_hdfs() throws Exception {
+		 test_RunYarnRWJobUsingEzSrc(""); }
 
 
 	/* utility method used by tests to setup an EZ from given hdfs path, this does
@@ -256,4 +267,34 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         
         }
 
+        /*
+         * test_RunYarnJobUsingEzSrc
+         *
+	 * Run a randomwriter job using EZ path to output data
+	 *
+        */
+        private void test_RunYarnJobUsingEzSrc(String protocol) throws Exception {
+
+                HashMap<String, String> jobParams = new HashMap<String, String>();
+                jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
+
+		String randomWriterOutDir = "/tmp/KmsEzDfsTest/rw_job1/out"; 
+
+		// create job's output path as an EZ
+                setupTest(protocol, randomWriterOutDir);
+
+                YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
+                yarnTestBaseClass.runStdHadoopRandomWriter(jobParams, randomWriterOutDir);
+
+/*
+                yarnTestBaseClass.runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
+                                SORT_JOB_DATA_DIR + sortJobOutputDir);
+
+*/
+	}
+
 }
+
+
+
+
