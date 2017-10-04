@@ -341,16 +341,20 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 setupTest(protocol, randomWriterOutDir);
 
                 // chmod to allow other users to read the src data from EZ
+		// NOTE: get perm denied for .Trash folder because it's owned by hdfsqa, so
+		// can't chmod it but can remove it (folder is 777 with sticky bit)
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5, "755", Recursive.YES);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5 + "testdata", "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+/*
 		// chmod to allow other users to read the output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
                                 randomWriterOutDir, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+*/
 
 
 		// setup objects and run the Yarn RW job
