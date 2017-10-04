@@ -189,7 +189,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         */
         private void test_GetEzFileMetadata(String protocol) throws Exception {
 
-                String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1 +
+            	setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+
+                String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR4 +
 			"testdata/dfs/file_256MB";
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
@@ -315,6 +317,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         */
         private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
 
+		setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
+
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
 
@@ -328,13 +332,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
                 // chmod to allow other users to read the src data from EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
-                                randomWriterOutDir, "755", Recursive.YES);
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 		// chmod to allow other users to read the output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
                                 randomWriterOutDir, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
