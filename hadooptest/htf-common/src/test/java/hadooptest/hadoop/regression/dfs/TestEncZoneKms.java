@@ -40,6 +40,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1 = "/tmp/hadoop3/BaseDirInEz1/";
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2 = "/tmp/hadoop3/BaseDirInEz2/";
+        private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3 = "/tmp/hadoop3/BaseDirInEz3/";
+        private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR4 = "/tmp/hadoop3/BaseDirInEz4/";
         private static String localCluster = System.getProperty("CLUSTER_NAME");
         private static String SSH_OPTS_1 = "-o StrictHostKeyChecking=no";
         private static String SSH_OPTS_2 = "-o UserKnownHostsFile=/dev/null";
@@ -217,7 +219,10 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
                 String completePathOfDest = "/tmp/testdata_from_ez";
 
-                //setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+		// setup our source ez, this is important since junit will run tests
+		// in parallel, with random launching we can't be sure another 
+		// EZ is available yet
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -245,14 +250,14 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 // copy all data from EZ to completePathOfDest 
                 genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3,
                                 completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // list EZ path again, should have the test data still in place now
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // list the dest, should have HTF testdata 
