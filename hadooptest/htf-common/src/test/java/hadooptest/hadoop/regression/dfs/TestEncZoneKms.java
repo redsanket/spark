@@ -21,12 +21,13 @@ import org.junit.runners.Parameterized.Parameters;
 /* 
  *  TestEncZoneKms.java
  *    
- *  This class uses KMS/EZ support methods in DfsCliCommands to create base Encryption Zones in hdfs 
- *  the path is created and owned by user 'hadoop3', EZ is created and listed by hdfsqa, and then 
+ *  This class uses KMS/EZ support methods in DfsCliCommands to exercise Encryption Zones in hdfs. 
+ *  Nominal case is path creation by normal user 'hadoop3', EZ created and listed by hdfsqa, and 
  *  performs basic r/w operations in the EZ as hadoop3, using sm/med/lg files in /HTF/testdata. 
  *
  *  NOTES:
- *  1. KMS/EZ does not currently support webhdfs protocol, test2 fails (YHADOOP-1961)
+ *  1. KMS/EZ does not currently support webhdfs protocol (will/should it?)
+ *  2. KMS/EZ Core issue using fully qualified hdfs/nn protocol (YHADOOP-1961/HDFS-12586))
  *
 */
 
@@ -50,12 +51,35 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
 
-	@Test public void test_FilesInEz1_none() throws Exception { test_FilesInEz1(""); }
+	// create/verify/usage of EZ without qualified protocol/nn (use hdfs '/' as root fs path)
+	@Test public void test_CopyFilesToEz() throws Exception { test_CopyFilesToEz1(""); }
+	@Test public void test_CopyFilesFromEz() throws Exception { test_CopyFilesFromEz1(""); }
+	@Test public void test_CopyFilesToEzFromLocal() throws Exception { test_CopyFilesToEzFromLocal(""); }
 
+	// create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
+	// product bug YHADOOP-1961
 	@Ignore
-	@Test public void test_FilesInEz2_hdfs() throws Exception { test_FilesInEz2(HadooptestConstants.Schema.HDFS); }
+	@Test public void test_CopyFilesToEz() throws Exception { 
+		test_CopyFilesToEz1("HadooptestConstants.Schema.HDFS"); }
+	@Ignore
+	@Test public void test_CopyFilesFromEz() throws Exception { 
+		test_CopyFilesFromEz1("HadooptestConstants.Schema.HDFS"); }
+	@Ignore
+	@Test public void test_CopyFilesToEzFromLocal() throws Exception { 
+		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
 
 
+	/* utility method used by tests to setup an EZ from given hdfs path, this does
+	 * the basic actions needed to establish an encryption zone, making it available
+	 * for use by normal users such as r/w hdfs data or exec jobs aginst the filesystem
+	 *
+	 * This method does the following:
+	 *   as normal user, delete given hdfs path, can already be an EZ or not
+	 *   as normal user, create hdfs path
+	 *   as normal user, list the new hdfs path
+	 *   as hdfs priv user, create EZ from given path 
+	 *   as hdfs priv user, list EZs and verify given path is included
+	*/
         private void setupTest(String protocol, String pathToEz) throws Exception {
         	this.protocol = protocol;
 		this.pathToEz = pathToEz;
@@ -100,7 +124,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
 
-        private void test_FilesInEz1(String protocol) throws Exception {
+	/*
+	 * test_CopyFilesToEz
+	 *
+	 * Copy the HTF test data from non-EZ hdfs path to an EZ, files range from 
+	 * 0 byte to 11GB
+	*/
+        private void test_CopyFilesToEz(String protocol) throws Exception {
 
 		String completePathOfSource = "/HTF/testdata";
 
@@ -127,24 +157,102 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-                TestSession.logger.info("Finished test test_FilesInEz1");
+                TestSession.logger.info("Finished test test_CopyFilesToEz");
 
         }
 
-        private void test_FilesInEz2(String protocol) throws Exception {
-                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
+        /*
+         * test_CopyFilesFromEz
+         *
+         * Copy the HTF test data from EZ path to a non-EZ path, files range from
+         * 0 byte to 11GB
+        */
+        private void test_CopyFilesFromEz(String protocol) throws Exception {
+
+                String completePathOfDest = "/tmp/testdata_from_ez";
+
+                //setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
 
-                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+
+                // delete the dest path
+                genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2, Recursive.NO);
+                                completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-                TestSession.logger.info("Finished test test_FilesInEz2");
+		// create the dest path
+                genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfDest);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+		// list the dest, should be empty
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                // copy all data from EZ to completePathOfDest 
+                genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfDest,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                // list EZ path again, should have the test data still in place now
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                // list the dest, should have HTF testdata 
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfDest, Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                TestSession.logger.info("Finished test_CopyFilesFromEz");
         }
 
+
+        /*
+         * test_CopyFilesToEzFromLocal
+         *
+         * Copy the HTF test data from local GW path to an EZ, files range from
+         * 0 byte to 11GB
+        */
+        private void test_CopyFilesToEzFromLocal(String protocol) throws Exception {
+                
+                String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
+                
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
+                
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
+                
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2, Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+                
+                // copy all data from local GW to the EZ path
+                genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfLocalSource, 
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+                
+                // list EZ path again, should have the test data in place now
+                genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2, Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+                
+                TestSession.logger.info("Finished test_CopyFilesToEzFromLocal");
+        
+        }
 
 }
