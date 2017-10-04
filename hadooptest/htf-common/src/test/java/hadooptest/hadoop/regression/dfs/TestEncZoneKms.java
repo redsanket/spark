@@ -52,18 +52,18 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 
 	// create/verify/usage of EZ without qualified protocol/nn (use hdfs '/' as root fs path)
-	@Test public void test_CopyFilesToEz_none() throws Exception { test_CopyFilesToEz1(""); }
-	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz1(""); }
+	@Test public void test_CopyFilesToEz_none() throws Exception { test_CopyFilesToEz(""); }
+	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
 
 	// create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
 	// product bug YHADOOP-1961
 	@Ignore
 	@Test public void test_CopyFilesToEz_hdfs() throws Exception { 
-		test_CopyFilesToEz1("HadooptestConstants.Schema.HDFS"); }
+		test_CopyFilesToEz("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
 	@Test public void test_CopyFilesFromEz_hdfs() throws Exception { 
-		test_CopyFilesFromEz1("HadooptestConstants.Schema.HDFS"); }
+		test_CopyFilesFromEz("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
 	@Test public void test_CopyFilesToEzFromLocal_hdfs() throws Exception { 
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
@@ -180,6 +180,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 // delete the dest path
                 genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+				Recursive.YES, Force.YES, SkipTrash.YES,
                                 completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
