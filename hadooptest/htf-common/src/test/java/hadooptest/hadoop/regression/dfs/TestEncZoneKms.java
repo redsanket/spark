@@ -211,8 +211,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 // copy all data from EZ to completePathOfDest 
                 genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                completePathOfDest,
-                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1,
+                                completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // list EZ path again, should have the test data still in place now
@@ -276,14 +276,25 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         */
         private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
 
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
+
                 HashMap<String, String> jobParams = new HashMap<String, String>();
                 jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
 
-		String randomWriterOutDir = "/tmp/KmsEzDfsTest/rw_job1/out"; 
+		String randomWriterOutDir = "/tmp/KmsEzDfsTest/rw_job1"; 
 
 		// create job's output path as an EZ
                 setupTest(protocol, randomWriterOutDir);
 
+		// chmod to allow other users to write the EZ data
+                genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                randomWriterOutDir, "777", Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+
+		// setup objects and run the Yarn RW job
                 YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
                 yarnTestBaseClass.runStdHadoopRandomWriter(jobParams, randomWriterOutDir);
 
