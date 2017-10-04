@@ -42,6 +42,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2 = "/tmp/hadoop3/BaseDirInEz2/";
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3 = "/tmp/hadoop3/BaseDirInEz3/";
         private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR4 = "/tmp/hadoop3/BaseDirInEz4/";
+        private static String TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5 = "/tmp/hadoop3/BaseDirInEz5/";
         private static String localCluster = System.getProperty("CLUSTER_NAME");
         private static String SSH_OPTS_1 = "-o StrictHostKeyChecking=no";
         private static String SSH_OPTS_2 = "-o UserKnownHostsFile=/dev/null";
