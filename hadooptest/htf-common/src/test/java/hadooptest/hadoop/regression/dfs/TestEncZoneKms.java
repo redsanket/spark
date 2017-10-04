@@ -58,6 +58,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	 *
 	*/
 	@Test public void test_CopyFilesToEz_none() throws Exception { test_CopyFilesToEz(""); }
+	@Test public void test_GetEzFileMetadata_none() throws Exception { test_GetEzFileMetadata(""); }
 	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
 	@Test public void test_RunYarnRWJobUsingEzSrc_none() throws Exception { test_RunYarnRWJobUsingEzSrc(""); }
@@ -71,6 +72,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_CopyFilesToEz_hdfs() throws Exception { 
 		test_CopyFilesToEz("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
+	@Test public void test_GetEzFileMetadata_hdfs() throws Exception {
+		 test_GetEzFileMetadata("HadooptestConstants.Schema.HDFS"); }
+	@Ignore
 	@Test public void test_CopyFilesFromEz_hdfs() throws Exception { 
 		test_CopyFilesFromEz("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
@@ -78,7 +82,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
 	@Test public void test_RunYarnRWJobUsingEzSrc_hdfs() throws Exception {
-		 test_RunYarnRWJobUsingEzSrc(""); }
+		 test_RunYarnRWJobUsingEzSrc("HadooptestConstants.Schema.HDFS"); }
 
 
 	/* utility method used by tests to setup an EZ from given hdfs path, this does
@@ -169,9 +173,36 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-                TestSession.logger.info("Finished test test_CopyFilesToEz");
+                TestSession.logger.info("Finished test_CopyFilesToEz");
 
         }
+
+        /*
+         * test_GetEzFileMetadata
+         *
+         * Get the EZ metadata for a file in an hdfs EZ
+	 *
+	 * This uses file 'file_256MB' copied from test case test_CopyFilesToEz
+         * 
+        */
+        private void test_GetEzFileMetadata(String protocol) throws Exception {
+
+                String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1 +
+			"dfs/file_256MB";
+
+                DfsCliCommands dfsCliCommands = new DfsCliCommands();
+                GenericCliResponseBO genericCliResponse;
+
+                // get the file's EZ metadata info 
+                genericCliResponse = dfsCliCommands.getFileEncryptionInfo(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                               	completePathOfEzFile1); 
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
+                TestSession.logger.info("Finished test_GetEzFileMetadata");
+
+        }
+
 
         /*
          * test_CopyFilesFromEz
