@@ -340,6 +340,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// create job's output path as an EZ
                 setupTest(protocol, randomWriterOutDir);
 
+                // copy all data from local GW to the EZ path
+                genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfLocalSource,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
                 // chmod to allow other users to read the src data from EZ
 		// NOTE: get perm denied for .Trash folder because it's owned by hdfsqa, so
 		// can't chmod it but can remove it (folder is 777 with sticky bit)
