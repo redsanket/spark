@@ -51,7 +51,6 @@ get_hive_oradb_server() {
     HIVE_DB_NODE=$host_name
     echo "$HIVE_DB_NODE"
   fi
-  done
 }
 
 for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
