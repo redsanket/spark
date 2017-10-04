@@ -327,6 +327,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         */
         private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
 
+                String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
+
 		setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
