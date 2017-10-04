@@ -193,6 +193,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
             	setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
 
+                // copy all data from /HTF/testdata/dfs to the EZ path
+                genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfSource, 
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
                 String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2 +
 			"testdata/dfs/file_256MB";
 
