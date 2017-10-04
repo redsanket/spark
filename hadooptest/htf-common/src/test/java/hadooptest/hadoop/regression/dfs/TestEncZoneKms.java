@@ -342,6 +342,12 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		// create job's output path as an EZ
                 setupTest(protocol, randomWriterOutDir);
 
+                // chmod to allow hadoopqa to write the output data in EZ
+                genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5, "777", Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
                 // copy all data from local GW to the EZ path
                 genericCliResponse = dfsCliCommands.copyFromLocal(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
@@ -357,13 +363,11 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5 + "testdata", "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-/*
-		// chmod to allow other users to read the output data in EZ
+		// chmod to allow other users to read the job output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
                                 randomWriterOutDir, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
-*/
 
 
 		// setup objects and run the Yarn RW job
