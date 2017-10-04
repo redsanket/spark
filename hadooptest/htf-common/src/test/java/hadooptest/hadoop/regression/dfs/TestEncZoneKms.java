@@ -10,6 +10,7 @@ import hadooptest.hadoop.regression.yarn.YarnTestsBaseClass;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -268,12 +269,12 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
         /*
-         * test_RunYarnJobUsingEzSrc
+         * test_RunYarnRWJobUsingEzSrc
          *
 	 * Run a randomwriter job using EZ path to output data
 	 *
         */
-        private void test_RunYarnJobUsingEzSrc(String protocol) throws Exception {
+        private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
 
                 HashMap<String, String> jobParams = new HashMap<String, String>();
                 jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
