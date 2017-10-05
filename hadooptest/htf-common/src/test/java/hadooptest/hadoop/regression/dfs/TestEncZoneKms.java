@@ -345,7 +345,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
                 // chmod to allow hadoopqa to write the output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5, "777", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
