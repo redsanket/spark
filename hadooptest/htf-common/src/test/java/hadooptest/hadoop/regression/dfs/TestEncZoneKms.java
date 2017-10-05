@@ -340,6 +340,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 		String randomWriterBase = "/tmp/KmsEzDfsTest/"; 
 		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
 
+                // delete the randomWriterBase in case job was run previously 
+                genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+                                Recursive.YES, Force.YES, SkipTrash.YES,
+                                randomWriterBase);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
 		// create job's output base path as an EZ
                 setupTest(protocol, randomWriterBase);
 
