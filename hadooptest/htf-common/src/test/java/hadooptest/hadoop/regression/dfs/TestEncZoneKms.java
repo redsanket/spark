@@ -366,7 +366,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 		// chmod to allow other users to read the job output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
-                                HadooptestConstants.UserNames.HADOOPQA, protocol, localCluster,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 randomWriterBase, "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
