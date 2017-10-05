@@ -328,17 +328,22 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
 
                 String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
+		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
+		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
 
 		setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
 
+                // chmod /user/hadoop3 to allow hadoopqa to rm it's job output paths 
+                genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                "/user/hadoop3", "777", Recursive.YES);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
+
                 HashMap<String, String> jobParams = new HashMap<String, String>();
                 jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
-
-		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
-		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
 
                 // delete the randomWriterBase in case job was run previously 
                 genericCliResponse = dfsCliCommands.rm(EMPTY_ENV_HASH_MAP,
