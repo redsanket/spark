@@ -337,7 +337,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 HashMap<String, String> jobParams = new HashMap<String, String>();
                 jobParams.put("mapreduce.randomwriter.bytespermap", "512000");
 
-		String randomWriterBase = "/tmp/KmsEzDfsTest/"; 
+		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
 		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
 
                 // delete the randomWriterBase in case job was run previously 
