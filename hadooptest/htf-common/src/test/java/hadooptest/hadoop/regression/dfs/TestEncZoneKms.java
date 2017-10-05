@@ -339,7 +339,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 // chmod /user/hadoop3 to allow hadoopqa to rm it's job output paths 
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                "/user/hadoop3", "777", Recursive.YES);
+                                "/user/hadoop3", "777", Recursive.NO);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 HashMap<String, String> jobParams = new HashMap<String, String>();
