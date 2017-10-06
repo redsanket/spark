@@ -40,22 +40,31 @@ while [ ${DAYS} -ge 0 ]; do
         continue
     fi
     dest_pfx=${DEST_HDFS}/projects/starling/hadoopqa/logs/nnaudit/${STARTDATE}
-    if ( $HDFS dfs -ls $dest_pfx ) ; then
-        echo "`date +%FT%T` info: skipping.. $dest_pfx exists ";
-    else
-        $HDFS dfs -mkdir $dest_pfx
-        for nnaudit_file in ${nnaudit_files[@]}; do
-            TIME=`ls ${LOGPATH}${nnaudit_file} | rev | cut -d - -f 1 | rev`
-            if [[ ! ${TIME} =~ ^[\-0-9]+$ ]]; then
-                continue
-            else
-                cp ${LOGPATH}${nnaudit_file} /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}"
-                bzip2 /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}"
-                $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2 $dest_pfx/.
-                rm /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2
-            fi
-        done
+    $HDFS dfs -test -d ${dest_pfx} || $HDFS dfs -Dfs.permissions.umask-mode=027 -mkdir -p ${dest_pfx}
+    if [ ! $? -eq 0 ]; then
+        echo "`date +%FT%T` error: failed to create folder ${dest_pfx} on HDFS"
+        exit 1;
     fi
+    for nnaudit_file in ${nnaudit_files[@]}; do
+        TIME=`ls ${LOGPATH}${nnaudit_file} | rev | cut -d - -f 1 | rev`
+        if [[ ! ${TIME} =~ ^[\-0-9]+$ ]]; then
+            continue
+        else
+            cp ${LOGPATH}${nnaudit_file} /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}"
+            bzip2 /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}"
+            if [ ! $? -eq 0 ]; then
+                echo "`date +%FT%T` error: failed to generate gzip file from /grid/0/tmp/'${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}'"
+                exit 1;
+            fi
+            $HDFS dfs -test -f ${dest_pfx}/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2 || $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2 ${dest_pfx}/.
+            if [ ! $? -eq 0 ]; then
+                echo "`date +%FT%T` error: failed to upload gzip file /grid/0/tmp/'${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}' to HDFS"
+                exit 1;
+            fi
+            $HDFS dfs -chmod -R 750 ${dest_pfx}/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2
+            rm /grid/0/tmp/"${GRID}-${LOGTYPE}.${STARTDATE}-${TIME}".bz2
+        fi
+    done
     DAYS=$[${DAYS}-1]
 done
 
