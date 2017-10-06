@@ -37,7 +37,7 @@ if [ ! -z "$fsimage_ctime" ] ; then
                 ENDDATE=`date +%F -d "-$((${DAYS} - 1)) days"`
             fi
             STARTDATE=`date +%F -d "-${DAYS} days"`
-            fsimage_files=`find ${LOGPATH} -type f -newermt ${STARTDATE} ! -newermt ${ENDDATE} | grep -E "fsimage_[0-9]*" | grep -v "md5" | cut -d / -f 9`
+            fsimage_files=`find ${LOGPATH} -type f -newermt ${STARTDATE} ! -newermt ${ENDDATE} | grep -E "fsimage_[0-9]*" | grep -v "md5" | rev | cut -d / -f 1 | rev`
             if [[ -z $fsimage_files ]]; then
                 echo "`date +%FT%T` info: skipping.. no fsimage files present on ${STARTDATE}"
                 DAYS=$[${DAYS}-1]
@@ -53,6 +53,7 @@ if [ ! -z "$fsimage_ctime" ] ; then
                     cp ${LOGPATH}${fsimage_file} /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
                     gzip -fv /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
                     $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz $dest_pfx/.
+                    rm /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz
                 done
             fi
             DAYS=$[${DAYS}-1]
