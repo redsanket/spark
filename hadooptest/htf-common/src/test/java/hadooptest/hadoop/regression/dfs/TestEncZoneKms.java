@@ -390,7 +390,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 yarnTestBaseClass.runStdHadoopRandomWriter(jobParams, randomWriterOutDir);
 
 		// setup and run sort job using randomwriter job's result as input
-                yarnTestBaseClass.runStdHadoopSortJob(randomWriterOutputDir + "/*",
+                yarnTestBaseClass.runStdHadoopSortJob(randomWriterOutDir + "/*",
                                 sortJobOutputDir);
 
 	}
