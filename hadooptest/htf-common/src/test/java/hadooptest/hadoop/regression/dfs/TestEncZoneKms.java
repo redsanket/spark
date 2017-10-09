@@ -65,7 +65,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_GetEzFileMetadata_none() throws Exception { test_GetEzFileMetadata(""); }
 	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
-	@Test public void test_RunYarn_RW_Sort_UsingEz() throws Exception { test_RunYarn_RW_Sort_UsingEz(""); }
+	@Test public void test_RunYarn_RW_Sort_UsingEz_none() throws Exception { test_RunYarn_RW_Sort_UsingEz(""); }
 
 	/*
 	 * create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
@@ -85,7 +85,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_CopyFilesToEzFromLocal_hdfs() throws Exception { 
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
-	@Test public void test_RunYarn_RW_Sort_UsingEz() throws Exception {
+	@Test public void test_RunYarn_RW_Sort_UsingEz_hdfs() throws Exception {
 		 test_RunYarn_RW_Sort_UsingEz("HadooptestConstants.Schema.HDFS"); }
 
 
