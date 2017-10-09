@@ -65,7 +65,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_GetEzFileMetadata_none() throws Exception { test_GetEzFileMetadata(""); }
 	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
-	@Test public void test_RunYarnRWJobUsingEzDst_none() throws Exception { test_RunYarnRWJobUsingEzDst(""); }
+	@Test public void test_RunYarn_RW_Sort_UsingEz() throws Exception { test_RunYarn_RW_Sort_UsingEz(""); }
 
 	/*
 	 * create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
@@ -85,8 +85,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_CopyFilesToEzFromLocal_hdfs() throws Exception { 
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
-	@Test public void test_RunYarnRWJobUsingEzDst_hdfs() throws Exception {
-		 test_RunYarnRWJobUsingEzDst("HadooptestConstants.Schema.HDFS"); }
+	@Test public void test_RunYarn_RW_Sort_UsingEz() throws Exception {
+		 test_RunYarn_RW_Sort_UsingEz("HadooptestConstants.Schema.HDFS"); }
 
 
 	/* utility method used by tests to setup an EZ from given hdfs path, this does
@@ -320,16 +320,18 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
         /*
-         * test_RunYarnRWJobUsingEzDst
+         * test_RunYarn_RW_Sort_UsingEz
          *
-	 * Run a randomwriter job using EZ path to output data
+	 * Run a randomwriter job using EZ path to output data, then run a sort job using
+	 * the randomwriter job's output as input data
 	 *
         */
-        private void test_RunYarnRWJobUsingEzDst(String protocol) throws Exception {
+        private void test_RunYarn_RW_Sort_UsingEz(String protocol) throws Exception {
 
                 String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
 		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
 		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
+		String sortJobOutputDir = randomWriterBase + "sort_job1"; 
 
 		setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
 
@@ -383,15 +385,14 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 
-		// setup objects and run the Yarn RW job
+		// setup objects and run the Yarn randomwriter job
                 YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
                 yarnTestBaseClass.runStdHadoopRandomWriter(jobParams, randomWriterOutDir);
 
-/*
-                yarnTestBaseClass.runStdHadoopSortJob(RANDOM_WRITER_DATA_DIR + randomWriterOutputDir,
-                                SORT_JOB_DATA_DIR + sortJobOutputDir);
+		// setup and run sort job using randomwriter job's result as input
+                yarnTestBaseClass.runStdHadoopSortJob(randomWriterOutputDir + "/*",
+                                sortJobOutputDir);
 
-*/
 	}
 
 }
