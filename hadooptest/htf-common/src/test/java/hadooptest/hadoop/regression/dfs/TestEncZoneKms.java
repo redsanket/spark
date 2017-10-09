@@ -65,7 +65,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_GetEzFileMetadata_none() throws Exception { test_GetEzFileMetadata(""); }
 	@Test public void test_CopyFilesFromEz_none() throws Exception { test_CopyFilesFromEz(""); }
 	@Test public void test_CopyFilesToEzFromLocal_none() throws Exception { test_CopyFilesToEzFromLocal(""); }
-	@Test public void test_RunYarnRWJobUsingEzSrc_none() throws Exception { test_RunYarnRWJobUsingEzSrc(""); }
+	@Test public void test_RunYarnRWJobUsingEzDst_none() throws Exception { test_RunYarnRWJobUsingEzDst(""); }
 
 	/*
 	 * create/verify/usage of EZ with qualified protocol/nn (hdfs://<namenode_host>)
@@ -85,8 +85,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	@Test public void test_CopyFilesToEzFromLocal_hdfs() throws Exception { 
 		test_CopyFilesToEzFromLocal("HadooptestConstants.Schema.HDFS"); }
 	@Ignore
-	@Test public void test_RunYarnRWJobUsingEzSrc_hdfs() throws Exception {
-		 test_RunYarnRWJobUsingEzSrc("HadooptestConstants.Schema.HDFS"); }
+	@Test public void test_RunYarnRWJobUsingEzDst_hdfs() throws Exception {
+		 test_RunYarnRWJobUsingEzDst("HadooptestConstants.Schema.HDFS"); }
 
 
 	/* utility method used by tests to setup an EZ from given hdfs path, this does
@@ -320,12 +320,12 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         }
 
         /*
-         * test_RunYarnRWJobUsingEzSrc
+         * test_RunYarnRWJobUsingEzDst
          *
 	 * Run a randomwriter job using EZ path to output data
 	 *
         */
-        private void test_RunYarnRWJobUsingEzSrc(String protocol) throws Exception {
+        private void test_RunYarnRWJobUsingEzDst(String protocol) throws Exception {
 
                 String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
 		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
