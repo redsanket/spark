@@ -253,6 +253,8 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
+
+
 		// list the dest, should be empty
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
@@ -337,6 +339,12 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
+
+                // create the hadoop3 user base path
+                genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
+                                HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
+                                completePathOfDest);
+                Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // chmod /user/hadoop3 to allow hadoopqa to rm it's job output paths 
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
