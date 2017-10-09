@@ -340,10 +340,10 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
 
-                // create the hadoop3 user base path
+                // create the hadoop3 user base path in hdfs
                 genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
-                                completePathOfDest);
+                                "/user/hadoop3");
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // chmod /user/hadoop3 to allow hadoopqa to rm it's job output paths 
