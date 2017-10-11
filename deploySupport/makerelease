@@ -68,8 +68,6 @@ cfg_release_dir="/pub/Releases"
 
 # OVERRIDE_TAG=${OVERRIDE_TAG:="false"}
 
-set -x
-
 ################################################################################
 # check if ADM is reachable
 # check if yroot is installed on ADM
@@ -77,23 +75,23 @@ set -x
 ################################################################################
 ssh $ADM "date"
 RC=$?
-if [[ "$RC" != 0 ]]; then
+if [[ $RC -ne 0 ]]; then
   echo "Host $ADM is not reachable. CHECK!!!. Exiting"
-  exit -1
+  exit 1
 fi
 
 ssh $ADM "ls /home/y/bin/yroot"
 RC=$?
-if [[ "$RC" != 0 ]]; then
+if [[ $RC -ne 0 ]]; then
   echo "Yroot is not installed on $ADM. CHECK!!!. Exiting"
-  exit -1
+  exit 1
 fi
 
-ssh $ADM "sudo su gadmin -c \"ls $CFG_NFS_MOUNT\""
+ssh $ADM "sudo su gadmin -c \"ls -ld $CFG_NFS_MOUNT\""
 RC=$?
-if [[ "$RC" != 0 ]]; then
+if [[ $RC -ne 0 ]]; then
   echo "Grid SE ADM nfs mount $CFG_NFS_MOUNT doesn't exist. CHECK!!!. Exiting"
-  exit -1
+  exit 1
 fi
 
 ################################################################################
@@ -133,8 +131,9 @@ fi
 
 set -x
 $DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
+RC=$?
 set +x
-if [[ $? -ne 0 ]]; then
+if [[ $RC -ne 0 ]]; then
   echo "ERROR: dist_tag clone failed!!!"
   exit 1;
 fi
@@ -155,7 +154,7 @@ if [[ "$CLEAN_YROOT" == "true" ]]; then
   ssh $ADM "/home/y/bin/yroot --list|grep ${yroot_name}[[:space:]]"
   RC=$?
   set +x
-  if [[ "$RC" == 0 ]]; then
+  if [[ $RC -eq 0 ]]; then
     echo "Found yroot '$yroot_name' on remote host '$ADM'."
     set -x
     ssh $ADM "/home/y/bin/yroot --stop $yroot_name"
@@ -170,7 +169,7 @@ set -x
 ssh $ADM "/home/y/bin/yroot --list|grep ${yroot_name}[[:space:]]"
 RC=$?
 set +x 
-if [[ "$RC" == 0 ]]; then
+if [[ $RC -eq 0 ]]; then
   echo "Found yroot '$yroot_name' on remote host '$ADM'."
   echo "WARN: Remove existing yroot release directory '$yroot_release_dir':"
   set -x
@@ -191,10 +190,12 @@ yroot_path=`perl -e 'use Yahoo::Root; print Yahoo::Root->new( name => $ARGV[0] )
 yroot_home=`ssh $ADM "/home/y/bin/yroot $yroot_name --cmd 'pwd'"`
 ssh $ADM "sudo /home/y/bin/yroot $yroot_name --cmd 'yinst install ygrid_makerelease -br current -yes'"
 RC=$?
-if [[ "$RC" != 0 ]]; then
+set +x
+if [[ $RC -ne 0 ]]; then
   echo "Unable to install ygrid_makerelease package on ADM box. CHECK!!!. Exiting"
-  exit -1
+  exit 1
 fi
+set -x
 ssh $ADM "sudo /home/y/bin/yrootcp /usr/sbin/mtree $yroot_name:/usr/sbin/mtree"
 set +x
 
@@ -233,17 +234,18 @@ run_script_file_path="$TMP_DIR/$run_script_file"
 
 # E.G. version="2.6.0.9.1503201324"
 
-set -x
 if [[ "$CLUSTERS" == "all" ]]; then
+  set -x
   /home/y/bin/rocl -r $CLUSTER_ROLES -m -G|sort > $TMP_DIR/clusters.all
   /home/y/bin/rocl -r grid.set.clusters_storm -m -G|sort > $TMP_DIR/clusters.storm
+  set +x
   # Suppress lines unique to storm cluster and common in both
   CLUSTERS=`/usr/bin/comm -23 $TMP_DIR/clusters.all $TMP_DIR/clusters.storm | awk 'BEGIN {FS="."}{print $1"."$2}'`
   # CLUSTERS='axonite.red'
 else
   CLUSTERS=`echo $CLUSTERS|sed 's/,/ /g'`
 fi
-set +x
+echo "CLUSTERS='$CLUSTERS'"
 
 # Run makerelease for each cluster
 
@@ -265,16 +267,18 @@ for cluster in $CLUSTERS; do
   for package in $packages; do
     if [[ "$cluster_index" -eq 1 ]]; then
       # TODO: replace with: dist_tag list $CLUSTER_CERTIFIED_TAG
-      set -x
       if [[ "$package" == "hadoop" ]]; then
+          set -x
           version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep coretree|awk '{print $1}'|cut -d - -f2`
+          set +x
       elif [[ "$package" == "conf" ]]; then
+          set -x
           version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
+          set +x
       else
           echo "ERROR: invalidate package type '$package' found!!!"
           exit 1;
       fi
-      set +x
 
       if [[ "$version" == "" ]]; then
         echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
@@ -283,12 +287,11 @@ for cluster in $CLUSTERS; do
 
       # Only update the bundle file once because the packages versions will be
       # the same across clusters
-      set -x
       if [[ -n "$labels" ]]; then
           labels+=","
       fi
       labels+="$package,$version-$YINST_FREEZE_DTS"
-      set +x
+      echo "labels='$labels'"
       echo "/usr/local/bin/makerelease -p $package -v $version -c $cluster el6" >> $run_script_file_path
     else
         if [[ "$package" == "conf" ]]; then
@@ -335,9 +338,9 @@ if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   ssh $ADM "sudo su gadmin -c \"cp $yroot_path/$yroot_release_dir/* $CFG_NFS_MOUNT\""
   RC=$?
   set +x
-  if [[ "$RC" != 0 ]]; then
+  if [[ $RC -ne 0 ]]; then
     echo "Error in copying files from $ADM to $CFG_NFS_MOUNT. CHECK!!!. Exiting"
-    exit -1
+    exit 1
   fi
   echo "--> Verify makerelease output tgz files are copied to the grid cfg nfs mount:"
   set -x
@@ -345,9 +348,10 @@ if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   # ssh $ADM "sudo su gadmin -c \"ssh $CFG_ADM 'cd $cfg_release_dir; ls -l $files'\""
   ssh $ADM "sudo su gadmin -c \"cd $CFG_NFS_MOUNT; ls -l $files\""
   RC=$?
-  if [[ "$RC" != 0 ]]; then
+  set +x
+  if [[ $RC -ne 0 ]]; then
     echo "Error verifying files copied to $CFG_NFS_MOUNT. CHECK!!!. Exiting"
-    exit -1
+    exit 1
   fi
 else
   echo "UPLOAD_RELEASE=false: Skipping scp makerelease tgz files to '$CFG_NFS_MOUNT'"
@@ -427,27 +431,38 @@ fi
 
 if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   echo "UPLOAD_RELEASE=true: Proceed to update the hadoop_releases git repo"
-
-  set -x
   BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
 
   # Update the clusters yaml file
+  set -x
   $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+  RC=$?
+  set +x
+  if [[ $RC -ne 0 ]]; then
+    echo "Error inserting bundle hadoop_core $BUNDLE_SERIAL $labels. Exiting"
+    exit 1
+  fi
 
   # Update the clusters yaml file
+  set -x
   $SCRIPT_DIR/update_clusters_yaml hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE
+  RC=$?
   set +x
+  if [[ $RC -ne 0 ]]; then
+    echo "Error updating clusters_yaml for hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE. Exiting"
+    exit 1
+  fi
 else
   echo "UPLOAD_RELEASE=false: Skipping updating hadoop_releases git repo"
 fi
 
 # Cleanup 
 echo "---> Cleanup tmp directory and files:"
-set -x
 if [[ "$CLEANUP" == "true" ]]; then
+  set -x
   rm -rf $TMP_DIR
+  set +x
 fi
-set +x 
 
 exit;
 
