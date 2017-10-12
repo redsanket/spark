@@ -1590,6 +1590,209 @@ public class DfsCliCommands {
 
 	}
 
+
+        /**
+         *
+	 * Create encryption zone using 'hdfs crypto -createZone'
+	 *
+	 * This gets called similar to other commands, two params to watch for, the path of the
+	 * EZ to create, this must be an already existing hdfs path. Also the KMS key passed in 
+	 * must exist and be accessible in Ykeykey prod.
+	 *
+	 * Must be called by hdfs priv user
+	 *
+         */
+        /**
+         *
+         * @param envMapSentByTest
+         * @param user
+         * @param protocol
+         * @param cluster
+         * @param directoryHierarchy
+         * @param kmsKeyToUseForEzCreate
+         * @return
+         * @throws Exception
+         */
+        public GenericCliResponseBO createZone(HashMap<String, String> envMapSentByTest,
+                        String user, String protocol, String cluster, String directoryHierarchy,
+                        String kmsKeyToUseForEzCreate) throws Exception {
+                String nameNodePrependedWithProtocol = "";
+                HashMap<String, String> tempEnv = new HashMap<String, String>();
+                if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+                        tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+                }
+                if (directoryHierarchy.charAt(directoryHierarchy.length() - 1) != '/') {
+                        directoryHierarchy = directoryHierarchy + "/";
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(HadooptestConstants.Location.Binary.HDFS);
+                sb.append(" ");
+                sb.append("--config");
+                sb.append(" ");
+                sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+                sb.append(" ");
+                sb.append("crypto");
+                sb.append(" ");
+                sb.append("-createZone");
+                sb.append(" ");
+                sb.append("-keyName");
+                sb.append(" ");
+                sb.append(kmsKeyToUseForEzCreate);
+                sb.append(" ");
+                sb.append("-path ");
+                sb.append(" ");
+
+                if ((protocol.trim()).isEmpty()) {
+                        nameNodePrependedWithProtocol = "";
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+                } else if (protocol
+                                .equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+                }    
+                sb.append(nameNodePrependedWithProtocol);
+                sb.append(directoryHierarchy);
+
+                String commandString = sb.toString();
+                TestSession.logger.info(commandString);
+                String[] commandFrags = commandString.split("\\s+");
+                Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                                envMapSentByTest);
+                environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", ""); 
+
+                Process process = null;
+                process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+                                commandFrags, user, environmentVariablesWrappingTheCommand);
+                String response = printResponseAndReturnItAsString(process);
+                GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+                                response);
+                return responseBO;
+        }
+
+
+        /**
+         *
+         * List encryption zones using 'hdfs crypto -listZones'
+         *
+         */
+        /**
+         *
+         * @param envMapSentByTest
+         * @param user
+         * @param protocol
+         * @param cluster
+         * @return
+         * @throws Exception
+         */
+        public GenericCliResponseBO listZones(HashMap<String, String> envMapSentByTest,
+                        String user, String protocol, String cluster) throws Exception {
+
+                String nameNodePrependedWithProtocol = "";
+                HashMap<String, String> tempEnv = new HashMap<String, String>();
+                if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+                        tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(HadooptestConstants.Location.Binary.HDFS);
+                sb.append(" ");
+                sb.append("--config");
+                sb.append(" ");
+                sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+                sb.append(" ");
+                sb.append("crypto");
+                sb.append(" ");
+                sb.append("-listZones");
+                sb.append(" ");
+
+                String commandString = sb.toString();
+                TestSession.logger.info(commandString);
+                String[] commandFrags = commandString.split("\\s+");
+                Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                                envMapSentByTest);
+                environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+                Process process = null;
+                process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+                                commandFrags, user, environmentVariablesWrappingTheCommand);
+                String response = printResponseAndReturnItAsString(process);
+                GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+                                response);
+                return responseBO;
+        }
+
+        /**
+         *
+         * Get encryption zone metadata for a file using 'hdfs crypto -getFileEncryptionInfo'
+         *
+         */
+        /**
+         *
+         * @param envMapSentByTest
+         * @param user
+         * @param protocol
+         * @param cluster
+         * @param ezFile
+         * @return
+         * @throws Exception
+         */
+        public GenericCliResponseBO getFileEncryptionInfo(HashMap<String, String> envMapSentByTest,
+                        String user, String protocol, String cluster, String ezFile) throws Exception {
+
+                String nameNodePrependedWithProtocol = "";
+                HashMap<String, String> tempEnv = new HashMap<String, String>();
+                if (envMapSentByTest.containsKey(KRB5CCNAME)) {
+                        tempEnv.put(KRB5CCNAME, envMapSentByTest.get(KRB5CCNAME));
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(HadooptestConstants.Location.Binary.HDFS);
+                sb.append(" ");
+                sb.append("--config");
+                sb.append(" ");
+                sb.append(HadooptestConstants.Location.Conf.DIRECTORY);
+                sb.append(" ");
+                sb.append("crypto");
+                sb.append(" ");
+                sb.append("-getFileEncryptionInfo");
+                sb.append(" ");
+                sb.append("-path");
+                sb.append(" ");
+
+                if ((protocol.trim()).isEmpty()) {
+                        nameNodePrependedWithProtocol = "";
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHdfs(cluster);
+                } else if (protocol
+                                .equalsIgnoreCase(HadooptestConstants.Schema.WEBHDFS)) {
+                        nameNodePrependedWithProtocol = getNNUrlForWebhdfs(cluster);
+                } else if (protocol.equalsIgnoreCase(HadooptestConstants.Schema.HFTP)) {
+                        nameNodePrependedWithProtocol = getNNUrlForHftp(cluster);
+                }
+                sb.append(nameNodePrependedWithProtocol);
+                sb.append(ezFile);
+
+                String commandString = sb.toString();
+                TestSession.logger.info(commandString);
+                String[] commandFrags = commandString.split("\\s+");
+                Map<String, String> environmentVariablesWrappingTheCommand = new HashMap<String, String>(
+                                envMapSentByTest);
+                environmentVariablesWrappingTheCommand.put("HADOOP_PREFIX", "");
+
+                Process process = null;
+                process = TestSession.exec.runProcBuilderSecurityGetProcWithEnv(
+                                commandFrags, user, environmentVariablesWrappingTheCommand);
+                String response = printResponseAndReturnItAsString(process);
+                GenericCliResponseBO responseBO = new GenericCliResponseBO(process,
+                                response);
+                return responseBO;
+        }
+
+
+
 	/**
 	 * 
 	 * @param user
