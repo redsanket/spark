@@ -152,9 +152,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 	*/
         private void test_CopyFilesToEz(String protocol) throws Exception {
 
-		String completePathOfSource = "/HTF/testdata";
+                String completePathOfSource = "/HTF/testdata";
 
-            	setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -164,14 +164,14 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// copy all data from /HTF/testdata/dfs to the EZ path
+                // copy all data from /HTF/testdata/dfs to the EZ path
                 genericCliResponse = dfsCliCommands.cp(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 completePathOfSource, 
 				TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// list EZ path again, should have the test data in place now
+                // list EZ path again, should have the test data in place now
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR1, Recursive.YES);
@@ -191,9 +191,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         */
         private void test_GetEzFileMetadata(String protocol) throws Exception {
 
-            	setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2);
 
-		String completePathOfSource = "/HTF/testdata";
+                String completePathOfSource = "/HTF/testdata";
                 String completePathOfEzFile1 = TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR2 +
 			"testdata/dfs/file_256MB";
 
@@ -231,9 +231,9 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
                 String completePathOfDest = "/tmp/testdata_from_ez";
 
-		// setup our source ez, this is important since junit will run tests
-		// in parallel, with random launching we can't be sure another 
-		// EZ is available yet
+                // setup our source ez, this is important since junit will run tests
+                // in parallel, with random launching we can't be sure another 
+                // EZ is available yet
                 setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR3);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
@@ -247,7 +247,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 completePathOfDest);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// create the dest path
+                // create the dest path
                 genericCliResponse = dfsCliCommands.mkdir(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 completePathOfDest);
@@ -255,7 +255,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
 
 
 
-		// list the dest, should be empty
+                // list the dest, should be empty
                 genericCliResponse = dfsCliCommands.ls(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 completePathOfDest, Recursive.YES);
@@ -331,11 +331,11 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
         private void test_RunYarn_RW_Sort_UsingEz(String protocol) throws Exception {
 
                 String completePathOfLocalSource = "/grid/0/tmp/HTF/testdata";
-		String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
-		String randomWriterOutDir = randomWriterBase + "rw_job1"; 
-		String sortJobOutputDir = randomWriterBase + "sort_job1"; 
+                String randomWriterBase = "/user/hadoop3/KmsEzDfsTest/"; 
+                String randomWriterOutDir = randomWriterBase + "rw_job1"; 
+                String sortJobOutputDir = randomWriterBase + "sort_job1"; 
 
-		setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
+                setupTest(protocol, TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5);
 
                 DfsCliCommands dfsCliCommands = new DfsCliCommands();
                 GenericCliResponseBO genericCliResponse;
@@ -362,7 +362,7 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 randomWriterBase);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// create job's output base path as an EZ
+                // create job's output base path as an EZ
                 setupTest(protocol, randomWriterBase);
 
                 // chmod to allow hadoopqa to write the output data in EZ
@@ -379,25 +379,25 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
                 // chmod to allow other users to read the src data from EZ
-		// NOTE: get perm denied for .Trash folder because it's owned by hdfsqa, so
-		// can't chmod it but can remove it (folder is 777 with sticky bit)
+                // NOTE: get perm denied for .Trash folder because it's owned by hdfsqa, so
+                // can't chmod it but can remove it (folder is 777 with sticky bit)
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HADOOP3, protocol, localCluster,
                                 TEST_FOLDER_ON_HDFS_REFERRED_TO_AS_BASE_DIR5 + "testdata", "755", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// chmod to allow other users to read the job output data in EZ
+                // chmod to allow other users to read the job output data in EZ
                 genericCliResponse = dfsCliCommands.chmod(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
                                 randomWriterBase, "777", Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
 
-		// setup objects and run the Yarn randomwriter job
+                // setup objects and run the Yarn randomwriter job
                 YarnTestsBaseClass yarnTestBaseClass = new YarnTestsBaseClass();
                 yarnTestBaseClass.runStdHadoopRandomWriter(jobParams, randomWriterOutDir);
 
-		// setup and run sort job using randomwriter job's result as input
+                // setup and run sort job using randomwriter job's result as input
                 yarnTestBaseClass.runStdHadoopSortJob(randomWriterOutDir + "/*",
                                 sortJobOutputDir);
 
