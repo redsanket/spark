@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized.Parameters;
 */
 
 public class TestEncZoneKms extends DfsTestsBaseClass {
-        String protocol;
+	String protocol;
 	String pathToEz;
 	String kmsKeyToUseForEzCreate = "FlubberKmsKey1";
 
@@ -131,13 +131,13 @@ public class TestEncZoneKms extends DfsTestsBaseClass {
                                 pathToEz, Recursive.YES);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// as hdfsqa, create encryption zone
-		genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
+                // as hdfsqa, create encryption zone
+                genericCliResponse = dfsCliCommands.createZone(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster,
                                 pathToEz, kmsKeyToUseForEzCreate);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
 
-		// as hdfsqa, list the encryption zones
+                // as hdfsqa, list the encryption zones
                 genericCliResponse = dfsCliCommands.listZones(EMPTY_ENV_HASH_MAP,
                                 HadooptestConstants.UserNames.HDFSQA, protocol, localCluster);
                 Assert.assertTrue(genericCliResponse.process.exitValue() == 0);
