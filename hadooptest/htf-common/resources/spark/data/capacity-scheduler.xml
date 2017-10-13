@@ -19,6 +19,16 @@
     <value> users</value>
   </property>
 
+  <property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+    <!-- each core is 10 vcore units, so 80 == 8 cores -->
+    <value>80</value>
+  </property>
+
 
   <property>
     <name>yarn.scheduler.capacity.node-locality-delay</name>
