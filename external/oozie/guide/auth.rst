@@ -471,10 +471,10 @@ Workflow with Athens
 
 Athens (http://devel.corp.yahoo.com/athens/guide/) is a hosted service at Yahoo supporting role-based authorization. 
 Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
-To enable that, users will have add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
-the username under which the Oozie workflow will be run as. The user can either be yby.<yahoo user> or ygrid.<headless user>. 
+To enable that, users will have to add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
+the username under which the Oozie workflow will be run as. The user can either be user.<yahoo user> or ygrid.<headless user>.
 
-For eg: If the workflow will be run as user filo, then ``hadoop.oozie`` and ``yby.filo`` will have to be added as members 
+For eg: If the workflow will be run as user filo, then ``hadoop.oozie`` and ``user.filo`` will have to be added as members
 of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will 
 have to be added as members of that role. 
 
@@ -485,11 +485,12 @@ Required properties for an Athens credential
 
 - ``athens.domain`` : Athens domain in which the role is present.
 - ``athens.role`` : The role in the domain for which token should be fetched.
+  Multiple roles can be specified separated by a comma.
 
 Optional properties
 
 - ``athens.user.domain`` : The domain in which user resides. The default value is ``ygrid``. If you are running as yourself 
-  and not a headless user, set value for this to ``yby``.
+  and not a headless user, set value for this to ``user``.
 - ``athens.trust.domain`` : Athens will only look for trusted roles in this domain.
 - ``athens.min.expiry`` : It specifies that the returned role token must be at least valid (min/lower bound) 
   for specified number of seconds.
@@ -524,7 +525,7 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
            <!-- athens.user.domain is not required when running as headless user as the default value is ygrid -->
             <property>
                <name>athens.user.domain</name>
-               <value>yby</value>
+               <value>user</value>
            </property>
            <property>
                <name>athens.min.expiry</name>
@@ -551,20 +552,25 @@ the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following d
 .. code-block:: xml
 
    <dependency>
+     <!-- Do not shade this dependency.
+     If shaded, it will not be possible for Oozie
+     to inject the Athens token into ZTSClient cache
+     and the job will fail unable to access the token -->
      <groupId>yahoo.yinst.zts_java_client</groupId>
      <artifactId>zts_java_client</artifactId>
-     <version>1.5.35</version>
-     <scope>provided</scope>
+     <version>1.5.42</version>
+     <scope>compile</scope>
    </dependency>
 
 
 .. code-block:: java
 
-   //User 'filo' has submitted the Oozie job.
-   //Create ZTSClient object by passing domain for the user/service and user/service name
-   ZTSClient ztsClient = new ZTSClient("yby", "filo");
-   // If headless user 'mog_prod' had submitted the Oozie job, then it would be
-   // ZTSClient ztsClient = new ZTSClient("ygrid", "mog_prod");
+   // Headless user 'mog_prod' has submitted the Oozie job.
+   // Create ZTSClient object by passing domain for the user/service and user/service name
+   ZTSClient ztsClient = new ZTSClient("ygrid", "mog_prod");
+   // If employee 'filo' had submitted the Oozie job, then it would be
+   // ZTSClient ztsClient = new ZTSClient("user", "filo");
+   // table1.write.access is the athens.role mentioned in workflow.xml.
    RoleToken roleToken = ztsClient.getRoleToken("sherpa", "table1.write.access");
    roleTokenStr = roleToken.getToken();
    ztsClient.close();
@@ -580,3 +586,11 @@ the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following d
    conn.addRequestProperty("Yahoo-Role-Auth",roleTokenStr);
 
 
+As an alternate method to the ZTSClient API, tokens can be retrieved from the UGI similar to YCAv2. For eg:
+
+
+.. code-block:: java
+
+   Credentials creds = UserGroupInformation.getCurrentUser().getCredentials();
+   // athensauth is the name of Athens credential provided in workflow.xml
+   token = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
