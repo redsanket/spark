@@ -123,20 +123,28 @@ $DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
 RC=$?
 if [[ $RC -eq 0 ]]; then
     echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
-    echo "WARN: rename existing version based certified tag '$CERTIFIED_VERSION_TAG':"
+    #
+    # Commented out due to issue with dist_tag
+    # Error: move from /home/dist/tags/1/hadoop_2_8_0_latest to /home/dist/tags/1/hadoop_2_8_0_latest_171016143456 failed: Is a directory at /home/y/bin/dist_tag line 341.
+    #
+    # /home/y/bin/dist_tag
+    #     File::Copy::move($old_tagdir, $new_tagdir)
+    #
+    # echo "WARN: rename existing version based certified tag '$CERTIFIED_VERSION_TAG':"
+    # set -x
+    # $DIST_TAG rename $CERTIFIED_VERSION_TAG $CERTIFIED_VERSION_TAG"_"$TIME
+    # set +x
+else
     set -x
-    $DIST_TAG rename $CERTIFIED_VERSION_TAG $CERTIFIED_VERSION_TAG"_"$TIME
+    $DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
+    RC=$?
     set +x
+    if [[ $RC -ne 0 ]]; then
+        echo "ERROR: dist_tag clone failed!!!"
+        exit 1;
+    fi
 fi
 
-set -x
-$DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
-RC=$?
-set +x
-if [[ $RC -ne 0 ]]; then
-  echo "ERROR: dist_tag clone failed!!!"
-  exit 1;
-fi
 
 #################################################################################
 # Setup remote host yroot
