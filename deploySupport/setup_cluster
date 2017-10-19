@@ -182,7 +182,11 @@ if ($RESTART == 1) {
         # start to fail.
         # e.g.
         # $ yinst set hadoop_qa_restart_config.HADOOP_CONF_DIR=/home/gs/gridre/yroot.qe15blue
-	$command="yinst set -root ${yinst_root} hadoop_qa_restart_config.HADOOP_CONF_DIR=${hadoop_conf_dir} && yinst restart -root ${yinst_root} $component";
+	$command="\
+JAVA_HOME=/home/gs/java/jdk && \
+yinst set -root ${yinst_root} hadoop_qa_restart_config.HADOOP_CONF_DIR=${hadoop_conf_dir} && \
+yinst restart -root ${yinst_root} $component\
+";
         $RC = system_("$PDSH -r \"(".$dsrange->{$component}.")\" \"${command}\"");
         $EC += $RC;
     }
