@@ -37,24 +37,34 @@ if [ ! -z "$fsimage_ctime" ] ; then
                 ENDDATE=`date +%F -d "-$((${DAYS} - 1)) days"`
             fi
             STARTDATE=`date +%F -d "-${DAYS} days"`
-            fsimage_files=`find ${LOGPATH} -type f -newermt ${STARTDATE} ! -newermt ${ENDDATE} | grep -E "fsimage_[0-9]*" | grep -v "md5" | cut -d / -f 9`
+            fsimage_files=`find ${LOGPATH} -type f -newermt ${STARTDATE} ! -newermt ${ENDDATE} | grep -E "fsimage_[0-9]*" | grep -v "md5" | rev | cut -d / -f 1 | rev`
             if [[ -z $fsimage_files ]]; then
                 echo "`date +%FT%T` info: skipping.. no fsimage files present on ${STARTDATE}"
                 DAYS=$[${DAYS}-1]
                 continue
             fi
             dest_pfx=${DEST_HDFS}/projects/starling/hadoopqa/logs/fsimage/${STARTDATE}
-            if ( $HDFS dfs -ls $dest_pfx ) ; then
-                echo "`date +%FT%T` info: skipping.. $dest_pfx exists ";
-            else
-                $HDFS dfs -mkdir $dest_pfx
-                for fsimage_file in ${fsimage_files[@]}; do
-                    HOUR=`date -r ${LOGPATH}${fsimage_file} +%T | cut -d : -f 1`
-                    cp ${LOGPATH}${fsimage_file} /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
-                    gzip -fv /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
-                    $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz $dest_pfx/.
-                done
+            $HDFS dfs -test -d ${dest_pfx} || $HDFS dfs -Dfs.permissions.umask-mode=027 -mkdir -p ${dest_pfx}
+            if [ ! $? -eq 0 ]; then
+                echo "`date +%FT%T` error: failed to create folder ${dest_pfx} on HDFS"
+                exit 1;
             fi
+            for fsimage_file in ${fsimage_files[@]}; do
+                HOUR=`date -r ${LOGPATH}${fsimage_file} +%T | cut -d : -f 1`
+                cp ${LOGPATH}${fsimage_file} /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
+                gzip -fv /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}"
+                if [ ! $? -eq 0 ]; then
+                    echo "`date +%FT%T` error: failed to generate gzip file from /grid/0/tmp/'${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}'"
+                    exit 1;
+                fi
+                $HDFS dfs -test -f ${dest_pfx}/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz || $HDFS dfs -copyFromLocal /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz $dest_pfx/.
+                if [ ! $? -eq 0 ]; then
+                    echo "`date +%FT%T` error: failed to upload gzip file /grid/0/tmp/'${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}' to HDFS"
+                    exit 1;
+                fi
+                $HDFS dfs -chmod -R 750 ${dest_pfx}/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz
+                rm /grid/0/tmp/"${GRID}-${LOGTYPE}-${STARTDATE}-${HOUR}".gz
+            done
             DAYS=$[${DAYS}-1]
         done
     else
