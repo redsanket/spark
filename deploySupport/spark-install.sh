@@ -28,10 +28,10 @@ function get_spark_label_version_from_artifactory () {
     exit 1
   fi
 
-  label_version_arr[0]=DOT_SIX=`query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_SIX`
-  label_version_arr[1]=TWO_ZERO=`query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_TWO_ZERO`
-  label_version_arr[2]=CURRENT=`query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_CURRENT`
-  label_version_arr[3]=LATEST=`query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_LATEST`
+  label_version_arr[0]=DOT_SIX=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_SIX`
+  label_version_arr[1]=TWO_ZERO=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_TWO_ZERO`
+  label_version_arr[2]=CURRENT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_CURRENT`
+  label_version_arr[3]=LATEST=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_LATEST`
 }
 
 #-------------------------------------------------------------------------------
