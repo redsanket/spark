@@ -56,7 +56,10 @@ get_hive_oradb_server() {
 for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
     echo "***********************************************************************"
     echo "Checking if host $host_name is the DB server for the cluster $CLUSTER..."
-    export HIVE_DB_NODE=$(get_hive_oradb_server $host_name)
+    HIVE_DB_NODE=$(get_hive_oradb_server $host_name)
+    # trim service name prefix
+    HIVE_DB_NODE=`echo $HIVE_DB_NODE | tr '\n' ' ' | cut -d' ' -f2`
+    export HIVE_DB_NODE
     if [ "${HIVE_DB_NODE}" == "" ]; then
         echo "$host_name is not the DB for the cluster $CLUSTER!"
         continue
