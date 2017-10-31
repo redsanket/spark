@@ -50,7 +50,7 @@ CFG_ADM=${CFG_ADM_HOST:="adm.ygrid.yahoo.com"}
 CFG_NFS_MOUNT=${CFG_NFS_MOUNT:="/net/adm.ygrid.yahoo.com/home/y/share/adm/pub/Releases"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research"}
-CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
+CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="none"}
 COMPONENTS=${COMPONENTS:='hadoop'}
 CLEANUP=${CLEANUP:="true"}
 set +x
@@ -436,6 +436,10 @@ fi
 #   fi
 # fi
 
+if [[ "$CLUSTERS_TO_PROMOTE" == "none" ]]; then
+  echo "CLUSTERS_TO_PROMOTE is set to none. Nothing to promote. Exiting..."
+  exit
+fi
 
 if [[ "$UPLOAD_RELEASE" == "true" ]]; then
   echo "UPLOAD_RELEASE=true: Proceed to update the hadoop_releases git repo"
