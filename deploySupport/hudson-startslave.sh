@@ -140,7 +140,8 @@ export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
 HADOOP_INSTALL_STRING=''
 HADOOP_MVN_INSTALL_STRING_PKG=''
-JDK_QEDEFAULT=yjava_jdk-1.8.0_102.70
+# need rhel7 flavor
+JDK_QEDEFAULT=yjava_jdk-1.8.0_102.263
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
     for i in $HADOOP_CORE_PKGS; do
 
