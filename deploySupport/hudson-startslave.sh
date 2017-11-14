@@ -99,7 +99,9 @@ export HADOOP_27=$HADOOP_27
 
 YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 
-HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
+# need to get test version of hadoopComonsDaemon for rhel7, so pass it in explicitly later on
+# HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
+HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression ytez_yarn_shuffle"
 
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
@@ -171,6 +173,9 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
+  
+    # explicitly set hadoopCommonsDaemon for rhel7
+    HADOOP_INSTALL_STRING+=" hadoopCommonsDaemon-1.0.4.1707172207 "
 
     if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
         HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
@@ -382,8 +387,8 @@ done
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=none
 # Additional packages maintained by Hadoop Core QA team
 # [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
+# notneeded??  hadoop_qe_runasroot-stable \
 [ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
-hadoop_qe_runasroot-stable \
 datanode-test \
 hadoop_qa_restart_config-test \
 namenode-test \
