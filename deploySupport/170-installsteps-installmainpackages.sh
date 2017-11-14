@@ -8,10 +8,10 @@ then
     spark_shuffle_cmd=""
     if [ "$SPARK_SHUFFLE_VERSION" != "none" ]; then
         HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING | sed "s/yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION//g"`
-        spark_shuffle_cmd="$yinst install -yes  -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+        spark_shuffle_cmd="$yinst install -br test  -yes  -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
     fi
 
-    cmd="$yinst install -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+    cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
     
     # compat-readline should have come from Config job
     # slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
@@ -51,7 +51,7 @@ then
    if [ "$QA_PACKAGES" != "none" ]
    then
         echo "====Install additional QA packages: $QA_PACKAGES"
-        slowfanout "$yinst install -yes  -root ${yroothome}  $QA_PACKAGES -same -live"
+        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live"
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
    fi
 echo ......
