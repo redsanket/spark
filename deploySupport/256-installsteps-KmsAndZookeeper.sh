@@ -75,8 +75,8 @@ fi
 # add RPMs for ykeykey support, needed by hadoopqa_headless_keys
 # use br test for hadoopqa_headless_keys to allow rhel7 ykeykey pkgs to get pulled in
 
-# need mdbm and cronolog as RPMs now for ykeykey pkgs
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo yum -y install mdbm cronolog \""
+# need json-c, mdbm and cronolog as RPMs now for ykeykey pkgs
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo yum -y install json-c mdbm cronolog \""
 if [ $? -ne 0 ]; then 
   echo "Error: node $kmsnode failed yinst install of mdbm and cronolog RPMs for hadoopqa_headless_keys support!"
   exit 1
