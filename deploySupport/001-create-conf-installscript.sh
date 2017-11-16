@@ -36,11 +36,13 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     # # # # # in order to set yinst-vars for secondary also. Otherwise,
     # # # # # there is no kerberos login file set for them and the
     # # # # # secondary NN will not start.
+    # added empty fallback to include because this causes AM container launch failures on rhel7, since
+    # this execs in docker container where this path does not exist
     if [ "$ENABLE_HA" = true ]; then
         echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
     else
         echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml   -1 /tmp/namenodes.$cluster.txt -2 /tmp/secondarynamenodes.$cluster.txt
-        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/>'"
+        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/><xi:fallback></xi:fallback>'"
     fi
     echo echo ====
     echo echo ====

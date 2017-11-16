@@ -389,15 +389,15 @@ done
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=none
 # Additional packages maintained by Hadoop Core QA team
 # [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
-# notneeded??  hadoop_qe_runasroot-stable \
 [ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
-datanode-test \
-hadoop_qa_restart_config-test \
-namenode-test \
-secondarynamenode-test \
-resourcemanager-test \
-nodemanager-test \
-historyserver-test"
+hadoop_qe_runasroot-0.1.0.1384989520 \ 
+datanode-0.1.0.1494972496 \ 
+hadoop_qa_restart_config-0.1.0.1494972508 \ 
+namenode-0.1.0.1494972489 \ 
+secondarynamenode-0.1.0.1494972500 \ 
+resourcemanager-0.1.0.1494972502 \ 
+nodemanager-0.1.0.1494972506 \ 
+historyserver-0.1.0.1494972504"
 [ -z "$SEND_LOG_TO_STDOUT" ] && export SEND_LOG_TO_STDOUT=false
 [ -z "$NO_CERTIFICATION" ] && export NO_CERTIFICATION=false
 [ -z "$HBASE_SHORTCIRCUIT" ] && export HBASE_SHORTCIRCUIT=false
