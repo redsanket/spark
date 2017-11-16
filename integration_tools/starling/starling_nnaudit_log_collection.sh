@@ -4,7 +4,7 @@ set -x
 
 GRIDNAME=`hostname`
 DEST_HDFS="hdfs://${GRIDNAME}:8020"
-HADOOP_HOME=/home/gs/hadoop/current/
+HADOOP_HOME=/home/gs/hadoop/current
 JAVA_HOME=/home/gs/java/jdk64/current/
 HADOOP_CONF_DIR=/home/gs/conf/current/
 HDFS="$HADOOP_HOME/bin/hdfs --config $HADOOP_CONF_DIR"
@@ -12,16 +12,8 @@ LOGTYPE="hdfs-audit.log"
 GRID=`echo $DEST_HDFS | cut -d . -f 1 | cut -d '/' -f 3`
 LOGPATH="/home/gs/var/log/hdfs/"
 
-echo "Please enter how many days of logs to collect prior to today?"
-echo "(0 for today, 1 for today and yesterday, ...)"
-read DAYS
-
-if [[ ${DAYS} =~ ^[\-0-9]+$ ]] && (( ${DAYS} >= 0)); then
-    echo "`date +%FT%T` info: Collecting logs for today and ${DAYS} days prior to today"
-else
-    echo "`date +%FT%T` error: ${DAYS} is not a positive integer"
-    exit 1;
-fi
+DAYS=0
+echo "`date +%FT%T` info: Collecting nnaudit logs for today and ${DAYS} days prior to today"
 
 /usr/kerberos/bin/kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@YGRID.YAHOO.COM
 
