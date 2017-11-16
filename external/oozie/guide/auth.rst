@@ -463,7 +463,7 @@ through environment variable - ``OOZIE_ACTION_CONF_XML``.
    CERT=$(cat $OOZIE_ACTION_CONF_XML | perl -lne 'print $1 if /\<property\>\<name\>myyca\<\/name\>\<value\>([^<]+)<\/value>/')
    echo "Certificate = $CERT"
 
-.. _workflow_with_Athens
+.. _workflow_with_Athens:
 
 Workflow with Athens
 --------------------
@@ -472,7 +472,7 @@ Workflow with Athens
 Athens (http://devel.corp.yahoo.com/athens/guide/) is a hosted service at Yahoo supporting role-based authorization. 
 Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
 To enable that, users will have to add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
-the username under which the Oozie workflow will be run as. The user can either be user.<yahoo user> or ygrid.<headless user>.
+the username under which the Oozie workflow will be run as. The user can either be user.<Oath user> or ygrid.<headless user>.
 
 For eg: If the workflow will be run as user filo, then ``hadoop.oozie`` and ``user.filo`` will have to be added as members
 of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will 
@@ -594,3 +594,114 @@ As an alternate method to the ZTSClient API, tokens can be retrieved from the UG
    Credentials creds = UserGroupInformation.getCurrentUser().getCredentials();
    // athensauth is the name of Athens credential provided in workflow.xml
    token = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
+
+.. _workflow_with_ykeykey
+
+Workflow with ykeykey
+---------------------
+
+YKeyKey is Oath's centralized secret management and distribution system. Oozie supports retrieving ykeykey secrets for use in hadoop jobs launched through it. Oozie uses Athens token to authenticate and retrieve the ykeykey secret. The secret is then passed on to the hadoop job and made accessible via Credentials object in UserGroupInformation or JobConf.
+
+Prerequisites:
+
+- An Athens domain needs to be associated with the ykeykey key group. Refer to https://yahoo.jiveon.com/docs/DOC-70338#jive_content_id_Add_Your_Athens_Domain_Using_the_ykeykey_UI for more details on that. This automatically creates a role in the `paranoids.ppse.ckms <https://athens.corp.yahoo.com/athens/domain/paranoids.ppse.ckms/role>`_ Athens domain in the form of ``ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access``
+
+- To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username used to run the Oozie workflow as members of the newly created paranoid role ``ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access`` under the `paranoids.ppse.ckms <https://athens.corp.yahoo.com/athens/domain/paranoids.ppse.ckms/role>`_ Athens domain. The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users.
+
+Similar to other credentials like hcat or YCA, you will have to add a ykeykey credential section to the workflow.
+
+Required properties for a ykeykey credential
+
+- ``ykeykey.group``: Name of the ykeykey key group.
+- ``ykeykey.key``: Name of the ykeykey key.
+- ``athens.domain``: Name of Athens paranoid domain. The value should be paranoids.ppse.ckms.
+- ``athens.role``: The Athens role of the form ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access in the paranoids.ppse.ckms domain.
+
+Optional properties
+
+- ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
+- ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
+
+Example Workflow XML
+~~~~~~~~~~~~~~~~~~~~
+
+The following ``workflow.xml`` snippet shows how to configure your Workflow to use ykeykey authentication:
+
+.. code-block:: xml
+
+  <workflow-app>
+      <credentials>
+          <credential name="YKeyKey_test" type="ykeykey">
+              <property>
+                  <name>ykeykey.group</name>
+                  <value>purushah.test.group</value>
+              </property>
+              <property>
+                  <name>ykeykey.key</name>
+                  <value>key</value>
+              </property>
+              <property>
+                  <name>ykeykey.version</name>
+                  <value>0</value>
+              </property>
+              <property>
+                  <name>athens.domain</name>
+                  <value>paranoids.ppse.ckms</value>
+              </property>
+              <property>
+                  <name>athens.role</name>
+                  <value>ykeykey_prod.tenant.home.purushah.res_group.purushah.test.group.access</value>
+              </property>
+              <property>
+                  <name>athens.user.domain</name>
+                  <value>user</value>
+              </property>
+          </credential>
+      </credentials>
+      <action cred="YKeyKey_test">
+          <map-reduce>
+          ............
+          </map-reduce>
+      </action>
+  </workflow-app>
+
+
+Retriving secret using UGI
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: java
+
+   byte[] secret = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text("YKeyKey_test"));
+
+UGI will give secret for the current version if no version is specified in the credential section for ykeykey.version.
+
+
+Retrieving secret using GridYKeyKeyUtil
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GridYKeyKeyUtil can be used to retrieve secret for multiple versions. GridYKeyKeyUtil has very similar API to YCR.
+
+By default, GridYKeyKeyUtil is part of Hadoop job classpath. :ref:`For compilation you can use oozie-client <oozie_maven_artifacts>` with scope as provided. Please do not bundle it with oozie workflow. It can fail due to conflicts.
+
+
+API details of GridYKeyKeyUtil
+++++++++++++++++++++++++++++++
+
+public static byte[] getKeyBytes(String key); //Return secret of the current version.
+
+public static byte[] getKeyBytes(String key, short version); //Return the secret of the specified version.
+
+.. code-block:: java
+
+   byte[] secret_currentVersion = GridYKeyKeyUtil.getKeyBytes(key);
+   byte[] secret_version1 = GridYKeyKeyUtil.getKeyBytes(key, version);
+
+
+Retrieving ykeykey secret using native library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To read ykeykey secret using YCR, add `GRID_YKEYDB_PATH = ./keydb' to `mapreduce.map.env` and `mapreduce.reduce.env and call GridYKeyKeyUtil.setupKeyDB() to setup keydb.
+Once keydb is setup, users can call YCR native call to retrieve secret. This requires ykeydb >= 2.9.1.
+
+.. code-block:: java
+
+   GridYKeyKeyUtil.setupKeyDB();
+   YCR ycr = YCR.createYCR();
+   secret = ycr.getKey(key);   
