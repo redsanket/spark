@@ -42,7 +42,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
     else
         echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml   -1 /tmp/namenodes.$cluster.txt -2 /tmp/secondarynamenodes.$cluster.txt
-        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/><xi:fallback></xi:fallback>'"
+        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"><xi:fallback></xi:fallback></xi:include>'"
     fi
     echo echo ====
     echo echo ====
