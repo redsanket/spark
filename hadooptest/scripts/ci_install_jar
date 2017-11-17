@@ -6,6 +6,7 @@ echo WORKSPACE=$WORKSPACE
 OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 if [[ ! "$OS_VER" =~ "6." ]] && [[ ! "$OS_VER" =~ "7." ]]; then 
   echo "Error: OS version is empty or unknown, OS_VER: $OS_VER"
+  exit 1
 else
   echo "INFO: Our OS version is $OS_VER"
 fi
