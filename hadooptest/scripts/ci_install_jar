@@ -2,12 +2,25 @@
 
 echo WORKSPACE=$WORKSPACE
 
+# need OS version, if rhel7 we have to use test branch pkgs
+OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+if [[ ! "$OS_VER" =~ "6." ]] && [[ ! "$OS_VER" =~ "7." ]]; then 
+  echo "Error: OS version is empty or unknown, OS_VER: $OS_VER"
+else
+  echo "INFO: Our OS version is $OS_VER"
+fi
+
 set -x
 
 # yjava_byauth
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch" ]
 then
-   /usr/local/bin/yinst fetch yjava_byauth -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
+   if [[ "$OS_VER" =~ "7." ]]; then
+     /usr/local/bin/yinst fetch -br test yjava_byauth -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
+   else
+     /usr/local/bin/yinst fetch yjava_byauth -outputfile $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
+   fi
+
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/yjava_byauth.tar -C $WORKSPACE/yinst_fetch_dependencies/yjava_byauth_fetch/
 fi
@@ -62,7 +75,12 @@ fi
 # hbase
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/hbase_fetch" ]
 then
-   hbase_version=$( /usr/local/bin/yinst packages hbase | awk '{print $1}' )
+   if [[ "$OS_VER" =~ "7." ]]; then
+     hbase_version=$( /usr/local/bin/yinst packages -br test hbase | awk '{print $1}' )
+   else
+     hbase_version=$( /usr/local/bin/yinst packages hbase | awk '{print $1}' )
+   fi
+
    /usr/local/bin/yinst fetch ${hbase_version} -outputfile $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz -br quarantine -br nightly -br test
    gunzip -f $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tgz
    tar -xf $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/hbase.tar -C $WORKSPACE/yinst_fetch_dependencies/hbase_fetch/
