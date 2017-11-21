@@ -238,6 +238,84 @@ yinst set hcat_server.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.O
 
 yinst restart hcat_server
 
+############################################################
+## Installing hive server 2
+############################################################
+
+# check if these packages are installed
+YJAVA_JETTY_VERSION=`yinst ls | grep yjava_jetty | cut -d'-' -f2`
+EXPECTED_YJAVA_JETTY_VERSION="9.2.15"
+if test "${YJAVA_JETTY_VERSION#*$EXPECTED_YJAVA_JETTY_VERSION}" != "$YJAVA_JETTY_VERSION"; then
+  echo "yjava_jetty version is as expected $YJAVA_JETTY_VERSION"
+else
+  echo "yjava_jetty version is not as expected $YJAVA_JETTY_VERSION"
+  yinst i -downgrade -live  yjava_jdk-1.8.0_60.51
+  yinst i -downgrade  yhdrs-1.24.3 yhdrs_data-2.1.4 yjava_yhdrs-0.32.22
+  yinst i -downgrade -live -br test yjava_vmwrapper
+  yinst i -downgrade -live yjava_jetty-9.2.15.v20160210_274
+fi
+
+# check what comp version we need to use
+echo "STACK_COMP_VERSION_HIVE_SERVER2 is using: $REFERENCE_CLUSTER"
+if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
+  yinst i -same -live -downgrade -branch current hive_server2 hive_server2_monitoring hive_server2_admin_ws hive_server2_secure
+# else use artifactory
+else
+  # make sure we have tools to talk to artifactory
+  yinst i hadoop_releases_utils
+  RC=$?
+  if [ "$RC" -ne 0 ]; then
+    echo "Error: failed to install hadoop_releases_utils on $HIVENODE!"
+    exit 1
+  fi
+  # check we got a valid reference cluster
+  RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
+  RC=$?
+  if [ $RC -eq 0 ]; then
+    # get Artifactory URI and log it
+    ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
+    echo "Artifactory URI with most recent versions:"
+    echo $ARTI_URI
+
+    # get hive_server2 version to use from Artifactory
+    HIVE_SERVER2_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_server2`
+    PACKAGE_VERSION_HIVE_SERVER2="hive_server2-${HIVE_SERVER2_VERSION}"
+
+    PACKAGE_VERSION_HIVE_SERVER2_MONITORING=hive_server2_monitoring-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_server2_monitoring`
+    PACKAGE_VERSION_HIVE_SERVER2_ADMIN_WS=hive_server2_admin_ws-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_server2_admin_ws`
+    PACKAGE_VERSION_HIVE_SERVER2_SECURE=hive_server2_secure-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_server2_secure`
+
+  else
+    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
+    exit 1
+  fi
+  yinst i -same -live -downgrade -branch test $PACKAGE_VERSION_HIVE_SERVER2 $PACKAGE_VERSION_HIVE_SERVER2_MONITORING $PACKAGE_VERSION_HIVE_SERVER2_ADMIN_WS $PACKAGE_VERSION_HIVE_SERVER2_SECURE
+fi
+
+# hive_server2 yinst sets
+yinst set hive_server2.db_user=hive
+yinst set hive_server2.db_passkey=hiveqeint
+yinst set hive_server2.db_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $$HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
+yinst set hive_server2.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.ObjectStore
+yinst set hive_server2.auth_keytab_file=/etc/grid-keytabs/hadoopqa.openqe95blue-n5.keytab
+yinst set hive_server2.auth_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hive_server2.auth_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hive_server2.metastore_warehouse_dir=/user/hive/warehouse
+yinst set hive_server2.HADOOP_HOME=/home/gs/hadoop/current
+yinst set hive_server2.HADOOP_CONF_DIR=/home/gs/conf/current
+
+# hive_server2_secure yinst sets
+yinst set hive_server2_secure.db_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $$HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
+yinst set hive_server2_secure.db_user=hive
+yinst set hive_server2_secure.db_passkey=hiveqeint
+yinst set hive_server2_secure.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.ObjectStore
+yinst set hive_server2_secure.auth_keytab_file=/etc/grid-keytabs/hadoopqa.openqe95blue-n5.keytab
+yinst set hive_server2_secure.auth_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hive_server2_secure.auth_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hive_server2_secure.HADOOP_CONF_DIR=/home/gs/conf/current
+yinst set hive_server2_secure.HADOOP_HOME=/home/gs/hadoop/current
+
+yinst restart hive_server2
 #
 # create hive warehouse path for gdm db
 #
