@@ -55,8 +55,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     clusternameopts="  -set $confpkg.TODO_HDFSCLUSTER_NAME=$cluster -set $confpkg.TODO_MAPREDCLUSTER_NAME=$cluster"
 
 
-    echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
-    echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
+    echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst -force "
+    echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst -force "
     echo 'if [ -n "$TARGET_YROOT" ] '
     echo 'then'
     echo '      export rootdirparam="-yroot $TARGET_YROOT   '  -set $confpkg.TODO_RUNMKDIRS=false   \"
