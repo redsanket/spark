@@ -52,7 +52,7 @@ then
    if [ "$QA_PACKAGES" != "none" ]
    then
         echo "====Install additional QA packages: $QA_PACKAGES"
-        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live"
+        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live -force"
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
    fi
 echo ......
