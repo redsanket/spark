@@ -55,8 +55,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     clusternameopts="  -set $confpkg.TODO_HDFSCLUSTER_NAME=$cluster -set $confpkg.TODO_MAPREDCLUSTER_NAME=$cluster"
 
 
-    echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst -force "
-    echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst -force "
+    echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
+    echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
     echo 'if [ -n "$TARGET_YROOT" ] '
     echo 'then'
     echo '      export rootdirparam="-yroot $TARGET_YROOT   '  -set $confpkg.TODO_RUNMKDIRS=false   \"
@@ -64,7 +64,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "   export rootdirparam=\"-root ${yroothome}  \"  "
     echo 'fi'
     # echo "echo ======= installing config-package using '$HADOOP_CONFIG_INSTALL_STRING'"
-    echo GSHOME=$GSHOME $yinst install -downgrade -yes \$rootdirparam  \\
+    echo GSHOME=$GSHOME $yinst install -force -downgrade -yes \$rootdirparam  \\
     echo "  " -set $confpkg.TODO_GSHOME=/home/gs \\
     echo "  " -set $confpkg.TODO_RMNODE_HOSTNAME=$jobtrackernode \\
     echo "  " -set $confpkg.TODO_NAMENODE_HOSTNAME=\$nn \\
