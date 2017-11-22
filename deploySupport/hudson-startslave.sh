@@ -512,10 +512,13 @@ scp $filelist  $ADMIN_HOST:/tmp/
 
 # Install and start the deployment package on the adm admin box to commence
 # deployment as root.
+#
+# adding 'force' to workaround yinst auto adding os requires directive for rhel-6
+
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
 ssh $ADMIN_HOST "\
-cd /tmp/ && /usr/local/bin/yinst install -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+cd /tmp/ && /usr/local/bin/yinst install -force -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
 "
