@@ -169,7 +169,7 @@ fi
 # appear related to the yjava_jetty version used by KMS, which is newer than that used by
 # other components
 #
-cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6  -br test -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
   -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
   -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
