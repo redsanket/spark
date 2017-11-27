@@ -518,7 +518,7 @@ scp $filelist  $ADMIN_HOST:/tmp/
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
 ssh $ADMIN_HOST "\
-cd /tmp/ && /usr/local/bin/yinst install -force -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
 "

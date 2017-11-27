@@ -12,7 +12,7 @@ then
     fi
 
     # adding 'force' to workaround yinst auto adding os requires directive for rhel-6
-    cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade -force"
+    cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
     
     # compat-readline should have come from Config job
     # slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
@@ -52,7 +52,7 @@ then
    if [ "$QA_PACKAGES" != "none" ]
    then
         echo "====Install additional QA packages: $QA_PACKAGES"
-        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live -force"
+        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
    fi
 echo ......
