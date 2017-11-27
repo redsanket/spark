@@ -76,7 +76,8 @@ fi
 # use br test for hadoopqa_headless_keys to allow rhel7 ykeykey pkgs to get pulled in
 
 # need json-c, mdbm and cronolog as RPMs now for ykeykey pkgs
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo yum -y install json-c mdbm cronolog \""
+# and even more RPMs as of 20171127
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo yum -y install  --enablerepo=non-core  mdbm-perl perl-Sys-Hostname-FQDN perl-LWP-Protocol-socks perl-Unix-Syslog perl-WWW-Curl json-c mdbm cronolog \""
 if [ $? -ne 0 ]; then 
   echo "Error: node $kmsnode failed yinst install of mdbm and cronolog RPMs for hadoopqa_headless_keys support!"
   exit 1
@@ -169,9 +170,19 @@ fi
 # appear related to the yjava_jetty version used by KMS, which is newer than that used by
 # other components
 #
-cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs  -br test -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
-  -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
-  -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
+# need to fix versions for jports_org_json__json-1.20090211_1  ysysctl-2.2.3  
+# yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.11  
+# yjava_jetty-9.3.15.v20161220_782 and yhdrs-1.28.5, lots of 
+# dep breakage on 20171127
+#
+cmd_jetty="yinst i  jports_org_json__json-1.20090211_1  ysysctl-2.2.3  yjava_resource_handler-1.0.21  \
+  yjava_ysecure_agent-1.0.11  yjava_jetty-9.3.15.v20161220_782  yjava_ysecure yjava_vmwrapper-2.3.10 \
+  yhdrs-1.28.5 yjava_jmx_singleton_server-1.0.0  -br test  -same -live -downgrade   \
+  -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+  -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  \
+  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
+  -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  \
+  -set yjava_jetty.trust_store_password_key_var=password  \
   -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
   -set yjava_jetty.garbage_collection=\"-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
 
