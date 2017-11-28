@@ -115,7 +115,10 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
           ;;
       2.[4-9])
           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
-              ;;
+          ;;
+      3.[0-9])
+	  echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
+	  ;;
       *)
           echo "Invalid Hadoop version $HADOOPVERSION"
           exit 1
