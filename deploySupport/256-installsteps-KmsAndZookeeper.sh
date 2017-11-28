@@ -249,8 +249,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # give kms and zk services a little time to startup
-echo "Waiting 10 seconds for KMS and ZK services to startup...."
-sleep 10 
++# NOTE: kms client hitting kms server too fast causes the request to fail at
++# zk server with port bind error
++# TODO: make this a poll and metric any increase in delay needed, used to
++# 10 secs was good enough now need 30 secs
+echo "Waiting 30 seconds for KMS and ZK services to startup...."
+sleep 30 
 
 #
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
