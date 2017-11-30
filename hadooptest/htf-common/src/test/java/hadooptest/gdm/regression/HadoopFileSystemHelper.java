@@ -16,7 +16,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String> {
     
     public enum CommandEnum {
-        CreateDir, CreateFile, FileExists, NumFiles, GetFileStatus
+        CreateDir, CreateFile, CreateEmptyFile, FileExists, NumFiles, GetFileStatus
     }
     
     private Configuration configuration;
@@ -25,8 +25,8 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
     private CommandEnum command = CommandEnum.CreateDir;
     private FileStatus fileStatus;
     private String crcValue;
-    
-    
+    private String fileContent = "";
+
     /**
      * Object used to manipulate the filesystem of a Hadoop grid for GDM tests
      * 
@@ -61,10 +61,29 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
      */
     public void createFile(String fullPath) throws IOException, InterruptedException {
         this.fullPath = fullPath;
+        int len = 100;
+        byte[] data = new byte[len];
+        for (int k = 0; k < len; k++) {
+            data[k] = new Integer(k).byteValue();
+        }
+        this.fileContent = new String(data);
         this.command = CommandEnum.CreateFile;
         this.ugi.doAs(this);
     }
-    
+
+    public void createFile(String fullPath, String fileContent) throws IOException, InterruptedException {
+        this.fullPath = fullPath;
+        this.fileContent = fileContent;
+        this.command = CommandEnum.CreateFile;
+        this.ugi.doAs(this);
+    }
+
+    public void createEmptyFile(String fullPath) throws IOException, InterruptedException {
+        this.fullPath = fullPath;
+        this.command = CommandEnum.CreateEmptyFile;
+        this.ugi.doAs(this);
+    }
+
     /**
      * Checks if a file exists on the grid
      * 
@@ -118,23 +137,26 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
     public String run() throws Exception {
         String result = "";
         switch (this.command) {
-        case CreateDir:
-            runCreateDirCommand();
-            break;
-        case CreateFile:
-            runCreateFileCommand();
-            break;
-        case FileExists:
-            result = runFileExistsCommand();
-            break;
-        case NumFiles:
-            result = runNumFilesCommand();
-            break;
-        case GetFileStatus:
-            runGetFileStatus();
-            break;
-        default:
-            throw new IOException("Unsupported operation - " + this.command);
+            case CreateDir:
+                runCreateDirCommand();
+                break;
+            case CreateFile:
+                runCreateFileCommand();
+                break;
+            case CreateEmptyFile:
+                runCreateEmptyFileCommand();
+                break;
+            case FileExists:
+                result = runFileExistsCommand();
+                break;
+            case NumFiles:
+                result = runNumFilesCommand();
+                break;
+            case GetFileStatus:
+                runGetFileStatus();
+                break;
+            default:
+                throw new IOException("Unsupported operation - " + this.command);
         }
         
         return result;
@@ -179,13 +201,23 @@ public class HadoopFileSystemHelper implements PrivilegedExceptionAction<String>
         FSDataOutputStream fsDataOutPutStream = fs.create(path);
 
         // write some data
-        int len = 100;
-        byte[] data = new byte[len];
-        for (int k = 0; k < len; k++) {
-            data[k] = new Integer(k).byteValue();
+        fsDataOutPutStream.write(this.fileContent.getBytes());
+        fsDataOutPutStream.close();
+    }
+
+    private void runCreateEmptyFileCommand() throws IOException {
+        // create the base directory
+        File f = new File(this.fullPath);
+        Path path = new Path(f.getParent());
+        FileSystem fs = FileSystem.get(this.configuration);
+        if (!fs.exists(path)) {
+            fs.mkdirs(path);
         }
-        fsDataOutPutStream.write(data);
-        fsDataOutPutStream.close(); 
+
+        // create the empty file
+        path = new Path(this.fullPath);
+        FSDataOutputStream fsDataOutPutStream = fs.create(path);
+        fsDataOutPutStream.close();
     }
     
     private void runGetFileStatus() throws IOException {
