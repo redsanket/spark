@@ -1,7 +1,9 @@
 #!/bin/bash
 
 set -x
-source ./library/utils.sh
+PRG=${0}
+BASEDIR=`dirname ${PRG}`
+source ${BASEDIR}/library/utils.sh
 
 DEST_GRID="openqe95blue"
 DEST_HDFS="hdfs://`yinst range -ir "(@grid_re.clusters.${DEST_GRID}.namenode)"`"
