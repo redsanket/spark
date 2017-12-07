@@ -11,7 +11,7 @@ APP_HOME=libexec/starling_integration_log_collection/
 YINST bug-product starling
 YINST bug-component General
 
-glob - - - $(APP_HOME)/library/  integration_tools/starling/library/*
-glob - - - $(APP_HOME)/  integration_tools/starling/starling_fsimage_log_collection.sh
-glob - - - $(APP_HOME)/  integration_tools/starling/starling_jobsumm_log_collection.sh
-glob - - - $(APP_HOME)/  integration_tools/starling/starling_nnaudit_log_collection.sh
+glob 0755 - - $(APP_HOME)/library/  integration_tools/starling/library/*
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_fsimage_log_collection.sh
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_jobsumm_log_collection.sh
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_nnaudit_log_collection.sh
