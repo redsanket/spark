@@ -30,7 +30,7 @@ public class HadoopStackComponentsTest extends TestSession {
 	private String clusterName;
 	private CommonFunctions commonFunctionsObject;
 	private TestDataAvailabilityOnCluster testDataAvailabilityOnCluster; 
-	private static final int TEST_ITERATION_COUNT = 3;
+	private int TEST_ITERATION_COUNT = 0;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -41,6 +41,7 @@ public class HadoopStackComponentsTest extends TestSession {
 	public void setUp() { }
 
 	public HadoopStackComponentsTest() throws IOException {
+	    this.TEST_ITERATION_COUNT =  Integer.parseInt(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.noOfIteration").trim());
 		String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
 		TestSession.logger.info("test list - " + currentStackComponentTestList);
 		List<String> tempStackComponentList = Arrays.asList(currentStackComponentTestList.split(" "));
@@ -98,10 +99,8 @@ public class HadoopStackComponentsTest extends TestSession {
                         uniqueId);
 
                 this.commonFunctionsObject.updateDB(true, tmpDATASETNAME, "uniqueId", uniqueId);
-
-
 		if (prefixName != null) {
-			for ( int iteration=1 ; iteration<=TEST_ITERATION_COUNT ; iteration++) {
+			for ( int iteration=1 ; iteration <= this.TEST_ITERATION_COUNT ; iteration++) {
 				String currentDataSetName = prefixName + "_"+ this.commonFunctionsObject.getCurrentHourPath() + "_" + iteration;
 				this.commonFunctionsObject.setDataSetName(currentDataSetName); 
 

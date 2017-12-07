@@ -41,6 +41,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HadoopHealthChec
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HiveHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.OozieHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.StarlingHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.tests.hbase.TestIntHBase;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
@@ -48,6 +49,7 @@ import hadooptest.gdm.regression.stackIntegration.tests.oozie.TestIntOozie;
 import hadooptest.gdm.regression.stackIntegration.tests.pig.TestPig;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
+import hadooptest.gdm.regression.stackIntegration.starling.TestIntStarling;
 
 public class CommonFunctions {
 
@@ -59,6 +61,8 @@ public class CommonFunctions {
 	private String errorMessage;
 	private String scriptLocation;
 	private String pipeLineName;
+	private String starlingHostName;
+	private String starlingLogTypes;
 	private static String dataSetName;
 	private Map<String,StackComponent> healthyStackComponentsMap;
 	private Map<String,String> hostsNames;
@@ -81,19 +85,39 @@ public class CommonFunctions {
 	public static final String TEZ_RESULT = "tez_result";
 	public static final String HADOOP_HOME="/home/gs/hadoop/current";
 	
-	@Deprecated
 	public CommonFunctions() {
-		this("no-cluster-name");
-		TestSession.logger.warn("Default cluster does not specify cluster name!");
+	    this.init();
 	}
 
 	public CommonFunctions(String clusterName) {
-		this.setClusterName(clusterName);
-		this.consoleHandle = new ConsoleHandle();
-		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
-		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
-		dbOperations = new DataBaseOperations();
+	    this.setClusterName(clusterName);
+	    this.init();
+	}
+
+	private void init() {
+	    this.consoleHandle = new ConsoleHandle();
+	    this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
+	    this.constructCurrentHrMin();
+	    this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
+	    this.setStarlingHostName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingHostName"));
+	    this.setStarlingLogTypes(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes"));
+	    this.dbOperations = new DataBaseOperations();
+	}
+
+	private String getStarlingHostName() {
+	    return starlingHostName;
+	}
+
+	private void setStarlingHostName(String starlingHostName) {
+	    this.starlingHostName = starlingHostName;
+	}
+
+	public String getStarlingLogTypes() {
+	    return starlingLogTypes;
+	}
+
+	private void setStarlingLogTypes(String starlingLogTypes) {
+	    this.starlingLogTypes = starlingLogTypes;
 	}
 
 	public List<String> getCurrentStackComponentTestList() {
@@ -363,7 +387,7 @@ public class CommonFunctions {
 		
 		
 		List<String> currentStackTestComponent = this.getCurrentStackComponentTestList();
-		
+
 		if (currentStackTestComponent.contains("tez")) {
 			StackComponent tezStackComponent = stackComponentMap.get("tez");
 			Callable<String> testTezComponent = null;
@@ -416,6 +440,16 @@ public class CommonFunctions {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		if (currentStackTestComponent.contains("starling")) {
+		    StackComponent starlingStackComponent = stackComponentMap.get("starling");
+		    Callable<String> testStarlingComponent = null;
+		    if (starlingStackComponent != null)  {
+			TestSession.logger.info("starling hostname  = " + starlingStackComponent.getHostName()  +  "  hbaseStackComponent = " + starlingStackComponent.toString() + "  script location = " + starlingStackComponent.getScriptLocation());
+			testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName() , this.getClusterName() , "openqe95blue-n4.blue.ygrid.yahoo.com");
+			testList.add(testStarlingComponent);
+		    }
 		}
 				
 		boolean overAllExecutionResult = true; 
@@ -481,12 +515,12 @@ public class CommonFunctions {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			aggIntResultObj.finalResult();
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
-			try {
-				obj.sendMail();
+			/*try {
+				//obj.sendMail();
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException
 					| MessagingException e) {
 				e.printStackTrace();
-			}
+			}*/
 		} else {
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
 			stackComponentAggResultObj.test();
@@ -509,7 +543,7 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		}
-		boolean gdmFlag = false, hadoopFlag = false, tezFlag = false, pigFlag = false, hiveFlag=false, hcatalogFlag = false, hbaseFlag = false, oozieFlag = false;
+		boolean gdmFlag = false, hadoopFlag = false, tezFlag = false, pigFlag = false, hiveFlag=false, hcatalogFlag = false, hbaseFlag = false, oozieFlag = false, starlingFlag = false;
 		 
 		if (currentTestComponentList.contains("gdm")) {
 			Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
@@ -584,6 +618,14 @@ public class CommonFunctions {
 			this.updateDB(this.getDataSetName(), "oozieResult", "SKIPPED");
 		}
 		
+		if (currentTestComponentList.contains("starling")) {
+		    healthCheckList.add(new StarlingHealthCheckUp(this.getStarlingHostName()));
+		    starlingFlag = true;
+		} else {
+		    unTestedComponentListString.append("starling");
+		    this.updateDB(this.getDataSetName(), "starlingResult", "SKIPPED");
+		}
+
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		List<Future<StackComponent>> healthCheckUpResultList = executor.invokeAll(healthCheckList);
 		for ( Future<StackComponent> result : healthCheckUpResultList) {
@@ -632,7 +674,11 @@ public class CommonFunctions {
 		if (oozieFlag == false) {
 			this.updateDB(this.getDataSetName(), "oozieComments", "SKIPPED");
 		}
-		
+
+		if (starlingFlag == false) {
+		    this.updateDB(this.getDataSetName(), "starlingComments", "SKIPPED");
+		}
+
 		if (unTestedComponentListString.length() > 1) {
 			this.updateDB(this.getDataSetName(), "comments", unTestedComponentListString.toString() + "  SKIPPED" );
 		}

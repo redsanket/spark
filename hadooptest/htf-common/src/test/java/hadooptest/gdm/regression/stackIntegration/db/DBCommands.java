@@ -1,7 +1,7 @@
 package hadooptest.gdm.regression.stackIntegration.db;
 
 public interface DBCommands {
-	String DB_NAME = "stackIntegrationTestDB";
+	String DB_NAME = "stackIntegrationTestDB_starling_testing";
 	String TABLE_NAME = "integration_test";
 	String FINAL_RESULT_TABLE_NAME = "integrationFinalResult";
 	String CREATE_DB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
@@ -135,6 +135,11 @@ public interface DBCommands {
 				+ "hive_verifyCurrentState VARCHAR(20)  DEFAULT 'UNKNOWN' , "
 				+ "hive_verifyMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 				+ "hive_verifyComments TEXT   , "
+				
+				// starling
+				+ "starlingVersion VARCHAR(30) DEFAULT 'UNKNOWN' , "
+				+ "starlingResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "starlingJSONResults LONGTEXT , "
 				
 				+ "comments TEXT   , "
 				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' , "
