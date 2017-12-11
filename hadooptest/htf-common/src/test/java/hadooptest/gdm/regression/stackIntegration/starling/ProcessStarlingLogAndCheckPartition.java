@@ -30,7 +30,7 @@ public class ProcessStarlingLogAndCheckPartition {
     private CommonFunctions commonFunctions;
 
     // TODO : Get db name from starling.properties file   
-    private final static String STARLING_DB_NAME = "starling";
+    private final static String STARLING_DB_NAME = "starling_integration_test";
     private final static String HADOOP_HOME="export HADOOP_HOME=/home/gs/hadoop/current;";
     private final static String JAVA_HOME="export JAVA_HOME=/home/gs/java/jdk64/current/;";
     private final static String HADOOP_CONF_DIR="export HADOOP_CONF_DIR=/home/gs/conf/current;";
@@ -185,7 +185,7 @@ public class ProcessStarlingLogAndCheckPartition {
 
     public String checkPartitionExist() {
 	TestSession.logger.info("==== checkPartitionExist start () =====");
-	String hiveCommand = "ssh " + this.getHiveHostName() + " \"" +  HADOOP_HOME + HADOOPQA_KNITI
+	String hiveCommand = "ssh " + this.getHiveHostName() + " \"" +  JAVA_HOME + HADOOP_HOME + HADOOP_CONF_DIR + HADOOPQA_KNITI
 		+ " hive -v -e \\\""  + "show partitions "   + STARLING_DB_NAME + "." + this.getStarlingLogTableMapping().get(this.getLogType().trim()).toString() + "\\\" \"";	
 	String output = this.commonFunctions.executeCommand(hiveCommand.trim());
 	if (StringUtils.isNotBlank(output)) {
