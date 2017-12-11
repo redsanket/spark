@@ -100,7 +100,9 @@ public class CommonFunctions {
 	    this.constructCurrentHrMin();
 	    this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 	    this.setStarlingHostName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingHostName"));
-	    this.setStarlingLogTypes(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes"));
+	    String starlingTestLogs = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes");
+	    TestSession.logger.info("**** starlingTestLogs - " + starlingTestLogs);
+	    this.setStarlingLogTypes(starlingTestLogs);
 	    this.dbOperations = new DataBaseOperations();
 	}
 
