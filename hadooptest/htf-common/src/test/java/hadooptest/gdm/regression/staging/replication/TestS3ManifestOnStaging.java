@@ -46,8 +46,8 @@ public class TestS3ManifestOnStaging {
 	private static final int INVALID_MANIFEST = 2;
 	private static final String[] OPTIONS = {"VALID_MANIFEST_SOME_","VALID_MANIFEST_ALL_","INVALID_MANIFEST_"};
 	private ConsoleHandle consoleHandle = new ConsoleHandle();
-	private String uploadDownloadGrid;
-	private String s3Grid;
+	private String target;
+	private String source;
 	private String uploadWorkflow;
 
 	@BeforeClass
@@ -57,8 +57,8 @@ public class TestS3ManifestOnStaging {
 
 	@Before
 	public void setUp() throws Exception {
-		this.s3Grid = "JetBlue-S3";
-		this.uploadDownloadGrid = "JetBlue";
+		this.source = "JetBlue-S3";
+		this.target = "JetBlue";
 
 		this.uploadWorkflow = "GridToS3OnStaging_" + System.currentTimeMillis();
 		createUploadDataSetInstance(this.uploadWorkflow);
@@ -75,7 +75,7 @@ public class TestS3ManifestOnStaging {
 	}
 
 	private void createUploadDataSetInstance(String dataSetName) throws Exception {
-		HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.uploadDownloadGrid);
+		HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.target);
 		JSONObject fileContent=new JSONObject();
 		JSONArray urls=new JSONArray();
 		JSONObject jsonObject = new JSONObject();
@@ -123,10 +123,10 @@ public class TestS3ManifestOnStaging {
 		generator.setDiscoveryFrequency("500");
 		generator.setDiscoveryInterface("HDFS");
 		generator.addSourcePath("data", "/GDM/" + dataSetName + "/feed1/%{date}");
-		generator.setSource(this.uploadDownloadGrid);
+		generator.setSource(this.target);
 
 		DataSetTarget target = new DataSetTarget();
-		target.setName(this.s3Grid);
+		target.setName(this.source);
 		target.setDateRangeStart(true, "20160101");
 		target.setDateRangeEnd(false, "0");
 		target.setHCatType("DataOnly");
@@ -168,7 +168,7 @@ public class TestS3ManifestOnStaging {
 	}
 
 	private void createTopLevelDirectoryOnTarget(String dataSetName) throws Exception {
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.uploadDownloadGrid);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
 		targetHelper.createDirectory("/GDM/" + dataSetName);
 	}
 
@@ -188,10 +188,10 @@ public class TestS3ManifestOnStaging {
 		generator.setDiscoveryFrequency("500");
 		generator.setDiscoveryInterface("HDFS");
 		generator.addSourcePath("data", "upload-test-bucket-1/project-foo/" + this.uploadWorkflow + "/feed1/%{date}");
-		generator.setSource(this.s3Grid);
+		generator.setSource(this.source);
 
 		DataSetTarget target = new DataSetTarget();
-		target.setName(this.uploadDownloadGrid);
+		target.setName(this.target);
 		if (option == VALID_MANIFEST_SOME) {
 			target.setDateRangeStart(true, "20160101");
 		} else {
@@ -254,13 +254,13 @@ public class TestS3ManifestOnStaging {
 		instanceExistsForDownloadFeed(instance, exists, "feed1", dataSetName);
 
 		// feed2 not specified, verify not copied
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.uploadDownloadGrid);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
 		boolean found = targetHelper.exists("/GDM/" + dataSetName + "/feed2/");
 		Assert.assertFalse("copied feed2 for instance " + instance, found);
 	}
 
 	private void instanceExistsForDownloadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.uploadDownloadGrid);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
 		String path = "/GDM/" + dataSetName + "/" + feed + "/" + instance + "/sampleData";
 		boolean found = targetHelper.exists(path);
 		Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
