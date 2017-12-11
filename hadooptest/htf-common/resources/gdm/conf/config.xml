@@ -119,6 +119,8 @@
 		<hbaseRegionalServerPort>$(HBASE_REGIONAL_SERVER_PORT)</hbaseRegionalServerPort>
 		<gateWayName>$(GATEWAY_HOST_NAME)</gateWayName>
 		<hiveHostName>${HIVE_HOST_NAME}</hiveHostName>
+		<starlingHostName>${STARLING_HOST_NAME}</starlingHostName>
+	 <starlingLogTypes>${STARLING_LOGS_TO_TEST}</starlingLogTypes>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>
