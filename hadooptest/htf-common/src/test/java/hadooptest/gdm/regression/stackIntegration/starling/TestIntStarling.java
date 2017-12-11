@@ -47,7 +47,9 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	System.out.println("------------------starling logTypesList -------------------");
 	String logs = this.commonFunctions.getStarlingLogTypes().trim();
 	System.out.println("logs - " + logs);
-	this.logTypesList = Arrays.asList(logs.split(","));
+	String starlingTestLogs = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes").trim();
+	System.out.println("starlingTestLogs - " + starlingTestLogs);
+	this.logTypesList = Arrays.asList(logs.split(" "));
 	System.out.println(this.logTypesList.toString());
     }
     
