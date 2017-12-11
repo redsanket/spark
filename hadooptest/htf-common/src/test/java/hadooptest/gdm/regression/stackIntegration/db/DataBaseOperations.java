@@ -177,6 +177,31 @@ public class DataBaseOperations {
         }
     }
 
+    public boolean checkRecordAlreadyExists(String dataSetName, String currentDate) {
+	Connection connection = this.getConnection();
+	String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
+	String selectQuery = "select dataSetName, date from " + tableName + "where dataSetName = ? and date = ?";
+	PreparedStatement pStmt = connection.prepareStatement(selectQuery);
+	pStmt.setString(1, dataSetName);
+	pStmt.setString(2, currentDate);
+	ResultSet resultSet = pStmt.executeQuery();
+	boolean flag = false;
+	if ( resultSet != null ) {
+	    while ( resultSet.next() ) {
+		if ( resultSet.getString("dataSetName") != null  && resultSet.getString("date") != null) {
+			if ( resultSet.getString("dataSetName").equalsIgnoreCase(dataSetName) && resultSet.getString("date").equalsIgnoreCase(currentDate)) {
+			    flag = true;
+			    break;
+			}
+		    }
+	    }
+	} else {
+	    TestSession.logger.error("Failed to execute " + selectQuery);
+	    throw new SQLException("Failed to execute " + selectQuery + "   -   dataSetName - " + dataSetName + "     date - " + currentDate );
+	}
+	return flag;
+    }
+
     public synchronized void insertComponentTestResult(String dataSetName , String columnName , String columnValue) {
         TestSession.logger.info("dataSetName  = " + dataSetName  + "   columnName  = " + columnName  + "   columnValue = " + columnValue);
         Connection con = null;

@@ -318,25 +318,35 @@ public class CommonFunctions {
 	}
 
 	public void checkClusterHealth( ) throws InterruptedException, ExecutionException {
-		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String currentHrPath = simpleDateFormat.format(calendar.getTime());
-		
+
+	    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+	    String currentHrPath = simpleDateFormat.format(calendar.getTime());
+
+	    String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+	    if ( currentStackComponentTestList.equalsIgnoreCase("starling")) {
+		if ( ! this.dbOperations.checkRecordAlreadyExists(this.getDataSetName(), currentHrPath) ){
+		    TestSession.logger.warn("NOTE : Integration was not executed on " + currentHrPath);
+
+			// insert current dataSetName into the db
+			this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
+		}
+	    } else {
 		// insert current dataSetName into the db
 		this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
-		
-		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
-		setHealthyStackComponentsMap(healthyStackComponentsMap);
+	    }
 
-                // set the individual run's start date and time
-                java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+	    Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
+	    setHealthyStackComponentsMap(healthyStackComponentsMap);
 
-                TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
-		  currentStartDateTime);
-                this.updateDB(this.getDataSetName(), "startDateTime", currentStartDateTime);
+	    // set the individual run's start date and time
+	    java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+	    String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+
+	    TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
+		    currentStartDateTime);
+	    this.updateDB(this.getDataSetName(), "startDateTime", currentStartDateTime);
 	}
 
 	public void preInit() {
@@ -619,7 +629,8 @@ public class CommonFunctions {
 		}
 		
 		if (currentTestComponentList.contains("starling")) {
-		    healthCheckList.add(new StarlingHealthCheckUp(this.getStarlingHostName()));
+		    Callable starlingHealCheckUpObj = new StarlingHealthCheckUp(this.getStarlingHostName()); 
+		    healthCheckList.add(starlingHealCheckUpObj);
 		    starlingFlag = true;
 		} else {
 		    unTestedComponentListString.append("starling");
