@@ -72,6 +72,10 @@ sed "s/HBASE_CLUSTERNAME/${HBASE_CLUSTERNAME}/g" ${SRCTOP}/hadooptest/htf-common
 sed 's/[$()]//g' ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml > ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml.1
 sed "s/STACK_COMPONENT_TEST_LIST/${STACK_COMPONENT_TEST_LIST}/g" ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml.1 > ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml
 
+
+sed 's/[$()]//g' ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml > ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml.1
+sed "s/NO_OF_ITERATION/${NO_OF_ITERATION}/g" ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml.1 > ${SRCTOP}/hadooptest/htf-common/resources/gdm/conf/config.xml
+
 echo "ClusterName - $CLUSTER_NAME , frequency = $FREQUENCY , duration=$DURATION , dataSetPattern=$PATTERN , oozieHostName=$OOZIE_HOST_NAME , hcatHostName=$HCAT_HOST_NAME , pullOozieJobLength=$PULL_OOZIE_JOB_LENGTH , HIVE_HOST_NAME=$HIVE_HOST_NAME"
 
 # get clusterName
