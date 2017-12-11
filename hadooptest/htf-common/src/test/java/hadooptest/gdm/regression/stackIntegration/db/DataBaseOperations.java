@@ -184,7 +184,8 @@ public class DataBaseOperations {
 	try {
 	    con = this.getConnection();
 	    String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
-	    String selectQuery = "select dataSetName, date from " + tableName + "where dataSetName = ? and date = ?";
+	    String selectQuery = "select dataSetName, date from " + tableName + "  where dataSetName = ? and date = ?";
+	    TestSession.logger.info("checkRecordAlreadyExists - selectQuery - "  + selectQuery);
 	    PreparedStatement pStmt = con.prepareStatement(selectQuery);
 	    pStmt.setString(1, dataSetName);
 	    pStmt.setString(2, currentDate);
@@ -204,7 +205,7 @@ public class DataBaseOperations {
 		throw new SQLException("Failed to execute " + selectQuery + "   -   dataSetName - " + dataSetName + "     date - " + currentDate );
 	    }
 	} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
-	    TestSession.logger.error("Failed to insert the current dataset name in to the database." + e);
+	    TestSession.logger.error("Failed to check for record already exist in database." + e);
 	    e.printStackTrace();
 	}finally{
 	    if (con != null) {
