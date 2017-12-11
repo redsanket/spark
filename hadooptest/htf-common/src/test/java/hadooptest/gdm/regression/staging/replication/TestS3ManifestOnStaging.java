@@ -29,6 +29,7 @@ public class TestS3ManifestOnStaging {
 	private static final String INSTANCE1 = "20160531";
 	private static final String INSTANCE2 = "20160601";
 	private static final String INSTANCE3 = "20160101";
+	private static final String TEST_BUCKET = "upload-test-bucket-1";
 	/* This option will set correct manifest name in the dataset, and replication start date will be set as "20160101"
      * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
      * Replication should copy instance1, instance2 and skip instance3
@@ -48,7 +49,7 @@ public class TestS3ManifestOnStaging {
 	private ConsoleHandle consoleHandle = new ConsoleHandle();
 	private String target;
 	private String source;
-	private String uploadWorkflow;
+	private String uploadDataSetName;
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -60,11 +61,11 @@ public class TestS3ManifestOnStaging {
 		this.source = "JetBlue-S3";
 		this.target = "JetBlue";
 
-		this.uploadWorkflow = "GridToS3OnStaging_" + System.currentTimeMillis();
-		createUploadDataSetInstance(this.uploadWorkflow);
-		createDataSet(this.uploadWorkflow, this.getUploadDataSetXml(this.uploadWorkflow));
-		validateUploadReplicationWorkflows(this.uploadWorkflow);
-		tearDown(this.uploadWorkflow);
+		this.uploadDataSetName = "GridToS3OnStaging_" + System.currentTimeMillis();
+		createUploadDataSetInstance(this.uploadDataSetName);
+		createDataSet(this.uploadDataSetName, this.getUploadDataSetXml(this.uploadDataSetName));
+		validateUploadReplicationWorkflows(this.uploadDataSetName);
+		tearDown(this.uploadDataSetName);
 	}
 
 	@Test
@@ -80,23 +81,23 @@ public class TestS3ManifestOnStaging {
 		JSONArray urls=new JSONArray();
 		JSONObject jsonObject = new JSONObject();
 
-		jsonObject.put("url", "s3a://upload-test-bucket-1/project-foo/" + dataSetName + "/feed1/20160531/sampleData");
+		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData");
 		urls.add(jsonObject);
 		fileContent.put("entries",urls);
 		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData");
 		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent.toString());
 
 		urls.clear();
-		jsonObject.put("url", "s3a://upload-test-bucket-1/project-foo/" + dataSetName + "/feed1/20160601/sampleData");
+		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData");
 		urls.add(jsonObject);
 		fileContent.put("entries",urls);
 		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData");
 		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent.toString());
 
 		urls.clear();
-		jsonObject.put("url", "s3a://upload-test-bucket-1/project-foo/" + dataSetName + "/feed1/20160101/sampleData");
+		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData");
 		urls.add(jsonObject);
-		jsonObject.put("url", "s3a://upload-test-bucket-1/project-foo/" + dataSetName + "/feed1/20160101/sampleData.NotExist");
+		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData.NotExist");
 		urls.add(jsonObject);
 		fileContent.put("entries",urls);
 		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData");
@@ -130,14 +131,14 @@ public class TestS3ManifestOnStaging {
 		target.setDateRangeStart(true, "20160101");
 		target.setDateRangeEnd(false, "0");
 		target.setHCatType("DataOnly");
-		target.addPath("data", "upload-test-bucket-1/project-foo/" + dataSetName + "/feed1/%{date}");
+		target.addPath("data", TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/%{date}");
 
 		target.setNumInstances("1");
 		target.setReplicationStrategy("DistCp");
 		generator.setTarget(target);
 
 		generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
-		generator.addParameter("working.dir", "upload-test-bucket-1/user/daqload/daqtest/tmp1/");
+		generator.addParameter("working.dir", TEST_BUCKET + "/user/daqload/daqtest/tmp1/");
 
 		generator.setGroup("dfsload");
 		generator.setOwner("groups");
@@ -187,7 +188,7 @@ public class TestS3ManifestOnStaging {
 		generator.setFrequency("daily");
 		generator.setDiscoveryFrequency("500");
 		generator.setDiscoveryInterface("HDFS");
-		generator.addSourcePath("data", "upload-test-bucket-1/project-foo/" + this.uploadWorkflow + "/feed1/%{date}");
+		generator.addSourcePath("data", TEST_BUCKET + "/project-foo/" + this.uploadDataSetName + "/feed1/%{date}");
 		generator.setSource(this.source);
 
 		DataSetTarget target = new DataSetTarget();
