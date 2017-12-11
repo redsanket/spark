@@ -61,6 +61,9 @@ public class TestS3ManifestOnStaging {
 		this.source = "JetBlue-S3";
 		this.target = "JetBlue";
 
+		Assert.assertTrue("Expected source cluster " + this.source + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.source) != null);
+		Assert.assertTrue("Expected target cluster " + this.target + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.target) != null);
+
 		this.uploadDataSetName = "GridToS3OnStaging_" + System.currentTimeMillis();
 		createUploadDataSetInstance(this.uploadDataSetName);
 		createDataSet(this.uploadDataSetName, this.getUploadDataSetXml(this.uploadDataSetName));
