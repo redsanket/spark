@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tez.runtime.api.OutputFrameworkInterface;
 
 import hadooptest.TestSession;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
@@ -186,15 +188,21 @@ public class ProcessStarlingLogAndCheckPartition {
     public String checkPartitionExist() {
 	TestSession.logger.info("==== checkPartitionExist start () =====");
 	String hiveCommand = "ssh " + this.getHiveHostName() + " \"" +  JAVA_HOME + HADOOP_HOME + HADOOP_CONF_DIR + HADOOPQA_KNITI
-		+ " hive -v -e \\\""  + "show partitions "   + STARLING_DB_NAME + "." + this.getStarlingLogTableMapping().get(this.getLogType().trim()).toString() + "\\\" \"";	
+		+ " hive -v -e \\\""  + "show partitions "   + STARLING_DB_NAME + "." + this.getStarlingLogTableMapping().get(this.getLogType().trim()).toString() + "\\\" \"";
+
+	TestSession.logger.info("hiveCommand - "  + hiveCommand);
+
 	String output = this.commonFunctions.executeCommand(hiveCommand.trim());
 	if (StringUtils.isNotBlank(output)) {
 	    String key = "grid=" + this.getClusterName().trim() + "/dt=" + this.getLogDate().replace("-", "_").trim();
 	    TestSession.logger.info("key - " + key);
-	    String result = Arrays.asList(output.split("\n")).stream().parallel().
+
+	    String result = Arrays.asList(output.split("\n")).stream().parallel().filter(line -> line.indexOf(key) > -1).collect(Collectors.toList()).get(0);
+
+	    /*String result = Arrays.asList(output.split("\n")).stream().parallel().
 		    filter( line -> line.startsWith(key)).
 		    findAny().
-		    orElse("") ;
+		    orElse("") ;*/
 
 	    TestSession.logger.info("========= Result = " + result);
 	    if ( StringUtils.isNotBlank(result)) {
