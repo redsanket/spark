@@ -221,7 +221,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	    TestSession.logger.error("-------------   failed ---------");
 	}
 	TestSession.logger.info("==== checkPartitionExist end () =====");
-	this.starlingResultJsonArray.add(this.getResultJsonObject());
+	//this.starlingResultJsonArray.add(this.getResultJsonObject());
 	return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
     }
     
