@@ -20,6 +20,8 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Starling integration testcase.
@@ -207,8 +209,8 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	    }
 	    
 	   TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
-	    
-	    
+	   TestSession.logger.info("Final Result jsonobject - " + ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject());
+
 	}
 	TestSession.logger.info("------------------ TestIntStarling done -----------------------");
 	return this.stackComponent.getStackComponentName() + "-" + true;

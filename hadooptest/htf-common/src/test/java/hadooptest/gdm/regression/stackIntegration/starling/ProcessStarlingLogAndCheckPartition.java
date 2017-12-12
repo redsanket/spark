@@ -240,4 +240,9 @@ public class ProcessStarlingLogAndCheckPartition {
     public static String getFinalResultJSONObject() {
         return starlingResultJsonArray.toString();
     }
+
+    public static JSONObject getStarlingResultFinalJsonObject() {
+	return finalResultJSONObject;
+    }
+
 }
