@@ -48,7 +48,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.commonFunctions = new  CommonFunctions();
 	this.finalResultJSONObject = new JSONObject();
 	this.resultJsonObject = new JSONObject();
-//	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray = new JSONArray());
+	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray = new JSONArray());
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
 
@@ -213,14 +213,15 @@ public class ProcessStarlingLogAndCheckPartition {
 		} else {
 		    this.getResultJsonObject().put("partitionExist", "no");
 		}
-
+		this.getResultJsonObject().put("result", "pass");
 		TestSession.logger.info("checkPartitionExist() - partition - " + this.getResultJsonObject().toString());
 	    }
 	} else {
+	    this.getResultJsonObject().put("result", "fail");
 	    TestSession.logger.error("-------------   failed ---------");
-	    TestSession.logger.info("-------------   failed ---------");
 	}
 	TestSession.logger.info("==== checkPartitionExist end () =====");
+	this.starlingResultJsonArray.add(this.getResultJsonObject());
 	return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
     }
     
