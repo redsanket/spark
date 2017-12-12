@@ -12,7 +12,7 @@ then
     fi
 
     # adding 'force' to workaround yinst auto adding os requires directive for rhel-6
-    cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
+    cmd="$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade -br quarantine"
     
     # compat-readline should have come from Config job
     # slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
