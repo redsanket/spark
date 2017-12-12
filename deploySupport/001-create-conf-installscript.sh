@@ -64,7 +64,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "   export rootdirparam=\"-root ${yroothome}  \"  "
     echo 'fi'
     # echo "echo ======= installing config-package using '$HADOOP_CONFIG_INSTALL_STRING'"
-    echo GSHOME=$GSHOME $yinst install  -downgrade -yes \$rootdirparam  \\
+    echo GSHOME=$GSHOME $yinst install -downgrade -yes \$rootdirparam -br quarantine  \\
     echo "  " -set $confpkg.TODO_GSHOME=/home/gs \\
     echo "  " -set $confpkg.TODO_RMNODE_HOSTNAME=$jobtrackernode \\
     echo "  " -set $confpkg.TODO_NAMENODE_HOSTNAME=\$nn \\
