@@ -106,7 +106,10 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	
 	ExecutorService executors = Executors.newFixedThreadPool(5);
 	List<Callable<String>> list = new java.util.ArrayList<Callable<String>>();
+	TestSession.logger.info("Starling logs to test - " + this.logTypesList.toString());
 	this.logTypesList.stream().parallel().forEach( logType -> {
+	    
+	    System.out.println("logType = " + logType);
 	    
 	    String nameNodeName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
 	    
@@ -146,7 +149,12 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		String line = scanner.nextLine().trim();
 		String fields [] = line.split("=");
 		if (fields.length > 0) {
-		    this.starlingLogTableMapping.put(fields[0].trim(), fields[1].trim());
+		    if (fields[1].trim().indexOf(",") > -1) {
+			List<String> multipleTables = Arrays.asList(fields[1].trim().split(","));
+			this.starlingLogTableMapping.put(fields[0].trim(), multipleTables.get(0));
+		    } else {
+			this.starlingLogTableMapping.put(fields[0].trim(), fields[1].trim());
+		    }
 		}
 	    }
 	    if ( scanner != null )
@@ -187,7 +195,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		TestSession.logger.info(" ------ finally job done  --------"+ allDoneFuture.isDone());
 	    }
 	    
-	   // TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
+	   TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
 	    
 	    
 	}
