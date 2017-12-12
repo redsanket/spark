@@ -186,6 +186,9 @@ public class ProcessStarlingLogAndCheckPartition {
 	if ( this.isLogCollected() == true && this.isProcessing() == true && this.isProcessed() == true) {
 	    return "starling_" + this.getLogType() + true;
 	}
+
+	TestSession.logger.info("Result - " + this.getResultJsonObject().toString());
+
 	return "starling_" + this.getLogType() + false;
     }
 
@@ -203,12 +206,15 @@ public class ProcessStarlingLogAndCheckPartition {
 	    String resultStr = "";
 	    if ( resultList.size() > 0) {
 		resultStr = resultList.get(0);
-		TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " \n " + resultStr);
+		TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " - " + resultStr);
 		if ( StringUtils.isNotBlank(resultList.get(0).trim())) {
 		    this.getResultJsonObject().put("partitionExist", "yes");
+		    this.getResultJsonObject().put("partition", resultStr);
 		} else {
 		    this.getResultJsonObject().put("partitionExist", "no");
 		}
+
+		TestSession.logger.info("checkPartitionExist() - partition - " + this.getResultJsonObject().toString());
 	    }
 	} else {
 	    TestSession.logger.error("-------------   failed ---------");
