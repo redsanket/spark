@@ -148,13 +148,17 @@ public class ProcessStarlingLogAndCheckPartition {
 		this.getClusterName() + " & \"";
 	TestSession.logger.info("starlingRunStarCmd  = " + starlingRunStarCmd);
 	String output = this.commonFunctions.executeCommand(starlingRunStarCmd).trim();
+
+	TestSession.logger.info("************  output start ********************");
+	TestSession.logger.info("output - " + output);
+	TestSession.logger.info("************  output end ********************");
 	List<String> outputList = Arrays.asList(output.split("\n"));
 
 	outputList.stream().parallel().forEach( item -> {
 
 	    if (item.startsWith("No") && item.indexOf("logs will be collected (see Starling logs for details).") > -1) {
 		this.getResultJsonObject().put("newLog", "no" );
-	    } else if (item.startsWith("Collecting") & item.endsWith("logs.")){
+	    } else if (item.startsWith("Collecting") & item.endsWith("logs.")) {
 		this.getResultJsonObject().put("newLog", "yes");
 	    }
 
@@ -195,22 +199,17 @@ public class ProcessStarlingLogAndCheckPartition {
 	String output = this.commonFunctions.executeCommand(hiveCommand.trim());
 	if (StringUtils.isNotBlank(output)) {
 	    String key = "grid=" + this.getClusterName().trim() + "/dt=" + this.getLogDate().replace("-", "_").trim();
-	    TestSession.logger.info("key - " + key);
-
-	    String result = Arrays.asList(output.split("\n")).stream().parallel().filter(line -> line.indexOf(key) > -1).collect(Collectors.toList()).get(0);
-
-	    /*String result = Arrays.asList(output.split("\n")).stream().parallel().
-		    filter( line -> line.startsWith(key)).
-		    findAny().
-		    orElse("") ;*/
-
-	    TestSession.logger.info("========= Result = " + result);
-	    if ( StringUtils.isNotBlank(result)) {
-		this.getResultJsonObject().put("partitionExist", "yes");
-	    } else {
-		this.getResultJsonObject().put("partitionExist", "no");
+	    List<String> resultList = Arrays.asList(output.split("\n")).stream().parallel().filter(line -> line.indexOf(key) > -1).collect(Collectors.toList());
+	    String resultStr = "";
+	    if ( resultList.size() > 0) {
+		resultStr = resultList.get(0);
+		TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " \n " + resultStr);
+		if ( StringUtils.isNotBlank(resultList.get(0).trim())) {
+		    this.getResultJsonObject().put("partitionExist", "yes");
+		} else {
+		    this.getResultJsonObject().put("partitionExist", "no");
+		}
 	    }
-	    TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " \n " + output);    
 	} else {
 	    TestSession.logger.error("-------------   failed ---------");
 	    TestSession.logger.info("-------------   failed ---------");
@@ -224,7 +223,6 @@ public class ProcessStarlingLogAndCheckPartition {
 	TestSession.logger.info(" ---- addExecutionLogResult  --- " + starlingResultJsonArray.toString());
 	TestSession.logger.info("  final result - " + this.getResultJsonObject().toString());
 	return this.getResultJsonObject().toString();
-	
     }
 
     public void print(){
