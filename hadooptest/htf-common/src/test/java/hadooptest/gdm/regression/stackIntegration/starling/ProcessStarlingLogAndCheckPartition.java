@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tez.runtime.api.OutputFrameworkInterface;
 
 import hadooptest.TestSession;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
@@ -46,10 +45,10 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.setLogType(logType);
 	this.setLogDate(logDate);
 	this.commonFunctions = new  CommonFunctions();
-	this.finalResultJSONObject = new JSONObject();
 	this.resultJsonObject = new JSONObject();
 	this.starlingResultJsonArray = new JSONArray();
-	//this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray = new JSONArray());
+	this.finalResultJSONObject = new JSONObject();
+	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray);
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
 
@@ -230,6 +229,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	starlingResultJsonArray.add(this.getResultJsonObject());
 	TestSession.logger.info(" ---- addExecutionLogResult  --- " + starlingResultJsonArray.toString());
 	TestSession.logger.info("  final result - " + this.getResultJsonObject().toString());
+	TestSession.logger.info(" finalResultJSONObject - " + finalResultJSONObject.toString());
 	return this.getResultJsonObject().toString();
     }
 
