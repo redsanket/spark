@@ -345,6 +345,12 @@ public class StackComponentAggResult {
 					String hive_verifyCurrentState = resultSet.getString("hive_verifyCurrentState");
 					String hive_verifyMRJobURL = resultSet.getString("hive_verifyMRJobURL");
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
+
+					String starlingVersion = resultSet.getString("starlingVersion");
+					String starlingResult = resultSet.getString("starlingResult");
+					String starlingComments = resultSet.getString("starlingComments");
+					String starlingJSONResults = resultSet.getString("starlingJSONResults");
+
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
                                         String startDateTime =  resultSet.getString("startDateTime");
@@ -374,6 +380,7 @@ public class StackComponentAggResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
+							starlingVersion, starlingResult, starlingComments, starlingJSONResults,
 							comments, result, startDateTime, endDateTime, uniqueId));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
