@@ -24,6 +24,7 @@ import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.StarlingHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -44,6 +45,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
     private CommonFunctions commonFunctions;
     private Map <String,String> starlingLogMap = new HashMap<String,String>();
     private Map<String,String> starlingLogTableMapping = new HashMap<String,String>();
+    private final String STARLING_VERSION_COMMAND = "yinst ls | grep starling_proc";
 
     public TestIntStarling(StackComponent stackComponent, String hostName, String clusterName , String hiveHostName) {
 	this.stackComponent = stackComponent;
@@ -208,7 +210,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	StringBuffer failedResultBuffer = new StringBuffer();
 	String starlingResult = "";
 	String starlingComments = "";
-	String starlingJSONResults = "";
+	String starlingJSONResults = "-";
 	boolean failedFlag = false;
 	if (resultJsonObject.containsKey("starlingIntResult")) {
 	    JSONArray resultsJsonArray = resultJsonObject.getJSONArray("starlingIntResult");
@@ -241,7 +243,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	    } else {
 		starlingResult = "passed";
 		starlingComments = "-";
-		starlingJSONResults  = resultJsonObject.toString();
+		starlingJSONResults  = "passed";
 	    }
 
 	  //  getDataSetNames
@@ -255,9 +257,11 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		String currentHrPath = simpleDateFormat.format(calendar.getTime());
 
 		List<String> dataSetNames = dbOperations.getDataSetNames(currentHrPath);
+		String starlingVersion = getStarlingDeployedVersion();
 		TestSession.logger.info("dataSetNames - " + dataSetNames);
 		for ( String dataSetName : dataSetNames) {
 		    this.commonFunctions.updateDB(dataSetName, "starlingResult", starlingResult);
+		    this.commonFunctions.updateDB(dataSetName, "starlingVersion", starlingVersion);
 		    this.commonFunctions.updateDB(dataSetName, "starlingComments", starlingComments);
 		    if (failedFlag) {
 			this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
@@ -269,4 +273,28 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	}
     }
 
+    public String getStarlingDeployedVersion() {
+	String starlingHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingHostName").trim();
+	String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " +starlingHostName  + "  \"" + STARLING_VERSION_COMMAND  + "\" ";
+	TestSession.logger.info("command -" + command);
+	String result = this.commonFunctions.executeCommand(command.trim()).trim();
+
+	String version = "";
+	java.util.List<String>outputList = Arrays.asList(result.split("\n"));
+	String starlingVersion = null;
+	boolean flag = false;
+	for ( String str : outputList) {
+	    TestSession.logger.info(str);
+	    if ( str.startsWith("starling_proc-") == true ) {
+		starlingVersion = Arrays.asList(str.split("-")).get(1).trim();
+		flag = true;
+		break;
+	    }
+	}
+	TestSession.logger.info("starlingVersion - " + starlingVersion);
+	if (flag) {
+	    version = starlingVersion.trim();
+	}
+	return version;
+    }
 }
