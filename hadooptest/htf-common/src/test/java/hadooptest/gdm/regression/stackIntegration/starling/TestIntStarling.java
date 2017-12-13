@@ -237,7 +237,12 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 
 		    if ( ! result.equalsIgnoreCase("pass")) {
 			failedFlag = true;
-			failedResultBuffer.append(logExecutionJsonObject.toString());
+			failedResultBuffer.append("[ ").append("logType - ").append(logType)
+			.append(", logDate - ").append(logExecutionJsonObject.getString("logDate").trim())
+			.append(", newLog - ").append(logExecutionJsonObject.getString("newLog").trim())
+			.append(", mrURL - ").append(logExecutionJsonObject.getString("mrURL").trim())
+			.append(", partitionExist - ").append(logExecutionJsonObject.getString("partitionExist").trim())
+			.append(" ] , ");
 		    }
 		} else {
 		    // TODO
@@ -248,7 +253,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		// there is a failure
 		starlingResult = "failed";
 		starlingComments = "failed reason : " + failedResultBuffer.toString();
-		starlingJSONResults  = resultJsonObject.toString();
+		starlingJSONResults  = failedResultBuffer.toString();
 	    } else {
 		starlingResult = "passed";
 		starlingComments = "-";
@@ -270,7 +275,9 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		for ( String dataSetName : dataSetNames) {
 		    this.commonFunctions.updateDB(dataSetName, "starlingResult", starlingResult);
 		    this.commonFunctions.updateDB(dataSetName, "starlingComments", starlingComments);
-		  //  this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
+		    if (failedFlag) {
+			this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
+		    }
 		}
 	    } else {
 		TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
