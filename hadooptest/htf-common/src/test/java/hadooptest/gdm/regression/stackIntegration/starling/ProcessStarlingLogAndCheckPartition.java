@@ -230,6 +230,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	TestSession.logger.info(" ---- addExecutionLogResult  --- " + starlingResultJsonArray.toString());
 	TestSession.logger.info("  final result - " + this.getResultJsonObject().toString());
 	TestSession.logger.info(" finalResultJSONObject - " + finalResultJSONObject.toString());
+	
 	return this.getResultJsonObject().toString();
     }
 
@@ -243,9 +244,9 @@ public class ProcessStarlingLogAndCheckPartition {
     }
 
     public static JSONObject getStarlingResultFinalJsonObject() {
-	JSONObject finalJsonResultObj = new JSONObject();
-	return (JSONObject) finalJsonResultObj.put("result" , starlingResultJsonArray);
-//	return finalResultJSONObject.put("starlingIntResult", (JSONObject)starlingResultJsonArray.toArray());
+	JSONObject jObj = new JSONObject();
+	jObj.put("result", starlingResultJsonArray);
+	return jObj;
     }
 
 }
