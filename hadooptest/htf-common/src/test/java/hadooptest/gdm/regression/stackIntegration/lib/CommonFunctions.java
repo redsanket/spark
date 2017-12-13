@@ -100,7 +100,7 @@ public class CommonFunctions {
 	    this.constructCurrentHrMin();
 	    this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
 	    this.setStarlingHostName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingHostName"));
-	    String starlingTestLogs = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes");
+	    String starlingTestLogs = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes").trim();
 	    TestSession.logger.info("**** starlingTestLogs - " + starlingTestLogs);
 	    this.setStarlingLogTypes(starlingTestLogs);
 	    this.dbOperations = new DataBaseOperations();
@@ -330,7 +330,7 @@ public class CommonFunctions {
 	    if ( currentStackComponentTestList.equalsIgnoreCase("starling")) {
 		if ( ! this.dbOperations.checkRecordAlreadyExists(this.getDataSetName(), currentHrPath) ){
 		    TestSession.logger.warn("NOTE : Integration was not executed on " + currentHrPath);
-
+		    
 			// insert current dataSetName into the db
 			this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
 		}
@@ -527,12 +527,12 @@ public class CommonFunctions {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			aggIntResultObj.finalResult();
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
-			/*try {
-				//obj.sendMail();
+			try {
+				obj.sendMail();
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException
 					| MessagingException e) {
 				e.printStackTrace();
-			}*/
+			}
 		} else {
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
 			stackComponentAggResultObj.test();
