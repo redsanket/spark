@@ -1,7 +1,7 @@
 package hadooptest.gdm.regression.stackIntegration.db;
 
 public interface DBCommands {
-	String DB_NAME = "stackIntegrationTestDB_starling_testing";
+	String DB_NAME = "stackIntegrationTestDB";
 	String TABLE_NAME = "integration_test";
 	String FINAL_RESULT_TABLE_NAME = "integrationFinalResult";
 	String CREATE_DB = "CREATE DATABASE IF NOT EXISTS " + DB_NAME;
