@@ -208,9 +208,11 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		TestSession.logger.info(" ------ finally job done  --------"+ allDoneFuture.isDone());
 	    }
 	    
-	   TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
+	   //TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
 	   TestSession.logger.info("Final Result jsonobject - " + ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject());
 
+	   
+	   
 	}
 	TestSession.logger.info("------------------ TestIntStarling done -----------------------");
 	return this.stackComponent.getStackComponentName() + "-" + true;

@@ -48,6 +48,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.commonFunctions = new  CommonFunctions();
 	this.finalResultJSONObject = new JSONObject();
 	this.resultJsonObject = new JSONObject();
+	this.starlingResultJsonArray = new JSONArray();
 	//this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray = new JSONArray());
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
