@@ -370,4 +370,37 @@ public class DataBaseOperations {
         }
     }
     
+    public List<String> getDataSetNames(String date) {
+	List<String> dataSetNames = new ArrayList<String>();
+	String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
+	String selectQuery = "select dataSetName from " + tableName + "  where date = ?";
+	Connection con = null;
+	try {
+	    con = this.getConnection();
+	    PreparedStatement pStmt = con.prepareStatement(selectQuery);
+	    pStmt.setString(1, date);
+	    ResultSet resultSet = pStmt.executeQuery();
+	    if ( resultSet != null ) {
+		while ( resultSet.next() ) {
+		    dataSetNames.add(resultSet.getString("dataSetName"));
+		}
+	    } else {
+		TestSession.logger.error("Failed to execute " + selectQuery);
+		throw new SQLException("Failed to execute " + selectQuery );
+	    }
+	} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+	    TestSession.logger.error("Failed to check for record already exist in database." + e);
+	    e.printStackTrace();
+	}finally{
+	    if (con != null) {
+		try {
+		    con.close();
+		} catch (SQLException e) {
+		    TestSession.logger.error("Failed to close the connection.");
+		    e.printStackTrace();
+		}
+	    }
+	}
+	return dataSetNames;
+    }
 }

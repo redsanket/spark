@@ -2,10 +2,13 @@ package hadooptest.gdm.regression.stackIntegration.starling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -15,10 +18,12 @@ import java.util.concurrent.Future;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
+import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -207,14 +212,78 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		allDoneFuture.get();
 		TestSession.logger.info(" ------ finally job done  --------"+ allDoneFuture.isDone());
 	    }
-	    
-	   //TestSession.logger.info("Final Result - " + ProcessStarlingLogAndCheckPartition.getFinalResultJSONObject());
-	   TestSession.logger.info("Final Result jsonobject - " + ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject());
-
-	   
-	   
+	   JSONObject finalResult = ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject();
+	   TestSession.logger.info("Final Result jsonobject - " + finalResult);
+	   checkStarlingResultsAndUpdateDB(finalResult);
 	}
 	TestSession.logger.info("------------------ TestIntStarling done -----------------------");
 	return this.stackComponent.getStackComponentName() + "-" + true;
-    }	
+    }
+
+    private void checkStarlingResultsAndUpdateDB(JSONObject resultJsonObject) {
+	StringBuffer failedResultBuffer = new StringBuffer();
+	String starlingResult = "";
+	String starlingComments = "";
+	String starlingJSONResults = "";
+	boolean failedFlag = false;
+	if (resultJsonObject.containsKey("starlingIntResult")) {
+	    JSONArray resultsJsonArray = resultJsonObject.getJSONArray("starlingIntResult");
+	    for ( int i = 0; i < resultsJsonArray.size() ; i++) {
+		JSONObject logExecutionJsonObject = resultsJsonArray.getJSONObject(i);
+		String logType = logExecutionJsonObject.getString("logType");
+		if ( this.logTypesList.contains(logType) ) {
+		    String result = logExecutionJsonObject.getString("result").trim();
+		    switch (result) {
+
+		    // ignore pass case
+		    case "fail" : {
+			failedFlag = true;
+			failedResultBuffer.append(logExecutionJsonObject.toString());
+			break;
+		    }
+		    default : {
+			failedFlag = true;
+			failedResultBuffer.append(logExecutionJsonObject.toString());
+			break;
+		    }
+		    }
+		} else {
+		    // TODO
+		}
+	    }
+
+	    if ( failedFlag ) {
+		// there is a failure
+		starlingResult = "failed";
+		starlingComments = "failed reason : " + failedResultBuffer.toString();
+		starlingJSONResults  = resultJsonObject.toString();
+	    } else {
+		starlingResult = "passed";
+		starlingComments = "-";
+		starlingJSONResults  = resultJsonObject.toString();
+	    }
+
+	  //  getDataSetNames
+	    DataBaseOperations dbOperations = new DataBaseOperations();
+	    if (dbOperations != null) {
+
+		// get current date
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentHrPath = simpleDateFormat.format(calendar.getTime());
+
+		List<String> dataSetNames = dbOperations.getDataSetNames(currentHrPath);
+		TestSession.logger.info("dataSetNames - " + dataSetNames);
+		for ( String dataSetName : dataSetNames) {
+		    this.commonFunctions.updateDB(dataSetName, "starlingResult", starlingResult);
+		    this.commonFunctions.updateDB(dataSetName, "starlingComments", starlingComments);
+		    this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
+		}
+	    } else {
+		TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
+	    }
+	}
+    }
+
 }

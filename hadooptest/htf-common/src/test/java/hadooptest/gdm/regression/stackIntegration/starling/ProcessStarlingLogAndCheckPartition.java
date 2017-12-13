@@ -221,31 +221,17 @@ public class ProcessStarlingLogAndCheckPartition {
 	    TestSession.logger.error("-------------   failed ---------");
 	}
 	TestSession.logger.info("==== checkPartitionExist end () =====");
-	//this.starlingResultJsonArray.add(this.getResultJsonObject());
 	return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
     }
     
     public String addExecutionLogResult() {
 	starlingResultJsonArray.add(this.getResultJsonObject());
-	TestSession.logger.info(" ---- addExecutionLogResult  --- " + starlingResultJsonArray.toString());
-	TestSession.logger.info("  final result - " + this.getResultJsonObject().toString());
-	TestSession.logger.info(" finalResultJSONObject - " + finalResultJSONObject.toString());
-	
 	return this.getResultJsonObject().toString();
-    }
-
-    public void print(){
-	TestSession.logger.info("result - " + this.starlingResultJsonArray.toString());
-	TestSession.logger.info("Done log type - " + this.getLogType());
-    }
-
-    public static String getFinalResultJSONObject() {
-        return starlingResultJsonArray.toString();
     }
 
     public static JSONObject getStarlingResultFinalJsonObject() {
 	JSONObject jObj = new JSONObject();
-	jObj.put("result", starlingResultJsonArray);
+	jObj.put("starlingIntResult", starlingResultJsonArray);
 	return jObj;
     }
 
