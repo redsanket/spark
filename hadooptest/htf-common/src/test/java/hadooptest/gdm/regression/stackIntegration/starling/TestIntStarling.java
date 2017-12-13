@@ -115,8 +115,6 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	List<Callable<String>> list = new java.util.ArrayList<Callable<String>>();
 	TestSession.logger.info("Starling logs to test - " + this.logTypesList.toString());
 	for ( String logType : this.logTypesList) {
-	    System.out.println("logType = " + logType);
-
 	    String nameNodeName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
 
 	    // TODO , use yinst to get the namenode hostname
@@ -124,24 +122,10 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	    Callable getLogInstaceInfo = new GetLogInstaceInfo( nameNodeName + "-n2.blue.ygrid.yahoo.com", logType.trim());
 	    list.add(getLogInstaceInfo);
 	}
-	/*
-	this.logTypesList.stream().parallel().forEach( logType -> {
-	    
-	    System.out.println("logType = " + logType);
-	    
-	    String nameNodeName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
-	    
-	    // TODO , use yinst to get the namenode hostname
-	    // TODO, get the name node form common funtion
-	    Callable getLogInstaceInfo = new GetLogInstaceInfo( nameNodeName + "-n2.blue.ygrid.yahoo.com", logType.trim());
-	    list.add(getLogInstaceInfo);
-	});
-*/
+	
 	if ( list.size() > 0) {
 	    List<Future<String>> testExecutionList = executors.invokeAll(list);
 	    for ( Future<String> result : testExecutionList) {
-		TestSession.logger.info("------------------ TestIntStarling -----------------------");
-		TestSession.logger.info("result - " + result.get());
 		List<String> fields = Arrays.asList(result.get().split("~"));
 		if (fields.size() > 1 ){
 		    String logName = fields.get(1);

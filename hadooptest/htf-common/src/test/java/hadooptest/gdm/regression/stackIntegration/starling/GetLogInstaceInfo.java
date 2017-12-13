@@ -22,7 +22,6 @@ public class GetLogInstaceInfo implements Callable<String> {
     
     private static final String PROCOTOL = "hdfs://";
     private static final String COMMON_LOG_PATH = "/projects/starling/hadoopqa/logs/";
-    //private static final String TEZ_LOG_PATH = "/mapred/timeline/archive/hourly/";
     private static final String TEZ_LOG_PATH = "/projects/starling/hadoopqa/logs/tez/hourly/";
     private String nameNodeName;
     private String logType;

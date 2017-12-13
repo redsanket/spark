@@ -141,7 +141,7 @@ public class AggIntResult {
 	}
 
 	public java.util.List<String> getToDaysResult() {
-		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion  from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\""  
+		String query = "select dataSetName,date,gdmVersion,hadoopVersion,pigVersion,tezVersion,hiveVersion,hcatVersion,hbaseVersion,oozieVersion,starlingVersion from  " + DBCommands.TABLE_NAME + "  where date like " + "\"" + getCurrentDate() + "\""  
 				+ " group by  " + this.getCurrentPipeLineName() + "Version";
 		TestSession.logger.info("query - " + query);
 		java.sql.ResultSet resultSet = this.getResultSet(query);
@@ -271,6 +271,11 @@ public class AggIntResult {
 					String oozieResult =  resultSet.getString("oozieResult");
 					String oozieCurrentState =  resultSet.getString("oozieCurrentState");
 					String oozieComments =  resultSet.getString("oozieComments");
+					
+					String starlingVersion = resultSet.getString("starlingVersion");
+					String starlingResult = resultSet.getString("starlingResult");
+					String starlingComments = resultSet.getString("starlingComments");
+					String starlingJSONResults = resultSet.getString("starlingJSONResults");
 
 					String cleanup_outputResult = resultSet.getString("cleanup_outputResult");
 					String cleanup_outputCurrentState = resultSet.getString("cleanup_outputCurrentState");
@@ -325,6 +330,7 @@ public class AggIntResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
+							starlingVersion, starlingResult, starlingComments, starlingJSONResults,
 							comments, result, startDateTime, endDateTime, uniqueId));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
@@ -358,6 +364,7 @@ public class AggIntResult {
 									pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 									hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 									hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
+									starlingVersion, starlingResult, starlingComments, starlingJSONResults,
 									comments, result, startDateTime, endDateTime, uniqueId
 									);
 						}else {
@@ -419,6 +426,7 @@ public class AggIntResult {
 								dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsResult(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsCurrentState(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsMRJobURL(),dbTableColumnsReplicaObject.getPig_abf_input_PageValidNewsComments(),
 								dbTableColumnsReplicaObject.getHive_storageResult(),dbTableColumnsReplicaObject.getHive_storageCurrentState(),dbTableColumnsReplicaObject.getHive_storageMRJobURL(),dbTableColumnsReplicaObject.getHive_storageComments(),
 								dbTableColumnsReplicaObject.getHive_verifyResult(),dbTableColumnsReplicaObject.getHive_verifyCurrentState(),dbTableColumnsReplicaObject.getHive_verifyMRJobURL(),dbTableColumnsReplicaObject.getHive_verifyComments(),
+								dbTableColumnsReplicaObject.getStarlingVersion(), dbTableColumnsReplicaObject.getStarlingResult(), dbTableColumnsReplicaObject.getStarlingComments(), dbTableColumnsReplicaObject.getStarlingJSONResults(),
 								dbTableColumnsReplicaObject.getComments(),dbTableColumnsReplicaObject.getResult(),dbTableColumnsReplicaObject.getStartDateTime(),dbTableColumnsReplicaObject.getEndDateTime(),dbTableColumnsReplicaObject.getUniqueId()
 								);
 					}
@@ -451,6 +459,7 @@ public class AggIntResult {
 			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
+			String starlingVersion, String starlingResult, String starlingComments, String starlingJSONResults,
 			String  comments, String result, String startDateTime, String endDateTime, String uniqueId ) {		
 		String dsName = null;
 
@@ -543,6 +552,10 @@ public class AggIntResult {
 					"hive_verifyCurrentState" , hive_verifyCurrentState,
 					"hive_verifyMRJobURL" , hive_verifyMRJobURL,
 					"hive_verifyComments" , hive_verifyComments,
+					"starlingVersion" , starlingVersion, 
+					"starlingResult" , starlingResult, 
+					"starlingComments", starlingComments, 
+					"starlingJSONResults", starlingJSONResults,
 					"comments",comments,
 					"result",result,
 					"startDateTime",startDateTime,
@@ -561,6 +574,10 @@ public class AggIntResult {
 		getComponentResult("hcat" , hcatResult);
 		getComponentResult("hbase"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
 		getComponentResult("oozie"  , cleanup_outputResult , check_inputResult , pig_abf_input_PageValidNewsResult, hive_storageResult, hive_verifyResult);
+		
+		// TODO for starling
+		// getComponentResult("starling"  , hbaseCreateTable,hbaseInsertRecordTable,hbaseScanRecordTable,hbaseDeleteTable);
+		
 		createTestReport(dsName , comments);
 
 		createJsonReport(dataSetName, date, hadoopVersion, hadoopCurrentState, hadoopResult, hadoopComments, gdmVersion, gdmCurrentState, gdmResult,
@@ -575,8 +592,9 @@ public class AggIntResult {
 				oozieComments, cleanup_outputResult, cleanup_outputCurrentState, cleanup_outputMRJobURL, cleanup_outputComments, check_inputResult,
 				check_inputCurrentState, check_inputMRJobURL, check_inputComments, pig_abf_input_PageValidNewsResult, pig_abf_input_PageValidNewsCurrentState,
 				pig_abf_input_PageValidNewsMRJobURL, pig_abf_input_PageValidNewsComments, hive_storageResult, hive_storageCurrentState, hive_storageMRJobURL,
-				hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments, comments, result, startDateTime, 
-				endDateTime, uniqueId);
+				hive_storageComments, hive_verifyResult, hive_verifyCurrentState, hive_verifyMRJobURL, hive_verifyComments,
+				starlingVersion, starlingResult, starlingComments, starlingJSONResults,
+				comments, result, startDateTime,  endDateTime, uniqueId);
 		TestSession.logger.info("GRIDCI-1667, mark5"); 
 	}
 
@@ -739,6 +757,7 @@ public class AggIntResult {
 			String pig_abf_input_PageValidNewsResult, String  pig_abf_input_PageValidNewsCurrentState ,String  pig_abf_input_PageValidNewsMRJobURL, String  pig_abf_input_PageValidNewsComments,
 			String  hive_storageResult,String  hive_storageCurrentState, String hive_storageMRJobURL, String  hive_storageComments,
 			String hive_verifyResult, String  hive_verifyCurrentState , String  hive_verifyMRJobURL, String hive_verifyComments,
+			String starlingVersion, String starlingResult, String starlingComments, String starlingJSONResults,
 			String  comments, String result, String startDateTime, String endDateTime, String uniqueId) {
 
 		JSONObject jsonObj = new JSONObject();
@@ -829,6 +848,10 @@ public class AggIntResult {
 		jsonObj.put("hive_verifyCurrentState" , hive_verifyCurrentState);
 		jsonObj.put("hive_verifyMRJobURL" , hive_verifyMRJobURL);
 		jsonObj.put("hive_verifyComments" , hive_verifyComments);
+		jsonObj.put("starlingVersion",starlingVersion);
+		jsonObj.put("starlingResult",starlingResult);
+		jsonObj.put("starlingComments",starlingComments);
+		jsonObj.put("starlingJSONResults",starlingJSONResults);
 		jsonObj.put("comments",comments);
 		jsonObj.put("result",result);
 		jsonObj.put("startDateTime",startDateTime);

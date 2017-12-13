@@ -92,6 +92,10 @@ public class DBTableColumnsReplica {
 	String hive_verifyCurrentState;
 	String hive_verifyMRJobURL;
 	String hive_verifyComments;
+	String starlingVersion;
+	String starlingResult;
+	String starlingComments;
+	String starlingJSONResults;
 	String comments;
 	String result;
 	String startDateTime;
@@ -124,6 +128,7 @@ public class DBTableColumnsReplica {
 			String pig_abf_input_PageValidNewsComments, String hive_storageResult, String hive_storageCurrentState,
 			String hive_storageMRJobURL, String hive_storageComments, String hive_verifyResult,
 			String hive_verifyCurrentState, String hive_verifyMRJobURL, String hive_verifyComments, String comments,
+			String starlingVersion, String starlingResult, String starlingComments, String starlingJSONResults,
 			String result, String startDateTime, String endDateTime, String uniqueId) {
 		super();
 		this.dataSetName = dataSetName;
@@ -210,6 +215,10 @@ public class DBTableColumnsReplica {
 		this.hive_verifyCurrentState = hive_verifyCurrentState;
 		this.hive_verifyMRJobURL = hive_verifyMRJobURL;
 		this.hive_verifyComments = hive_verifyComments;
+		this.starlingVersion = starlingVersion;
+		this.starlingResult = starlingResult;
+		this.starlingComments = starlingComments;
+		this.starlingJSONResults = starlingJSONResults;
 		this.comments = comments;
 		this.result = result;
 		this.startDateTime = startDateTime;
@@ -929,4 +938,35 @@ public class DBTableColumnsReplica {
                 this.uniqueId = uniqueId;
         }
 
+	public String getStarlingVersion() {
+	    return starlingVersion;
+	}
+
+	public void setStarlingVersion(String starlingVersion) {
+	    this.starlingVersion = starlingVersion;
+	}
+
+	public String getStarlingResult() {
+	    return starlingResult;
+	}
+
+	public void setStarlingResult(String starlingResult) {
+	    this.starlingResult = starlingResult;
+	}
+
+	public String getStarlingComments() {
+	    return starlingComments;
+	}
+
+	public void setStarlingComments(String starlingComments) {
+	    this.starlingComments = starlingComments;
+	}
+
+	public String getStarlingJSONResults() {
+	    return starlingJSONResults;
+	}
+
+	public void setStarlingJSONResults(String starlingJSONResults) {
+	    this.starlingJSONResults = starlingJSONResults;
+	}
 }
