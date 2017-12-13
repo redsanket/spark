@@ -233,19 +233,11 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		String logType = logExecutionJsonObject.getString("logType");
 		if ( this.logTypesList.contains(logType) ) {
 		    String result = logExecutionJsonObject.getString("result").trim();
-		    switch (result) {
+		    TestSession.logger.info("logType - " + logType + "    result - " + result);
 
-		    // ignore pass case
-		    case "fail" : {
+		    if ( ! result.equalsIgnoreCase("pass")) {
 			failedFlag = true;
 			failedResultBuffer.append(logExecutionJsonObject.toString());
-			break;
-		    }
-		    default : {
-			failedFlag = true;
-			failedResultBuffer.append(logExecutionJsonObject.toString());
-			break;
-		    }
 		    }
 		} else {
 		    // TODO
@@ -278,7 +270,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		for ( String dataSetName : dataSetNames) {
 		    this.commonFunctions.updateDB(dataSetName, "starlingResult", starlingResult);
 		    this.commonFunctions.updateDB(dataSetName, "starlingComments", starlingComments);
-		    this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
+		  //  this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
 		}
 	    } else {
 		TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
