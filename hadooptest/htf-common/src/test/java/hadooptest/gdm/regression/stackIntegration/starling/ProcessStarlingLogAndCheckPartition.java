@@ -48,7 +48,7 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.resultJsonObject = new JSONObject();
 	this.starlingResultJsonArray = new JSONArray();
 	this.finalResultJSONObject = new JSONObject();
-	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray);
+//	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray);
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
 
@@ -230,9 +230,8 @@ public class ProcessStarlingLogAndCheckPartition {
     }
 
     public static JSONObject getStarlingResultFinalJsonObject() {
-	JSONObject jObj = new JSONObject();
-	jObj.put("starlingIntResult", starlingResultJsonArray);
-	return jObj;
+	finalResultJSONObject.put("starlingIntResult", starlingResultJsonArray);
+	return finalResultJSONObject;
     }
 
 }
