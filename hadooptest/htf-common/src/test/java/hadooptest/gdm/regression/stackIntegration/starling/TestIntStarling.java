@@ -47,11 +47,10 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
     private Map<String,String> starlingLogTableMapping = new HashMap<String,String>();
     private final String STARLING_VERSION_COMMAND = "yinst ls | grep starling_proc";
 
-    public TestIntStarling(StackComponent stackComponent, String hostName, String clusterName , String hiveHostName) {
+    public TestIntStarling(StackComponent stackComponent, String hostName, String clusterName ) {
 	this.stackComponent = stackComponent;
 	this.setStarlingHostName(hostName);
 	this.setClusterName(clusterName);
-	this.setHiveHostName(hiveHostName);
 	this.commonFunctions = new CommonFunctions(this.getClusterName());
 	System.out.println("------------------starling logTypesList -------------------");
 	String logs = this.commonFunctions.getStarlingLogTypes().trim();
@@ -112,16 +111,16 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 
     private void init() throws InterruptedException, ExecutionException, FileNotFoundException {
 	readStarlingLogTableMapping();
-	
+	String nNodeName = getComponentHostName("namenode");
+	String hName = getComponentHostName("hive");
+	this.setHiveHostName(hName);
+
 	ExecutorService executors = Executors.newFixedThreadPool(5);
 	List<Callable<String>> list = new java.util.ArrayList<Callable<String>>();
 	TestSession.logger.info("Starling logs to test - " + this.logTypesList.toString());
 	for ( String logType : this.logTypesList) {
 	    String nameNodeName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
-
-	    // TODO , use yinst to get the namenode hostname
-	    // TODO, get the name node form common funtion
-	    Callable getLogInstaceInfo = new GetLogInstaceInfo( nameNodeName + "-n2.blue.ygrid.yahoo.com", logType.trim());
+	    Callable getLogInstaceInfo = new GetLogInstaceInfo( nNodeName , logType.trim());
 	    list.add(getLogInstaceInfo);
 	}
 	
@@ -296,5 +295,13 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	    version = starlingVersion.trim();
 	}
 	return version;
+    }
+
+    private String getComponentHostName( String componentName ) throws InterruptedException {
+	String command = "yinst range -ir \"(@grid_re.clusters." + this.getClusterName() + "." + componentName.trim() +")\"";
+	TestSession.logger.info("Command = " + command);
+	String componentHostName = this.commonFunctions.executeCommand(command).trim();
+	Thread.sleep(100);
+	return componentHostName;
     }
 }

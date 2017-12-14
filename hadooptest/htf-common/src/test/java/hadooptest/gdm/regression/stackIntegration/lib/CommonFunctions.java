@@ -459,7 +459,7 @@ public class CommonFunctions {
 		    Callable<String> testStarlingComponent = null;
 		    if (starlingStackComponent != null)  {
 			TestSession.logger.info("starling hostname  = " + starlingStackComponent.getHostName()  +  "  hbaseStackComponent = " + starlingStackComponent.toString() + "  script location = " + starlingStackComponent.getScriptLocation());
-			testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName() , this.getClusterName() , "openqe95blue-n4.blue.ygrid.yahoo.com");
+			testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName() , this.getClusterName());
 			testList.add(testStarlingComponent);
 		    }
 		}
