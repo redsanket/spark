@@ -1,4 +1,4 @@
-[KEY_GROUP/hadoop_us.dbkeydb]
+[KEY_GROUP/hadoop_us.ranger]
 svc_type=$(svc_type)
 svc_mode=DEKKEK
 public=1
