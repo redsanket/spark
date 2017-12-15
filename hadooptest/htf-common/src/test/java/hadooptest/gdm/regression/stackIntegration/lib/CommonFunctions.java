@@ -535,7 +535,15 @@ public class CommonFunctions {
 			}
 		} else {
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
-			stackComponentAggResultObj.test();
+			if ( this.getCurrentStackComponentTestList().size() > 0) {
+			    if ( StringUtils.isNotBlank(this.getCurrentStackComponentTestList().get(0) )) {
+				if ( this.getCurrentStackComponentTestList().get(0).indexOf("starling") > -1) {
+				    this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
+				} else {
+				    stackComponentAggResultObj.test();
+				}
+			    }
+			}
 		}
 	}
 	

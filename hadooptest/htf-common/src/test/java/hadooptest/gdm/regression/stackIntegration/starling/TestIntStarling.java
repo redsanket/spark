@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
+import hadooptest.gdm.regression.stackIntegration.db.DBCommands;
 import hadooptest.gdm.regression.stackIntegration.db.DataBaseOperations;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.StarlingHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
@@ -254,8 +255,8 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String currentHrPath = simpleDateFormat.format(calendar.getTime());
-
-		List<String> dataSetNames = dbOperations.getDataSetNames(currentHrPath);
+		String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
+		List<String> dataSetNames = dbOperations.getDataSetNames(tableName , currentHrPath);
 		String starlingVersion = getStarlingDeployedVersion();
 		TestSession.logger.info("dataSetNames - " + dataSetNames);
 		for ( String dataSetName : dataSetNames) {
