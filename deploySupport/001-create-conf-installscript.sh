@@ -139,6 +139,17 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "rm -f /home/gs/conf/bycookieauth"
     echo "ln -s /home/gs/gridre/yroot.${cluster}/conf/bycookieauth /home/gs/conf/bycookieauth"
 
+    # Disable use of docker on rhel7 dpeloyments
+    # if docker use is disabled by checking this flag (enabled by default), change core conf to not use 
+    # docker (Verizon rhel7 native). Requires Jenkins deploy job to have RHEL7_DOCKER_DISABLED setting!
+    # This setting has no effect on rhel6 nodes/deploys.
+    if [ "$RHEL7_DOCKER_DISABLED" = true ]
+    then
+        echo "echo ======= running yinst-set to disable Docker use and run tasks native, this has no effect on rhel6 nodes"
+        echo "$yinst set -root ${yroothome} \\"
+        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default \\"
+    fi
+
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
 	echo "echo ======= running yinst-set to set Herriot config properties."
