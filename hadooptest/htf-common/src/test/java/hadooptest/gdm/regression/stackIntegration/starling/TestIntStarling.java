@@ -198,13 +198,73 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		allDoneFuture.get();
 		TestSession.logger.info(" ------ finally job done  --------"+ allDoneFuture.isDone());
 	    }
-	   JSONObject finalResult = ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject();
+	   /*JSONObject finalResult = ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject();
 	   TestSession.logger.info("Final Result jsonobject - " + finalResult);
-	   checkStarlingResultsAndUpdateDB(finalResult);
+	   checkStarlingResultsAndUpdateDB(finalResult);*/
+	    
+	    Map<String ,StarlingExecutionResult > starlingResult = ProcessStarlingLogAndCheckPartition.getStarlingExecutionResult();
+	    updateStarlingResultToDB(starlingResult);
 	}
 	TestSession.logger.info("------------------ TestIntStarling done -----------------------");
 	return this.stackComponent.getStackComponentName() + "-" + true;
     }
+    
+    public void updateStarlingResultToDB(Map<String ,StarlingExecutionResult > starlingResult) {
+	String overAllResult = "";
+	StringBuffer starlingComments = new StringBuffer();
+	StringBuffer starlingFailedJobs = new StringBuffer();
+	StringBuffer passedJobs = new StringBuffer();
+	String dbUpdateComment = ""; 
+	String dbUpdateResult = "";
+	boolean failedFlag = false;
+	
+	// navigate the results
+	for ( String logType  : this.logTypesList) {
+	    StarlingExecutionResult starlingExecutionResultObject = starlingResult.get(logType.trim());
+	    if ( starlingExecutionResultObject.getResults().equals("fail")) {
+		failedFlag = true;
+		starlingComments.append(starlingExecutionResultObject.getLogType()).append(",  ");
+		starlingFailedJobs.append(starlingExecutionResultObject.toString()).append(",  ");
+	    } else {
+		passedJobs.append(starlingExecutionResultObject.toString()).append(",  ");
+	    }
+	}
+	
+	if (failedFlag ) {
+	    overAllResult = "fail";
+	    dbUpdateComment = starlingComments.append("  logs failed").toString();
+	    dbUpdateResult = starlingFailedJobs.toString();
+	} else {
+	    overAllResult = "pass";
+	    dbUpdateComment = starlingComments.append("All logs were processed successfully").toString();
+	    dbUpdateResult = passedJobs.toString();
+	}
+	
+	// updatedb with results
+	DataBaseOperations dbOperations = new DataBaseOperations();
+	 if (dbOperations != null) {
+
+		// get current date
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String currentHrPath = simpleDateFormat.format(calendar.getTime());
+		
+		String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
+		List<String> dataSetNames = dbOperations.getDataSetNames(tableName , currentHrPath);
+		String starlingVersion = getStarlingDeployedVersion();
+		TestSession.logger.info("dataSetNames - " + dataSetNames);
+		for ( String dataSetName : dataSetNames) {
+		    this.commonFunctions.updateDB(dataSetName, "starlingResult", overAllResult);
+		    this.commonFunctions.updateDB(dataSetName, "starlingVersion", starlingVersion);
+		    this.commonFunctions.updateDB(dataSetName, "starlingComments", dbUpdateComment);
+		    if (failedFlag) {
+			this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", dbUpdateResult);
+		    }
+		}
+	 }
+    }
+    
 
     private void checkStarlingResultsAndUpdateDB(JSONObject resultJsonObject) {
 	StringBuffer failedResultBuffer = new StringBuffer();

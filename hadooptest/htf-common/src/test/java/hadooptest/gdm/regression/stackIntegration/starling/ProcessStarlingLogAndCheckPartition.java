@@ -12,6 +12,7 @@ import hadooptest.TestSession;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import scala.reflect.internal.Trees.This;
 
 public class ProcessStarlingLogAndCheckPartition {
 
@@ -29,7 +30,8 @@ public class ProcessStarlingLogAndCheckPartition {
     public static JSONArray starlingResultJsonArray;
     private Map<String, String> starlingLogTableMapping = new HashMap<String,String>();
     private CommonFunctions commonFunctions;
-
+    private static Map<String, StarlingExecutionResult> starlingResults = new HashMap<String, StarlingExecutionResult>();
+    
     // TODO : Get db name from starling.properties file   
     private final static String STARLING_DB_NAME = "starling_integration_test";
     private final static String HADOOP_HOME="export HADOOP_HOME=/home/gs/hadoop/current;";
@@ -48,7 +50,6 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.resultJsonObject = new JSONObject();
 	this.starlingResultJsonArray = new JSONArray();
 	this.finalResultJSONObject = new JSONObject();
-//	this.finalResultJSONObject.put("starlingIntResult", this.starlingResultJsonArray);
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
 
@@ -141,8 +142,11 @@ public class ProcessStarlingLogAndCheckPartition {
     }
 
     public String runStar() {
-	this.getResultJsonObject().put("logType", this.getLogType());
-	this.getResultJsonObject().put("logDate", this.getLogDate());
+	StarlingExecutionResult starlingExecutionResultObject = new StarlingExecutionResult();
+	/*this.getResultJsonObject().put("logType", this.getLogType());
+	this.getResultJsonObject().put("logDate", this.getLogDate());*/
+	starlingExecutionResultObject.setLogType(this.getLogType());
+	starlingExecutionResultObject.setLogDate(this.getLogDate());
 
 	String starlingRunStarCmd = "ssh " + this.getStarlingHostName() + " \"" +  HADOOP_HOME + HADOOPQA_KNITI +  STARLING_CMD + this.getLogType() + " -t " + this.getLogDate() + "T00:00:00Z  " +
 		this.getClusterName() + " & \"";
@@ -157,9 +161,11 @@ public class ProcessStarlingLogAndCheckPartition {
 	outputList.stream().parallel().forEach( item -> {
 
 	    if (item.startsWith("No") && item.indexOf("logs will be collected (see Starling logs for details).") > -1) {
-		this.getResultJsonObject().put("newLog", "no" );
+		//this.getResultJsonObject().put("newLog", "no" );
+		starlingExecutionResultObject.setNewLog(false);
 	    } else if (item.startsWith("Collecting") & item.endsWith("logs.")) {
-		this.getResultJsonObject().put("newLog", "yes");
+		//this.getResultJsonObject().put("newLog", "yes");
+		starlingExecutionResultObject.setNewLog(true);
 	    }
 
 	    if (item.startsWith("Finished collecting") ) {
@@ -174,7 +180,8 @@ public class ProcessStarlingLogAndCheckPartition {
 		int startStr = item.indexOf("URL:");
 		String mrurl = item.substring(startStr,  item.length() );
 		this.setMrJobURL(mrurl);
-		this.getResultJsonObject().put("mrURL", mrurl);
+		//this.getResultJsonObject().put("mrURL", mrurl);
+		starlingExecutionResultObject.setMrJobURL(mrurl);
 	    }
 
 	    if (item.startsWith("Finished processing")) {
@@ -184,15 +191,22 @@ public class ProcessStarlingLogAndCheckPartition {
 	});
 
 	if ( this.isLogCollected() == true && this.isProcessing() == true && this.isProcessed() == true) {
+	    starlingResults.put(this.logType.trim(), starlingExecutionResultObject);
 	    return "starling_" + this.getLogType() + true;
 	}
 
-	TestSession.logger.info("Result - " + this.getResultJsonObject().toString());
+	//TestSession.logger.info("Result - " + this.getResultJsonObject().toString());
+	TestSession.logger.info("Result - " + starlingExecutionResultObject.toString());
+	
+	starlingResults.put(this.logType.trim(), starlingExecutionResultObject);
 
 	return "starling_" + this.getLogType() + false;
     }
 
     public String checkPartitionExist() {
+	
+	StarlingExecutionResult starlingExecutionResultObject = starlingResults.get(this.getLogType().trim());
+	
 	TestSession.logger.info("==== checkPartitionExist start () =====");
 	String hiveCommand = "ssh " + this.getHiveHostName() + " \"" +  JAVA_HOME + HADOOP_HOME + HADOOP_CONF_DIR + HADOOPQA_KNITI
 		+ " hive -v -e \\\""  + "show partitions "   + STARLING_DB_NAME + "." + this.getStarlingLogTableMapping().get(this.getLogType().trim()).toString() + "\\\" \"";
@@ -208,20 +222,26 @@ public class ProcessStarlingLogAndCheckPartition {
 		resultStr = resultList.get(0);
 		TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " - " + resultStr);
 		if ( StringUtils.isNotBlank(resultList.get(0).trim())) {
-		    this.getResultJsonObject().put("partitionExist", "yes");
-		    this.getResultJsonObject().put("partition", resultStr);
+//		    this.getResultJsonObject().put("partitionExist", "yes");
+//		    this.getResultJsonObject().put("partition", resultStr);
+		    starlingExecutionResultObject.setPartitionExists("yes");
+		    starlingExecutionResultObject.setPartitionValue(resultStr);
 		} else {
 		    this.getResultJsonObject().put("partitionExist", "no");
+		    starlingExecutionResultObject.setPartitionExists("yes");
 		}
-		this.getResultJsonObject().put("result", "pass");
+		//this.getResultJsonObject().put("result", "pass");
+		starlingExecutionResultObject.setResults("pass");
 		TestSession.logger.info("checkPartitionExist() - partition - " + this.getResultJsonObject().toString());
 	    }
 	} else {
-	    this.getResultJsonObject().put("result", "fail");
+	   // this.getResultJsonObject().put("result", "fail");
+	    starlingExecutionResultObject.setResults("fail");
 	    TestSession.logger.error("-------------   failed ---------");
 	}
 	TestSession.logger.info("==== checkPartitionExist end () =====");
-	return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
+	//return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
+	return "starling_" + this.getLogType() + starlingExecutionResultObject.getPartitionExists();
     }
     
     public String addExecutionLogResult() {
@@ -232,6 +252,10 @@ public class ProcessStarlingLogAndCheckPartition {
     public static JSONObject getStarlingResultFinalJsonObject() {
 	finalResultJSONObject.put("starlingIntResult", starlingResultJsonArray);
 	return finalResultJSONObject;
+    }
+    
+    public static Map getStarlingExecutionResult() {
+	return starlingResults;
     }
 
 }
