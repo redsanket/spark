@@ -43,6 +43,8 @@ if [ $CMD == "start" ]; then
 	      ls -lrt $HADOOP_HOME/libexec/hdfs-config.sh
               $HADOOP_HDFS_HOME/bin/hdfs namenode -format -force -clusterid $CLUSTERID -v
           else
+	      echo "Value of DEFAULT\_LIBEXEC\_DIR is $DEFAULT_LIBEXEC_DIR"
+              ls -lrt $HADOOP_HOME/libexec/hdfs-config.sh
               echo Y | $HADOOP_HDFS_HOME/bin/hdfs namenode -format -clusterid $CLUSTERID
           fi
     fi
