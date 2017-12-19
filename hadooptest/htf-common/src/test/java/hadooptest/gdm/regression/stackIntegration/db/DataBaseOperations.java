@@ -486,7 +486,8 @@ public class DataBaseOperations {
 		    "  starlingComments=" + starlingResultObject.getStarlingComments() +
 		    "  starlingJSONResults=" + starlingResultObject.getStarlingJSONResults() +
 		    "  where date=" + date;
-	    upStmt.executeQuery(UPDATE_QUERY) ;
+	    upStmt.executeUpdate(UPDATE_QUERY);
+	    
 	    TestSession.logger.info("update starling successfully to final table");
 	    /*} else {
 		TestSession.logger.error("There is no record existing in " + DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME  + "  table for date = " + date);
