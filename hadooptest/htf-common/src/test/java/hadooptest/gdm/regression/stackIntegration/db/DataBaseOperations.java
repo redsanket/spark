@@ -409,7 +409,7 @@ public class DataBaseOperations {
      */
     public void updateStarlingExecutionResult(String date) {
 	String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
-	String 	QUERY = "SELECT starlingVersion,starlingResult,starlingComments,starlingJSONResults from "  +  tableName + " where date = ?";
+	String 	QUERY = "SELECT starlingVersion,starlingResult,starlingComments,starlingJSONResults from "  +  tableName + " where date=\"" + date + "\"";
 	Connection con = null;
 
 	class StarlingResult {
@@ -455,9 +455,8 @@ public class DataBaseOperations {
 	try {
 	    con = this.getConnection();
 	    TestSession.logger.info("QUERY = " + QUERY);
-	    PreparedStatement pStmt = con.prepareStatement(QUERY);
-	    pStmt.setString(1, date);
-	    ResultSet resultSet = pStmt.executeQuery();
+	    Statement stmt = con.createStatement();
+	    ResultSet resultSet = stmt.executeQuery(QUERY);
 	    boolean flag = false;
 	    while ( resultSet != null ) {
 		starlingResultObject.setStarlingVersion(resultSet.getString("starlingVersion"));
