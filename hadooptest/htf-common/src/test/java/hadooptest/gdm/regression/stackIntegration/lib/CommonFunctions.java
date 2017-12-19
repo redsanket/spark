@@ -534,16 +534,14 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		} else {
+		    String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+		    if ( currentStackComponentTestList.indexOf("starling") > -1) {
+			TestSession.logger.info("updating_starling_results");
+			this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
+		    } else {
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
-			if ( this.getCurrentStackComponentTestList().size() > 0) {
-			    if ( StringUtils.isNotBlank(this.getCurrentStackComponentTestList().get(0) )) {
-				if ( this.getCurrentStackComponentTestList().get(0).indexOf("starling") > -1) {
-				    this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
-				} else {
-				    stackComponentAggResultObj.test();
-				}
-			    }
-			}
+			stackComponentAggResultObj.test();
+		    }
 		}
 	}
 	
