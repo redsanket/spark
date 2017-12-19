@@ -527,7 +527,11 @@ public class CommonFunctions {
 			AggIntResult aggIntResultObj = new AggIntResult();
 			if ( currentStackComponentTestList.indexOf("starling") > -1) {
 				TestSession.logger.info("updating_starling_results");
-				this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+				String dt = simpleDateFormat.format(calendar.getTime());
+				this.dbOperations.updateStarlingExecutionResult(dt.trim());
 			} else {
 			    aggIntResultObj.finalResult();
 			}
