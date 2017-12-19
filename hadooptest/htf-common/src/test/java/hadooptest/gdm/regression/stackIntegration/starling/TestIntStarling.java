@@ -185,22 +185,17 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	    CompletableFuture<Void> allDoneFuture = CompletableFuture.allOf(processLogList.toArray(new CompletableFuture[processLogList.size()]));
 	    allDoneFuture.get();
 	    boolean done = allDoneFuture.isDone();
-	    System.out.println("is job done -" + done);
+	    TestSession.logger.info("is job done -" + done);
 	    if (done) {
 		processLogList.clear();
 		for ( ProcessStarlingLogAndCheckPartition tempProcessStarlingLogAndCheckPartition : tempList ) {
-		    TestSession.logger.info("json result - " + tempProcessStarlingLogAndCheckPartition.getResultJsonObject().toString());
 		    CompletableFuture<String> future = supplyAsync( () -> tempProcessStarlingLogAndCheckPartition.checkPartitionExist() );
-		    future.thenRunAsync( () -> tempProcessStarlingLogAndCheckPartition.addExecutionLogResult());
 		    processLogList.add(future);
 		}
 		allDoneFuture = CompletableFuture.allOf(processLogList.toArray(new CompletableFuture[processLogList.size()]));
 		allDoneFuture.get();
 		TestSession.logger.info(" ------ finally job done  --------"+ allDoneFuture.isDone());
 	    }
-	   /*JSONObject finalResult = ProcessStarlingLogAndCheckPartition.getStarlingResultFinalJsonObject();
-	   TestSession.logger.info("Final Result jsonobject - " + finalResult);
-	   checkStarlingResultsAndUpdateDB(finalResult);*/
 	    
 	    Map<String ,StarlingExecutionResult > starlingResult = ProcessStarlingLogAndCheckPartition.getStarlingExecutionResult();
 	    updateStarlingResultToDB(starlingResult);
@@ -264,74 +259,6 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		    }
 		}
 	 }
-    }
-    
-
-    private void checkStarlingResultsAndUpdateDB(JSONObject resultJsonObject) {
-	StringBuffer failedResultBuffer = new StringBuffer();
-	String starlingResult = "";
-	String starlingComments = "";
-	String starlingJSONResults = "-";
-	boolean failedFlag = false;
-	if (resultJsonObject.containsKey("starlingIntResult")) {
-	    JSONArray resultsJsonArray = resultJsonObject.getJSONArray("starlingIntResult");
-	    for ( int i = 0; i < resultsJsonArray.size() ; i++) {
-		JSONObject logExecutionJsonObject = resultsJsonArray.getJSONObject(i);
-		String logType = logExecutionJsonObject.getString("logType");
-		if ( this.logTypesList.contains(logType) ) {
-		    String result = logExecutionJsonObject.getString("result").trim();
-		    TestSession.logger.info("logType - " + logType + "    result - " + result);
-
-		    if ( ! result.equalsIgnoreCase("pass")) {
-			failedFlag = true;
-			failedResultBuffer.append("[ ").append("logType - ").append(logType)
-			.append(", logDate - ").append(logExecutionJsonObject.getString("logDate").trim())
-			.append(", newLog - ").append(logExecutionJsonObject.getString("newLog").trim())
-			.append(", mrURL - ").append(logExecutionJsonObject.getString("mrURL").trim())
-			.append(", partitionExist - ").append(logExecutionJsonObject.getString("partitionExist").trim())
-			.append(" ] , ");
-		    }
-		} else {
-		    // TODO
-		}
-	    }
-
-	    if ( failedFlag ) {
-		// there is a failure
-		starlingResult = "failed";
-		starlingComments = "failed reason : " + failedResultBuffer.toString();
-		starlingJSONResults  = failedResultBuffer.toString();
-	    } else {
-		starlingResult = "passed";
-		starlingComments = "-";
-		starlingJSONResults  = "passed";
-	    }
-
-	  //  getDataSetNames
-	    DataBaseOperations dbOperations = new DataBaseOperations();
-	    if (dbOperations != null) {
-
-		// get current date
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String currentHrPath = simpleDateFormat.format(calendar.getTime());
-		String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
-		List<String> dataSetNames = dbOperations.getDataSetNames(tableName , currentHrPath);
-		String starlingVersion = getStarlingDeployedVersion();
-		TestSession.logger.info("dataSetNames - " + dataSetNames);
-		for ( String dataSetName : dataSetNames) {
-		    this.commonFunctions.updateDB(dataSetName, "starlingResult", starlingResult);
-		    this.commonFunctions.updateDB(dataSetName, "starlingVersion", starlingVersion);
-		    this.commonFunctions.updateDB(dataSetName, "starlingComments", starlingComments);
-		    if (failedFlag) {
-			this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", starlingJSONResults);
-		    }
-		}
-	    } else {
-		TestSession.logger.error("Failed to create an instance of DataBaseOperations.");
-	    }
-	}
     }
 
     public String getStarlingDeployedVersion() {

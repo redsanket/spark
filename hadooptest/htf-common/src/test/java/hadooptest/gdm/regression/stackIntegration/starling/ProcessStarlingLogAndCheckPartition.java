@@ -53,14 +53,6 @@ public class ProcessStarlingLogAndCheckPartition {
 	this.starlingLogTableMapping = starlingLogTableMapping;
     }
 
-    public JSONObject getResultJsonObject() {
-	return resultJsonObject;
-    }
-
-    private void setResultJsonObject(JSONObject resultJsonObject) {
-	this.resultJsonObject = resultJsonObject;
-    }
-
     private String getHiveHostName() {
 	return hiveHostName;
     }
@@ -143,8 +135,6 @@ public class ProcessStarlingLogAndCheckPartition {
 
     public String runStar() {
 	StarlingExecutionResult starlingExecutionResultObject = new StarlingExecutionResult();
-	/*this.getResultJsonObject().put("logType", this.getLogType());
-	this.getResultJsonObject().put("logDate", this.getLogDate());*/
 	starlingExecutionResultObject.setLogType(this.getLogType());
 	starlingExecutionResultObject.setLogDate(this.getLogDate());
 
@@ -161,10 +151,8 @@ public class ProcessStarlingLogAndCheckPartition {
 	outputList.stream().parallel().forEach( item -> {
 
 	    if (item.startsWith("No") && item.indexOf("logs will be collected (see Starling logs for details).") > -1) {
-		//this.getResultJsonObject().put("newLog", "no" );
 		starlingExecutionResultObject.setNewLog(false);
 	    } else if (item.startsWith("Collecting") & item.endsWith("logs.")) {
-		//this.getResultJsonObject().put("newLog", "yes");
 		starlingExecutionResultObject.setNewLog(true);
 	    }
 
@@ -180,7 +168,6 @@ public class ProcessStarlingLogAndCheckPartition {
 		int startStr = item.indexOf("URL:");
 		String mrurl = item.substring(startStr,  item.length() );
 		this.setMrJobURL(mrurl);
-		//this.getResultJsonObject().put("mrURL", mrurl);
 		starlingExecutionResultObject.setMrJobURL(mrurl);
 	    }
 
@@ -194,8 +181,6 @@ public class ProcessStarlingLogAndCheckPartition {
 	    starlingResults.put(this.logType.trim(), starlingExecutionResultObject);
 	    return "starling_" + this.getLogType() + true;
 	}
-
-	//TestSession.logger.info("Result - " + this.getResultJsonObject().toString());
 	TestSession.logger.info("Result - " + starlingExecutionResultObject.toString());
 	
 	starlingResults.put(this.logType.trim(), starlingExecutionResultObject);
@@ -222,36 +207,20 @@ public class ProcessStarlingLogAndCheckPartition {
 		resultStr = resultList.get(0);
 		TestSession.logger.info("DonecheckPartitionExist - " + this.getLogType()  + " - " + resultStr);
 		if ( StringUtils.isNotBlank(resultList.get(0).trim())) {
-//		    this.getResultJsonObject().put("partitionExist", "yes");
-//		    this.getResultJsonObject().put("partition", resultStr);
 		    starlingExecutionResultObject.setPartitionExists("yes");
 		    starlingExecutionResultObject.setPartitionValue(resultStr);
 		} else {
 		    this.getResultJsonObject().put("partitionExist", "no");
 		    starlingExecutionResultObject.setPartitionExists("yes");
 		}
-		//this.getResultJsonObject().put("result", "pass");
 		starlingExecutionResultObject.setResults("pass");
 		TestSession.logger.info("checkPartitionExist() - partition - " + this.getResultJsonObject().toString());
 	    }
 	} else {
-	   // this.getResultJsonObject().put("result", "fail");
 	    starlingExecutionResultObject.setResults("fail");
 	    TestSession.logger.error("-------------   failed ---------");
 	}
-	TestSession.logger.info("==== checkPartitionExist end () =====");
-	//return "starling_" + this.getLogType() + this.getResultJsonObject().getString("partitionExist");
 	return "starling_" + this.getLogType() + starlingExecutionResultObject.getPartitionExists();
-    }
-    
-    public String addExecutionLogResult() {
-	starlingResultJsonArray.add(this.getResultJsonObject());
-	return this.getResultJsonObject().toString();
-    }
-
-    public static JSONObject getStarlingResultFinalJsonObject() {
-	finalResultJSONObject.put("starlingIntResult", starlingResultJsonArray);
-	return finalResultJSONObject;
     }
     
     public static Map getStarlingExecutionResult() {

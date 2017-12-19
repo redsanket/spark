@@ -543,13 +543,6 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		} else {
-		    /*String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
-		    if ( currentStackComponentTestList.indexOf("starling") > -1) {
-			TestSession.logger.info("updating_starling_results");
-			this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
-		    } else {
-
-		    }*/
 		    StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
 		    stackComponentAggResultObj.test();
 		}
