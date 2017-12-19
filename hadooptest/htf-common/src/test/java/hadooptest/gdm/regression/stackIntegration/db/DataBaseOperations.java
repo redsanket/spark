@@ -370,9 +370,8 @@ public class DataBaseOperations {
         }
     }
     
-    public List<String> getDataSetNames(String date) {
+    public List<String> getDataSetNames(String tableName , String date) {
 	List<String> dataSetNames = new ArrayList<String>();
-	String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
 	String selectQuery = "select dataSetName from " + tableName + "  where date = ?";
 	Connection con = null;
 	try {
@@ -402,5 +401,111 @@ public class DataBaseOperations {
 	    }
 	}
 	return dataSetNames;
+    }
+
+    /**
+     * Update starling results to final table.
+     * @param date date for which the results needs tobe inserted.
+     */
+    public void updateStarlingExecutionResult(String date) {
+	String tableName = DBCommands.DB_NAME + "." + DBCommands.TABLE_NAME;
+	String 	QUERY = "SELECT starlingVersion,starlingResult,starlingComments,starlingJSONResults from "  +  tableName + " where date=\"" + date + "\"";
+	Connection con = null;
+
+	class StarlingResult {
+	    private String starlingVersion;
+	    private String starlingResult;
+	    private String starlingComments;
+	    private String starlingJSONResults;
+
+	    public String getStarlingVersion() {
+		return starlingVersion;
+	    }
+
+	    public void setStarlingVersion(String starlingVersion) {
+		this.starlingVersion = starlingVersion;
+	    }
+
+	    public String getStarlingResult() {
+		return starlingResult;
+	    }
+
+	    public void setStarlingResult(String starlingResult) {
+		this.starlingResult = starlingResult;
+	    }
+
+	    public String getStarlingComments() {
+		return starlingComments;
+	    }
+
+	    public void setStarlingComments(String starlingComments) {
+		this.starlingComments = starlingComments;
+	    }
+
+	    public String getStarlingJSONResults() {
+		return starlingJSONResults;
+	    }
+
+	    public void setStarlingJSONResults(String starlingJSONResults) {
+		this.starlingJSONResults = starlingJSONResults;
+	    }
+	}
+
+	StarlingResult starlingResultObject = new StarlingResult();
+	try {
+	    con = this.getConnection();
+	    TestSession.logger.info("QUERY = " + QUERY);
+	    Statement stmt = con.createStatement();
+	    ResultSet resultSet = stmt.executeQuery(QUERY);
+	    boolean flag = false;
+	    if (resultSet != null) {
+		while ( resultSet.next() ) {
+		    starlingResultObject.setStarlingVersion(resultSet.getString("starlingVersion"));
+		    starlingResultObject.setStarlingComments(resultSet.getString("starlingComments"));
+		    starlingResultObject.setStarlingJSONResults(resultSet.getString("starlingJSONResults"));
+		    String result = resultSet.getString("starlingResult");
+		    starlingResultObject.setStarlingResult(result);
+		    if (result.indexOf("fail") > -1) {
+			starlingResultObject.setStarlingResult(result);
+			flag = true;
+			break;
+		    }
+		}
+	    } else {
+		String errMsg = QUERY + "  failed.";
+		TestSession.logger.error(errMsg);
+		throw new SQLException(errMsg);
+	    }
+	    
+
+	    //if ( flag ) {
+	    // update the result;
+	    Statement upStmt = con.createStatement();
+	    String finalTable = DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME;
+	    String UPDATE_QUERY = "UPDATE " + finalTable   + "  set starlingVersion=\"" +  starlingResultObject.getStarlingVersion() + "\"" +
+		    ",  starlingResult=\"" + starlingResultObject.getStarlingResult() + "\"" +
+		    ",  starlingComments=\"" + starlingResultObject.getStarlingComments()   + "\"" +
+		    ",  starlingJSONResults=\"" + starlingResultObject.getStarlingJSONResults()  + "\"" +
+		    "  where date=\"" + date + "\"";
+	    TestSession.logger.info("UPDATE_QUERY - " + UPDATE_QUERY);
+	    upStmt.executeUpdate(UPDATE_QUERY);
+	    
+	    TestSession.logger.info("update starling successfully to final table");
+	    /*} else {
+		TestSession.logger.error("There is no record existing in " + DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME  + "  table for date = " + date);
+	    }*/
+	} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+	    TestSession.logger.error("Failed to check for record already exist in database." + e);
+	    e.printStackTrace();
+	}finally{
+	    if (con != null) {
+		try {
+		    con.close();
+		} catch (SQLException e) {
+		    TestSession.logger.error("Failed to close the connection.");
+		    e.printStackTrace();
+		}
+	    }
+	}
     }
 }

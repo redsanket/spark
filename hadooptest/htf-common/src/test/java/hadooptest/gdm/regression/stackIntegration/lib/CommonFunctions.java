@@ -525,7 +525,16 @@ public class CommonFunctions {
 
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
 			AggIntResult aggIntResultObj = new AggIntResult();
-			aggIntResultObj.finalResult();
+			if ( currentStackComponentTestList.indexOf("starling") > -1) {
+				TestSession.logger.info("updating_starling_results");
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+				String dt = simpleDateFormat.format(calendar.getTime());
+				this.dbOperations.updateStarlingExecutionResult(dt.trim());
+			} else {
+			    aggIntResultObj.finalResult();
+			}
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
 			try {
 				obj.sendMail();
@@ -534,8 +543,8 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		} else {
-			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
-			stackComponentAggResultObj.test();
+		    StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+		    stackComponentAggResultObj.test();
 		}
 	}
 	
