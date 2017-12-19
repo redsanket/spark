@@ -478,7 +478,7 @@ public class DataBaseOperations {
 		    "  starlingComments=" + starlingResultObject.getStarlingComments() +
 		    "  starlingJSONResults=" + starlingResultObject.getStarlingJSONResults() +
 		    "  where date=" + date;
-	    if (pStmt.execute(UPDATE_QUERY) ) {
+	    if (stmt.execute(UPDATE_QUERY) ) {
 		TestSession.logger.info("update starling successfully to final table");
 	    } else {
 		TestSession.logger.error("Fail to update starling result to final table");
