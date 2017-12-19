@@ -486,6 +486,7 @@ public class DataBaseOperations {
 		    "  starlingComments=\"" + starlingResultObject.getStarlingComments()   + "\"" +
 		    "  starlingJSONResults=\"" + starlingResultObject.getStarlingJSONResults()  + "\"" +
 		    "  where date=\"" + date + "\"";
+	    TestSession.logger.info("UPDATE_QUERY - " + UPDATE_QUERY);
 	    upStmt.executeUpdate(UPDATE_QUERY);
 	    
 	    TestSession.logger.info("update starling successfully to final table");

@@ -258,6 +258,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 		    this.commonFunctions.updateDB(dataSetName, "starlingResult", overAllResult);
 		    this.commonFunctions.updateDB(dataSetName, "starlingVersion", starlingVersion);
 		    this.commonFunctions.updateDB(dataSetName, "starlingComments", dbUpdateComment);
+		    this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", dbUpdateResult);
 		    if (failedFlag) {
 			this.commonFunctions.updateDB(dataSetName, "starlingJSONResults", dbUpdateResult);
 		    }
