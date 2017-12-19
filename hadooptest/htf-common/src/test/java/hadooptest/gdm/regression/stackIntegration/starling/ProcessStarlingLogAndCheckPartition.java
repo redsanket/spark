@@ -210,11 +210,9 @@ public class ProcessStarlingLogAndCheckPartition {
 		    starlingExecutionResultObject.setPartitionExists("yes");
 		    starlingExecutionResultObject.setPartitionValue(resultStr);
 		} else {
-		    this.getResultJsonObject().put("partitionExist", "no");
 		    starlingExecutionResultObject.setPartitionExists("yes");
 		}
 		starlingExecutionResultObject.setResults("pass");
-		TestSession.logger.info("checkPartitionExist() - partition - " + this.getResultJsonObject().toString());
 	    }
 	} else {
 	    starlingExecutionResultObject.setResults("fail");
