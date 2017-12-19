@@ -458,17 +458,24 @@ public class DataBaseOperations {
 	    Statement stmt = con.createStatement();
 	    ResultSet resultSet = stmt.executeQuery(QUERY);
 	    boolean flag = false;
-	    while ( resultSet != null ) {
-		starlingResultObject.setStarlingVersion(resultSet.getString("starlingVersion"));
-		starlingResultObject.setStarlingComments(resultSet.getString("starlingComments"));
-		starlingResultObject.setStarlingJSONResults(resultSet.getString("starlingJSONResults"));
-		String result = resultSet.getString("starlingResult");
-		if (result.indexOf("fail") > -1) {
-		    starlingResultObject.setStarlingResult(result);
-		    flag = true;
-		    break;
+	    if (resultSet != null) {
+		while ( resultSet.next() ) {
+		    starlingResultObject.setStarlingVersion(resultSet.getString("starlingVersion"));
+		    starlingResultObject.setStarlingComments(resultSet.getString("starlingComments"));
+		    starlingResultObject.setStarlingJSONResults(resultSet.getString("starlingJSONResults"));
+		    String result = resultSet.getString("starlingResult");
+		    if (result.indexOf("fail") > -1) {
+			starlingResultObject.setStarlingResult(result);
+			flag = true;
+			break;
+		    }
 		}
+	    } else {
+		String errMsg = QUERY + "  failed.";
+		TestSession.logger.error(errMsg);
+		throw new SQLException(errMsg);
 	    }
+	    
 
 	    //if ( flag ) {
 	    // update the result;
