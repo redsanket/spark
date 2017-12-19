@@ -472,17 +472,15 @@ public class DataBaseOperations {
 
 	    //if ( flag ) {
 	    // update the result;
+	    Statement upStmt = con.createStatement();
 	    String finalTable = DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME;
 	    String UPDATE_QUERY = "UPDATE " + finalTable   + "  set starlingVersion=" +  starlingResultObject.getStarlingVersion() +
 		    "  starlingResult=" + starlingResultObject.getStarlingResult() +
 		    "  starlingComments=" + starlingResultObject.getStarlingComments() +
 		    "  starlingJSONResults=" + starlingResultObject.getStarlingJSONResults() +
 		    "  where date=" + date;
-	    if (stmt.execute(UPDATE_QUERY) ) {
-		TestSession.logger.info("update starling successfully to final table");
-	    } else {
-		TestSession.logger.error("Fail to update starling result to final table");
-	    }
+	    upStmt.executeQuery(UPDATE_QUERY) ;
+	    TestSession.logger.info("update starling successfully to final table");
 	    /*} else {
 		TestSession.logger.error("There is no record existing in " + DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME  + "  table for date = " + date);
 	    }*/
