@@ -481,11 +481,11 @@ public class DataBaseOperations {
 	    // update the result;
 	    Statement upStmt = con.createStatement();
 	    String finalTable = DBCommands.DB_NAME + "." + DBCommands.FINAL_RESULT_TABLE_NAME;
-	    String UPDATE_QUERY = "UPDATE " + finalTable   + "  set starlingVersion=" +  starlingResultObject.getStarlingVersion() +
-		    "  starlingResult=" + starlingResultObject.getStarlingResult() +
-		    "  starlingComments=" + starlingResultObject.getStarlingComments() +
-		    "  starlingJSONResults=" + starlingResultObject.getStarlingJSONResults() +
-		    "  where date=" + date;
+	    String UPDATE_QUERY = "UPDATE " + finalTable   + "  set starlingVersion=\"" +  starlingResultObject.getStarlingVersion() + "\"" +
+		    "  starlingResult=\"" + starlingResultObject.getStarlingResult() + "\"" +
+		    "  starlingComments=\"" + starlingResultObject.getStarlingComments()   + "\"" +
+		    "  starlingJSONResults=\"" + starlingResultObject.getStarlingJSONResults()  + "\"" +
+		    "  where date=\"" + date + "\"";
 	    upStmt.executeUpdate(UPDATE_QUERY);
 	    
 	    TestSession.logger.info("update starling successfully to final table");
