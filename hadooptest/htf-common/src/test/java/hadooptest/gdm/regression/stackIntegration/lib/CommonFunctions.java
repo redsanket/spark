@@ -525,7 +525,12 @@ public class CommonFunctions {
 
 		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
 			AggIntResult aggIntResultObj = new AggIntResult();
-			aggIntResultObj.finalResult();
+			if ( currentStackComponentTestList.indexOf("starling") > -1) {
+				TestSession.logger.info("updating_starling_results");
+				this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
+			} else {
+			    aggIntResultObj.finalResult();
+			}
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
 			try {
 				obj.sendMail();
@@ -534,14 +539,15 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		} else {
-		    String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+		    /*String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
 		    if ( currentStackComponentTestList.indexOf("starling") > -1) {
 			TestSession.logger.info("updating_starling_results");
 			this.dbOperations.updateStarlingExecutionResult(getCurrentHourPath());
 		    } else {
-			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
-			stackComponentAggResultObj.test();
-		    }
+
+		    }*/
+		    StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+		    stackComponentAggResultObj.test();
 		}
 	}
 	
