@@ -464,6 +464,7 @@ public class DataBaseOperations {
 		    starlingResultObject.setStarlingComments(resultSet.getString("starlingComments"));
 		    starlingResultObject.setStarlingJSONResults(resultSet.getString("starlingJSONResults"));
 		    String result = resultSet.getString("starlingResult");
+		    starlingResultObject.setStarlingResult(result);
 		    if (result.indexOf("fail") > -1) {
 			starlingResultObject.setStarlingResult(result);
 			flag = true;
