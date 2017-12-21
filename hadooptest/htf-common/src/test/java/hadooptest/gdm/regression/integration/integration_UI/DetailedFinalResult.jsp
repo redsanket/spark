@@ -471,7 +471,7 @@
 									} else if ( starlingResult.equalsIgnoreCase("pass") ) {
 								%>
 									<%= starlingVersion %>
-									<img style="float: center; margin: 0px 0px 10px 10px;" src="./images/check.png" width="20" title="oozie test passed" />
+									<img style="float: center; margin: 0px 0px 10px 10px;" src="./images/check.png" width="20" title="starling test passed" />
 								<%
 									} if ( starlingResult.equalsIgnoreCase("NULL") ) {
 								%>
