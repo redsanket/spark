@@ -198,7 +198,6 @@
 					
 					String starlingVersion = resultSet.getString("starlingVersion");
 					String starlingResult = resultSet.getString("starlingResult");
-					String  starlingJSONResults = resultSet.getString("starlingJSONResults");
 
 					String comments = resultSet.getString("comments");
 				 %>
