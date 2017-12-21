@@ -23,6 +23,10 @@ ssh  $jobtrackernode su - $MAPREDUSER
     fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
     slavefanout "sh -x /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
+    # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
+    fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+    slavefanout "sh -x /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
+
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 #    echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
 

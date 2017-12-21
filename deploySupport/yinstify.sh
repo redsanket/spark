@@ -212,6 +212,7 @@ cluster-list.sh *-rw.sh \
 datanode*.sh \
 namenode*.sh \
 setup_nm_health_check_script.sh \
+setup_nm_dockerd_check_script.sh \
 ${CLUSTER}.rolelist.txt \
 "
 
