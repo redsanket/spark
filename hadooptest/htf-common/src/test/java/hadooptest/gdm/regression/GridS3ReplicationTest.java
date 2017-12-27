@@ -122,8 +122,8 @@ public class GridS3ReplicationTest {
         target.setNumInstances("1");
         target.setReplicationStrategy("DistCp");
         generator.setTarget(target);
-        
-        generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
+
+        generator.addParameter("fs.s3a.ykeykey.keyname", "gdm.dev.s3.key");
         generator.addParameter("working.dir", "upload-test-bucket-1/user/daqload/daqtest/tmp1/");
         
         generator.setGroup("jaggrp");
