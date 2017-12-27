@@ -146,6 +146,7 @@ public class SendIntegrationResultMail {
                 .append("<th>").append("HCatalog").append("</th>")
                 .append("<th>").append("HBase").append("</th>")
                 .append("<th>").append("Oozie").append("</th>")
+                .append("<th>").append("Starling").append("</th>")
                 .append("<th>").append("Comments").append("</th>")
                 .append("</tr>")
                 .append("</thead>").append("<tbody>");
@@ -276,7 +277,7 @@ public class SendIntegrationResultMail {
                     String starlingResult = resultSet.getString("starlingResult");
                     if (starlingResult.indexOf("PASS") > -1) {
                         tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"cid:image\" title=\"Cluster is active\" />");
-                    } if ( (starlingResult.indexOf("FAIL") > -1 ) ||   (starlingResult.indexOf("NULL") > -1 ) ) {
+                    } else if ( (starlingResult.indexOf("FAIL") > -1 ) ||   (starlingResult.indexOf("NULL") > -1 ) ) {
                         tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"https://cdn2.iconfinder.com/data/icons/oxygen/16x16/actions/no.png\" width=\"20\" title=\"Cluster is active\" />");
                     }
                     tableBuilder.append("</td>");
