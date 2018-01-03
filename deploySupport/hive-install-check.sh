@@ -36,6 +36,12 @@ if [ -z "$HIVENODE" ]; then
 fi
 echo "INFO: Going to call Hive installer for node $HIVENODE..."
 
+GATEWAYNODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.gateway)"`;
+if [ -z "$GATEWAYNODE" ]; then
+  echo "ERROR: No Gateway node defined, GATEWAYNODE is empty! Is the Rolesdb role correctly set?"
+  exit 1
+fi
+echo "INFO: Our gateway is $GATEWAYNODE..." 
 
 # setup ssh cmd with parameters
 SSH_OPT=" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "

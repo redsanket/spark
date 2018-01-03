@@ -186,8 +186,8 @@ setGridParameters() {
              export gateway=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateway)"`
         roleExists $cluster.hdfsproxy && \
              export hdfsproxynode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hdfsproxy)"`
-        roleExists $cluster.hcat&& \
-             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hcat)"`
+        roleExists $cluster.hive&& \
+             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hive)"`
         roleExists $cluster.daq&& \
              export daqnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.daq)"`
         roleExists $cluster.oozie && \
@@ -318,8 +318,8 @@ setGridParameters() {
        fi
        if [ -n "$OOZIEVERSION" ]; then
            if [ -n "$oozienode" ]; then
-               echo "Adding oozie node '$oozienode' to HOSTLIST"
-               stack_comp_nodes+="$oozienode "
+               echo "NOT NOT oozie node '$oozienode' and hive node $hcatservernode to HOSTLIST"
+               stack_comp_nodes+="$oozienode $hcatservernode "
            fi
        fi
        # step 2e: Set up file-contents that the deploy-script needs.
@@ -358,8 +358,11 @@ setGridParameters() {
        # own oozie members and there will be multiple members, so we can't just see if
        # role is empty, we need to count members to know the downstream usage. 
        OOZIE_ROLE_MEMBER_COUNT=`echo $oozienode | tr ' ' '\n' | wc -l`
-       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ $OOZIE_ROLE_MEMBER_COUNT -gt 1 ]; then
+       if [ ! -z "$STACK_COMP_VERSION_OOZIE" ] || [ $OOZIE_ROLE_MEMBER_COUNT -gt 1 ]; then
            nonslave_nodes+=" $oozienode"
+           echo "DEBUGPHW: added oozienode to nonslave_nodes"
+       else
+           echo "DEBUGPHW: did not add oozienode to nonslave_nodes"
        fi
 
        # Construct out pipe separated nodes to filter out from the host list from

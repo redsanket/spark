@@ -67,19 +67,12 @@ else
   echo "INFO: KMS node is: $kmsnodeshort"
 fi
 
-
 # need the kgp from hadoopqa_headless_keys to find the KMS test key, hitusr_4
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
-# REMOVE json-c hack for rhel7
-# add RPMs for ykeykey support, needed by hadoopqa_headless_keys
-# use br test for hadoopqa_headless_keys to allow rhel7 ykeykey pkgs to get pulled in
-
-# need json-c, mdbm and cronolog as RPMs now for ykeykey pkgs
-# and even more RPMs as of 20171127
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo yum -y install  --enablerepo=non-core  mdbm-perl perl-Sys-Hostname-FQDN perl-LWP-Protocol-socks perl-Unix-Syslog perl-WWW-Curl json-c mdbm cronolog \""
-if [ $? -ne 0 ]; then 
-  echo "Error: node $kmsnode failed yinst install of mdbm and cronolog RPMs for hadoopqa_headless_keys support!"
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i hadoopqa_headless_keys ports/json-c-0.11.3\""
+if [ $? -ne 0 ]; then
+  echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
   exit 1
 fi
 
@@ -125,6 +118,13 @@ fi
 # Note: the following 'ln' require coreconfigs to be installed on the node, in flubber this
 # the case because all the nodes are in the core role except gw. In RT this will not be
 # the case, and different design is needed.
+#
+# need the node since cluster is from rhel7
+
+# HACK
+cluster="openqe86blue"
+echo "INFO: Reset cluster name to: $cluster"
+
 cmd_coreconfs="ln -f -s  /home/gs/gridre/yroot.$cluster/conf/hadoop/core-site.xml  /home/y/conf/kms/core-site.xml; \
   ln -f -s /home/gs/gridre/yroot.$cluster/conf/hadoop/kms-site.xml  /home/y/conf/kms/kms-site.xml; \
   ln -f -s /home/gs/gridre/yroot.$cluster/conf/hadoop/kms-acls.xml  /home/y/conf/kms/kms-acls.xml"
@@ -175,14 +175,9 @@ fi
 # yjava_jetty-9.3.15.v20161220_782 and yhdrs-1.28.5, lots of 
 # dep breakage on 20171127
 #
-cmd_jetty="yinst i  jports_org_json__json-1.20090211_1  ysysctl-2.2.3  yjava_resource_handler-1.0.21  \
-  yjava_ysecure_agent-1.0.11  yjava_jetty-9.3.15.v20161220_782  yjava_ysecure yjava_vmwrapper-2.3.10 \
-  yhdrs-1.28.5 yjava_jmx_singleton_server-1.0.0  -br test  -same -live -downgrade   \
-  -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
-  -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  \
-  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
-  -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  \
-  -set yjava_jetty.trust_store_password_key_var=password  \
+cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -    set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+  -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_    key_var=password  -set yjava_jetty.key_store_type=JKS \
+  -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_passw    ord_key_var=password  \
   -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
   -set yjava_jetty.garbage_collection=\"-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
 
@@ -271,8 +266,13 @@ if [ $? -ne 0 ]; then
 fi
 
 # give kms and zk services a little time to startup
-echo "Waiting 10 seconds for KMS and ZK services to startup...."
-sleep 10 
+#
+# NOTE: kms client hitting kms server too fast causes the request to fail at
+# zk server with port bind error
+# TODO: make this a poll and metric any increase in delay needed, used to
+# 10 secs was good enough now need 30 secs
+echo "Waiting 30 seconds for KMS and ZK services to startup...."
+sleep 30
 
 #
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
