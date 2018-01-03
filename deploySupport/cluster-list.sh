@@ -340,7 +340,7 @@ setGridParameters() {
        nonslave_nodes="$daqnode $gateway $hcat_server $hcatservernode \
                        $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
                        $jobtrackernode $namenode $secondarynamenode \
-                       $zookeepernodes"
+                       $zookeepernodes $oozienode"
        [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
 
        # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
