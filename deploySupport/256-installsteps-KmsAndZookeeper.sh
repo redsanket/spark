@@ -175,7 +175,7 @@ fi
 # yjava_jetty-9.3.15.v20161220_782 and yhdrs-1.28.5, lots of 
 # dep breakage on 20171127
 #
-cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -    set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_    key_var=password  -set yjava_jetty.key_store_type=JKS \
   -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_passw    ord_key_var=password  \
   -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
