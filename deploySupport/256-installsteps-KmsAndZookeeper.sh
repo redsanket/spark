@@ -219,7 +219,6 @@ yinst install  yahoo_kms -same -live -downgrade -br current \
 $SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
 
 
-
 $SSH $kmsnode $cmd_kms
 if [ $? -ne 0 ]; then
   echo "Failed to install KMS package support!" 
@@ -227,7 +226,8 @@ else
   echo "INFO: installed KMS package support" 
 fi
 
-
+# gridci-2904, fix the oozie user we run as in kms-site 
+$SSH $kmsnode "sudo sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml"
 
 
 #
