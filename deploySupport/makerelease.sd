@@ -172,13 +172,15 @@ if [ $? -eq 0 ]; then
   if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
      # For GDM we often got timeout error and it was not obvious to see which pkg is causing it
      # Upload one pkg at a time, in case of failure it is easy to debug
-     for pkg in `ls ${SOURCE_DIR}/grid/0/releases/*.tgz*`; do
-	echo "Uploading $pkg..."
+     cd ${SOURCE_DIR}/grid/0/releases
+     for pkg in `ls *.tgz*`; do
+	echo "Uploading $pkg to artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/ ..."
 	scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
      done
   else
      echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
   fi
+  ls -lrt artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg*
 else
   echo "Error: Something went wrong with $run_script_file_path"
   exit -1
