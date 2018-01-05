@@ -387,6 +387,28 @@ yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=true \
 #yinst set hive.metastore_kerberos_principal=hadoopqa/openqe53blue-n4.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 yinst set hive.tez_version=$TEZ_VERSION
 
+
+#
+# gridci-2902, need to add kms ssl cert to oozie's truststore, which is the
+# generic installed JDK
+#
+# If cert is already in truststore this will error, error will propogate back and
+# fail the deploy job, so need to check if cert is there first, if not then add
+#
+CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
+JDK_CACERTS="/home/y/share/yjava_jdk/java/jre/lib/security/cacerts"
+OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` "
+ALIAS="selfsigned"
+
+CERTCHECK=`sudo keytool -list -keystore  $JDK_CACERTS  $OPTS | egrep $ALIAS`
+if [[ "$CERTCHECK" =~ "$ALIAS" ]]; then
+  echo "INFO: Oozie already has SSL certificate $ALIAS"
+else
+  echo "INFO: Oozie uses default JDK on gateway so adding KMS ssl cert to this truststore 
+  $SSH $oozienode "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS"
+fi
+
+
 # 
 # start oozie server
 #
