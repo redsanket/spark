@@ -173,8 +173,8 @@ public class TestMapredCli extends YarnTestsBaseClass {
 		MapredCliCommands mapredCliCommands = new MapredCliCommands();
 		GenericMapredCliResponseBO genericMapredCliResponseBO = mapredCliCommands
 				.killJob(EMPTY_ENV_HASH_MAP, user, jobId);
-		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
-		genericMapredCliResponseBO.response.contains("Killed job");
+		Assert.assertFalse(genericMapredCliResponseBO.process.exitValue() == 0);
+		Assert.assertTrue(genericMapredCliResponseBO.response.contains("has already been killed"));
 	}
 
 	@Test
@@ -192,9 +192,8 @@ public class TestMapredCli extends YarnTestsBaseClass {
 				.getJobStatus(EMPTY_ENV_HASH_MAP, user, jobId);
 		genericMapredCliResponseBO = mapredCliCommands.killJob(EMPTY_ENV_HASH_MAP,
 				user, jobId);
-		Assert.assertTrue(genericMapredCliResponseBO.process.exitValue() == 0);
-		genericMapredCliResponseBO.response.contains("Killed job");
-
+		Assert.assertFalse(genericMapredCliResponseBO.process.exitValue() == 0);
+		Assert.assertTrue(genericMapredCliResponseBO.response.contains("as killed, as it has already failed"));
 	}
 
 	@Test
