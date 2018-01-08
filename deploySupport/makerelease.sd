@@ -180,7 +180,6 @@ if [ $? -eq 0 ]; then
   else
      echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
   fi
-  ls -lrt artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg*
 else
   echo "Error: Something went wrong with $run_script_file_path"
   exit -1
