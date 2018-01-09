@@ -397,7 +397,7 @@ yinst set hive.tez_version=$TEZ_VERSION
 #
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 JDK_CACERTS="/home/y/share/yjava_jdk/java/jre/lib/security/cacerts"
-OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` "
+OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
 ALIAS="selfsigned"
 
 CERTCHECK=`sudo keytool -list -keystore  $JDK_CACERTS  $OPTS | egrep $ALIAS`
