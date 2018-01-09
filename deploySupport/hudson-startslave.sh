@@ -102,7 +102,7 @@ YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 # need to get test version of coretree and hadoopCommonsDaemon for rhel7, 
 # so pass it in explicitly later on
 # HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
-HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
+HADOOP_CORE_PKGS="hadoopcoretree hadoopCommonsDaemon hadoopgplcompression ytez_yarn_shuffle"
 
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
@@ -519,7 +519,7 @@ scp $filelist  $ADMIN_HOST:/tmp/
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
 ssh $ADMIN_HOST "\
-cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+cd /tmp/ && /usr/local/bin/yinst install  -br quarantine  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
 "
