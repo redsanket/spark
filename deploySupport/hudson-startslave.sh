@@ -102,7 +102,7 @@ YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 # need to get test version of coretree and hadoopCommonsDaemon for rhel7, 
 # so pass it in explicitly later on
 # HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
-HADOOP_CORE_PKGS="hadoopcoretree hadoopCommonsDaemon hadoopgplcompression ytez_yarn_shuffle"
+HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
 
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
