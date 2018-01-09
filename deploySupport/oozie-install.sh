@@ -404,7 +404,7 @@ CERTCHECK=`sudo keytool -list -keystore  $JDK_CACERTS  $OPTS | egrep $ALIAS`
 if [[ "$CERTCHECK" =~ "$ALIAS" ]]; then
   echo "INFO: Oozie already has SSL certificate $ALIAS"
 else
-  echo "INFO: Oozie uses default JDK on gateway so adding KMS ssl cert to this truststore 
+  echo "INFO: Oozie uses default JDK on gateway so adding KMS ssl cert to this truststore"
   $SSH $oozienode "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS"
 fi
 
