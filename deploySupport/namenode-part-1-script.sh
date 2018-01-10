@@ -58,7 +58,7 @@ if [ $CMD == "start" ]; then
         nameStartOpt="-upgrade $nameStartOpt"
     fi
 
-    echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
+    echo "${HADOOP_HDFS_HOME}/bin/hdfs namenode -upgrade ${nameStartOpt}"
     echo "$HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt"
     $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
 
