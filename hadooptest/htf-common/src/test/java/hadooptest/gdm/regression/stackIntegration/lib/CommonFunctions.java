@@ -643,6 +643,7 @@ public class CommonFunctions {
 		    Callable starlingHealCheckUpObj = new StarlingHealthCheckUp(this.getStarlingHostName()); 
 		    healthCheckList.add(starlingHealCheckUpObj);
 		    starlingFlag = true;
+		    this.updateDB(this.getDataSetName(), "starlingResult", "");
 		} else {
 		    unTestedComponentListString.append("starling");
 		    this.updateDB(this.getDataSetName(), "starlingResult", "SKIPPED");
