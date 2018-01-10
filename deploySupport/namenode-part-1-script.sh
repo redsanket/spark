@@ -59,6 +59,7 @@ if [ $CMD == "start" ]; then
     fi
 
     echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
+    echo "$HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt"
     $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
 
     # transition ha1 to active. wait until it comes up in standby mode.
@@ -70,14 +71,14 @@ if [ $CMD == "start" ]; then
     fi
 
 #if [ -e ${GSHOME}/conf/local/masters ]; then
-#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs start secondarynamenode $nameStartOpt
+#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters start secondarynamenode $nameStartOpt
 #    fi
     echo "Part 1 finishing immediately after start of name node."
 elif [ $CMD == "stop" ]; then 
 #    if [ -e ${GSHOME}/conf/local/masters ]; then
-#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs stop secondarynamenode $nameStartOpt
+#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters stop secondarynamenode $nameStartOpt
 #    fi
-    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop namenode $nameStartOpt
+    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR stop namenode $nameStartOpt
     echo "Part 1 finishing immediately after stop of name node."
 else
     echo "Usage: namenodescript.sh [startonly|stop|start+erase]"
