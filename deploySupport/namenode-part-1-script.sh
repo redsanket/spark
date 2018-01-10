@@ -59,7 +59,7 @@ if [ $CMD == "start" ]; then
     fi
 
     echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
-    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start namenode $nameStartOpt
+    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
 
     # transition ha1 to active. wait until it comes up in standby mode.
     # rather than sleep, we could use hadmin to query the namenode state.
