@@ -570,16 +570,16 @@ public class CommonFunctions {
 			Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
 			healthCheckList.add(gdmHealthCheckUpObj);
 			gdmFlag = true;
-		} else {
-			unTestedComponentListString.append("gdm").append(",");
-			this.updateDB(this.getDataSetName(), "gdmResult", "SKIPPED");
+		} else if ( !currentTestComponentList.contains("starling")) {
+		    unTestedComponentListString.append("gdm").append(",");
+		    this.updateDB(this.getDataSetName(), "gdmResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hadoop")) {
 			Callable hadoopHealthCheckupObj = new HadoopHealthCheckup(hostsNames.get("namenode"));
 			healthCheckList.add(hadoopHealthCheckupObj);
 			hadoopFlag = true;
-		}  else {
+		}  else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hadoop").append(",");
 			this.updateDB(this.getDataSetName(), "hadoopResult", "SKIPPED");
 		}
@@ -588,7 +588,7 @@ public class CommonFunctions {
 			Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));	
 			healthCheckList.add(tezHealthCheckUpObj);
 			tezFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("tez").append(",");
 			this.updateDB(this.getDataSetName(), "tezResult", "SKIPPED");
 		}
@@ -597,7 +597,7 @@ public class CommonFunctions {
 			Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
 			healthCheckList.add(pigHealthCheckupObj);
 			pigFlag = true;
-		}else {
+		} else {
 			// since tez is executed using pig, so skipping this
 			//unTestedComponentListString.append("pig").append(",");
 			;	
@@ -607,7 +607,7 @@ public class CommonFunctions {
 			Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
 			healthCheckList.add(hiveHealthCheckupObj);
 			hiveFlag = true;
-		}else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hive").append(",");
 			this.updateDB(this.getDataSetName(), "hiveResult", "SKIPPED");
 		}
@@ -616,7 +616,7 @@ public class CommonFunctions {
 			Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
 			healthCheckList.add(hCatalogHealthCheckUpObj);
 			hcatalogFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hcat").append(",");
 			this.updateDB(this.getDataSetName(), "hcatResult", "SKIPPED");
 		}
@@ -625,7 +625,7 @@ public class CommonFunctions {
 			Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
 			healthCheckList.add(hBaseHealthCheckUpObj);
 			hbaseFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hbase").append(",");
 			this.updateDB(this.getDataSetName(), "hbaseResult", "SKIPPED");
 		}
@@ -634,7 +634,7 @@ public class CommonFunctions {
 			Callable oozieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
 			healthCheckList.add(oozieHealthCheckUpObj);
 			oozieFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("oozie");
 			this.updateDB(this.getDataSetName(), "oozieResult", "SKIPPED");
 		}
@@ -643,6 +643,7 @@ public class CommonFunctions {
 		    Callable starlingHealCheckUpObj = new StarlingHealthCheckUp(this.getStarlingHostName()); 
 		    healthCheckList.add(starlingHealCheckUpObj);
 		    starlingFlag = true;
+		    this.updateDB(this.getDataSetName(), "starlingResult", "");
 		} else {
 		    unTestedComponentListString.append("starling");
 		    this.updateDB(this.getDataSetName(), "starlingResult", "SKIPPED");
