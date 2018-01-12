@@ -30,7 +30,7 @@ behave differently in Yahoo's Hue UI.
 Accessing Hue
 =============
 
-Before you can do anything with Hue, you must have access to the Grid.  Request Grid access using `Doppler <http://yo/doppler`.  It can take up to 4 hours from your request being approved, until all of the correct access permissions propagate through the Grid.
+Before you can do anything with Hue, you must have access to the Grid.  Request Grid access using `Doppler <http://yo.corp.yahoo.com/doppler/>`_ .  It can take up to 4 hours from your request being approved, until all of the correct access permissions propagate through the Grid.
 
 Each Grid cluster has a dedicated Hue instance, that does not share information with
 the other cluster instances. You have access to the Hue instance on any cluster, but you 
