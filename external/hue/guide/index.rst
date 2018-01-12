@@ -57,7 +57,9 @@ About Hue
 *********
 
 Slack:  hue-users
+
 Slack:  hue-announce
+
 yahoo-hue-users@oath.com 
 
 Hive 
