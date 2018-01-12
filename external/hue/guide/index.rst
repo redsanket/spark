@@ -14,7 +14,7 @@ Hue User Guide
    reference/index
 
 
-This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
+This document is **Oath Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
 About This Guide
 ================
@@ -56,12 +56,14 @@ Questions / Support
 About Hue
 *********
 
-yahoo-hue-users@yahoo-inc.com 
+Slack:  hue-users
+Slack:  hue-announce
+yahoo-hue-users@oath.com 
 
 Hive 
 ****
 
-yahoo-hive-users@yahoo-inc.com
+yahoo-hive-users@oath.com
 
 Audience Data
 *************
