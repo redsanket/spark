@@ -1,0 +1,218 @@
+#!/usr/bin/env perl
+
+#################################################################################
+# DISK USAGE & CLEANUP
+#################################################################################
+
+use strict;
+use warnings;
+use Getopt::Long;
+use FindBin qw($Bin $Script);
+use Test::More;
+use Data::Dumper;
+
+my $threshold = 80;
+my $clean = 0;
+my $verbose = 0;
+my $quiet = 0;
+my $overlimit = 0;
+
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+
+sub system_ {
+    my ($command) = @_;
+    note($command);
+    system($command);
+    my $RC = $? >> 8;
+    # note("RC=$RC");
+    return $RC;
+}
+
+sub usage {
+    my ($err_msg) = @_;
+    print STDERR <<  "EOF";
+  Usage: disk_usage [-threshold %] [-verbose] [-clean]
+-----------------------------------------------------------------------------------
+Example:
+disk_usage
+disk_usage -t 70 (default threshold value is 80%)
+disk_usage -v
+disk_usage -c -v
+EOF
+    print($err_msg) if ($err_msg);
+    exit 1;
+}
+
+my $result = GetOptions ("threshold|t=s"  => \$threshold,
+			 "clean|c"        => sub { $clean = 1 },
+			 "quiet|q"        => sub { $quiet = 1 },
+			 "verbose|v"      => sub { $verbose = 1 },
+			 "help|h|?"       ) or usage(1);
+
+usage("Invalid arguments!!!") if (!$result);
+
+my $num_log_days = 15;
+chomp(my $hostname = `hostname`);
+chomp(my $hostname_short = `hostname|cut -d . -f1`);
+chomp(my $date = `date`);
+
+# $ df -H | grep -vE '^Filesystem|tmpfs|cdrom' 
+# Filesystem      Size  Used Avail Use% Mounted on
+# /dev/md127       17G   14G  2.0G  89% /
+# /dev/md125       68G   38G   27G  60% /home
+chomp(my @df_out = `df -Ph | grep -vE '^Filesystem|tmpfs|cdrom'`);
+my %fs = ();
+my %fsused = ();
+my ($output, $name);
+my ($partition, $size, $used, $avail, $used_percent_str, $used_percent, $dir);
+foreach $output (@df_out) {
+    my @arr = split(' ', $output);
+    # note(Dumper(\@arr));
+    $used_percent_str = $arr[4];
+    $used_percent = substr($used_percent_str, 0, index($used_percent_str, '%'));
+    $overlimit = 1 if ($used_percent > $threshold);
+    $partition = $arr[0];
+    $fsused{$partition} = $used_percent;
+    $fs{$partition} = \@arr;
+}
+# note(Dumper(\%fs));
+
+if (($overlimit) || ($verbose)) {
+    # Use%  Filesystem  Mounted on Used/Total
+    # 60%   /dev/md125  /home      38G used out of 27G
+    printf("\n");
+    printf("################################################################################\n");
+    printf("\%-4s \%-12s \%-8s %-5s %-5s %-5s\n", "Use%", "Filesystem", "Mounted", "Avail", "Used", "Total");
+    printf("################################################################################\n");
+}
+my @overlimitdir = ();
+foreach $name (sort { $fsused{$b} <=> $fsused{$a} } keys %fsused) {
+    # printf "%-8s %s\n", $name, $fsused{$name};
+    # note(Dumper(\@{$fs{$name}}));
+    my @arr = @{$fs{$name}};
+    # note("arr = ".join(',',@arr));
+    $partition = $arr[0];
+    $size = $arr[1];
+    $used = $arr[2];
+    $avail = $arr[3];
+    $used_percent_str = $arr[4];
+    $used_percent = $fsused{$name};
+    $dir = $arr[5];
+    if ($dir eq '/boot') {
+	next;
+    }
+    if ($used_percent > $threshold) {
+	$overlimit = 1;
+	push(@overlimitdir, $dir);
+	# note("WARN: threshold ${threshold}% exceeded for partition $partition on $dir");
+	if ($verbose) {
+	    printf("\%-4s \%-12s \%-8s %-5s %-5s %-5s %-5s\n", $used_percent_str, $partition, $dir, $avail, $used, $size, "[WARN!!! Running out of space in \"$partition (${used_percent_str})\" on $hostname as on $date]");
+	} else {
+	    printf("\%-4s \%-12s \%-8s %-5s %-5s %-5s\n", $used_percent_str, $partition, $dir, $avail, $used, $size);
+	}
+    } else {
+	if ($verbose) {
+	    printf("\%-4s \%-12s \%-8s %-5s %-5s %-5s\n", $used_percent_str, $partition, $dir, $avail, $used, $size);
+	}
+    }
+}
+if ($overlimit == 0) {
+    system("echo \"Disk usage on $hostname is under the threshold ${threshold}%.\" > /tmp/du.out");
+    if (! $quiet) {
+        printf("\n");
+        printf("################################################################################\n");
+        note("Disk usage on $hostname_short is under the threshold ${threshold}%. Nothing to do.");
+        printf("################################################################################\n");
+    }
+} else {
+    system("echo \"Disk usage on $hostname is over the threshold ${threshold}%.\" > /tmp/du.out");
+    if ($clean == 0) {
+        printf("\n");
+        printf("################################################################################\n");
+	note("WARN: Disk usage on $hostname_short is over the threshold of ${threshold}%. Clean up option not set.");
+        printf("################################################################################\n");
+    } else {
+        printf("\n");
+        printf("################################################################################\n");
+	note("Disk usage on $hostname_short is over the threshold of ${threshold}%. Clean up...");
+        printf("################################################################################\n");
+	my $hadoop_releases_dir = "/home/Releases/";
+	if (-d $hadoop_releases_dir) {
+	    note("--> Clean up Hadoop releases directory $hadoop_releases_dir");
+	    # Remove all but the last n most recent hadoop releases direectories
+	    # Tail the list of files starting with the nth index
+	    # chomp(my @old_releases = `ls -dt /home/Releases/hadoop* /home/Releases/conf*|tail -n +7`);
+	    chomp(my @old_releases = `ls -dt /home/Releases/hadoop* /home/Releases/conf*`);
+	    # note(Dumper(\@old_releases));
+	    my $num_keep = 4*2; 
+	    my @releases_to_delete = @old_releases[($num_keep-1)..$#old_releases];
+
+	    if (scalar(@releases_to_delete) > 0) {
+                note("Remove all but the last $num_keep out of ".scalar(@old_releases)." most recent hadoop releases directories");
+		note("Remove the oldest ".scalar(@releases_to_delete)." hadoop releases directories");
+		# note("rm -rf ".join(' ', @releases_to_delete));
+		system_("rm -rf ".join(' ', @releases_to_delete));
+	    }
+	    # rm -rf /home/Releases/*.tar
+	    # rm -rf /home/Releases/*.tgz
+	}
+	if (-d $hadoop_releases_dir) {
+	    note("--> Run yinst clean");
+	    system_("yinst clean -yes");
+
+	    note("--> Delete yinst logs older than $num_log_days days");
+	    # Delete log files modified more than n days ago
+	    # find /home/y/logs -type f -mtime +30 -name \*.\*|xargs ls -l |less
+	    system_("find /home/y/logs -type f -mtime +${num_log_days} -name \*.\* -delete");
+	}
+	# This directory can be very large and is not needed
+	if (-d "/usr/local/lib/ipp-6.1.5.061-32/") {
+	    note("--> Remove /usr/local/lib/ipp");
+            # sudo du -skh /usr/local/lib/ipp-6.1.5.061-32/
+	    system_("rm -rf /usr/local/lib/ipp-*");
+	}
+    }
+    if ($verbose) {
+	printf("\n");
+	printf("################################################################################\n");
+	note("Audit the filesystems overall");
+	printf("################################################################################\n");
+	my $ref_size='50M';
+	note("--> Show 10 largest files over $ref_size overall");
+	# If available, replacing \; with \+ will result in fewer invocations of du and thus better performance
+	# It specifies to exec the command (in our case du) only once, with all the results of find given as successive arguments to the command.
+	system_("find / -ignore_readdir_race -type f -size +${ref_size} -exec du -h {} \\+ |sort -h|tail -10");
+
+	printf("\n");
+	printf("################################################################################\n");
+	note("Audit the filesystem /home");
+	printf("################################################################################\n");
+	note("--> Show 10 largest directories in /home");
+	system_("du -xh /home |sort -h|tail -10");
+	note("--> Show 10 largest files in /home");
+	system_("find /home -ignore_readdir_race -type f -size +${ref_size} -exec du -h {} \\; |sort -h|tail -10");
+	# $ du -ah / 2> >(grep -v '^du: cannot \(access\|read\)' >&2) | sort -h | tail -30
+    }
+
+    printf("\n");
+    printf("################################################################################\n");
+    note("Audit filesystems over the threshold ${threshold}%");
+    printf("################################################################################\n");
+    foreach my $dir (@overlimitdir) {
+	note("--> Inspect over the limit FS directory $dir");
+	my $dir_ = ($dir eq '/') ? '' : $dir;
+	# du -x : skip directories on different file systems
+	# du -a : write counts for all files, not just directories
+	# sort -h : --human-numeric-sort, compare human readable numbers (e.g., 2K 1G)
+	# find -mount : Don't descend directories on other filesystems.
+	note("--> Largest directories in over the limit FS directory $dir");
+	system_("du -xh $dir | sort -h | tail -10");
+	note("--> Largest files in over the limit FS directory $dir");
+	system_("find / -mount -type f -exec du -ah {} + | sort -h|tail -10");
+    }
+}
+
+# printf("\n");
+exit;
+
