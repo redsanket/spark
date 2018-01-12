@@ -34,15 +34,6 @@ Each Grid cluster has a dedicated Hue instance, that does not share information 
 the other cluster instances. You have access to the Hue instance on any cluster, but you 
 can only access and modify data that you have access permission.
 
-.. _using_socks_proxy:
-
-Using SOCKS Proxy
------------------
-
-To access Hue instances, you must use the ``SOCKS`` proxy in the browser.
-The ``SOCKS`` host is ``socks.yahoo.com`` and the port is ``1080``, which will allow
-the Hadoop Job Browser to access the ResourceManager (RM) jobs logs.
-
 Hue URLs
 --------
 
