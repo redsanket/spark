@@ -3,6 +3,8 @@ Oozie Monitoring
 
 .. 04/23/15: Rewrote.
 .. 05/15/15: Edited.
+.. 01/11/18: Edited for CMSv2
+
 
 The following sections discuss how to monitor Oozie jobs, get notifications,
 connecting to the `Cloud Messaging Service <http://developer.corp.yahoo.com/product/Cloud%20Messaging%20Service>`_, 
@@ -22,30 +24,32 @@ SLA-sensitive jobs and send out notifications for SLA meets and misses.
 To learn how to use SLA monitoring, see `Oozie SLA monitoring <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SLAMonitoring.html>`_.
 
 
-JMS Notifications for Job and SLA
+CMS Notifications for Job and SLA
 ---------------------------------
 
-JMS is the Java Messaging Service, which has an API 
-for sending messages between two or more clients. You can use JMS
+CMS is the Cloud Messaging Service, which has an API
+for sending messages between two or more clients. You can use CMS
 to fetch job status messages from the Yahoo Cloud Messaging Service (CMS).
-CMS is a hosted service that internally uses `ActiveMQ <http://activemq.apache.org/>`_ 
-and is YCA-protected access.
+Apache Oozie has only support for JMS which is the Java Messaging Service and supports systems like ActiveMQ which implement JMS.
+At Yahoo, Oozie worked with CMS v1 which was JMS compliant before EOL for it was announced on Feb 2018. Now only CMS v2 is
+supported which has its own set of APIs and is not JMS compliant. So the section
+`JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_ in Apache
+documentation is not relevant for Yahoo Oozie.
 
-In the following sections, we will take a look at how to use JMS to connect to CMS, 
-what code changes you need to make, and how to write a listener to fetch messages from CMS. 
 
-We also recommend reading `JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_.
+In the following sections, we will take a look at how to connect to CMS,
+what code changes you need to make, and how to write a listener to fetch messages from CMS.
+
 
 Connecting to CMS
 ~~~~~~~~~~~~~~~~~
 
-CMS is a centralized multi-tenant cloud service that provides low latency, 
-world-wide delivery, deliver-at-least-once, publish and subscribe semantics at Yahoo 
-scale. It is 100% JMS compliant, and Yahoo plans for CMS to support post-JMS features 
-such as different protocols, various language bindings as well as a new simplified 
-high-performance asynchronous API.
+CMS is a centralized multi-tenant cloud service that provides low latency, world-wide delivery,
+deliver-at-least-once, publish and subscribe semantics at Yahoo scale.
+CMS is designed for high performance messaging for application integration, with Yahoo specific
+requirements such as monitoring and security  based on YAMAS and YCA respectively.
 
-See also the `Cloud Messaging Service - Client API Usage - Tutorial <http://twiki.corp.yahoo.com/view/Messaging/MessagingServiceTutorial#ACLs_AN1>`_ 
+See also the `Cloud Messaging Service - Tutorial <https://docs.google.com/document/d/1og5FQXFJhucBFOLvlJE1S64A7_b5_413ToWaRaVu7a8/edit#heading=h.ijmxb7godl86>`_
 for more information.
 
 .. _connect_cms-acls:
@@ -54,24 +58,16 @@ ACLs
 ****
 
 Based on the colo you are using, ensure you have ACLs open to 
-CMS on ports 4080, 61616, and 61617 on the following:: ``broker.messaging.gq1.yahoo.com``, 
-``broker.messaging.ne1.yahoo.com``, or ``broker.messaging.bf1.yahoo.com`` 
-The macro ``CLOUDMESSAGING::PROD_BROKER`` opens the ACL. 
+CMS on ports 4080 and 6650 on the following:: ``brokerv2.messaging.gq1.yahoo.com``,
+``brokerv2.messaging.ne1.yahoo.com``, or ``brokerv2.messaging.bf1.yahoo.com``
+The macro ``CLOUDMESSAGING::PROD_BROKER`` opens the ACL.
 
 If you are in SZ50 ``PROD_MAIN``, you do not need ACLs to talk to CMS in the same colo.
-You do currently need to open ACLs to connect to CMS cross-colo. The new change to ACLs planned 
-Yahoo-wide would mostly eliminate that.
+You do currently need to open ACLs to connect to CMS cross-colo.
 
-Cross-Colo Access and SSL
-*************************
-
-If are connecting to CMS across colos, you should enable 
-SSL. See `How can I use SSL to connect to CMS <http://twiki.corp.yahoo.com/view/Messaging/FAQs#How_can_I_use_SSL_to_connect_to_CMS_63>`_.
-CMS team will get the `ycrypt <http://dist.corp.yahoo.com/by-package/ycrypt/>`_ 
-exemption on that port (61617) but not the regular port (61616).
 
 YCA
-***
+****
 
 The messages published by grid services such as Oozie to the ``ygrid`` namespace in CMS can 
 only by consumed from hosts in the role ``yahoo.griduser.ALL``, which is a super role 
@@ -80,7 +76,7 @@ If your headless user role is not included in the ``yahoo.griduser.ALL`` role,
 file a ticket with Grid SE and have it included.
 
 Most of the grid users will already have their launcher boxes configured in a role 
-of the format ``yahoo.griduser.<headlessusername>``. For example: ``yahoo.griduser.apollog``. 
+of the format ``yahoo.griduser.<headlessusername>`` . For example: ``yahoo.griduser.apollog``.
 
 If you do not have your launcher box there, add it. This is the same when using the ``v2`` namespace.
 
@@ -92,11 +88,12 @@ If you do not have your launcher box there, add it. This is the same when using 
 Namespace and Topic Name
 ************************
 
-Oozie migrated to the ``v2`` namespace after the v4.3.1 and v4.4.1 releases.
-The topic name using the ``v2`` namespace is ``topic://grid/#{COLO}/oozie.#{CLUSTER}-#{COLOR}/user.user_name``.
-For example, the headless user ``apollog`` in Mithril Blue cluster would use the following: ``topic://grid/gq1/oozie.mithril-blue/user.apollog`` 
+The topic name using the ``v2`` namespace is ``non-persistent://grid/#{COLO}/#{CLUSTER}#{COLOR}-oozie-v2/user.user_name``.
+For example, the headless user ``apollog`` in Jet Blue cluster would use the following:
+``non-persistent://grid/gq1/jetblue-oozie-v2/user.apollog``
 
-.. note:: In the ``v1`` namespace, the topic name was ``ygrid:oozie.${CLUSTER}-${COLOR}.user.user_name``.
+.. note:: In the ``v1`` namespace (using JMS), the topic name was ``ygrid:oozie.${CLUSTER}-${COLOR}.user.user_name``. From
+02/14/2018, CMS team is dropping support for CMSv1.
 
 The topic name prefix can be programmatically obtained using Oozie API. See the example 
 :ref:`Writing a Listener to Consume Messages <write_listener>`.
@@ -111,24 +108,27 @@ The topic name prefix can be programmatically obtained using Oozie API. See the 
 Code Changes to Work With CMS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect to CMS at Yahoo, you will need to make a few additional steps to the 
-`sample code <http://oozie.apache.org/docs/4.0.0/DG_JMSNotifications.html#Example>`_ 
-provided in  the Apache documentation. 
 
 
-#. Place the ``cloud_messaging_client.jar`` in the classpath by downloading it as a Maven artifact or 
-   installing yinst package.
+#. Place the ``cloud-messaging-client-java.jar`` in the classpath by downloading it as a Maven artifact or
+   installing `yinst package <https://dist.corp.yahoo.com/by-package/cloud_messaging_client_java/>`_.
 
 #. Add the following dependency to your ``pom.xml``:
 
    .. code-block:: xml
 
-      <dependency>
-        <groupId>yahoo.yinst.cloud_messaging_client</groupId>
-        <artifactId>cloud-messaging-client</artifactId>
-        <version>0.3</version>
-        <scope>provided</scope>
-      </dependency>
+        <dependency>
+            <groupId>yahoo.yinst.cloud_messaging_client_java</groupId>
+            <artifactId>cloud-messaging-client-java</artifactId>
+            <version>1.1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.oozie</groupId>
+            <artifactId>yoozie-client</artifactId>
+            <version>4.4.7.4</version>
+            <scope>compile</scope>
+        </dependency>
 
 
 #. To configure for YCA authentication, the hosts configured in the ``griduser`` namespace 
@@ -137,12 +137,15 @@ provided in  the Apache documentation.
    - Install ``yjava_yca`` (0.20.x or higher) and ``yca_client_certs`` on your client.
    - Add ``-Djava.library.path=/home/y/lib or /home/y/lib64`` (if 64-bit JDK) as argument 
      while launching your Java program and have ``/home/y/lib/yjava_yca.jar`` in the ``CLASSPATH``.
-   - Set the ``java.naming.security.principal`` ``JNDI`` property to the YCA role name ``yahoo.griduser.ALL``.
+   - Use the YCA role name ``yahoo.griduser.ALL`` in ``ClientConfiguration`` for creating
 
-  .. code-block:: java 
+  .. code-block:: java
 
-     Properties jndiProperties = jmsInfo.getJNDIProperties();
-     jndiProperties.put("java.naming.security.principal", "yahoo.griduser.ALL");
+     com.yahoo.cloud.messaging.client.api.ClientConfiguration config = new com.yahoo.cloud.messaging.client.api.ClientConfiguration();
+     config.setAuthentication(com.yahoo.cloud.messaging.client.api.Authentication.ycaV1("yahoo.griduser.ALL"));
+     CmsClient cmsClient = CmsClient.create(brokerUrlCmsV2, config);
+
+
 
 .. _write_listener:
 
@@ -158,127 +161,165 @@ using Kerberos authentication and a JMS message listener.
 
 .. code-block:: java
 
-   import java.io.IOException;
-   import java.util.Properties;
-   import java.util.Scanner;
+    import com.yahoo.cloud.messaging.client.api.CmsClient;
+    import com.yahoo.cloud.messaging.client.api.CmsClientException;
+    import com.yahoo.cloud.messaging.client.api.Consumer;
+    import com.yahoo.cloud.messaging.client.api.ConsumerConfiguration;
+    import com.yahoo.cloud.messaging.client.api.Message;
+    import com.yahoo.cloud.messaging.client.api.MessageListener;
+    import com.yahoo.oozie.client.event.cms.CMSMessagingUtils;
+    import com.yahoo.oozie.security.authentication.client.KerberosAuthenticator;
+    import org.apache.hadoop.security.authentication.client.Authenticator;
+    import org.apache.oozie.AppType;
+    import org.apache.oozie.client.AuthOozieClient;
+    import org.apache.oozie.client.JMSConnectionInfo;
+    import org.apache.oozie.client.OozieClientException;
+    import org.apache.oozie.client.event.Event.MessageType;
+    import org.apache.oozie.client.event.jms.JMSHeaderConstants;
+    import org.apache.oozie.client.event.message.CoordinatorActionMessage;
+    import org.apache.oozie.client.event.message.SLAMessage;
+    import org.apache.oozie.client.event.message.WorkflowJobMessage;
 
-   import javax.naming.*;
-   import javax.jms.*;
+    import java.util.HashMap;
+    import java.util.Map;
+    import java.util.Properties;
+    import java.util.Scanner;
 
-   import org.apache.oozie.AppType;
-   import org.apache.oozie.client.JMSConnectionInfo;
-   import org.apache.oozie.client.OozieClient;
-   import org.apache.oozie.client.AuthOozieClient;
-   import org.apache.oozie.client.OozieClientException;
-   import org.apache.oozie.client.event.Event.MessageType;
-   import org.apache.oozie.client.event.jms.JMSHeaderConstants;
-   import org.apache.oozie.client.event.jms.JMSMessagingUtils;
-   import org.apache.oozie.client.event.message.SLAMessage;
-   import org.apache.oozie.client.event.message.WorkflowJobMessage;
-   import org.apache.hadoop.security.authentication.client.Authenticator;
-   import com.yahoo.oozie.security.authentication.client.KerberosAuthenticator;
-   import java.net.URL;
-   import java.util.HashMap;
-   import java.util.Map;
+    public class OozieMessages implements MessageListener {
 
-   public class OozieMessages implements MessageListener {
+        private String oozieUrl;
+        private String topicStr;
 
-     String url, topicStr;
-     public static void main(String args[]) {
-       try {
-         OozieMessages m = new OozieMessages();
-         m.url = args[0];
-         m.topicStr = args[1];
-         m.consumeMessages();
-       }
-       catch (Exception e) {
-         e.printStackTrace(); //TODO handle
-       }
-     }
-     public void consumeMessages() throws OozieClientException, JMSException, NamingException, InterruptedException {
+        public static void main(String args[]) throws OozieClientException, CmsClientException, InterruptedException {
 
-       KerbOozieClient oc = new KerbOozieClient(url);
-       JMSConnectionInfo jmsInfo = oc.getJMSConnectionInfo();
-       Properties jndiProperties = jmsInfo.getJNDIProperties();
-       jndiProperties.setProperty("java.naming.security.principal", "yahoo.griduser.ALL");
-       Context jndiContext = new InitialContext(jndiProperties);
-       System.out.println("*** [DEBUG] jndiContext properties: " + jndiContext.getEnvironment().toString());
-       String connectionFactoryName = (String) jndiContext.getEnvironment().get("connectionFactoryNames");
-       ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(connectionFactoryName);
-       Connection connection = connectionFactory.createConnection();
-       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-       String topicPrefix = jmsInfo.getTopicPrefix();
-       String topicPattern = jmsInfo.getTopicPattern(AppType.WORKFLOW_JOB);
-       // Following code checks if the topic pattern is
-       // 'username', then the topic name is set to the actual user submitting
-       // the job
-       String topicName = null;
-       if (topicPattern.equals("${username}")) {
-         topicName = topicStr;
-       }
-       // The topics naming convention is - ygrid:oozie.<cluster>.user.<username> where 
-       // ygrid is the CMS namespace and the rest is the topic name.
-       // For eg: ygrid:oozie.phazon-tan.user.gmon 
-       Destination topic = session.createTopic(topicPrefix + topicName);
-       MessageConsumer consumer = session.createConsumer(topic);
-       consumer.setMessageListener(this);
-       connection.start();
-       System.out.println("*** Listener started......");
-       // keep enough time to establish connection
-       Thread.sleep(60 * 1000);
-       System.out.println("*** Submit job now.....");
-       Thread.sleep(120 * 1000);
-       Scanner sc = new Scanner(System.in);
-       System.out.println("*** Type 'exit' to stop listener....");
-       while(true) {
-         if (sc.nextLine().equalsIgnoreCase("exit")) {
-           System.exit(0);
-          }
-       }
-     }
+            OozieMessages oozieMessages = new OozieMessages();
+            oozieMessages.oozieUrl = args[0];
+            oozieMessages.topicStr = args[1];
+            oozieMessages.consumeMessages();
+        }
 
-     @Override
-     public void onMessage(Message message) {
-       try {
-         if (message.getStringProperty(JMSHeaderConstants.MESSAGE_TYPE).equals(MessageType.SLA.name())) {
-           SLAMessage slaMessage = JMSMessagingUtils.getEventMessage(message);
-           System.out.println("*** [Message]: " + slaMessage.getSLAStatus());
-         }
-         else if (message.getStringProperty(JMSHeaderConstants.APP_TYPE).equals(AppType.WORKFLOW_JOB.name())) {
-           WorkflowJobMessage wfJobMessage = JMSMessagingUtils.getEventMessage(message);
-           System.out.println("*** [Message]: " + wfJobMessage.getEventStatus());
-         }
-       }
-       catch (JMSException jmse) {
-         jmse.printStackTrace(); //TODO handle
-       }
-       catch (IOException ioe) {
-         ioe.printStackTrace(); //TODO handle
-       }
-     }
+        private void consumeMessages() throws OozieClientException, CmsClientException, InterruptedException {
+            CmsClient cmsClient = null;
+            Consumer consumer = null;
+            try {
+                KerbOozieClient oc = new KerbOozieClient(oozieUrl);
+                JMSConnectionInfo cmsInfo = oc.getJMSConnectionInfo();
+                Properties jndiProperties = cmsInfo.getJNDIProperties();
 
-     static class KerbOozieClient extends AuthOozieClient {
+                String topicPrefix = cmsInfo.getTopicPrefix();
+                String topicPattern = cmsInfo.getTopicPattern(AppType.WORKFLOW_JOB);
+                String topic = null;
+                // Following code checks if the topic pattern is
+                // 'username', then the topic name is set to the actual user submitting
+                // the job
+                if (topicPattern.equals("${username}")) {
+                    // The topics naming convention is - non-persistent://grid/#{COLO}/#{CLUSTER}#{COLOR}-oozie-v2/user.<username> where
+                    // grid/#{COLO}/#{CLUSTER}#{COLOR}-oozie-v2 is the CMS namespace and the rest is the topic name.
+                    // For eg: non-persistent://grid/gq1/jetblue-oozie-v2/user.apollog
+                    topic = topicPrefix + topicStr;
+                }
 
-       public KerbOozieClient(String oozieUrl) {
-         super(oozieUrl, "KERBEROS");
-       }
+                com.yahoo.cloud.messaging.client.api.ClientConfiguration config = new com.yahoo.cloud.messaging.client.api.ClientConfiguration();
+                config.setAuthentication(com.yahoo.cloud.messaging.client.api.Authentication.ycaV1("yahoo.griduser.ALL"));
+                String brokerUrl = jndiProperties.getProperty("cms.broker.url");
+                cmsClient = CmsClient.create(brokerUrl, config);
 
-       @Override
-       protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
-         Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
-         authClasses.put("KERBEROS", KerberosAuthenticator.class);
-         return authClasses;
-       }
-     }
-   }
+                ConsumerConfiguration conf = new ConsumerConfiguration();
+                conf.setMessageListener(this);
+
+                // Subscribe to the topic
+                consumer = cmsClient.subscribe(topic, "oozie-subscriber-yourheadlessusername", conf);
+                System.out.println("*** Submit job now.....");
+                Thread.sleep(120 * 1000);
+                Scanner sc = new Scanner(System.in);
+                System.out.println("*** Type 'exit' to stop listener....");
+                while (true) {
+                    if (sc.nextLine().equalsIgnoreCase("exit")) {
+                        System.exit(0);
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace(System.err);
+                throw e;
+            }
+            finally {
+                if (consumer != null) {
+                    consumer.close();
+                }
+                if (cmsClient != null) {
+                    cmsClient.close();
+                }
+            }
+
+        }
+
+        @Override
+        public void received(Consumer consumer, Message message) {
+            try {
+                if (message.getProperty(JMSHeaderConstants.MESSAGE_TYPE).equals(MessageType.SLA.name())) {
+                    SLAMessage slaMessage = CMSMessagingUtils.getEventMessage(message);
+                    System.out.println("*** [Message]: " + slaMessage.getSLAStatus());
+                }
+                else if (message.getProperty(JMSHeaderConstants.APP_TYPE).equals(AppType.WORKFLOW_JOB.name())) {
+                    WorkflowJobMessage wfJobMessage = CMSMessagingUtils.getEventMessage(message);
+                    System.out.println("*** [Message]: " + wfJobMessage.getEventStatus());
+                }
+                else if (message.getProperty(JMSHeaderConstants.APP_TYPE).equals(AppType.COORDINATOR_ACTION.name())) {
+                    CoordinatorActionMessage caActionMsg = CMSMessagingUtils.getEventMessage(message);
+                    System.out.println("*** [Message]: " + caActionMsg.getEventStatus());
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
+
+        }
+
+        static class KerbOozieClient extends AuthOozieClient {
+
+            public KerbOozieClient(String oozieUrl) {
+                super(oozieUrl, "KERBEROS");
+            }
+
+            @Override
+            protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
+                Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
+                authClasses.put("KERBEROS", KerberosAuthenticator.class);
+                return authClasses;
+            }
+        }
+    }
+
+
+Run the Listener
+
+    .. code-block:: bash
+
+        java -cp <<jar containing OozieMessages class>>:/home/y/lib/jars/cloud-messaging-client-java.jar:/home/y/lib/jars/yjava_yca
+        .jar:/home/y/var/yoozieclient/lib/*  OozieMessages https://jetblue-oozie.blue.ygrid.yahoo.com:4443/oozie/ apollog
+
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
-Connection Timed Out to Message Broker
-**************************************
+Unauthorized exception on subscribe
+***********************************
 
-For example, the connection to ``prod1-broker10.messaging.bf1.yahoo.com:61616`` has timed out.
-Make sure you have the necessary :ref:`ACL open as mentioned above <connect_cms-acls>`. Also, your box might be 
-occluded behind a NAT, so you should use a gateway-like machine or launcher box.
+    .. code-block:: java
+
+        java.lang.IllegalStateException: com.yahoo.cloud.messaging.client.api.CmsClientException: org.apache.pulsar.client.api.PulsarClientException: HTTP get request failed: Unauthorized
+            at com.yahoo.slingstone.event.pipeline.storm.spout.BasicLESSpout.initCMSV2(BasicLESSpout.java:196)
+            at com.yahoo.slingstone.event.pipeline.storm.spout.BasicLESSpout.open(BasicLESSpout.java:140)
+            at com.yahoo.slingstone.event.pipeline.storm.spout.GMPLESSpout.open(GMPLESSpout.java:33)
+            at com.yahoo.slingstone.event.pipeline.batch.CommonSpout.open(CommonSpout.java:45)
+            at backtype.storm.daemon.executor$fn__7093$fn__7108.invoke(executor.clj:584)
+            at backtype.storm.util$async_loop$fn__551.invoke(util.clj:488)
+            at clojure.lang.AFn.run(AFn.java:22)
+            at java.lang.Thread.run(Thread.java:745)
+        Caused by: com.yahoo.cloud.messaging.client.api.CmsClientException: org.apache.pulsar.client.api.PulsarClientException: HTTP get request failed: Unauthorized
+            at com.yahoo.cloud.messaging.client.impl.CmsClientImpl.subscribe(CmsClientImpl.java:104)
+
+Please make sure your role is of the format ``yahoo.griduser.<headlessusername>`` .
+
 
