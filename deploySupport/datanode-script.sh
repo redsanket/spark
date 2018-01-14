@@ -48,7 +48,8 @@ if [ $CMD == "start" ]; then
 
     if [ "`whoami`" != "root" ]
     then
-        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start datanode $nameStartOpt
+        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start datanode $nameStartOpt
+	$HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
         echo "*** Note: not running as root. How to start data nodes?"
     fi
 
@@ -56,7 +57,8 @@ if [ $CMD == "start" ]; then
     then
         [ -f /var/run/jsvc.pid ] && rm -rf /var/run/jsvc.pid
         export HADOOP_SECURE_DN_USER=$HDFSUSER
-        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start datanode $nameStartOpt
+        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start datanode $nameStartOpt
+	$HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
     else
         echo ================================
         echo ================================
@@ -80,7 +82,8 @@ elif [ $CMD == "stop" ]; then
     then
         # echo "EXACT CMD: $HADOOP_HDFS_HOME/bin/hdfs  --config  $HADOOP_CONF_DIR  stop datanode"
         export HADOOP_SECURE_DN_USER=$HDFSUSER
-        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop datanode $nameStartOpt
+        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop datanode $nameStartOpt
+	$HADOOP_HDFS_HOME/bin/hdfs --daemon stop datanode $nameStartOpt
     fi
 else
     echo "Usage: datanode-script.sh [startonly|stop|start+erase]"

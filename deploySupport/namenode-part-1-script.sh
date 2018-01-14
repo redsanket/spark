@@ -59,8 +59,9 @@ if [ $CMD == "start" ]; then
     fi
 
     echo "${HADOOP_HDFS_HOME}/bin/hdfs namenode -upgrade ${nameStartOpt}"
-    echo "$HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt"
-    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
+    echo "$HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt"
+    # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
+    $HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt
 
     # transition ha1 to active. wait until it comes up in standby mode.
     # rather than sleep, we could use hadmin to query the namenode state.
@@ -78,7 +79,8 @@ elif [ $CMD == "stop" ]; then
 #    if [ -e ${GSHOME}/conf/local/masters ]; then
 #        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters stop secondarynamenode $nameStartOpt
 #    fi
-    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR stop namenode $nameStartOpt
+#    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR stop namenode $nameStartOpt
+     $HADOOP_HDFS_HOME/bin/hdfs --daemon start namenode $nameStartOpt
     echo "Part 1 finishing immediately after stop of name node."
 else
     echo "Usage: namenodescript.sh [startonly|stop|start+erase]"
