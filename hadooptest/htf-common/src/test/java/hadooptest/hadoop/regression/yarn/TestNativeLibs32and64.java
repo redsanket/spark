@@ -379,17 +379,19 @@ public class TestNativeLibs32and64 extends TestSession {
             
             // Load up the patterns we want to look for in the task's logs
             //
+            // gridci-2937, LZO lib name was changed, updated the error string to look for
+            //
             // the success case's message(s)
             if (checkmode.equals("checksuccess")) {
             		 patterns.add("org.apache.hadoop.util.NativeCodeLoader: Loaded the native-hadoop library");
             // the fail case's error message(s)
             } else if (checkmode.equals("checkfail")){
             		patterns.add("org.apache.hadoop.util.NativeCodeLoader: Failed to load native-hadoop with error: java.lang.UnsatisfiedLinkError");
-            		patterns.add("java.lang.RuntimeException: native-lzo library not available");
+            		patterns.add("java.lang.RuntimeException: native lz4 library not available");
             // the default case's messages which we do not want to see in the logs
             } else if (checkmode.equals("checksuccessdefault")) {
         		patterns.add("org.apache.hadoop.util.NativeCodeLoader: Failed to load native-hadoop with error: java.lang.UnsatisfiedLinkError");
-        		patterns.add("java.lang.RuntimeException: native-lzo library not available");
+        		patterns.add("java.lang.RuntimeException: native lz4 library not available");
             }
 
             // the default case is special in 2.x, no logging is generated as long as no errors were
