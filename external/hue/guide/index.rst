@@ -8,6 +8,8 @@ Hue User Guide
    :hidden:
 
    overview/index
+   getting_started_4/index
+   howtos_4/index
    getting_started/index
    howtos/index 
    architecture/index

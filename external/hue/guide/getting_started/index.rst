@@ -1,5 +1,5 @@
 ===============
-Getting Started
+Getting Started (Hue 3)
 ===============
 
 **Time Required:** 30-40 minutes
