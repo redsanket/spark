@@ -16,12 +16,12 @@ Hue User Guide
    reference/index
 
 
-This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
+This document is **Oath Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
 About This Guide
 ================
 
-The goal of this guide is to help developers use a custom version of Hue for Yahoo. 
+The goal of this guide is to help developers use a custom version of Hue for Oath. 
 
 Keep in the mind that Cloudera version of Hue has some different features, and that 
 some similar features described in the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ 
@@ -32,18 +32,11 @@ behave differently in Yahoo's Hue UI.
 Accessing Hue
 =============
 
+Before you can do anything with Hue, you must have access to the Grid.  Request Grid access using `Doppler <http://yo/doppler>`_ .  It can take up to 4 hours from your request being approved, until all of the correct access permissions propagate through the Grid.
+
 Each Grid cluster has a dedicated Hue instance, that does not share information with
 the other cluster instances. You have access to the Hue instance on any cluster, but you 
 can only access and modify data that you have access permission.
-
-.. _using_socks_proxy:
-
-Using SOCKS Proxy
------------------
-
-To access Hue instances, you must use the ``SOCKS`` proxy in the browser.
-The ``SOCKS`` host is ``socks.yahoo.com`` and the port is ``1080``, which will allow
-the Hadoop Job Browser to access the ResourceManager (RM) jobs logs.
 
 Hue URLs
 --------
@@ -67,12 +60,16 @@ Questions / Support
 About Hue
 *********
 
-yahoo-hue-users@yahoo-inc.com 
+Slack:  hue-users
+
+Slack:  hue-announce
+
+yahoo-hue-users@oath.com 
 
 Hive 
 ****
 
-yahoo-hive-users@yahoo-inc.com
+yahoo-hive-users@oath.com
 
 Audience Data
 *************
