@@ -8,16 +8,54 @@ then
     spark_shuffle_cmd=""
     if [ "$SPARK_SHUFFLE_VERSION" != "none" ]; then
         HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING | sed "s/yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION//g"`
-        spark_shuffle_cmd="$yinst install -yes -os rhel-6.x -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+
+        # based on OS version, use correct install cmd
+        #
+        # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
+        OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+        if [[ "$OS_VER" =~ ^7. ]]; then
+            echo "INFO: OS is $OS_VER"
+            spark_shuffle_cmd="$yinst install -br test  -yes  -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+
+        elif [[ "$OS_VER" =~ ^6. ]]; then
+            echo "OS is $OS_VER"
+            #phw  spark_shuffle_cmd="$yinst install -yes -os rhel-6.x -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+            spark_shuffle_cmd="$yinst install -br test -yes -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+  
+        else
+            echo "WARN: Unknown OS $OS_VER!"
+            exit 1
+        fi
     fi
 
-    cmd="$yinst install -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+
+    # based on OS version, use correct cmd
+    #
+    #
+    # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
+    OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+    if [[ "$OS_VER" =~ ^7. ]]; then
+        echo "INFO: OS is $OS_VER"
+        cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
+
+    elif [[ "$OS_VER" =~ ^6. ]]; then
+        echo "OS is $OS_VER"
+        #phw  cmd="$yinst install -br test -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+        cmd="$yinst install -br test -yes -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+
+    else
+        echo "WARN: Unknown OS $OS_VER!"
+        exit 1
+    fi
+
     
-    slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64 compat-readline5.x86_64"
+    # compat-readline should have come from Config job, removing compat-readline5.x86_64
+    slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
     slownogwfanout "$cmd"
     [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && slownogwfanout "$spark_shuffle_cmd"
     fanoutGW "/usr/bin/yum makecache"
-    fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64 compat-readline5.x86_64"
+    # compat-readline should have come from Config job, removing compat-readline5.x86_64
+    fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64"
     fanoutGW "$cmd"
     [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutGW "$spark_shuffle_cmd"
 
@@ -47,7 +85,8 @@ then
    if [ "$QA_PACKAGES" != "none" ]
    then
         echo "====Install additional QA packages: $QA_PACKAGES"
-        slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -same -live"
+        #phw slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -same -live"
+        slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
    fi
 echo ......

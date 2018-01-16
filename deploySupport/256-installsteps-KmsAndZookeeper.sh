@@ -72,6 +72,12 @@ fi
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i hadoopqa_headless_keys ports/json-c-0.11.3\""
+if [ $? -ne 0 ]; then
+  echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
+  exit 1
+fi
+
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
 if [ $? -ne 0 ]; then 
   echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
   exit 1
@@ -113,9 +119,22 @@ fi
 # Note: the following 'ln' require coreconfigs to be installed on the node, in flubber this
 # the case because all the nodes are in the core role except gw. In RT this will not be
 # the case, and different design is needed.
-cmd_coreconfs="ln -f -s  /home/gs/gridre/yroot.$cluster/conf/hadoop/core-site.xml  /home/y/conf/kms/core-site.xml; \
-  ln -f -s /home/gs/gridre/yroot.$cluster/conf/hadoop/kms-site.xml  /home/y/conf/kms/kms-site.xml; \
-  ln -f -s /home/gs/gridre/yroot.$cluster/conf/hadoop/kms-acls.xml  /home/y/conf/kms/kms-acls.xml"
+
+# rhel7, need the oozie node name since ooie node is rhel6 for now and Core is rhel7
+# In mixed OS install right now, Oozie node is rhel6 and will be deployed as a different
+# cluster than the Core cluster name, since Core cluster will be rhel7, so need to use
+# the actual Oozie node name to derive the rhel6 cluster name which is needed to make
+# the symlinls for KMS core-site files. For an all rhel6 cluster this just uses the 
+# same cluster name as it would have 
+
+cluster_oozie=`yinst range -ir "(@grid_re.clusters.$cluster.oozie)" | cut -d- -f1`
+#cluster="openqe86blue"
+echo "INFO: Reset Oozie node cluster name to: $cluster_oozie"
+
+cmd_coreconfs="ln -f -s  /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/core-site.xml  /home/y/conf/kms/core-site.xml; \
+  ln -f -s /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/kms-site.xml  /home/y/conf/kms/kms-site.xml; \
+  ln -f -s /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/kms-acls.xml  /home/y/conf/kms/kms-acls.xml"
+
 
 $SSH $kmsnode $cmd_coreconfs
 if [ $? -ne 0 ]; then
@@ -157,6 +176,11 @@ fi
 # Currently need to set the version for yjava_vmwrapper and yhdrs due to yinst conflicts, these
 # appear related to the yjava_jetty version used by KMS, which is newer than that used by
 # other components
+#
+# need to fix versions for jports_org_json__json-1.20090211_1  ysysctl-2.2.3
+# yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.11
+# yjava_jetty-9.3.15.v20161220_782 and yhdrs-1.28.5, lots of
+# dep breakage on 20171127
 #
 cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \

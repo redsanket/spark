@@ -36,11 +36,32 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     # # # # # in order to set yinst-vars for secondary also. Otherwise,
     # # # # # there is no kerberos login file set for them and the
     # # # # # secondary NN will not start.
+    # added empty fallback to include because this causes AM container launch failures on rhel7, since
+    # this execs in docker container where this path does not exist
     if [ "$ENABLE_HA" = true ]; then
         echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
     else
         echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml   -1 /tmp/namenodes.$cluster.txt -2 /tmp/secondarynamenodes.$cluster.txt
-        echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/>'"
+
+        #
+        # based on docker containers being used, use correct include directive 
+        # rhel6 and rhel7 without docker (verizon) don't need the nn xml conf with fallback
+        #
+
+        echo 'OS_VER=`cat /etc/redhat-release | cut -d" " -f7` '
+        echo 'if [[ "$OS_VER" =~ ^7. ]]; then '
+            echo 'echo INFO: NN include OS is $OS_VER '
+            echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"><xi:fallback></xi:fallback></xi:include>'"
+
+        echo 'elif [[ "$OS_VER" =~ ^6. ]]; then '
+            echo 'echo NN include OS is $OS_VER '
+            #PHWTEST  echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"/>'"
+            echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"><xi:fallback></xi:fallback></xi:include>'"
+
+        echo 'else '
+            echo 'echo WARN: Unknown NN include OS $OS_VER! '
+        echo 'fi '
+
     fi
     echo echo ====
     echo echo ====
@@ -137,7 +158,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "rm -f /home/gs/conf/bycookieauth"
     echo "ln -s /home/gs/gridre/yroot.${cluster}/conf/bycookieauth /home/gs/conf/bycookieauth"
 
-    # Disable use of docker on rhel7 dpeloyments
+    # Disable use of docker on rhel7 deployments
     # if docker use is disabled by checking this flag (enabled by default), change core conf to not use 
     # docker (Verizon rhel7 native). Requires Jenkins deploy job to have RHEL7_DOCKER_DISABLED setting!
     # This setting has no effect on rhel6 nodes/deploys.

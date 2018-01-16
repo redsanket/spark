@@ -79,6 +79,8 @@ roleExists() {
 
 # dumpMembershipList.sh and dumpAllRoles.sh scripts is deprecated after GRIDCI-2332
 
+SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SSH="ssh $SSH_OPT"
 
 setGridParameters() {
     export cluster=`echo $1 | tr   A-Z   a-z`
@@ -188,6 +190,8 @@ setGridParameters() {
              export hdfsproxynode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hdfsproxy)"`
         roleExists $cluster.hcat&& \
              export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hcat)"`
+        roleExists $cluster.hive&& \
+             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hive)"`
         roleExists $cluster.daq&& \
              export daqnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.daq)"`
         roleExists $cluster.oozie && \
@@ -304,18 +308,21 @@ setGridParameters() {
                stack_comp_nodes+="$zookeepernodes "
            fi
        fi
+       # HCATVERSION is not being passed in, see TODO in installgrid.sh 
        if [ -n "$HCATVERSION" ]; then
            if [ -n "$hcatservernode" ]; then
                echo "Adding hcat server node '$hcatservernode' to HOSTLIST"
                stack_comp_nodes+="$hcatservernode "
            fi
        fi
+       # HDFSPROXYVERSION is not being passed in, see TODO in installgrid.sh 
        if [ -n "$HDFSPROXYVERSION" ]; then
            if [ -n "$hdfsproxynode" ]; then
                echo "Adding hdfsproxy node '$hdfsproxynode' to HOSTLIST"
                stack_comp_nodes+="$hdfsproxynode "
            fi
        fi
+       # OOZIEVERSION is not being passed in, see TODO in installgrid.sh 
        if [ -n "$OOZIEVERSION" ]; then
            if [ -n "$oozienode" ]; then
                echo "Adding oozie node '$oozienode' to HOSTLIST"
@@ -337,29 +344,26 @@ setGridParameters() {
 
        # Construct space separated non slave node list to filter out nodes from
        # the host list
-       nonslave_nodes="$daqnode $gateway $hcat_server $hcatservernode \
+       nonslave_nodes="$daqnode $gateway $hcat_server \
                        $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
                        $jobtrackernode $namenode $secondarynamenode \
-                       $zookeepernodes"
-       [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
+                       $zookeepernodes "
+       # use the hdfsproxy node as a Core worker
+       # [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
 
-       # hadooppf-8086, request to not run DN and NM on oozie nodes, so reverting
-       # for oozie for two cases will happen, IntTest install or component install,
-       # in both cases we exclude the oozie node(s), can have multiple members
-       # for component install, need to convert spaces to | for correct exclusion
-       #
-       # 'if' check needs to deal with two cases for excluding oozienode, if integration
-       # component install is selected (STACK_COMP_INSTALL_OOZIE is true) or if oozie
-       # component is using the cluster (oozie role will have multiple members), then
-       # we exclude these nodes from installing core processes, otherwise use these nodes
-       # for core workers. Info, the oozie role will always have at least one member, in
-       # first case, there is one member which is needed by the Config job to gen kerb
-       # keytabs for oozie. In the second case, Oozie team needs to be able to set their
-       # own oozie members and there will be multiple members, so we can't just see if
-       # role is empty, we need to count members to know the downstream usage. 
+       # For Verizon case we need to exclude oozie and hive nodes from running Core 
+       # workers as long as Oozie is running on rhel6, check if oozienode's OS is 
+       # rhel7 and if Docker use is disabled (Oath case will also be rhel7 but will
+       # enable Docker)
        OOZIE_ROLE_MEMBER_COUNT=`echo $oozienode | tr ' ' '\n' | wc -l`
-       if [ "$STACK_COMP_INSTALL_OOZIE" == true ] || [ $OOZIE_ROLE_MEMBER_COUNT -gt 1 ]; then
-           nonslave_nodes+=" $oozienode"
+
+       OOZIE_HIVE_OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
+
+       if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "true" ]]; then
+           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so adding oozie and hive nodes to nonslave_nodes"
+           nonslave_nodes+=" $oozienode $hcatservernode"
+       else
+           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so NOT adding oozie and hive nodes to nonslave_nodes"
        fi
 
        # Construct out pipe separated nodes to filter out from the host list from
@@ -400,3 +404,4 @@ setGridParameters() {
        exit 1
    fi
 }
+

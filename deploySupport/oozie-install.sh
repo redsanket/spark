@@ -38,7 +38,11 @@ NAMENODE=`yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)"|head -1`;
 #
 # get component versions for oozie's yinst sets
 #
-HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.$CLUSTER |grep hadoopcoretree | cut -d'-' -f2`
+# need to get CLUSTER from local node name since "real" core confs not installed here
+LOCAL_YINST_ROOT=`hostname | cut -d- -f1`
+# echo "DEBUGPHW: LOCAL_YINST_ROOT is: $LOCAL_YINST_ROOT"
+HADOOP_VERSION=`yinst ls -root /home/gs/gridre/yroot.$LOCAL_YINST_ROOT |grep hadoopcoretree | cut -d'-' -f2`
+
 TEZ_VERSION=`ls /home/gs/tez/current/tez-common-*|cut -d'-' -f3|cut -d'.' -f1-5`
 
 TMPFILE="/tmp/yinst_tmp.out$$"

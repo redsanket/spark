@@ -67,5 +67,7 @@ yinst set pig.PIG_HOME=/home/y/share/pig
 PIGVERSION=`yinst ls | grep pig-`
 echo PIGVERSION=$PIGVERSION
 
-yinst install ygrid_pig_multi -br current -set ygrid_pig_multi.CURRENT=$PIGVERSION -same -live
+# yinst bug, old pkgs disted before rhel7 yinst support was added won't install unless explicit
+# vers given, and not from quarantine either. Fix would be to re-dist the pkg(s)
+yinst install ygrid_pig_multi-1.3.2  -br current -set ygrid_pig_multi.CURRENT=$PIGVERSION -same -live
 

@@ -27,7 +27,7 @@ function check_dockerd {
 # based on OS version and docker enable yinst setting, decide it we need
 # to start dockerd
 #
-if [[ "$OS_VER" =~ "7." ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
+if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
   echo "INFO: OS is $OS_VER and Docker support is enabled, starting dockerd..."
 
   check_dockerd

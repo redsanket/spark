@@ -99,7 +99,10 @@ export HADOOP_27=$HADOOP_27
 
 YJAVA_JDK_VERSION=${YJAVA_JDK_VERSION:='qedefault'}
 
-HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
+# need to get test version of coretree and hadoopCommonsDaemon for rhel7, 
+# so pass it in explicitly later on, rhel6 installs should be fine with this...
+# HADOOP_CORE_PKGS="hadoopcoretree hadoopgplcompression hadoopCommonsDaemon ytez_yarn_shuffle"
+HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
 
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
@@ -140,7 +143,10 @@ export HADOOP_MVN_PKGS="hadoop_mvn_auth hadoop_mvn_common hadoop_mvn_hdfs"
 
 HADOOP_INSTALL_STRING=''
 HADOOP_MVN_INSTALL_STRING_PKG=''
-JDK_QEDEFAULT=yjava_jdk-1.8.0_102.70
+# JDK_QEDEFAULT=yjava_jdk-1.8.0_102.70
+# need rhel7 compatible flavor of jdk
+JDK_QEDEFAULT=yjava_jdk-1.8.0_102.263
+
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
     for i in $HADOOP_CORE_PKGS; do
 
@@ -170,6 +176,11 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
+
+    # explicitly set coretree and hadoopCommonsDaemon for rhel7
+    # must do this to get the rhel7 compat version on test branch
+    # Again, rhel6 installs should be good with this
+    HADOOP_INSTALL_STRING+=" hadoopcoretree hadoopCommonsDaemon "
 
     if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
         HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
@@ -295,7 +306,7 @@ rm -f *.tgz > /dev/null 2>&1
 
 # Make sure rocl is installed on all nodes
 PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                    /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl'
+                    /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
 
 #		default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=devadm102.blue.ygrid.yahoo.com
@@ -382,13 +393,13 @@ done
 # Additional packages maintained by Hadoop Core QA team
 # [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
 [ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
-hadoop_qe_runasroot-stable \
-datanode-test \
-hadoop_qa_restart_config-test \
-namenode-test \
-secondarynamenode-test \
-resourcemanager-test \
-nodemanager-test \
+hadoop_qe_runasroot-test \ 
+datanode-test \ 
+hadoop_qa_restart_config-test \ 
+namenode-test \ 
+secondarynamenode-test \ 
+resourcemanager-test \ 
+nodemanager-test \ 
 historyserver-test"
 [ -z "$SEND_LOG_TO_STDOUT" ] && export SEND_LOG_TO_STDOUT=false
 [ -z "$NO_CERTIFICATION" ] && export NO_CERTIFICATION=false
@@ -507,7 +518,7 @@ scp $filelist  $ADMIN_HOST:/tmp/
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
 ssh $ADMIN_HOST "\
-cd /tmp/ && /usr/local/bin/yinst install -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
+cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
 "
