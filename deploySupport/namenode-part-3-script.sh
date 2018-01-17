@@ -37,17 +37,15 @@ mkmapredhdfs() {
    YROOTDIR=$1;
    VERSION=$2;
    TARDR=/tmp/mapredhdfs; 
+   EXCLUDE_PATTERNS='^\./bin/container-executor$|^\./bin/test-container-executor$|^\./include(/|$)|^\./lib/native/ipp(/|$)|^\./sbin(/|$)|^\./share/hadoop/hdfs/webapps(/|$)|^\./share/hadoop/httpfs(/|$)|^\./share/hadoop/kms(/|$)|^\./share/hadoop/yarn/auxservices(/|$)|^\./share/hadoop/yarn/test(/|$)|^\./share/hadoop/tools/sls(/|$)|\.cmd$|/jdiff(/|$)|/jsvc$|/sources(/|$)'
 
    rm -rf ${TARDR}
    mkdir ${TARDR}
 
-   # copy jars in classpath
+   # copy hadoopcoretree contents
    cd ${YROOTDIR}/share/hadoop-${VERSION}
-   find share/hadoop/common share/hadoop/common/lib \
-      share/hadoop/hdfs share/hadoop/hdfs/lib \
-      share/hadoop/yarn share/hadoop/yarn/lib \
-      share/hadoop/mapreduce share/hadoop/mapreduce/lib \
-      -maxdepth 1 -name \*.jar -print0 | cpio --null -pvd ${TARDR}
+   find . -depth -print0 | egrep -vz $EXCLUDE_PATTERNS \
+       | cpio --null -pvd ${TARDR}
 
    # copy native libraries
    find lib -depth -print0 | cpio --null -pvd ${TARDR}
