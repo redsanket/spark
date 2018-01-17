@@ -57,14 +57,14 @@ if [ $CMD == "start" ]; then
     fi
         
     if [ -e ${GSHOME}/conf/local/masters ]; then
-        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters start $TARGET_CMD $nameStartOpt
-	$HADOOP_COMMON_HOME/bin/hdfs --daemon start masters $TARGET_CMD $nameStartOpt
+        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters start $TARGET_CMD $nameStartOpt
+	# $HADOOP_COMMON_HOME/bin/hdfs --daemon start masters $TARGET_CMD $nameStartOpt
     fi
     echo "Part 1 finishing immediately after start of secondary name node."
 elif [ $CMD == "stop" ]; then 
     if [ -e ${GSHOME}/conf/local/masters ]; then
-        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters stop $TARGET_CMD $nameStartOpt
-	$HADOOP_COMMON_HOME/bin/hdfs --daemon stop masters $TARGET_CMD $nameStartOpt
+        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters stop $TARGET_CMD $nameStartOpt
+	# $HADOOP_COMMON_HOME/bin/hdfs --daemon stop masters $TARGET_CMD $nameStartOpt
     fi
     echo "Part 1 finishing immediately after stop of secondary name node."
 else
