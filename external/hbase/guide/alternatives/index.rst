@@ -75,7 +75,7 @@ for classic transactional applications or even relational analytics. It is also
 not a complete substitute for HDFS when doing large batch MapReduce. Take a look 
 at some of the differences detailed in the sections below to get a sense of which 
 applications are a good fit for HBase. If you still have questions, you
-can always subscribe to yahoo-hbase-users@yahoo-inc.com or even to the 
+can always subscribe to yahoo-hbase-users@oath.com or even to the 
 `public user list <mailto:user-subscribe@hbase.apache.org>`_.
 
 So, why should you use HBase? If your application does the following, you should 
