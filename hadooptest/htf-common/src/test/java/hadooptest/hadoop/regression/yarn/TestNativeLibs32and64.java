@@ -98,10 +98,12 @@ public class TestNativeLibs32and64 extends TestSession {
         };
     // java8, QE Flubber and Production almost match for java8 64, Flubber uses an additional 'current' symlink
     // where prod does not, ie the prod path is '/home/gs/java8/jdk64'
+    // gridci-2953, rhel7 docker breaks because the 'java8' jdk path is not added to container env,
+    // changed to use the path du jour, sans '8'
     private static final String[] PARAMS_JAVA8_JVM64_NATIVELIB64 = {
-                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java8/jdk64/current",
-                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java8/jdk64/current",
-                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java8/jdk64/current",
+                "-Dyarn.app.mapreduce.am.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.map.env=JAVA_HOME=/home/gs/java/jdk64/current",
+                "-Dmapreduce.reduce.env=JAVA_HOME=/home/gs/java/jdk64/current",
                 "-Dmapreduce.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64",
                 "-Dyarn.app.mapreduce.am.admin.user.env=LD_LIBRARY_PATH=/home/gs/hadoop/current/lib/native/Linux-amd64-64"
         };
