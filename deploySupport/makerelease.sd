@@ -31,7 +31,7 @@ set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
 packages=${packages:="hadoop conf"}
 CLUSTERS=${CLUSTERS:="all"}
-CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging"}
+CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod"}
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
 COMPONENTS=${COMPONENTS:='hadoop'}
 CLEANUP=${CLEANUP:="true"}
