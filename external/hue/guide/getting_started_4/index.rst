@@ -38,7 +38,7 @@ Prerequisites
   - `Hive Wiki <https://cwiki.apache.org/confluence/display/Hive/Home>`_
   - `Pig introduction <http://pig.apache.org/>`_
   - `Oozie Overview <http://oozie.apache.org/>`_
-  - `Getting Started on the Yahoo Grid <https://yahoo.jiveon.com/docs/DOC-46590>`_
+  - `Getting Started on the Oath Grid <https://yahoo.jiveon.com/docs/DOC-46590>`_
 
 .. _hue_getting_started-about:
 
@@ -312,7 +312,8 @@ you copied to your home directory.
 3. Viewing Metadata and Data from the Table Browser 
 ===================================================
 
-#. From the top navigation bar, click the **Table Browser** to open the **Table Browser**.
+#. From the top left of the navigation bar, select the left-most menu icon, 
+and click the **Tables** option under **Browsers** to open the **Table Browser**.
 
    .. image:: images/open_metastore_manager.jpg
       :height: 255 px
@@ -321,7 +322,8 @@ you copied to your home directory.
       :alt: Opening Table Browser
       :align: left 
 
-#. From the **Table Browser**, select your database from the **DATABASE** drop-down menu.
+#. From the **Table Browser**, click the **Databases** link at the top.
+#. Scroll down and click the link for your database.
 #. Check the checkbox next to the table 
    **flickr_{your_user_name}_table** and click **View**.
 
@@ -350,7 +352,7 @@ you copied to your home directory.
       :alt: Sample Data
       :align: left 
    
-#. To see properties of the table, such as the owner, when it was created, table type, etc., click **Properties**.
+#. To see properties of the table, such as the owner, when it was created, table type, etc., click **Details**.
 
    .. image:: images/table_properties.jpg
       :height: 738 px
@@ -359,7 +361,7 @@ you copied to your home directory.
       :alt: Table Properties
       :align: left 
 
-#. You can also view the file location for the database by clicking **View File Location**.
+#. You can also view the file location for the database by clicking **Location** on the **Overview** tab.
 
 .. tip:: If you're not familiar with HiveQL, you can use
          the **Table Browser** to create or drop tables.
@@ -381,9 +383,12 @@ Creating the Database
 
 #. Click **Table Browser** in the top navigation bar.
 #. Click the **Databases** link.
-#. From the **Actions** pane on the left-hand side, click **Create a new database**.
-#. Enter **sb2014_{your_user_name}** in the **Database Name** text field and click **Next**.
-#. With the **Location** checkbox checked, click **Create database**.
+#. On the right side, click the **Create a new database** icon, which looks like a plus sign.
+#. Enter **sb2014_{your_user_name}** in the **Database Name** text field.
+#. Uncheck the **Default location** checkbox, specify a location for the database in HDFS 
+under your user directory, and click **Submit**.
+#. Your task history will show that the database was successfully created.
+#. To verify, return to the **Table Browser** and click **Databases**, and scroll down to see your database.
 
 Creating the Table
 ~~~~~~~~~~~~~~~~~~
@@ -442,8 +447,8 @@ we're going to use the **Hive Query Editor** to execute queries on the
 Flickr table. We recommend that you try your own queries for the Superbowl table if
 you created one.
 
-#. Go to the **Hive Query Editor**. (Click **Query Editors->Hive**.)
-#. From the **Assist** panel on the left-hand side, find your Flickr database from the **DATABASE** drop-down menu.
+#. Go to the **Hive Query Editor**. (Click **Query->Editor->Hive**.)
+#. From the SQL **Assist** panel on the left-hand side, find your Flickr database.
    You should see the one table we created on the **Assist** panel.
 #. Click the **flickr_{your_user_name}_table** to see the available fields.
 
@@ -496,7 +501,7 @@ you created one.
 
 
 #. In the **Save Query Results** dialog, enter the path **/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv**
-   in the **In an HDFS file** text field and click **Save**. (We're going to use this file later
+   in the **File** text field and click **Save**. (We're going to use this file later
    when we look at the **Pig Editor**.)
 #. Use the **File Browser** to verify the file has been saved.
 
@@ -505,7 +510,7 @@ you created one.
 Using Pig
 ---------
 
-#. From the top-navigation bar, click  **Query Editors** and 
+#. From the top-navigation bar, click  **Query-->Editor** and 
    select **Pig**.
 
    .. image:: images/start_pig.jpg
@@ -531,7 +536,7 @@ Using Pig
       
       STORE has_lat into '/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');
       
-#. Click **Save** in the left-hand **Editor** panel.
+#. Click **Save** in the top right-hand Pig Editor titlebar.
 
    .. image:: images/editor_save.jpg
       :height: 297 px
@@ -540,7 +545,7 @@ Using Pig
       :alt: Pig Editor: Save
       :align: left 
 
-#. In the **Save script** dialog, enter 
+#. In the **Save query** dialog, enter 
    the text **Flickr Camera Location Script**
    in the text field and click **Save**.
 
@@ -552,7 +557,7 @@ Using Pig
       :align: left 
 
 #. To run a Pig script, you'll need to add some configuration. 
-   Click **Properties** from the left-hand **Editor** pane.
+   Click the **Settings and Properties** icon, just under the **Save** button.
 
    .. image:: images/pig_properties.jpg
       :height: 407 px
@@ -561,9 +566,8 @@ Using Pig
       :alt: Pig Properties
       :align: left 
 
-#. From **Hadoop properties** on the right-hand panel, click **+ Add**.
-#. For the **Name** field, enter **oozie.action.sharelib.for.pig**, and for the 
-   **Value** field, enter **pig_current**.
+#. From **Hadoop properties**, click **+ Add**.
+#. Enter **oozie.action.sharelib.for.pig=pig_current**.
 
    .. image:: images/pig_hadoop_properties.jpg
       :height: 349 px
@@ -573,8 +577,9 @@ Using Pig
       :align: left 
 
 #. Click **Save**.
-#. Run your script by clicking the **arrowhead** icon in the top-right corner. 
-   (It may take a few minutes to complete.)
+#. Run your script by clicking the **Execute** icon on the left side. 
+   (It may take a few minutes to complete.)  The job log will appear
+   and an indicator of job progress will appear over the log.
 
    .. image:: images/run_pig_button.jpg
       :height: 199 px
@@ -590,12 +595,10 @@ Using Pig
    in the HDFS path ``/user/{your_user_name}/hue_tutorial/flickr_camera_location_sanitized/``.
 
 
-.. tip:: The **Assist** sidebar helps you write Pig scripts. You 
+.. tip:: The **Assist** sidebar on the right helps you write Pig scripts. You 
          can click functions to add them to the editing field.
 
-         The **Scripts** tab lists your past scripts for your reference.
-         You can also share your scripts with others with the 
-         **Share** tab. 
+         The **Saved Queries** tab lists your past scripts for your reference.
 
 
 5. Saving Scripts to Files
@@ -642,7 +645,7 @@ and Oozie Workflows later.
    We're creating a script that deletes the Flickr database 
    and tables. 
 #. Click **del_db_tables.hql**.
-#. From the **Actions** panel, click **Edit file** to open an editing pane.
+#. Click **Edit file** to open an editing pane.
 
    .. image:: images/edit_file.jpg
       :height: 372 px
@@ -751,7 +754,7 @@ and Oozie Workflows later.
 6. Creating Workflows With the Scheduler
 ===========================================
 
-With the **Workflows Editor**, you're configuring Oozie to
+With the **Scheduler**, you're configuring Oozie to
 run tasks in a job. This lets you create Oozie workflows,
 coordinators (set of workflows), and bundles (set of coordinators).
 We're just going to create an Oozie Workflow to automate
@@ -763,23 +766,13 @@ what we've done thus far.
           Henceforth, we're going to omit 
           any prompts or reminders to do so.   
 
-#. From the top-navigation bar, click **Workflows** and then click
-   **Editors->Workflows**.
+#. Click **Query->Scheduler->Workflow**.
 
    .. image:: images/open_oozie_editor.jpg
       :height: 194 px
       :width: 663 px
       :scale: 93%
       :alt: Open Scheduler
-      :align: left 	
-
-#. Click **+ Create** to start creating a new workflow.
-
-   .. image:: images/create_workflow.jpg
-      :height: 152 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Create Oozie Workflow
       :align: left 	
 
 #. Click **My Workflow** to open a dialog, enter **hue_tutorial_workflow** in the text field,
@@ -809,7 +802,6 @@ what we've done thus far.
    #. Click **DELETE PATH** and enter the path **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
    #. To recreate the directory for the latest results, click **CREATE DIRECTORY** and enter the directory 
       **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
-   #. Click the **Save** icon.
 
       .. image:: images/hdfs_fs_action-add_dirs.jpg
          :height: 586 px
@@ -820,15 +812,10 @@ what we've done thus far.
 
    We're deleting and recreating the path for our results. 
 
-#. Drag the **DistCp** object to the gray dotted box below **hue_tutorial_refresh**. We're going to 
-   use `DistCp <http://hadoop.apache.org/docs/r1.2.1/distcp2.html>`_ to copy the Flickr dataset 
-   to our home directories in an Oozie task.
-#. In the dialog, do the following: 
+#. In the **Move File Or Directory** field: 
  
-   #. Click the dialog title **Distcp**, enter the text **copy_flickr_data** in the text box, and then click **√**.
    #. In the **Source** text field, enter **/user/rbernota/HueTalk/Flickr100cc/flickr100m_dataset.bz2**.
    #. In the **Destination** text field, enter **/user/{your_user_name}/hue_tutorial/**.
-   #. Click **Add**.
 
       .. image:: images/copy_flickr_data.jpg
          :height: 179px
@@ -864,7 +851,6 @@ what we've done thus far.
       :alt: Hive Logs Property
       :align: left 
 
-#. Click the **Save** icon.
 #. Create another **Hive** action for your Oozie Workflow:
 
    #. Use the name **create_db_tables** for the Hive action.
@@ -872,7 +858,6 @@ what we've done thus far.
    #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
    #. Click the **Properties** icon and then **PROPERTIES**. In the two text boxes, 
       enter **hive.querylog.location** for and **hivelogs** for the name and value.
-   #. Click the **Save** icon.
 
 #. We still need to create the Hive table with just the camera 
    and location data, so create the last Hive action with the 
@@ -977,7 +962,7 @@ From the **Job Browser**, you can view  your jobs and
 other jobs. You can sort jobs by status, search for jobs 
 by a user or key term, also look at the cluster and ResourceManager logs.
 
-#. Let's first look for our jobs by clicking **Job Browser** from the top navigation bar.
+#. Let's first look for our jobs by clicking **Browsers->Jobs** from the left assist panel.
 
    .. image:: images/open_job_browser.jpg
       :height: 165 px
@@ -986,20 +971,7 @@ by a user or key term, also look at the cluster and ResourceManager logs.
       :alt: Open Job Browser
       :align: left   
 
-
-#. By default, the **Job Browser** shows Oozie jobs sorted by your username, so 
-   you should two jobs: the parent (or launcher) **hue_tutorial_workflow** and the 
-   child job that is still running. (The parent will stay at 5% until its
-   children have been completed.)
-
-   .. image:: images/parent_child_job.jpg
-      :height: 141 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Parent/Child Jobs
-      :align: left   
-
-#. Sort your jobs by clicking the green **Succeed**. (Depending how far 
+#. Sort your jobs by clicking the green **Succeeded**. (Depending how far 
    your job has progressed, you may only see one or two successful jobs.)
 
    .. image:: images/successful_jobs.jpg
@@ -1141,9 +1113,9 @@ Confirm that you have down the following:
 
 - Make sure that ``hcat`` is checked.
 - The **Job XML** points to a ``hive-site.xml`` file.
-- For Hive jobs, the job property ``oozie.sharelib.for.hive`` 
+- For Hive jobs, the job property ``oozie.action.sharelib.for.hive`` 
   has ``hcat_current,hive_current`` (no spaces between the values).
-  For Pig jobs, the job property ``oozie.sharelib.for.pig`` has the values 
+  For Pig jobs, the job property ``oozie.action.sharelib.for.pig`` has the values 
   ``pig_current``. 
 - Hive jobs also need a log file, so you'll need to make sure you
   specified the job property ``hive.querylog.location`` and a directory
