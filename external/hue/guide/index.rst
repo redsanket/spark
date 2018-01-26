@@ -32,7 +32,7 @@ The goal of this guide is to help developers use a custom version of Hue for Oat
 
 Keep in the mind that Cloudera version of Hue has some different features, and that 
 some similar features described in the `Hue User Guide <http://cloudera.github.io/hue/docs-3.7.0/user-guide/index.html>`_ 
-behave differently in Yahoo's Hue UI.
+behave differently in Oath's Hue UI.
 
 .. _onboard:
 
