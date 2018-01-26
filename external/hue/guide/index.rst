@@ -17,6 +17,14 @@ Hue User Guide
 
 This document is **Oath Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
+
+Cloudera documentation
+================
+
+Please additionally see the external Cloudera documentation for Hue, which includes many details on usage past what is included in this user guide:
+
+`Cloudera Hue User Guide <http://cloudera.github.io/hue/latest/user-guide/user-guide.html>`_
+
 About This Guide
 ================
 
