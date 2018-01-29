@@ -97,10 +97,9 @@ are available in the open source version of Hue:
   add data, modify existing cells, and filter data.
 - **Security (Sentry, File ACLs)** -  Let’s you create, edit, delete roles and privileges 
   directly from your browser. 
-- **Spark Igniter** -  Let's you submit Scala and Java Spark jobs directly from your Web browser.
 
 In addition, although you can use the **File Browser**, you won't be able to
-download data. Jira has not been integrated with Yahoo's Hue yet either.
+download data.
  
 
 User Accounts
