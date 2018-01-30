@@ -76,11 +76,13 @@ fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /h
 ##################################################################################
 # KMS Support Helper - Add SSL Certificates to Each Node's JDK
 #
-# Encryption Zones (KMS) are rolling out to all prod clusters, installing KMS
-# in flubber if cluster 'kms' node exists as a default action. KMS requires all
-# clients to support https connections to kms, since flubber has to use self-signed
-# certs these need to be added to a client's java jdk trststore, without it the
+# Encryption Zones (KMS) are rolling out to all prod clusters, KMS requires all 
+# clients to support https connections to kms, since flubber has to use self-signed 
+# certs these need to be added to a client's java jdk truststore, without it the
 # https connection will fail on CA validation.
+#
+# Update: these certs are also needed by other services, at least Timeline service
+# on the RM, hence removing check for KMS node and installing these certs explicitly.
 #
 # The certs have to be installed after the jdk is deployed but before the using
 # service starts up (RM, NN, KMS), so placing these certs here instead of in the
@@ -89,15 +91,8 @@ fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /h
 # Using cert from devadm102:/grid/3/dev/ygrid_certs_flubber/hadoop_kms.cert
 #
 ##################################################################################
-if [ -z "$kmsnode" ]; then
-  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+     No KMS role or node defined!!                        +"
-  echo "+     Not deploying kms ssl certs to jdk truststore        +"
-  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  return
-else
-  echo "INFO: Installing ssl certs for KMS on all nodes, KMS node is: $kmsnode"
-fi
+echo "INFO: Installing ssl certs for KMS and TimeLine on all nodes. Note that even"
+echo "INFO: if KMS is not configured on cluster, certs are needed by TimeLine"
 
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 # the JDK_CACERTS are from the base community jdk, updated with internal cert
