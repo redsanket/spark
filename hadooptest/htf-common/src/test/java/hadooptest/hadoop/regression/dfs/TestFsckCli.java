@@ -529,9 +529,19 @@ public class TestFsckCli extends DfsTestsBaseClass {
 
 		}
 
+		// gridci-2972, adding debug info for a failure in this test case, 
+		// could not reproduce, so need to get DN and block info to dump 
+		// out for further analysis
+
+		for ( String aNode : previousDatanodes ) {
+			TestSession.logger.info("Listing our previousDatanodes, a node is: " + aNode);
+		}
+
 		boolean oneBlockRelocated = false;
 		if (!reallocatedDatanodes.containsAll(previousDatanodes)) {
 			oneBlockRelocated = true;
+		} else {
+			TestSession.logger.debug("Warning, did not getoneBlockRelocated: " + oneBlockRelocated);
 		}
 
 		if (!oneBlockRelocated) {
@@ -541,11 +551,15 @@ public class TestFsckCli extends DfsTestsBaseClass {
 				if (!actualBlockPoolLocationsAfterCorrupting
 						.containsKey(aPreviousBlock)) {
 					oneBlockRelocated = true;
+					TestSession.logger.debug("Checking aPreviousBlock block in " +
+					  "actualBlockPoolLocationsAfterCorrupting hashmap: " +
+					  actualBlockPoolLocationsAfterCorrupting.containsKey(aPreviousBlock) );
 					break;
 				}
 
 			}
 		}
+		TestSession.logger.info("Testing for oneBlockRelocated to be found, value is: " + oneBlockRelocated);
 		Assert.assertTrue(oneBlockRelocated);
 
 	}
