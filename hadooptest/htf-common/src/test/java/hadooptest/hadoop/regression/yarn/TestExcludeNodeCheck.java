@@ -178,6 +178,14 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 * command here, because the dfsadmin -report doesnot include the
 		 * excluded nodes in its response.
 		 */
+
+		/*
+		 * gridci-2956, rhel7 docker is taking about 7 secs longer to complete NM
+		 * phone-in, adding 30 sec delay to be sure we get them all
+		*/
+		TestSession.logger.info("Wait 30 secs for all NodeManagers to register with RM...");
+		Thread.sleep(30000);
+
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
 		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
 
