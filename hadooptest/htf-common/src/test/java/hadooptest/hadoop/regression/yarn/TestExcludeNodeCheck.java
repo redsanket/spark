@@ -180,11 +180,11 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 */
 
 		/*
-		 * gridci-2956, rhel7 docker is taking about 7 secs longer to complete NM
-		 * phone-in, adding 30 sec delay to be sure we get them all
+		 * gridci-2956, rhel7 docker is taking longer to complete NM
+		 * phone-in, adding 60 sec delay to be sure we get them all
 		*/
-		TestSession.logger.info("Wait 30 secs for all NodeManagers to register with RM...");
-		Thread.sleep(30000);
+		TestSession.logger.info("Wait 60 secs for all NodeManagers to register with RM...");
+		Thread.sleep(60000);
 
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
 		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
