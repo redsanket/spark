@@ -177,8 +177,8 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
   
     # explicitly set coretree and hadoopCommonsDaemon for rhel7
     # must do this to get the rhel7 compat version on test branch
-    # Again, rhel6 installs should be good with this
-    HADOOP_INSTALL_STRING+=" hadoopcoretree-$FULLHADOOPVERSION hadoopCommonsDaemon "
+    #phw HADOOP_INSTALL_STRING+=" hadoopcoretree hadoopCommonsDaemon-1.0.4.1707172207 "
+    HADOOP_INSTALL_STRING+=" hadoopCommonsDaemon-1.0.4.1707172207 "
 
     if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
         HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
