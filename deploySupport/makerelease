@@ -42,7 +42,7 @@ DIST_TAG="/home/y/bin/dist_tag"
 
 set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_latest_certified_release"}
-packages=${packages:="hadoop conf"}
+packages=${packages:="hadoop conf hadoop_mvn_tools"}
 yroot_name=${YROOT_NAME:="make-release"}
 CLEAN_YROOT=${CLEAN_YROOT:="false"}
 ADM=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
@@ -283,6 +283,10 @@ for cluster in $CLUSTERS; do
           set -x
           version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
           set +x
+      elif [[ "$package" == "hadoop_mvn_tools" ]]; then
+	  set -x
+	  version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep hadoop_mvn_tools|awk '{print $1}'|cut -d - -f2`
+	  set +x
       else
           echo "ERROR: invalidate package type '$package' found!!!"
           exit 1;
@@ -301,16 +305,21 @@ for cluster in $CLUSTERS; do
       labels+="$package,$version-$YINST_FREEZE_DTS"
       echo "labels='$labels'"
       echo "/usr/local/bin/makerelease -p $package -v $version -c $cluster el6" >> $run_script_file_path
-    else
-        if [[ "$package" == "conf" ]]; then
+    elif [[ "$package" == "conf" ]]; then
           version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
           if [[ "$version" == "" ]]; then
               echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
-              # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
+              # this should exit on failure if cluster config packages are missing.
               # exit 1;
           fi
           echo "/usr/local/bin/makerelease -p $package -v $version -c $cluster el6" >> $run_script_file_path
-        fi
+    else
+	  version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep hadoop_mvn_tools | awk '{print $1}'|cut -d - -f2`
+	  if [[ "$version" == "" ]]; then
+	      echo "ERROR!!! Unable to find hadoop_mvn_tools version for '$package'. Exiting!!!"
+	      exit 1;
+	  fi
+	  echo "/usr/local/bin/makerelease -p $package -v $version -c $cluster el6" >> $run_script_file_path
     fi
   done
   cluster_index=$(($cluster_index+1))
