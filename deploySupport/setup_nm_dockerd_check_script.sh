@@ -14,6 +14,22 @@ echo "Checking if we need to startup Docker daemon on node $HOSTNAME"
 function check_dockerd {
   #echo "INFO: Checking if dockerd is running..."
 
+  # verify the storage driver in use, should be overlayFS
+  CHK_DRIVER=`sudo docker info | grep Storage`
+
+
+  if [[ "$CHK_DRIVER" =~ "overlay" ]]; then
+    echo "Docker storage driver in use is overlay"
+  else
+    echo "WARN: storage driver is not correct or not found!"
+
+    echo "Setting storage driver to overlay"
+    echo "{ \"storage-driver\": \"overlay\" }" > /etc/docker/daemon.json
+
+    echo "Restarting docker service"
+    systemctl restart docker
+  fi
+
   PS_CHECK=`ps -ef | egrep dockerd | egrep -v grep`
   if [[ "$PS_CHECK" =~ "docker-runc-current" ]]; then
     return 0
