@@ -1,5 +1,5 @@
 #!/bin/sh
 
 echo "Updating add_metadata_trigger branch to trigger sd@129246"
-sh -x cicd/update_metadata.sh add_metadata_trigger git@git.corp.yahoo.com:HadoopQE/hadoop-openstack.git
+sh -x cicd/update_metadata.sh add_metadata_trigger git@git.ouroath.com:HadoopQE/hadoop-openstack.git
 

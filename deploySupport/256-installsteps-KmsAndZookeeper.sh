@@ -170,8 +170,8 @@ fi
 #
 # configure yjava_jetty, Dev migrated from tomcat6 to jetty so need to apply settings for KMS use
 # of jetty, this is based on the prod use of yidf settings:
-#  ref:   https://git.corp.yahoo.com/hadoop/yahoo-kms/blob/master/cicd/yidfs/kms_dev/kms_dev.yidf
-#  ref:   https://git.corp.yahoo.com/hadoop/yahoo-kms/blob/master/cicd/yidfs/common/kms.yidf
+#  ref:   https://git.ouroath.com/hadoop/yahoo-kms/blob/master/cicd/yidfs/kms_dev/kms_dev.yidf
+#  ref:   https://git.ouroath.com/hadoop/yahoo-kms/blob/master/cicd/yidfs/common/kms.yidf
 #
 # Currently need to set the version for yjava_vmwrapper and yhdrs due to yinst conflicts, these
 # appear related to the yjava_jetty version used by KMS, which is newer than that used by

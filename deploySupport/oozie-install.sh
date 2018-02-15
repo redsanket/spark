@@ -98,7 +98,7 @@ done
   if [ $EC -ne 0 ]; then
     echo "ERROR: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is missing doAs users!"
     echo "       See the section \"Local Node Conf File\" in the Build/Configure Jenkins job's README.md at:"
-    echo "       https://git.corp.yahoo.com/HadoopQE/qeopenstackdist/blob/master/README.md"
+    echo "       https://git.ouroath.com/HadoopQE/qeopenstackdist/blob/master/README.md"
     exit 1
   else
     echo "INFO: oozie node $OOZIENODE /home/gs/conf/local/local-superuser-conf.xml is correct"

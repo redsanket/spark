@@ -32,8 +32,8 @@
 #   mtree (rpm version)
 #################################################################################
 
-# https://git.corp.yahoo.com/GridSE/hadoop_releases
-# git@git.corp.yahoo.com:GridSE/hadoop_releases.git
+# https://git.ouroath.com/GridSE/hadoop_releases
+# git@git.ouroath.com:GridSE/hadoop_releases.git
 
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 TIME=`date -u +\%y\%m\%d\%H\%M\%S`
@@ -55,10 +55,10 @@ COMPONENTS=${COMPONENTS:='hadoop'}
 CLEANUP=${CLEANUP:="true"}
 set +x
 
-# GIT_REPO="git@git.corp.yahoo.com:GridSE/gridPush.git"
+# GIT_REPO="git@git.ouroath.com:GridSE/gridPush.git"
 MR_DIR="$TMP_DIR/gridPush"
 
-REL_GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
+REL_GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
 # REL_GIT_INTERIM_DIR="$TMP_DIR/hadoop_releases/interim_solution"
 UPLOAD_RELEASE=${UPLOAD_RELEASE:="false"}

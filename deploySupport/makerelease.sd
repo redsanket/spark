@@ -19,7 +19,7 @@
 #   git
 #################################################################################
 
-# https://git.corp.yahoo.com/GridSE/hadoop_releases
+# https://git.ouroath.com/GridSE/hadoop_releases
 
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 TIME=`date -u +\%y\%m\%d\%H\%M\%S`
@@ -38,9 +38,9 @@ CLEANUP=${CLEANUP:="true"}
 UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
 set +x
 
-GIT_REPO="git@git.corp.yahoo.com:GridSE/gridPush.git"
+GIT_REPO="git@git.ouroath.com:GridSE/gridPush.git"
 
-REL_GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
+REL_GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
 UPDATE_RELEASE=${UPDATE_RELEASE:="false"}
 

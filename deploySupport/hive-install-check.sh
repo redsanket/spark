@@ -72,7 +72,7 @@ EC=$((EC+RC))
 if [ $EC -ne 0 ]; then
   echo "ERROR: hive node $HIVENODE /home/gs/conf/local/local-superuser-conf.xml is missing doAs users!"
   echo "       See the section \"Local Node Conf File\" in the Build/Configure Jenkins job's README.md at:" 
-  echo "       https://git.corp.yahoo.com/HadoopQE/qeopenstackdist/blob/master/README.md"
+  echo "       https://git.ouroath.com/HadoopQE/qeopenstackdist/blob/master/README.md"
   exit 1
 else
   echo "INFO: hive node $HIVENODE /home/gs/conf/local/local-superuser-conf.xml is correct"

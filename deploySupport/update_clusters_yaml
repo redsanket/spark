@@ -17,7 +17,7 @@ echo "Update the clusters yaml file in the hadoop_releases git repo:"
 # Get the full path script directory
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 TS=`date +%s`
-GIT_REPO="git@git.corp.yahoo.com:GridSE/hadoop_releases.git"
+GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 GIT_DIR="$SCRIPT_DIR/hadoop_releases.$TS"
 
 component=$1
