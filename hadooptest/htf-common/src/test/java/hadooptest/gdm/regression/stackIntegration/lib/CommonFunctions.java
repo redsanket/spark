@@ -392,60 +392,65 @@ public class CommonFunctions {
 
 	public void testStackComponent() throws InterruptedException, ExecutionException {
 		List<Callable<String>> testList = new ArrayList<Callable<String>>();
-		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
-		String nNodeName = hostsNames.get("namenode") ;
+		Map<String, String> hostsNames = this.getAllStackComponentHostNames();
+		String nNodeName = hostsNames.get("namenode");
 		Map<String, StackComponent> stackComponentMap = this.getHealthyStackComponentsMap();
-		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size()  + "   \n " + stackComponentMap.toString());
-		
-		
+		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size() + "   \n " + stackComponentMap.toString());
+
 		List<String> currentStackTestComponent = this.getCurrentStackComponentTestList();
 
 		if (currentStackTestComponent.contains("tez")) {
 			StackComponent tezStackComponent = stackComponentMap.get("tez");
 			Callable<String> testTezComponent = null;
-			if (tezStackComponent != null ) {
-				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  tezStackComponent = " + tezStackComponent.toString());
-				testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
+			if (tezStackComponent != null) {
+				TestSession.logger.info("nNodeName  = " + nNodeName + "  tezStackComponent = " + tezStackComponent.toString());
+				testTezComponent = new TestTez(tezStackComponent, tezStackComponent.getHostName(), nNodeName,
+						this.getCurrentHourPath());
 				testList.add(testTezComponent);
 			}
 		}
-		
+
 		if (currentStackTestComponent.contains("pig")) {
 			StackComponent tezStackComponent = stackComponentMap.get("pig");
 			Callable<String> testPigComponent = null;
-			if (tezStackComponent != null ) {
-				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  pigStackComponent = " + tezStackComponent.toString());
-				testPigComponent = new  TestPig(tezStackComponent,tezStackComponent.getHostName(),nNodeName,this.getCurrentHourPath() );
+			if (tezStackComponent != null) {
+				TestSession.logger.info("nNodeName  = " + nNodeName + "  pigStackComponent = " + tezStackComponent.toString());
+				testPigComponent = new TestPig(tezStackComponent, tezStackComponent.getHostName(), nNodeName,
+						this.getCurrentHourPath());
 				testList.add(testPigComponent);
 			}
 		}
-		
+
 		if (currentStackTestComponent.contains("hive")) {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
-				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation() , this.getClusterName());
-				testList.add(testIntHive);	
+				testIntHive = new TestIntHive(hiveStackComponent, hiveStackComponent.getHostName(), nNodeName,
+						hiveStackComponent.getScriptLocation(), this.getClusterName());
+				testList.add(testIntHive);
 			}
 		}
-			
+
 		if (currentStackTestComponent.contains("hbase")) {
 			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
 			Callable<String> testHbaseComponent = null;
-			if (hbaseStackComponent != null)  {
-				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
-				testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName , this.getClusterName());
+			if (hbaseStackComponent != null) {
+				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()
+						+ "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = "
+						+ hbaseStackComponent.getScriptLocation());
+				testHbaseComponent = new TestIntHBase(hbaseStackComponent, nNodeName, this.getClusterName());
 				testList.add(testHbaseComponent);
-			}			
+			}
 		}
-		
+
 		if (currentStackTestComponent.contains("oozie")) {
 			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 			Callable<String> testIntOozie = null;
 			if (oozieStackComponent != null) {
 				try {
 					org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
-					testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
+					testIntOozie = new TestIntOozie(oozieStackComponent, oozieStackComponent.getHostName(),
+							configuration);
 					testList.add(testIntOozie);
 				} catch (IOException e) {
 					TestSession.logger.error("Failed to create configuration " + e);
@@ -455,20 +460,23 @@ public class CommonFunctions {
 		}
 
 		if (currentStackTestComponent.contains("starling")) {
-		    StackComponent starlingStackComponent = stackComponentMap.get("starling");
-		    Callable<String> testStarlingComponent = null;
-		    if (starlingStackComponent != null)  {
-			TestSession.logger.info("starling hostname  = " + starlingStackComponent.getHostName()  +  "  hbaseStackComponent = " + starlingStackComponent.toString() + "  script location = " + starlingStackComponent.getScriptLocation());
-			testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName() , this.getClusterName());
-			testList.add(testStarlingComponent);
-		    }
+			StackComponent starlingStackComponent = stackComponentMap.get("starling");
+			Callable<String> testStarlingComponent = null;
+			if (starlingStackComponent != null) {
+				TestSession.logger.info("starling hostname  = " + starlingStackComponent.getHostName()
+						+ "  starlingStackComponent = " + starlingStackComponent.toString() + "  script location = "
+						+ starlingStackComponent.getScriptLocation());
+				testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName(),
+						this.getClusterName());
+				testList.add(testStarlingComponent);
+			}
 		}
-				
-		boolean overAllExecutionResult = true; 
+
+		boolean overAllExecutionResult = true;
 		if (testList.size() > 0) {
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 			List<Future<String>> testExecutionList = executor.invokeAll(testList);
-			for ( Future<String> result : testExecutionList) {
+			for (Future<String> result : testExecutionList) {
 				List<String> testExecutionResult = Arrays.asList(result.get().split("-"));
 				if (testExecutionResult.size() > 0) {
 					if (testExecutionResult.get(1).equals("false") == true) {
@@ -480,52 +488,57 @@ public class CommonFunctions {
 			}
 			executor.shutdown();
 		}
-		
-		// navigate the health of the stack component and check whether any one of the component is down. If down mark the testcase as fail.
+
+		// navigate the health of the stack component and check whether any one
+		// of the component is down. If down mark the testcase as fail.
 		boolean isHealth = true;
-		for ( String key : stackComponentMap.keySet()) {
+		for (String key : stackComponentMap.keySet()) {
 			StackComponent scomponent = stackComponentMap.get(key);
 			boolean flag = scomponent.getHealth();
-			// if one of the component health is bad , then mark the execution test as failed.
+			// if one of the component health is bad , then mark the execution
+			// test as failed.
 			if (flag == false) {
 				isHealth = false;
 			}
 		}
-		
+
 		String overAllResult = null;
-		if ( ( isHealth == true) && (overAllExecutionResult == true) ) {
+		if ((isHealth == true) && (overAllExecutionResult == true)) {
 			overAllResult = "PASS";
-		} else  {
+		} else {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
 
-                // set the individual run's end date and time
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+		// set the individual run's end date and time
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
-                TestSession.logger.info("GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
+		TestSession.logger.info(
+				"GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
 		this.updateDB(this.getDataSetName(), "endDateTime", currentEndDateTime);
 
-                // set the interative run's uniqueId
-                String uniqueId = "This_Is_My_Unique_ID_1234";
+		// set the interative run's uniqueId
+		String uniqueId = "This_Is_My_Unique_ID_1234";
 
-                TestSession.logger.info("GRIDCI-1667, populate uniqueId for interative run, uniqueId is: " +
-                        uniqueId);
-                this.updateDB(this.getDataSetName(), "uniqueId", uniqueId);
+		TestSession.logger.info("GRIDCI-1667, populate uniqueId for interative run, uniqueId is: " + uniqueId);
+		this.updateDB(this.getDataSetName(), "uniqueId", uniqueId);
 
-                // set the total run's uniqueId 
-                TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
-                        uniqueId);
+		// set the total run's uniqueId
+		TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " + uniqueId);
 		String tmpStr = dataSetName.substring(0, (dataSetName.length() - 4));
-                TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
-                this.updateDB(true, tmpStr, "uniqueId", uniqueId);
+		TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
+		this.updateDB(true, tmpStr, "uniqueId", uniqueId);
 
-		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
+		String pipeLineNameJenkinsParam = this.getPipeLineName();
+		switch (pipeLineNameJenkinsParam) {
+		case "hadoop":
+		case "tez":
+			// WITH email reporting
 			AggIntResult aggIntResultObj = new AggIntResult();
-			if ( currentStackComponentTestList.indexOf("starling") > -1) {
+			if (currentStackComponentTestList.indexOf("starling") > -1) {
 				TestSession.logger.info("updating_starling_results");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 				Calendar cal = Calendar.getInstance();
@@ -533,7 +546,7 @@ public class CommonFunctions {
 				String dt = simpleDateFormat.format(calendar.getTime());
 				this.dbOperations.updateStarlingExecutionResult(dt.trim());
 			} else {
-			    aggIntResultObj.finalResult();
+				aggIntResultObj.finalResult();
 			}
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
 			try {
@@ -542,9 +555,11 @@ public class CommonFunctions {
 					| MessagingException e) {
 				e.printStackTrace();
 			}
-		} else {
-		    StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
-		    stackComponentAggResultObj.test();
+
+		default:
+			// WITHOUT email reporting
+			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+			stackComponentAggResultObj.test();
 		}
 	}
 	

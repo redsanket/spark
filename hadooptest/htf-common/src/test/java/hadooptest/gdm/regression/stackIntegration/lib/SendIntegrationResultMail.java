@@ -85,7 +85,8 @@ public class SendIntegrationResultMail {
         message.setFrom(new InternetAddress(FROM));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(TO));
         String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
-        message.setSubject(pipeLineName + " Integration test result for " + this.getTodaysDate());
+        String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+        message.setSubject(pipeLineName + " (" + clusterName + ") " + "integration test result for " + this.getTodaysDate());
         message.setContent(multipart);
 
         // Send message
