@@ -536,7 +536,9 @@ public class CommonFunctions {
 		switch (pipeLineNameJenkinsParam) {
 		case "hadoop":
 		case "tez":
-			// WITH email reporting
+		case "Integration-PipeLine-3":
+		case "Integration-PipeLine-4":
+			TestSession.logger.info("WITH email reporting");
 			AggIntResult aggIntResultObj = new AggIntResult();
 			if (currentStackComponentTestList.indexOf("starling") > -1) {
 				TestSession.logger.info("updating_starling_results");
@@ -546,6 +548,7 @@ public class CommonFunctions {
 				String dt = simpleDateFormat.format(calendar.getTime());
 				this.dbOperations.updateStarlingExecutionResult(dt.trim());
 			} else {
+				TestSession.logger.info("skipping_starling_results");
 				aggIntResultObj.finalResult();
 			}
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
@@ -557,8 +560,9 @@ public class CommonFunctions {
 			}
 
 		default:
-			// WITHOUT email reporting
+			TestSession.logger.info("WITHOUT email reporting");
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+			TestSession.logger.info("skipping_starling_results");
 			stackComponentAggResultObj.test();
 		}
 	}
