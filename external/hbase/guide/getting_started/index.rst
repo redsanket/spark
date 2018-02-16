@@ -38,7 +38,7 @@ Development/Research On-Boarding
 --------------------------------
 
 To on-board for the development/research environment, you need to file
-a bugzilla ticket and provide the following information:
+a Doppler ticket and provide the following information:
 
 - project information: design doc, Twiki links
 - colo preference (tan, blue, red)
@@ -129,7 +129,7 @@ Hipchat / Slackchat
 Support E-mails
 ---------------
 
-   - There are 2 e-mails: ``yahoo-hbase-dev@yahoo-inc.com`` and ``yahoo-hbase-users@yahoo-inc.com``
+   - There are 2 e-mails: ``yahoo-hbase-dev@oath.com`` and ``yahoo-hbase-users@oath.com``
    - The former e-mail address contacts the HBase team only while the latter contacts everyone who uses Yahoo at HBase (who has subscribed to that list)
    - If you have a complicated question that is specific to your circumstances, ask the former list.
    - If you have a general question about HBase, we recommend you ask the latter list first.
@@ -139,7 +139,7 @@ Announcement E-mails
 --------------------
 
    - Whenever there are upgrades or incidents that impact users, grid-ops team will send announcements
-   - Please subscribe to ``ygrid-production-announce@yahoo-inc.com`` and ``ygrid-sandbox-announce@yahoo-inc.com``
+   - Please subscribe to ``ygrid-production-announce@oath.com`` and ``ygrid-sandbox-announce@oath.com``
 
 Jira
 ----
