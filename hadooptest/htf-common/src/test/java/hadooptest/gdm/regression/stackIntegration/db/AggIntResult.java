@@ -22,6 +22,7 @@ public class AggIntResult {
 
 	private String currentDate;
 	private String currentPipeLineName;
+	private String clusterName;
 	private String startDateTime, endDateTime, uniqueId;
 	private java.util.List<String> hadoopVersionList;
 	private Map<String,String> componentsResultMap;
@@ -32,6 +33,8 @@ public class AggIntResult {
 		componentsResultMap = new HashMap<String,String>();
 		String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
 		this.setCurrentPipeLineName(pipeLineName);
+		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
+		this.setClusterName(cName);
 		java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -56,6 +59,14 @@ public class AggIntResult {
 		TestSession.logger.info("GRIDCI-1667, currentStartDateTime is: " + this.getStartDateTime());
 		TestSession.logger.info("GRIDCI-1667, currentEndDatTime is: " + this.getEndDateTime());
 		TestSession.logger.info("GRIDCI-1667, currentUniqueId is: " + this.getUniqueId());
+	}
+
+	public String getClusterName() {
+		return this.clusterName;
+	}
+
+	public void setClusterName(String currentClusterName) {
+		this.clusterName = currentClusterName;
 	}
 
 	public String getCurrentPipeLineName() {
@@ -860,7 +871,7 @@ public class AggIntResult {
 
 
 		String pipelineName = this.getCurrentPipeLineName();
-		jsonObjTop.put("pipeline", pipelineName);
+		jsonObjTop.put("pipeline", pipelineName+"_"+this.getClusterName());
 		jsonObjTop.put("resultset", jsonObj);
 
 		String absolutePath = new File("").getAbsolutePath();

@@ -28,11 +28,14 @@ public class StackComponentAggResult {
 	private DataBaseOperations dataBaseOperations;
 	private java.sql.Connection connection;
 	private String currentPipeLineName;
-	
+	private String clusterName;
+
 	public StackComponentAggResult() {
 		componentsResultMap = new HashMap<String,String>();
 		String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
 		this.setCurrentPipeLineName(pipeLineName);
+		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
+		this.setClusterName(cName);
 		java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -46,6 +49,14 @@ public class StackComponentAggResult {
 		}
 	}
 	
+	public String getClusterName() {
+		return this.clusterName;
+	}
+
+	public void setClusterName(String currentClusterName) {
+		this.clusterName = currentClusterName;
+	}
+
 	public String getCurrentPipeLineName() {
 		return currentPipeLineName;
 	}
@@ -892,7 +903,7 @@ public class StackComponentAggResult {
 
 
 		String pipelineName = this.getCurrentPipeLineName();
-		jsonObjTop.put("pipeline", pipelineName);
+		jsonObjTop.put("pipeline", pipelineName+"_"+this.getClusterName());
 		jsonObjTop.put("resultset", jsonObj);
 
 		String absolutePath = new File("").getAbsolutePath();
