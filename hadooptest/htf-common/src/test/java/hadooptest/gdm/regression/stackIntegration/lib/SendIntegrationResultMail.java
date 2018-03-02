@@ -269,21 +269,17 @@ public class SendIntegrationResultMail {
                     tableBuilder.append("</td>");
 
                     String starlingVersion = resultSet.getString("starlingVersion");
-                    if (starlingVersion != null) {
-                    if (!(starlingVersion.indexOf("NULL") > -1)) {
+                    if ((starlingVersion != null) && !(starlingVersion.indexOf("UNKNOWN") > -1)) {
                         tableBuilder.append("<td>").append(starlingVersion);
                     } else {
                         tableBuilder.append("<td>").append("-");
                     }
-                    }
 
                     String starlingResult = resultSet.getString("starlingResult");
-                    if (starlingResult != null) {
-                    if (starlingResult.indexOf("PASS") > -1) {
+                    if ((starlingResult != null) && starlingResult.indexOf("PASS") > -1) {
                         tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"cid:image\" title=\"Cluster is active\" />");
                     } else if ( (starlingResult.indexOf("FAIL") > -1 ) ||   (starlingResult.indexOf("NULL") > -1 ) ) {
                         tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"https://cdn2.iconfinder.com/data/icons/oxygen/16x16/actions/no.png\" width=\"20\" title=\"Cluster is active\" />");
-                    }
                     }
                     tableBuilder.append("</td>");
 
