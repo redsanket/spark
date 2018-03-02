@@ -871,7 +871,7 @@ public class AggIntResult {
 
 
 		String pipelineName = this.getCurrentPipeLineName();
-		jsonObjTop.put("pipeline", pipelineName+"_"+this.getClusterName());
+		jsonObjTop.put("pipeline", pipelineName + "_" + this.getClusterName());
 		jsonObjTop.put("resultset", jsonObj);
 
 		String absolutePath = new File("").getAbsolutePath();
