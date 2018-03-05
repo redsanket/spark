@@ -536,8 +536,6 @@ public class CommonFunctions {
 		switch (pipeLineNameJenkinsParam) {
 		case "hadoop":
 		case "tez":
-		case "Integration-PipeLine-3":
-		case "Integration-PipeLine-4":
 			TestSession.logger.info("WITH email reporting");
 			AggIntResult aggIntResultObj = new AggIntResult();
 			if (currentStackComponentTestList.indexOf("starling") > -1) {
