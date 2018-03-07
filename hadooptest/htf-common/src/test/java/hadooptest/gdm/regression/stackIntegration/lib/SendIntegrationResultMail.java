@@ -24,6 +24,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.mysql.jdbc.ResultSetMetaData;
+
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
@@ -152,7 +154,15 @@ public class SendIntegrationResultMail {
                 .append("</tr>")
                 .append("</thead>").append("<tbody>");
                 while (resultSet.next()) {
-
+                	java.sql.ResultSetMetaData rsmd = resultSet.getMetaData();
+                	int columnsNumber = rsmd.getColumnCount();
+                	System.out.println("\n\n GRIDCI-3039 : Start \n\n");
+                	System.out.println("Columns Number : " + columnsNumber);
+                	for (int i = 1; i <= columnsNumber; i++) {
+                        if (i > 1) System.out.print(",  ");
+                        System.out.print(rsmd.getColumnName(i) + "\t : \t" + resultSet.getString(i));
+                    }
+                	System.out.println("\n\n GRIDCI-3039 : End \n\n");
                     tableBuilder.append("<tr>");
 
                     String dataSetName = resultSet.getString("dataSetName");
