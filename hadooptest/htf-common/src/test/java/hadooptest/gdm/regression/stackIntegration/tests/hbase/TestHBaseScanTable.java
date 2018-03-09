@@ -6,12 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class TestHBaseScanTable {
 
-	private String hostName;
+	private String hbaseGateWayHostName;
 	private String scriptPath;
 	private String kinitCommand;
 	private String path;
@@ -24,7 +25,11 @@ public class TestHBaseScanTable {
 	
 	public TestHBaseScanTable( StackComponent stackComponent ,  String kinitCommand , String path , String tableName ) {
 		this.setStackComponent(stackComponent);
-		this.setHostName(this.getStackComponent().getHostName());
+		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
+		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
+		TestSession.logger.info("Command = " + command);
+		String hostName = this.commonFunctions.executeCommand(command).trim();
+		this.setHbaseGateWayHostName(hostName);
 		this.setScriptPath(this.getStackComponent().getScriptLocation());
 		this.setKinitCommand(kinitCommand);
 		this.setPath(path);
@@ -32,12 +37,12 @@ public class TestHBaseScanTable {
 		this.commonFunctions = new CommonFunctions();
 	}
 	
-	public String getHostName() {
-		return hostName;
+	public String getHbaseGateWayHostName() {
+		return hbaseGateWayHostName;
 	}
 
-	public void setHostName(String hostName) {
-		this.hostName = hostName;
+	public void setHbaseGateWayHostName(String hostName) {
+		this.hbaseGateWayHostName = hostName;
 	}
 
 	public String getScriptPath() {
@@ -87,7 +92,7 @@ public class TestHBaseScanTable {
 		boolean scanRecordResult = false;
 		String mrJobURL = null;
                 // Expects pig installed on HMaster
-		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce "
+		String command = "ssh " + this.getHbaseGateWayHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce "
 				+ "-param \"TABLE_NAME=" + this.getTableName() + "\""
 				+ "  "
 				+ this.getScriptPath() + "/HBaseScanTable.pig\"";
