@@ -25,11 +25,6 @@ public class TestHBaseScanTable {
 	
 	public TestHBaseScanTable( StackComponent stackComponent ,  String kinitCommand , String path , String tableName ) {
 		this.setStackComponent(stackComponent);
-		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
-		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
-		TestSession.logger.info("Command = " + command);
-		String hostName = this.commonFunctions.executeCommand(command).trim();
-		this.setHbaseGateWayHostName(hostName);
 		this.setScriptPath(this.getStackComponent().getScriptLocation());
 		this.setKinitCommand(kinitCommand);
 		this.setPath(path);
@@ -37,12 +32,20 @@ public class TestHBaseScanTable {
 		this.commonFunctions = new CommonFunctions();
 	}
 	
+	public void getHBaseGateWayHostName() {
+		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
+		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
+		TestSession.logger.info("Command = " + command);
+		String hostName = this.commonFunctions.executeCommand(command).trim();
+		this.setHbaseGateWayHostName(hostName);
+	}
+
 	public String getHbaseGateWayHostName() {
 		return hbaseGateWayHostName;
 	}
 
-	public void setHbaseGateWayHostName(String hostName) {
-		this.hbaseGateWayHostName = hostName;
+	public void setHbaseGateWayHostName(String hbaseGateWayHostName) {
+		this.hbaseGateWayHostName = hbaseGateWayHostName;
 	}
 
 	public String getScriptPath() {
@@ -86,12 +89,13 @@ public class TestHBaseScanTable {
 	}
 
 	public boolean execute() {
+		this.getHBaseGateWayHostName();
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  start ------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "RUNNING");
 		boolean scanRecordResult = false;
 		String mrJobURL = null;
-                // Expects pig installed on HMaster
+		// Expects pig installed on HBASE-GW
 		String command = "ssh " + this.getHbaseGateWayHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";pig -x mapreduce "
 				+ "-param \"TABLE_NAME=" + this.getTableName() + "\""
 				+ "  "
