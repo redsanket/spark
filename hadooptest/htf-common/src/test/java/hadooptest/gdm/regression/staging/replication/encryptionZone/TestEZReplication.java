@@ -93,6 +93,7 @@ public class TestEZReplication extends TestSession {
 	target.setHCatType("DataOnly");
 	target.addPath("data", TARGET_DATA_PATH + this.dataSetName + "/%{date}");
 	target.setNumInstances("5");
+	target.setReplicationStrategy("DistCp");
 	generator.setTarget(target);
 	String dataSetXml = generator.getXml();
 
