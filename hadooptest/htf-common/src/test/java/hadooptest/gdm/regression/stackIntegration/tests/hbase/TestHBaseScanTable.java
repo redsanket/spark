@@ -12,6 +12,7 @@ import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
 public class TestHBaseScanTable {
 
+	private String hostName;
 	private String hbaseGateWayHostName;
 	private String scriptPath;
 	private String kinitCommand;
@@ -23,29 +24,32 @@ public class TestHBaseScanTable {
 	public TestHBaseScanTable() {
 	}
 	
-	public TestHBaseScanTable( StackComponent stackComponent ,  String kinitCommand , String path , String tableName ) {
+	public TestHBaseScanTable( StackComponent stackComponent ,  String kinitCommand , String path , String tableName, String hbaseClusterName) {
 		this.setStackComponent(stackComponent);
+		this.setHostName(this.getStackComponent().getHostName());
 		this.setScriptPath(this.getStackComponent().getScriptLocation());
 		this.setKinitCommand(kinitCommand);
 		this.setPath(path);
 		this.setTableName(tableName);
 		this.commonFunctions = new CommonFunctions();
+		String gwHost = this.commonFunctions.getClusterNodeName(hbaseClusterName, "gateway");
+		this.setHbaseGateWayHostName(gwHost);
 	}
 	
-	public void getHBaseGateWayHostName() {
-		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
-		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
-		TestSession.logger.info("Command = " + command);
-		String hostName = this.commonFunctions.executeCommand(command).trim();
-		this.setHbaseGateWayHostName(hostName);
-	}
-
 	public String getHbaseGateWayHostName() {
 		return hbaseGateWayHostName;
 	}
 
 	public void setHbaseGateWayHostName(String hbaseGateWayHostName) {
 		this.hbaseGateWayHostName = hbaseGateWayHostName;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
 	}
 
 	public String getScriptPath() {
@@ -89,7 +93,6 @@ public class TestHBaseScanTable {
 	}
 
 	public boolean execute() {
-		this.getHBaseGateWayHostName();
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseScanTable  start ------------------------------------------------------------------------");
 		String currentDataSet = this.commonFunctions.getDataSetName();
 		this.commonFunctions.updateDB(currentDataSet, "hbaseScanRecordTableCurrentState", "RUNNING");
