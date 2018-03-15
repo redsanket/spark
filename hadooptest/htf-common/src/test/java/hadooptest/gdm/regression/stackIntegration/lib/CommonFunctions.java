@@ -106,6 +106,13 @@ public class CommonFunctions {
 	    this.dbOperations = new DataBaseOperations();
 	}
 
+	public String getClusterNodeName(String clusterName, String node) {
+		String command = "yinst range -ir \"(@grid_re.clusters." + clusterName + "." + node +")\"";
+		TestSession.logger.info("Command = " + command);
+		String host = this.executeCommand(command).trim();
+		return host;
+	}
+
 	private String getStarlingHostName() {
 	    return starlingHostName;
 	}

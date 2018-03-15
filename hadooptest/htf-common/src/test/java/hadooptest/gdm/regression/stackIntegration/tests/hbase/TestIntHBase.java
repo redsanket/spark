@@ -1,6 +1,7 @@
 package hadooptest.gdm.regression.stackIntegration.tests.hbase;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
 
@@ -9,6 +10,7 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 	private String hostName;
 	private String clusterName;
 	private String nameNodeName;
+	private String hbaseClusterName;
 	private StackComponent stackComponent;
 	private CommonFunctions commonFunctions;
 	private static final String  COMPONENT_NAME = "hbase";
@@ -26,9 +28,18 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 		this.setStackComponent(stackComponent);
 		this.setHostName(this.stackComponent.getHostName());
 		this.setNameNodeName(nameNodeName);
+		this.setHbaseClusterName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName").trim());
 		this.commonFunctions = new CommonFunctions(this.clusterName);
 	}
 	
+	public void setHbaseClusterName (String hbaseClusterName) {
+		this.hbaseClusterName = hbaseClusterName;
+	}
+
+	public String getHbaseClusterName () {
+		return this.hbaseClusterName;
+	}
+
 	public String getNameNodeName() {
 		return nameNodeName;
 	}
@@ -82,11 +93,11 @@ public class TestIntHBase implements java.util.concurrent.Callable<String>{
 		isHBaseTableCreated = testHBaseCreateTable.execute();
 		TestSession.logger.info("isHBaseTableCreated = " + isHBaseTableCreated );
 		if (isHBaseTableCreated == true) {
-			TestHBaseInsertRecords testHBaseInsertRecords = new TestHBaseInsertRecords(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName , this.getNameNodeName() , this.clusterName);
+			TestHBaseInsertRecords testHBaseInsertRecords = new TestHBaseInsertRecords(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName , this.getNameNodeName() , this.clusterName, this.getHbaseClusterName());
 			isHBaseRecordInserted = testHBaseInsertRecords.execute();
 			if (isHBaseRecordInserted == true) {
 				TestSession.logger.info("HBase Records inserted successfully into table");
-				TestHBaseScanTable testHBaseScanTable = new TestHBaseScanTable(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName);
+				TestHBaseScanTable testHBaseScanTable = new TestHBaseScanTable(this.getStackComponent() , this.getKinitCommand() , this.getPathCommand() , tableName, this.getHbaseClusterName());
 				isTableScanned = testHBaseScanTable.execute();
 				if (isTableScanned == true) {
 					TestSession.logger.info("HBase Table scanned successfully ");

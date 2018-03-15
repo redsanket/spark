@@ -27,7 +27,7 @@ public class TestHBaseInsertRecords {
 	public TestHBaseInsertRecords() {
 	}
 	
-	public TestHBaseInsertRecords( StackComponent stackComponent ,  String kinitCommand , String path , String tableName , String nameNodeName , String clusterName) {
+	public TestHBaseInsertRecords( StackComponent stackComponent ,  String kinitCommand , String path , String tableName , String nameNodeName , String clusterName, String hbaseClusterName) {
 		this.setStackComponent(stackComponent);
 		this.setHostName(this.getStackComponent().getHostName());
 		this.setScriptPath(this.getStackComponent().getScriptLocation());
@@ -36,6 +36,8 @@ public class TestHBaseInsertRecords {
 		this.setTableName(tableName);
 		this.setNameNodeName(nameNodeName);
 		this.commonFunctions = new CommonFunctions(clusterName);
+		String gwHost = this.commonFunctions.getClusterNodeName(hbaseClusterName, "gateway");
+		this.setHbaseGateWayHostName(gwHost);
 	}
 
 	public String getHbaseGateWayHostName() {
@@ -102,14 +104,6 @@ public class TestHBaseInsertRecords {
 		this.stackComponent = stackComponent;
 	}
 	
-	public void getHBaseGateWayHostName() {
-		String hbaseClusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseClusterName");
-		String command = "yinst range -ir \"(@grid_re.clusters." + hbaseClusterName + ".gateway"+")\"";
-		TestSession.logger.info("Command = " + command);
-		String hostName = this.commonFunctions.executeCommand(command).trim();	
-		this.setHbaseGateWayHostName(hostName);
-	}
-	
 	public void copyScriptFilesToGw() {
 		if (this.commonFunctions.isJarFileExist(this.getHbaseGateWayHostName()) == true) {
 			boolean flag = this.commonFunctions.copyTestCases("hbase" ,this.commonFunctions.TESTCASE_PATH , this.getHbaseGateWayHostName());
@@ -127,7 +121,6 @@ public class TestHBaseInsertRecords {
 	}
 
 	public boolean execute() {
-		this.getHBaseGateWayHostName();
 		this.copyScriptFilesToGw();
 		String currentTableName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName") + "_" + this.commonFunctions.getDataSetName();
 		TestSession.logger.info("---------------------------------------------------------------TestHBaseInsertRecords  start   "+  currentTableName + "------------------------------------------------------------------------");
@@ -137,8 +130,8 @@ public class TestHBaseInsertRecords {
 		String mrJobURL = null;
 		String dataSetName = this.commonFunctions.getCurrentHourPath();
 		
-		String command = "ssh " + getHbaseGateWayHostName() + "  \"export HBASE_PREFIX=/home/y/libexec/hbase;export PATH=$PATH:/home/y/share/pig:/home/y/libexec/hbase/bin:/tmp/integration_test_files/lib/*.jar;" 
-		+ KINIT + getHbaseGateWayHostName() + ";" + "export PIG_HOME=" + PIG_HOME + ";export PATH=$PATH:$PIG_HOME/bin/;pig -x mapreduce  " 
+		String command = "ssh " + this.getHbaseGateWayHostName() + "  \"export HBASE_PREFIX=/home/y/libexec/hbase;export PATH=$PATH:/home/y/share/pig:/home/y/libexec/hbase/bin:/tmp/integration_test_files/lib/*.jar;"
+		+ KINIT + this.getHbaseGateWayHostName() + ";" + "export PIG_HOME=" + PIG_HOME + ";export PATH=$PATH:$PIG_HOME/bin/;pig -x mapreduce  "
 				+ "-param \"NAMENODE_NAME=" + this.getNameNodeName() + "\""
 				+ "  "
 				+ "-param \"DATASET_NAME=" + dataSetName + "\""
