@@ -25,8 +25,8 @@ import java.util.*;
  */
 public class SendIntegrationReportMail {
 
-    private static final String TO = "champaign-hadoop-qe-team@oath.com";
-    private static final String FROM = "champaign-hadoop-qe-team@oath.com";
+    private static final String TO = "cloud-integration-pipeline@oath.com";
+    private static final String FROM = "cloud-integration-pipeline@oath.com";
     private static final String SMTP = "mtarelay.ops.yahoo.net";
     private DataBaseOperations dbOperations;
     
