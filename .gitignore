@@ -2,3 +2,5 @@
 deploySupport/hadoopgridrollout.yicf
 
 *.bak
+.classpath
+.project
