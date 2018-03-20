@@ -34,7 +34,11 @@ public class CreateIntegrationDataSet {
     
     public CreateIntegrationDataSet() {
     	String absolutePath = new File("").getAbsolutePath();
-    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+	// gridci-3045, use correspodning XML template is using EZs
+	if ( IS_GDM_REPL_SRCDEST_EZ_ENABLED == "true" )
+    	  String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+	else
+    	  String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSetEzEnabled.xml");
     	TestSession.logger.info("dataSetConfigFile  = " + dataSetConfigFile);
         File file = new File(dataSetConfigFile);
         if (!file.exists()) {

@@ -15,10 +15,12 @@
     <DiscoveryFrequency>80</DiscoveryFrequency>
     <DiscoveryInterface>HDFS</DiscoveryInterface>
     <Paths>
-        <Path location="ABF-DATA-PATH" type="data"/>
-        <Path location="ABF-DATA-PATH" type="count"/>
-        <Path location="ABF-DATA-PATH" type="schema"/>
+        <Path location="/.reserved/rawABF-DATA-PATH" type="data"/>
+        <Path location="/.reserved/rawABF-DATA-PATH" type="count"/>
+        <Path location="/.reserved/rawABF-DATA-PATH" type="schema"/>
     </Paths>
+    <Parameters>
+        <attribute name="encryption.zone" value="true"/>
     <Parameters/>
     <DataDefinition>
         <StaticSchemaPath/>
