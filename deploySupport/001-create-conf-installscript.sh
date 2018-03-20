@@ -167,7 +167,15 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "echo ======= running yinst-set to disable Docker use and run tasks native, this has no effect on rhel6 nodes"
         echo "$yinst set -root ${yroothome} \\"
         echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default \\"
-    fi
+	else
+		if  DOCKER_IMAGE_TAG_TO_USE eq 'rhel7':
+		    echo "get latest ${DOCKER_IMAGE_TAG_TO_USE} tag image from <SOME_DOCKER_REPO>"
+		elif  DOCKER_IMAGE_TAG_TO_USE eq 'rhel6':
+			echo "get latest ${DOCKER_IMAGE_TAG_TO_USE} tag image from <SOME_DOCKER_REPO>"
+		else
+			echo "get specific ${DOCKER_IMAGE_TAG_TO_USE} tag image from <SOME_DOCKER_REPO>"
+		fi
+	fi
 
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
