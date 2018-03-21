@@ -40,8 +40,10 @@ echo ${CLUSTER_NAME}
 # gridci-3045, allow EZ use
 if [[ $IS_GDM_REPL_SRCDEST_EZ_ENABLED == "true" ]]; then
   echo "INFO: The GDM source and destination filesystem are Encryption Zones"
+  export IS_GDM_REPL_SRCDEST_EZ_ENABLED=true
 else
   echo "INFO: The GDM source and destination filesystem are NOT Encryption Zones"
+  export IS_GDM_REPL_SRCDEST_EZ_ENABLED=false
 fi
 
 # check to see if GDM_RUN_REGRESSION is set 
