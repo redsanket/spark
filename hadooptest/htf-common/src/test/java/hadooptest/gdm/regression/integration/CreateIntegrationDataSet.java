@@ -247,8 +247,10 @@ public class CreateIntegrationDataSet {
 
     public String getEnvVariable(String var) {
 
+	String envName;
+
 	Map<String, String> env = System.getenv();
-	for (String envName : env.keySet() ) {
+	for (envName : env.keySet() ) {
 		if ( envName.equals(var) ) break; 
 	}
 
