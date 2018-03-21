@@ -247,7 +247,7 @@ public class CreateIntegrationDataSet {
 
     public String getEnvVariable(String var) {
 
-	String retVal;
+	String retVal = "none";
 
 	Map<String, String> env = System.getenv();
 	for (String envName : env.keySet() ) {
@@ -257,7 +257,6 @@ public class CreateIntegrationDataSet {
 			retVal = env.get(envName);
 			break;
 		}	
-		retVal = "none";
 	}
 	return retVal;
     }
