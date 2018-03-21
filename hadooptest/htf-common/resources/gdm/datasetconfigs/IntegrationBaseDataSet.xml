@@ -48,7 +48,7 @@
     <DataFlow/>
     <Targets>
         <ReplicationStrategy>DistCp</ReplicationStrategy>
-    <Targets/>
+    </Targets>
     <HCat>
      	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
