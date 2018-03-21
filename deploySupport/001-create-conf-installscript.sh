@@ -183,10 +183,10 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
-	echo "echo ======= running yinst-set to set Herriot config properties."
+        echo "echo ======= running yinst-set to set Herriot config properties."
         echo "$yinst set -root ${yroothome} \\"
-	echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
-	echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
-	echo "     $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
+        echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
+        echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
+        echo "    $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
     fi
 ) >  /grid/0/tmp/deploy.$cluster.confoptions.sh
