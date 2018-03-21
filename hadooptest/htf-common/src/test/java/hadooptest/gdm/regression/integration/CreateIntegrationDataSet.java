@@ -38,7 +38,7 @@ public class CreateIntegrationDataSet {
     	String absolutePath = new File("").getAbsolutePath();
 
 	// gridci-3045, use correspodning XML template is using EZs
-	if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED" == "true" )
+	if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" )
     	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
 	else
     	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSetEzEnabled.xml");
@@ -249,12 +249,12 @@ public class CreateIntegrationDataSet {
 
 	Map<String, String> env = System.getenv();
 	for (String envName : env.keySet() ) {
-		if ( envName.equals(var)) break; 
+		if ( envName.equals(var) ) break; 
 	}
 
 	TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + env.get(envName));	
 	
-	return env.get(envName));
+	return env.get(envName);
     }
 
     public static void main(String... args) {
