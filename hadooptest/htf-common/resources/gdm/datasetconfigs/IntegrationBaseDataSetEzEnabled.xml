@@ -21,7 +21,7 @@
     </Paths>
     <Parameters>
         <attribute name="encryption.zone" value="true"/>
-    <Parameters/>
+    </Parameters>
     <DataDefinition>
         <StaticSchemaPath/>
         <RecordDelimiter/>
