@@ -257,6 +257,7 @@ public class CreateIntegrationDataSet {
 			retVal = env.get(envName);
 			break;
 		}	
+		retVal = "none";
 	}
 	return retVal;
     }
