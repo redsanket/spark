@@ -247,15 +247,18 @@ public class CreateIntegrationDataSet {
 
     public String getEnvVariable(String var) {
 
+	String retVal;
+
 	Map<String, String> env = System.getenv();
 	for (String envName : env.keySet() ) {
 		if ( envName.equals(var) ) {
 			TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + 
 				env.get(envName));	
+			retVal = env.get(envName);
 			break;
 		}	
 	}
-	return env.get(envName);
+	return retVal;
     }
 
     public static void main(String... args) {
