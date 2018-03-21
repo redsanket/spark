@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Map;
 
 public class CreateIntegrationDataSet {
 
@@ -37,7 +38,7 @@ public class CreateIntegrationDataSet {
     	String absolutePath = new File("").getAbsolutePath();
 
 	// gridci-3045, use correspodning XML template is using EZs
-	if ( IS_GDM_REPL_SRCDEST_EZ_ENABLED == "true" )
+	if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED" == "true" )
     	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
 	else
     	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSetEzEnabled.xml");
@@ -242,6 +243,18 @@ public class CreateIntegrationDataSet {
              targetsNode.appendChild(newTargetElement);
          }
          this.writeModifiedDocumentToFile();
+    }
+
+    public String getEnvVariable(String var) {
+
+	Map<String, String> env = System.getenv();
+	for (String envName : env.keySet() ) {
+		if ( envName.equals(var)) break; 
+	}
+
+	TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + env.get(envName));	
+	
+	return env.get(envName));
     }
 
     public static void main(String... args) {
