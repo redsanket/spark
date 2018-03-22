@@ -49,7 +49,9 @@
     </Sources>
     <DataFlow/>
     <Targets>
-        <ReplicationStrategy>DistCp</ReplicationStrategy>
+        <Target>
+            <ReplicationStrategy>DistCp</ReplicationStrategy>
+        </Target>
     </Targets>
     <HCat>
      	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
