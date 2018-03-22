@@ -167,8 +167,14 @@ public class IntegrationEmitterTest  extends TestSession {
 	assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
 
 	this.dataSetName = getDataSetName();
+
 	if (!checkDataSetAlreadyExists()) {
-	    createIntegrationDataSetObj.createDataSet();
+	    // gridci-3045, support pipelines with encryption zones
+	    if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" )
+	        createIntegrationDataSetObj.createDataSetEzEnabled();
+	    else
+	        createIntegrationDataSetObj.createDataSet();
+
 	    this.modifyDataSet();
 
 	    // activate the dataset
