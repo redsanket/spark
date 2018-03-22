@@ -186,11 +186,14 @@ public class IntegrationEmitterTest  extends TestSession {
 
 	if (!checkDataSetAlreadyExists()) {
 	    // gridci-3045, support pipelines with encryption zones
-	    if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" )
+	    if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" ) {
 	        createIntegrationDataSetObj.createDataSetEzEnabled();
-	    else
+		TestSession.logger.info("DEBUGPHW: using EZ,  IS_GDM_REPL_SRCDEST_EZ_ENABLED is: " + IS_GDM_REPL_SRCDEST_EZ_ENABLED);
+	    }
+	    else {
 	        createIntegrationDataSetObj.createDataSet();
-
+		TestSession.logger.info("DEBUGPHW: NOT using EZ,  IS_GDM_REPL_SRCDEST_EZ_ENABLED is: " + IS_GDM_REPL_SRCDEST_EZ_ENABLED);
+	    }
 	    this.modifyDataSet();
 
 	    // activate the dataset
