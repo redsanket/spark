@@ -48,11 +48,7 @@
         <Source latency="720" name="SOURCE_NAME" switchovertype="Standard"/>
     </Sources>
     <DataFlow/>
-    <Targets>
-        <Target>
-            <ReplicationStrategy>DistCp</ReplicationStrategy>
-        </Target>
-    </Targets>
+    <Targets/>
     <HCat>
      	<HCatDatabaseName>DATABASE_NAME</HCatDatabaseName>
         <HCatInstanceKey>instancedate</HCatInstanceKey>
