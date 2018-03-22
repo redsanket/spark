@@ -161,11 +161,15 @@ public class IntegrationEmitterTest  extends TestSession {
     
     public String getEnvVariable(String var) {
 
+TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable, got var: " + "var");
+
 	String retVal = "none";
 
 	Map<String, String> env = System.getenv();
 	for (String envName : env.keySet() ) {
+TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop, got var: " + "var");
 		if ( envName.equals(var) ) {
+TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop if statement, got var: " + "var");
 			TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + 
 				env.get(envName));	
 			retVal = env.get(envName);
