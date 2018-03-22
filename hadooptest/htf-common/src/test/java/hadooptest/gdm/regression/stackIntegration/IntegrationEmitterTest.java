@@ -159,6 +159,22 @@ public class IntegrationEmitterTest  extends TestSession {
 	this.workFlowHelper = new WorkFlowHelper();
     }
     
+    public String getEnvVariable(String var) {
+
+	String retVal = "none";
+
+	Map<String, String> env = System.getenv();
+	for (String envName : env.keySet() ) {
+		if ( envName.equals(var) ) {
+			TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + 
+				env.get(envName));	
+			retVal = env.get(envName);
+			break;
+		}	
+	}
+	return retVal;
+    }
+
     @Test
     public void integrationTest() throws Exception {
 	

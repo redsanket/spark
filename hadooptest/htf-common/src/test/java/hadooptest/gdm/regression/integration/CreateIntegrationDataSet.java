@@ -213,15 +213,15 @@ public class CreateIntegrationDataSet {
              Element startDateElement = this.createNewNode(dateRangeElement , "StartDate" , "type" , "fixed" , "value" , "20120125");
              Element endtDateElement = this.createNewNode(dateRangeElement , "EndDate" , "type" , "fixed" , "value" , "20220131");
 
-	     // Targets nested ReplicationStrategy XML block
-             Element replStrategyElement = this.createNewNode("ReplicationStrategy", "DistCp");
-
-	     // add all blocks to XML form
              dateRangeElement.appendChild(startDateElement);
              dateRangeElement.appendChild(endtDateElement);
              newTargetElement.appendChild(dateRangeElement);
+
+	     // Targets nested ReplicationStrategy XML block
+             Element replStrategyElement = this.createNewNode("ReplicationStrategy");
+	     replStrategyElement.setTextContent("DistCp");
              newTargetElement.appendChild(replStrategyElement);
-             
+
              Element hcatTypeElement = this.createNewNode("HCatTargetType");
              hcatTypeElement.setTextContent(this.getHcatType());
              newTargetElement.appendChild(hcatTypeElement);
