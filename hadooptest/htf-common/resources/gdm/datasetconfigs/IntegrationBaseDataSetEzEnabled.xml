@@ -21,6 +21,7 @@
     </Paths>
     <Parameters>
         <attribute name="encryption.zone" value="true"/>
+        <attribute name="working.dir" value="/.reserved/raw/data/working"/>
     </Parameters>
     <DataDefinition>
         <StaticSchemaPath/>
