@@ -191,7 +191,7 @@ TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop if statement,
 	if (!checkDataSetAlreadyExists()) {
 	    // gridci-3045, support pipelines with encryption zones
 	    // force it for now, why isn't env var coming across??
-	    if ( ! getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" ) {
+	    if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") != "true" ) {
 	        createIntegrationDataSetObj.createDataSetEzEnabled();
 		TestSession.logger.info("DEBUGPHW: using EZ,  IS_GDM_REPL_SRCDEST_EZ_ENABLED is: " + getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED"));
 	    }
