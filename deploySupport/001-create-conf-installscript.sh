@@ -167,14 +167,26 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "echo ======= running yinst-set to disable Docker use and run tasks native, this has no effect on rhel6 nodes"
         echo "$yinst set -root ${yroothome} \\"
         echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default \\"
+    else
+        if [[ ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel7' || ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel6' ]]; then
+            echo "get latest ${DOCKER_IMAGE_TAG_TO_USE}:current tag image"
+            echo "$yinst set -root ${yroothome} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=hadoop/${DOCKER_IMAGE_TAG_TO_USE}:current \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=hadoop/${DOCKER_IMAGE_TAG_TO_USE}:current \\"
+        else
+            echo "get specific ${DOCKER_IMAGE_TAG_TO_USE} tag image"
+            echo "$yinst set -root ${yroothome} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=hadoop/${DOCKER_IMAGE_TAG_TO_USE} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=hadoop/${DOCKER_IMAGE_TAG_TO_USE} \\"
+        fi
     fi
 
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
-	echo "echo ======= running yinst-set to set Herriot config properties."
+        echo "echo ======= running yinst-set to set Herriot config properties."
         echo "$yinst set -root ${yroothome} \\"
-	echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
-	echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
-	echo "     $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
+        echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
+        echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
+        echo "    $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
     fi
 ) >  /grid/0/tmp/deploy.$cluster.confoptions.sh

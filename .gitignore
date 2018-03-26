@@ -2,3 +2,12 @@
 deploySupport/hadoopgridrollout.yicf
 
 *.bak
+.classpath
+.project
+
+qa_svn_code/java_tests/alpha/bin/Readme
+qa_svn_code/java_tests/alpha/bin/Readme.txt
+qa_svn_code/java_tests/alpha/bin/buildme
+qa_svn_code/java_tests/alpha/bin/runme
+qa_svn_code/java_tests/alpha/bin/test_file.txt
+qa_svn_code/java_tests/alpha/bin/wordcount23dot2token.jar
