@@ -171,8 +171,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         if [[ ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel7' || ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel6' ]]; then
             echo "get latest ${DOCKER_IMAGE_TAG_TO_USE}:current tag image"
             echo "$yinst set -root ${yroothome} \\"
-            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE}:current \\"
-            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE}:current \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
         else
             echo "get specific ${DOCKER_IMAGE_TAG_TO_USE} tag image"
             echo "$yinst set -root ${yroothome} \\"
