@@ -36,17 +36,29 @@ public class GridS3ReplicationTest {
     
     @Before
     public void setUp() throws Exception {
-        List<String> grids = this.consoleHandle.getUniqueGrids();
-        if (grids.size() < 1) {
-            Assert.fail("Only " + grids.size() + " of 1 required S3 grids exist");
+        List<String> localGrids = this.consoleHandle.getUniqueGrids();
+        if (localGrids.size() < 1) {
+            Assert.fail("Only " + localGrids.size() + " of 1 required grids exist");
         }
-        this.sourceGrid = grids.get(0);
-        
-        grids = this.consoleHandle.getS3Grids();
-        if (grids.size() < 1) {
-            Assert.fail("Only " + grids.size() + " of 1 required grids exist");
+
+        List<String> S3Grids = this.consoleHandle.getS3Grids();
+        if (S3Grids.size() < 1) {
+            Assert.fail("Only " + S3Grids.size() + " of 1 required S3 grids exist");
         }
-        this.targetGrid = grids.get(0);
+
+        for (String sourceGrid : localGrids) {
+            for (String targetGrid : S3Grids) {
+                if (targetGrid.contains(sourceGrid)){
+                    this.sourceGrid = sourceGrid;
+                    this.targetGrid = targetGrid;
+                    break;
+                }
+            }
+        }
+
+        if (!this.targetGrid.contains(this.sourceGrid)){
+            Assert.fail("No matching grids from Source grid: " + localGrids + " and target grid: " + S3Grids);
+        }
     }
     
     @Test
