@@ -83,8 +83,11 @@ public class TestEZReplication extends TestSession {
 	generator.setDiscoveryInterface("HDFS");
 	generator.addSourcePath("data", SOURCE_DATA_PATH + "%{date}");
 	generator.setSource(SOURCE_CLUSTER_NAME);
-	generator.addParameter("working.dir", "/.reserved/raw/user/rushabhs/mr-encrypted-zone/working/");
-	generator.addParameter("eviction.dir", "/.reserved/raw/user/rushabhs/mr-encrypted-zone/todelete/");
+//	generator.addParameter("working.dir", "/.reserved/raw/user/rushabhs/mr-encrypted-zone/working/");
+//	generator.addParameter("eviction.dir", "/.reserved/raw/user/rushabhs/mr-encrypted-zone/todelete/");
+	
+	generator.addParameter("working.dir", "/user/rushabhs/mr-encrypted-zone/working/");
+	generator.addParameter("eviction.dir", "/user/rushabhs/mr-encrypted-zone/todelete/");
 
 	DataSetTarget target = new DataSetTarget();
 	target.setName(TARGET_CLUSTER_NAME);
