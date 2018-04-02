@@ -2,11 +2,22 @@
 
 # if node is rhel7 with docker enabled, make sure dockerd is
 # running, if not try to start it 
+#
+# gridci-3184, need to be sure we're running 1.13.1-53 after seccomp change
+# else see random docker container launch failures
 
 HOSTNAME=`hostname`
 OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 CLUSTER=`hostname | cut -d- -f1`
 DOCKER_YINST_SET=`/usr/local/bin/yinst set -root /home/gs/gridre/yroot."$CLUSTER" | grep TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES | cut -d: -f2`
+
+echo "Verify we have latest Docker package on node $HOSTNAME"
+yum install -y --enablerepo=latest* docker
+if [ $? -ne 0 ]; then
+  echo "ERROR: docker package update failed!"
+  exit 1
+fi
+
 
 echo "Checking if we need to startup Docker daemon on node $HOSTNAME"
 
