@@ -11,13 +11,6 @@ OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 CLUSTER=`hostname | cut -d- -f1`
 DOCKER_YINST_SET=`/usr/local/bin/yinst set -root /home/gs/gridre/yroot."$CLUSTER" | grep TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES | cut -d: -f2`
 
-echo "Verify we have latest Docker package on node $HOSTNAME"
-yum install -y --enablerepo=latest* docker
-if [ $? -ne 0 ]; then
-  echo "ERROR: docker package update failed!"
-  exit 1
-fi
-
 
 echo "Checking if we need to startup Docker daemon on node $HOSTNAME"
 
@@ -55,7 +48,14 @@ function check_dockerd {
 # to start dockerd
 #
 if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
-  echo "INFO: OS is $OS_VER and Docker support is enabled, starting dockerd..."
+  echo "INFO: OS is $OS_VER and Docker support is up to date and enabled, starting dockerd..."
+
+  echo "Verify we have latest Docker package on node $HOSTNAME"
+  yum install -y --enablerepo=latest* docker
+  if [ $? -ne 0 ]; then
+    echo "ERROR: docker package update failed!"
+    exit 1
+  fi
 
   check_dockerd
   if [ $? -eq 0 ]; then
