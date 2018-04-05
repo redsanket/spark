@@ -8,7 +8,7 @@ echo DOCKER_IMAGE_TAG_TO_USE is: $DOCKER_IMAGE_TAG_TO_USE
 echo RHEL7_DOCKER_DISABLED is: $RHEL7_DOCKER_DISABLED
 echo cluster is: $cluster
 
-if [[ RHEL7_DOCKER_DISABLED == "false" ]]; then
+if [[ $RHEL7_DOCKER_DISABLED == "false" ]]; then
 
   echo == update docker image for any rhel7 hadoop worker nodes 
 
