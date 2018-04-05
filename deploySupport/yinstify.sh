@@ -215,7 +215,7 @@ namenode*.sh \
 setup_nm_health_check_script.sh \
 setup_nm_dockerd_check_script.sh \
 ${CLUSTER}.rolelist.txt \
-../utils/* \
+docker_fetch_image.sh \
 "
 
 for script in $scripts; do
