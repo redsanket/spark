@@ -18,8 +18,9 @@
 #
 # Example use: docker_fetch_image openqe77blue rhel6 debug
 #
-# Intent is to run from the flubber deploySupport code but this script can also be
-# run as-is from admin node sudo, to update a cluster on an adhoc basis.
+# This script is called from 232-installsteps-update-docker.sh in the flubber 
+# deploySupport code but can also be run as-is from admin node sudo, to update 
+# a cluster on an adhoc basis.
 #
 #  Basic format for docker pull:
 #  sudo docker pull docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/<IMAGE_NAME>
@@ -29,7 +30,6 @@
 
 import argparse, subprocess
 import os, sys
-
 
 #
 # function: cluster_nodes 
