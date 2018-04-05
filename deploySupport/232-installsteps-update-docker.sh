@@ -12,7 +12,7 @@ if [[ $RHEL7_DOCKER_DISABLED == "false" ]]; then
 
   echo == update docker image for any rhel7 hadoop worker nodes 
 
-  /grid/0/tmp//docker_fetch_image.py $cluster $DOCKER_IMAGE_TAG_TO_USE
+  /grid/0/tmp/docker_fetch_image.py $cluster $DOCKER_IMAGE_TAG_TO_USE
 
 else
  
