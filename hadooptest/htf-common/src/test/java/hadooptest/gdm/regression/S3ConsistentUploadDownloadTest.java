@@ -170,9 +170,9 @@ public class S3ConsistentUploadDownloadTest {
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE1));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE2, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE2));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE3, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE3));
-        instanceExistsForUploadFeed(INSTANCE1, exists, "feed1", dataSetName);
-        instanceExistsForUploadFeed(INSTANCE2, exists, "feed1", dataSetName);
-        instanceExistsForUploadFeed(INSTANCE3, exists, "feed1", dataSetName);
+        instanceExistsForUploadFeed(INSTANCE1, true, "feed1", dataSetName);
+        instanceExistsForUploadFeed(INSTANCE2, true, "feed1", dataSetName);
+        instanceExistsForUploadFeed(INSTANCE3, true, "feed1", dataSetName);
     }
 
     private void instanceExistsForUploadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
