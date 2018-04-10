@@ -102,18 +102,20 @@ public class S3ConsistentUploadDownloadTest {
         JSONArray urls=new JSONArray();
         JSONObject jsonObject = new JSONObject();
 
+        JsonObjectCreator newjo = new JsonObjectCreator(new HadoopFileSystemHelper(this.localGrid));
+
         jsonObject.put("url", "s3://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160531/sampleData");
         urls.add(jsonObject);
         fileContent.put("entries",urls);
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData");
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent.toString());
+        newjo.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData")
+             .createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent.toString());
 
         urls.clear();
         jsonObject.put("url", "s3://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160601/sampleData");
         urls.add(jsonObject);
         fileContent.put("entries",urls);
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData");
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent.toString());
+        newjo.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData")
+             .createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent.toString());
 
         urls.clear();
         jsonObject.put("url", "s3://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData");
@@ -121,8 +123,9 @@ public class S3ConsistentUploadDownloadTest {
         jsonObject.put("url", "s3://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData.NotExist");
         urls.add(jsonObject);
         fileContent.put("entries",urls);
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData");
-        sourceHelper.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent.toString());
+        newjo.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData")
+             .createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent.toString());
+
     }
 
     private void createDataSet(String dataSetName, String xml) {
