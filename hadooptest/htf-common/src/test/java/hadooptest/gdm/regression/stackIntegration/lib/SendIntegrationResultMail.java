@@ -37,7 +37,7 @@ public class SendIntegrationResultMail {
     private AggIntResult aggIntResultObject;
     private DataBaseOperations dbOperations ;
     private static final String TO = "cloud-integration-pipeline@oath.com";
-    private static final String FROM = "cloud-integration-pipeline@oath.com";
+    private static final String FROM = "champaign-hadoop-qe-team@oath.com";
     private static final String SMTP = "mtarelay.ops.yahoo.net";
 
     public SendIntegrationResultMail() {
