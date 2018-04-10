@@ -185,17 +185,6 @@ public class S3ConsistentUploadDownloadTest {
         }
     }
 
-    private void validatePermissions(HadoopFileSystemHelper helper, String path) throws Exception {
-        FileStatus fileStatus = helper.getFileStatus(path);
-        if (fileStatus.isDirectory()) {
-            Assert.assertEquals("Unexpected permission for path " + path, "drwxr-x---", fileStatus.getPermission().toString());
-        } else {
-            Assert.assertEquals("Unexpected permission for path " + path, "rw-r-----", fileStatus.getPermission().toString());
-        }
-        Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "jagpip");
-        Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "jaggrp");
-    }
-
     private void runTest(int option) throws Exception{
         String dataSetName = "S3GridRepl_" + this.OPTIONS[option] + System.currentTimeMillis();
         createTopLevelDirectoryOnTarget(dataSetName);
