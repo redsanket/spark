@@ -170,19 +170,6 @@ public class S3ConsistentUploadDownloadTest {
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE1));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE2, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE2));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE3, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE3));
-        instanceExistsForUploadFeed(INSTANCE1, true, "feed1", dataSetName);
-        instanceExistsForUploadFeed(INSTANCE2, true, "feed1", dataSetName);
-        instanceExistsForUploadFeed(INSTANCE3, true, "feed1", dataSetName);
-    }
-
-    private void instanceExistsForUploadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
-        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.s3Grid);
-        String path = "s3-manifest-test/project-foo/" + dataSetName + "/feed1/" + instance + "/sampleData";
-        boolean found = targetHelper.exists(path);
-        Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
-        if (exists) {
-            validatePermissions(targetHelper, path);
-        }
     }
 
     private void runTest(int option) throws Exception{
