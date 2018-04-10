@@ -44,9 +44,9 @@ public class S3ConsistentUploadDownloadTest {
     private static final int INVALID_MANIFEST = 2;
     private static final String[] OPTIONS = {"VALID_MANIFEST_SOME_","VALID_MANIFEST_ALL_","INVALID_MANIFEST_"};
     private ConsoleHandle consoleHandle = new ConsoleHandle();
-    private String localGrid;
+    private String grid;
     private String s3Grid;
-    private String uploadWorkflow;
+    private String datasetName;
     private static final String YKEYKEY_PARAM = "fs.s3a.ykeykey.keyname";
     private static final String YKEYKEY_NAME = "gdm.dev.s3.key";
 
@@ -63,30 +63,30 @@ public class S3ConsistentUploadDownloadTest {
             Assert.fail("Only " + S3Grids.size() + " of 1 required S3 grids exist");
         }
 
-        List<String> localGrids = this.consoleHandle.getUniqueGrids();
-        if (localGrids.size() < 1) {
-            Assert.fail("Only " + localGrids.size() + " of 1 required grids exist");
+        List<String> grids = this.consoleHandle.getUniqueGrids();
+        if (grids.size() < 1) {
+            Assert.fail("Only " + grids.size() + " of 1 required grids exist");
         }
 
         for (String s3Grid : S3Grids) {
-            for (String localGrid : localGrids) {
-                if (s3Grid.contains(localGrid)){
+            for (String grid : grids) {
+                if (s3Grid.contains(grid)){
                     this.s3Grid = s3Grid;
-                    this.localGrid = localGrid;
+                    this.grid = grid;
                     break;
                 }
             }
         }
 
-        if (!this.s3Grid.contains(this.localGrid)){
-            Assert.fail("No matching grids from Source grid: " + localGrids + " and target grid: " + S3Grids);
+        if (!this.s3Grid.contains(this.grid)){
+            Assert.fail("No matching grids from Source grid: " + grids + " and target grid: " + S3Grids);
         }
 
-        this.uploadWorkflow = "GridS3Repl_" + System.currentTimeMillis();
-        createUploadDataSetInstance(this.uploadWorkflow);
-        createDataSet(this.uploadWorkflow, this.getUploadDataSetXml(this.uploadWorkflow));
-        validateUploadReplicationWorkflows(this.uploadWorkflow);
-        tearDown(this.uploadWorkflow);
+        this.datasetName = "GridS3Repl_" + System.currentTimeMillis();
+        createUploadDataSetInstance(this.datasetName);
+        createDataSet(this.datasetName, this.getUploadDataSetXml(this.datasetName));
+        validateUploadReplicationWorkflows(this.datasetName);
+        tearDown(this.datasetName);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class S3ConsistentUploadDownloadTest {
     }
 
     private void createUploadDataSetInstance(String dataSetName) throws Exception {
-        CreateFileHelper CFH = new CreateFileHelper(new HadoopFileSystemHelper(this.localGrid));
+        CreateFileHelper CFH = new CreateFileHelper(new HadoopFileSystemHelper(this.grid));
 
         String fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160531/sampleData").generateFileContent();
         CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent);
@@ -136,7 +136,7 @@ public class S3ConsistentUploadDownloadTest {
         generator.addSourcePath("invalid", "/projects/" + dataSetName + "/feed1/%{date}");
         generator.addSourcePath("raw", "/projects/" + dataSetName + "/feed1/%{date}");
         generator.addSourcePath("status", "/projects/" + dataSetName + "/feed1/%{date}");
-        generator.setSource(this.localGrid);
+        generator.setSource(this.grid);
 
         DataSetTarget target = new DataSetTarget();
         target.setName(this.s3Grid);
@@ -170,6 +170,30 @@ public class S3ConsistentUploadDownloadTest {
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE1));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE2, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE2));
         Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE3, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE3));
+        instanceExistsForDownloadFeed(INSTANCE1, exists, "feed1", dataSetName);
+        instanceExistsForDownloadFeed(INSTANCE2, exists, "feed1", dataSetName);
+        instanceExistsForDownloadFeed(INSTANCE3, exists, "feed1", dataSetName);
+    }
+
+    private void instanceExistsForUploadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.s3Grid);
+        String path = "s3-manifest-test/project-foo/" + dataSetName + "/feed1/" + instance + "/sampleData";
+        boolean found = targetHelper.exists(path);
+        Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
+        if (exists) {
+            validatePermissions(targetHelper, path);
+        }
+    }
+
+    private void validatePermissions(HadoopFileSystemHelper helper, String path) throws Exception {
+        FileStatus fileStatus = helper.getFileStatus(path);
+        if (fileStatus.isDirectory()) {
+            Assert.assertEquals("Unexpected permission for path " + path, "drwxr-x---", fileStatus.getPermission().toString());
+        } else {
+            Assert.assertEquals("Unexpected permission for path " + path, "rw-r-----", fileStatus.getPermission().toString());
+        }
+        Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "jagpip");
+        Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "jaggrp");
     }
 
     private void runTest(int option) throws Exception{
@@ -177,16 +201,12 @@ public class S3ConsistentUploadDownloadTest {
         createTopLevelDirectoryOnTarget(dataSetName);
         createDataSet(dataSetName, this.getDownloadDataSetXml(option,dataSetName,false));
         validateDownloadReplicationWorkflows(option, dataSetName);
-        if (option != INVALID_MANIFEST) {
-            enableRetention(option, dataSetName);
-            validateRetentionWorkflow(dataSetName);
-        }
         // if all the above method and their asserts are success then this dataset is eligible for deletion
         tearDown(dataSetName);
     }
 
     private void createTopLevelDirectoryOnTarget(String dataSetName) throws Exception {
-        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.localGrid);
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
         targetHelper.createDirectory("/projects/" + dataSetName);
     }
 
@@ -205,16 +225,16 @@ public class S3ConsistentUploadDownloadTest {
         generator.setFrequency("daily");
         generator.setDiscoveryFrequency("500");
         generator.setDiscoveryInterface("HDFS");
-        generator.addSourcePath("data", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed1/%{date}");
-        generator.addSourcePath("schema", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed2/%{date}");
-        generator.addSourcePath("count", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed3/%{date}");
-        generator.addSourcePath("invalid", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed4/%{date}");
-        generator.addSourcePath("raw", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed5/%{date}");
-        generator.addSourcePath("status", "s3-manifest-test/project-foo/" + this.uploadWorkflow + "/feed6/%{date}");
+        generator.addSourcePath("data", "s3-manifest-test/project-foo/" + this.datasetName + "/feed1/%{date}");
+        generator.addSourcePath("schema", "s3-manifest-test/project-foo/" + this.datasetName + "/feed2/%{date}");
+        generator.addSourcePath("count", "s3-manifest-test/project-foo/" + this.datasetName + "/feed3/%{date}");
+        generator.addSourcePath("invalid", "s3-manifest-test/project-foo/" + this.datasetName + "/feed4/%{date}");
+        generator.addSourcePath("raw", "s3-manifest-test/project-foo/" + this.datasetName + "/feed5/%{date}");
+        generator.addSourcePath("status", "s3-manifest-test/project-foo/" + this.datasetName + "/feed6/%{date}");
         generator.setSource(this.s3Grid);
 
         DataSetTarget target = new DataSetTarget();
-        target.setName(this.localGrid);
+        target.setName(this.grid);
         if (option == VALID_MANIFEST_SOME) {
             target.setDateRangeStart(true, "20160101");
         } else {
@@ -287,13 +307,13 @@ public class S3ConsistentUploadDownloadTest {
         instanceExistsForDownloadFeed(instance, exists, "feed6", dataSetName);
 
         // feed7 not specified, verify not copied
-        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.localGrid);
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
         boolean found = targetHelper.exists("/projects/" + dataSetName + "/feed7/");
         Assert.assertFalse("copied feed7 for instance " + instance, found);
     }
 
     private void instanceExistsForDownloadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
-        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.localGrid);
+        HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
         String path = "/projects/" + dataSetName + "/" + feed + "/" + instance + "/sampleData";
         boolean found = targetHelper.exists(path);
         Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
@@ -311,22 +331,6 @@ public class S3ConsistentUploadDownloadTest {
         }
         Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "jagpip");
         Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "jaggrp");
-    }
-
-    private void enableRetention(int option, String dataSetName) {
-        String dataSetXml = this.getDownloadDataSetXml(option,dataSetName,true);
-        Response response = this.consoleHandle.modifyDataSet(dataSetName, dataSetXml);
-        if (response.getStatusCode() != HttpStatus.SC_OK) {
-            TestSession.logger.error("Failed to create dataset, xml: " + dataSetXml);
-            Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
-        }
-    }
-
-    private void validateRetentionWorkflow(String dataSetName) throws Exception {
-        WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-        Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "retention", INSTANCE1));
-        instanceDownloadExists(INSTANCE1, false, dataSetName);
-        instanceDownloadExists(INSTANCE2, true, dataSetName);
     }
 
     private void tearDown(String dataSetName) throws Exception {
