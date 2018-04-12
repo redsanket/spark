@@ -131,19 +131,6 @@ cluster_oozie=`yinst range -ir "(@grid_re.clusters.$cluster.oozie)" | cut -d- -f
 #cluster="openqe86blue"
 echo "INFO: Reset Oozie node cluster name to: $cluster_oozie"
 
-cmd_coreconfs="ln -f -s  /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/core-site.xml  /home/y/conf/kms/core-site.xml; \
-  ln -f -s /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/kms-site.xml  /home/y/conf/kms/kms-site.xml; \
-  ln -f -s /home/gs/gridre/yroot.$cluster_oozie/conf/hadoop/kms-acls.xml  /home/y/conf/kms/kms-acls.xml"
-
-
-$SSH $kmsnode $cmd_coreconfs
-if [ $? -ne 0 ]; then
-  echo "Failed to setup Core conf links!"
-else
-  echo "INFO: setup Core conf links"
-fi
-
-
 #
 # place the jaas.conf for ZK kerb support, on ZK node at /home/y/conf/zookeeper
 # NOTE: the jaas.conf parsing is *really* touchy, the double quotes on 'keyTab' and 'principal' must
