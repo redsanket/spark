@@ -390,6 +390,8 @@ done
 [ -z "$HDFSPROXYVERSION" ] && export HDFSPROXYVERSION=none
 [ -z "$HDFSPROXY_TEST_PKG" ] && export HDFSPROXY_TEST_PKG=none
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=none
+[ -z "$RHEL7_DOCKER_DISABLED" ] && export RHEL7_DOCKER_DISABLED=true
+[ -z "$DOCKER_IMAGE_TAG_TO_USE" ] && export DOCKER_IMAGE_TAG_TO_USE=rhel6
 # Additional packages maintained by Hadoop Core QA team
 # [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
 [ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
