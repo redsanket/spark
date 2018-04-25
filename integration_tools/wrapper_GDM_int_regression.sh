@@ -37,6 +37,14 @@ sed "s/STAGING_CONSOLE_PORT/${STAGING_CONSOLE_PORT}/g" ${SRCTOP}/hadooptest/htf-
 CLUSTER_NAME=`ssh ${GDM_ONE_NODE_HOST} ls -ld /home/gs/gridre/yroot.* | cut -d'.' -f 2 | head -1`
 echo ${CLUSTER_NAME}
 
+# gridci-3045, allow EZ use
+if [[ $IS_GDM_REPL_SRCDEST_EZ_ENABLED == "true" ]]; then
+  echo "INFO: The GDM source and destination filesystem are Encryption Zones"
+  export IS_GDM_REPL_SRCDEST_EZ_ENABLED=true
+else
+  echo "INFO: The GDM source and destination filesystem are NOT Encryption Zones"
+  export IS_GDM_REPL_SRCDEST_EZ_ENABLED=false
+fi
 
 # check to see if GDM_RUN_REGRESSION is set 
 if [[ $GDM_RUN_INT_REGRESSION == "true" ]]

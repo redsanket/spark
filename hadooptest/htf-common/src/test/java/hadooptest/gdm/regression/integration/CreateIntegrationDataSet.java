@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Map;
 
 public class CreateIntegrationDataSet {
 
@@ -33,8 +34,14 @@ public class CreateIntegrationDataSet {
     private List<String> targeList;
     
     public CreateIntegrationDataSet() {
+    	String dataSetConfigFile;
     	String absolutePath = new File("").getAbsolutePath();
-    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+
+	// gridci-3045, use correspodning XML template if using EZs
+	if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") == "true" )
+    	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+	else
+    	  dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSetEzEnabled.xml");
     	TestSession.logger.info("dataSetConfigFile  = " + dataSetConfigFile);
         File file = new File(dataSetConfigFile);
         if (!file.exists()) {
@@ -188,6 +195,65 @@ public class CreateIntegrationDataSet {
             }
         }
     }
+
+    // gridci-3045, support pipelines with encryption zones
+    public void createDataSetEzEnabled() {
+         Document doc = this.getDocument();
+         TestSession.logger.info(doc.toString());
+         Document document = this.getDocument();
+         NodeList nodeList = this.getBaseDataSetNodeList();
+         Node targetsNode = this.getNode("Targets" , nodeList);
+
+         for ( String cName : this.getTargeList()) {
+	     // Targets XML block
+             Element newTargetElement  = this.createNewNode(targetsNode, "Target", "latency", "1440", "name", cName, "status", "active");
+
+	     // Targets nested DateRange XML block
+             Element dateRangeElement = this.createNewNode("DateRange");
+             Element startDateElement = this.createNewNode(dateRangeElement , "StartDate" , "type" , "fixed" , "value" , "20120125");
+             Element endtDateElement = this.createNewNode(dateRangeElement , "EndDate" , "type" , "fixed" , "value" , "20220131");
+
+             dateRangeElement.appendChild(startDateElement);
+             dateRangeElement.appendChild(endtDateElement);
+             newTargetElement.appendChild(dateRangeElement);
+
+	     // Targets nested ReplicationStrategy XML block
+             Element replStrategyElement = this.createNewNode("ReplicationStrategy");
+	     replStrategyElement.setTextContent("DistCp");
+             newTargetElement.appendChild(replStrategyElement);
+
+             Element hcatTypeElement = this.createNewNode("HCatTargetType");
+             hcatTypeElement.setTextContent(this.getHcatType());
+             newTargetElement.appendChild(hcatTypeElement);
+             
+             // create and add paths tag
+             Element pathsElement = this.createNewNode("Paths");
+             newTargetElement.appendChild(pathsElement);
+             
+             // create and add path tags
+             Element countPath = this.createNewNode(pathsElement , "Path" , "location" , "/.reserved/raw/data/daqdev/abf/count/${DataSetName}/%{date}" , "type" , "count");
+             Element dataPath = this.createNewNode(pathsElement ,  "Path" ,"location" , "/.reserved/raw/data/daqdev/abf/data/${DataSetName}/%{date}" , "type" , "data");  
+             Element schemaPath = this.createNewNode(pathsElement ,  "Path" , "location" , "/.reserved/raw/data/daqdev/abf/schema/${DataSetName}/%{date}" , "type" , "schema");
+             pathsElement.appendChild(countPath);
+             pathsElement.appendChild(dataPath);
+             pathsElement.appendChild(schemaPath);
+             
+             // policies element
+             Element policiesElement = this.createNewNode("Policies");
+             targetsNode.appendChild(policiesElement);
+             
+             // policy element
+             Element policyElement = this.createNewNode(policiesElement , "Policy" , "condition", "instanceDate(instancelist, instance) > 5" , "type" , "retention");
+             policiesElement.appendChild(policyElement);
+             newTargetElement.appendChild(policiesElement);
+             
+             Element resourceElement = this.createNewNode(newTargetElement, "Resource" , "capacity" , "10" , "name" , "bandwidth");
+             newTargetElement.appendChild(resourceElement);
+             
+             targetsNode.appendChild(newTargetElement);
+         }   
+         this.writeModifiedDocumentToFile();
+    }
     
     public void createDataSet() {
     	 Document doc = this.getDocument();
@@ -236,6 +302,22 @@ public class CreateIntegrationDataSet {
              targetsNode.appendChild(newTargetElement);
          }
          this.writeModifiedDocumentToFile();
+    }
+
+    public String getEnvVariable(String var) {
+
+	String retVal = "none";
+
+	Map<String, String> env = System.getenv();
+	for (String envName : env.keySet() ) {
+		if ( envName.equals(var) ) {
+			TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + "var" + ", and envName: " + 
+				env.get(envName));	
+			retVal = env.get(envName);
+			break;
+		}	
+	}
+	return retVal;
     }
 
     public static void main(String... args) {
