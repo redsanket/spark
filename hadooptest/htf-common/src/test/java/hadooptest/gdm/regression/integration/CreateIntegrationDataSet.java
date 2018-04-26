@@ -207,6 +207,11 @@ public class CreateIntegrationDataSet {
              dateRangeElement.appendChild(endtDateElement);
              newTargetElement.appendChild(dateRangeElement);
 
+             // gridci-3280, Targets nested ReplicationStrategy XML block
+             Element replStrategyElement = this.createNewNode("ReplicationStrategy");
+             replStrategyElement.setTextContent("DistCp");
+             newTargetElement.appendChild(replStrategyElement);
+
              Element hcatTypeElement = this.createNewNode("HCatTargetType");
              hcatTypeElement.setTextContent(this.getHcatType());
              newTargetElement.appendChild(hcatTypeElement);
