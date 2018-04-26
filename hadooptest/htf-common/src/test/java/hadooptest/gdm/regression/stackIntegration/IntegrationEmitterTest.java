@@ -159,25 +159,6 @@ public class IntegrationEmitterTest  extends TestSession {
 	this.workFlowHelper = new WorkFlowHelper();
     }
     
-    public String getEnvVariable(String var) {
-
-TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable, got var: " + "var");
-
-	String retVal = "none";
-
-	Map<String, String> env = System.getenv();
-	for (String envName : env.keySet() ) {
-TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop, got var: " + var + " and envName " + envName);
-		if ( envName.equals(var) ) {
-TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop if statement, got var: " + var);
-			TestSession.logger.info("DEBUGPHW: in getEnvVariable, got var: " + var + ", and envName: " + 
-				env.get(envName));	
-			retVal = env.get(envName);
-			break;
-		}	
-	}
-	return retVal;
-    }
 
     @Test
     public void integrationTest() throws Exception {
@@ -189,16 +170,7 @@ TestSession.logger.info("DEBUGPHWooooo: in getEnvVariable for loop if statement,
 	this.dataSetName = getDataSetName();
 
 	if (!checkDataSetAlreadyExists()) {
-	    // gridci-3045, support pipelines with encryption zones
-	    // force it for now, why isn't env var coming across??
-	    if ( getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED") != "true" ) {
-	        createIntegrationDataSetObj.createDataSetEzEnabled();
-		TestSession.logger.info("DEBUGPHW: using EZ,  IS_GDM_REPL_SRCDEST_EZ_ENABLED is: " + getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED"));
-	    }
-	    else {
-	        createIntegrationDataSetObj.createDataSet();
-		TestSession.logger.info("DEBUGPHW: NOT using EZ,  IS_GDM_REPL_SRCDEST_EZ_ENABLED is: " + getEnvVariable("IS_GDM_REPL_SRCDEST_EZ_ENABLED"));
-	    }
+	    createIntegrationDataSetObj.createDataSet();
 	    this.modifyDataSet();
 
 	    // activate the dataset
