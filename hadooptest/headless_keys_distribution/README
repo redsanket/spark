@@ -8,8 +8,9 @@ https://yahoo.jiveon.com/docs/DOC-127838
 To create a new package, modify the kgp file as needed, ie to add new keys. Then to build
 and Dist the package, run this scredwdriver job:
 
-https://screwdriver.corp.yahoo.com/projects/190116
+https://screwdriver.corp.yahoo.com/projects/190116 (old)
 
+https://screwdriver.corp.yahoo.com/projects/129280
 
 Version 0.1
   - initial version
