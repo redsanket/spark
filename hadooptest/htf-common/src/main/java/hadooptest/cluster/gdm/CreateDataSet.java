@@ -24,6 +24,8 @@ public class CreateDataSet {
     private String publisherContact;
     private String comments;
     private String doneFilePath;
+    private String s3Ykeykey;
+    private String s3ManifestFile;
     private String requestJSONVersion;
     private JSONArray targets;
     private int targetsCount;
@@ -287,7 +289,41 @@ public class CreateDataSet {
         }
         return this.doneFilePath;
     }
-    
+
+    public CreateDataSet s3Ykeykey(String keyname) {
+        this.s3Ykeykey = keyname;
+        this.datasetRequest.put("S3Ykeykey", this.s3Ykeykey);
+        return this;
+    }
+
+    public String getS3Ykeykey() {
+        if (this.s3Ykeykey == null) {
+            try {
+                throw new Exception("S3 Ykeykey not specified");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return this.s3Ykeykey;
+    }
+
+    public CreateDataSet s3Manifest(String manifest) {
+        this.s3ManifestFile = manifest;
+        this.datasetRequest.put("S3ManifestFile", this.s3ManifestFile);
+        return this;
+    }
+
+    public String getS3Manifest() {
+        if (this.s3ManifestFile == null) {
+            try {
+                throw new Exception("S3 Manifest File not specified");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return this.s3ManifestFile;
+    }
+
     public CreateDataSet addTarget(Target target ) throws Exception {
         if (this.targets == null) {
             throw new Exception("Target is null");
