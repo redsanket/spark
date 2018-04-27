@@ -22,3 +22,7 @@ group_acl=hadoopqa
 [KEY/hadoop_us.ranger/ranger_truststore_password]
 user_acl=root,hadoopqa
 group_acl=hadoopqa
+
+[KEY/hadoop_us.ranger/ranger_admin_password]
+user_acl=root,hadoopqa
+group_acl=hadoopqa
