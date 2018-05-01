@@ -8,9 +8,12 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.After;
 import org.junit.Test;
+import org.apache.commons.httpclient.HttpStatus;
 
 import hadooptest.TestSession;
+import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.CreateDataSet;
 import hadooptest.cluster.gdm.HTTPHandle;
@@ -21,6 +24,7 @@ import net.sf.json.JSONSerializer;
 
 public class TestCreatingDataSetThroughDoppler extends TestSession {
 
+    private String dataSetName;
     private ConsoleHandle consoleHandle;
     private String cookie;
     private HTTPHandle httpHandle = null;
@@ -30,7 +34,8 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
     private String targetGridName;
     private Target target1;
     private Target target2;
-    
+    private boolean eligibleForDelete = false;
+
     @BeforeClass
     public static void startTestSession() {
         TestSession.start();
@@ -72,7 +77,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
 
@@ -99,7 +106,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -122,7 +131,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -146,7 +157,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -169,7 +182,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -192,7 +207,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;  
     }
     
@@ -215,7 +232,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -238,7 +257,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .publisherContact("apollo-se@yahoo-inc.com")
         .doneFilePath("/data/daqdev/data/done")
         .frequency("daily")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -261,7 +282,9 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .publisherContact("apollo-se@yahoo-inc.com")
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
-        .addSourcePath(source).addTarget(this.target1);
+        .addSourcePath(source)
+        .addTarget(this.target1)
+        .requestJSONVersion("3");
         this.executeMethod(createDataSetObject.toString(), 400 ) ;
     }
     
@@ -271,15 +294,16 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      */
     @Test
     public void testCreatingDataSet() throws Exception {
-        String dataSetName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
+        this.dataSetName = "Test_CreateNewDataSetSuccessFully_"  + System.currentTimeMillis();
         SourcePath sourcePath = new SourcePath();
         sourcePath.addSourcePath("/data/SOURCE_ABF/data/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/schema/ABF_DAILY/%{date}").addSourcePath("/data/SOURCE_ABF/count/ABF_DAILY/%{date}");
         Target target = new Target();
-        target.targetName(this.targetGridName).addPath("/data/daqdev/data/${DataSetName}/%{date}").addPath("/data/daqdev/schema/${DataSetName}/%{date}").addPath("/data/daqdev/count/${DataSetName}/%{date}")
+        String targetCluster = "AmazonS3";
+        target.targetName(targetCluster).addPath("s3Bucket/${DataSetName}/%{date}").addPath("s3Bucket/${DataSetName}/%{date}").addPath("s3Bucket/${DataSetName}/%{date}")
         .retentionNumber("92").retentionPolicy("DateOfInstance").numMaps("3");;
         CreateDataSet createDSetObject = new CreateDataSet();
         
-        createDSetObject.dataSetName(dataSetName)
+        createDSetObject.dataSetName(this.dataSetName)
         .description("Testing dataset creation")
         .projectName("apollo")
         .sourceCluster(this.sourceGridName)
@@ -291,16 +315,20 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         .publisherContact("apollo-se@yahoo-inc.com")
         .comments("Testing dataset creation")
         .doneFilePath("/data/daqdev/data/done")
+        .s3Manifest("gdm.manifest")
+        .s3Ykeykey("gdm.ykeykey")
         .frequency("daily")
-        .addSourcePath(sourcePath).addTarget(target);
+        .addSourcePath(sourcePath)
+        .addTarget(target)
+        .requestJSONVersion("3");
         TestSession.logger.info("createDSetObject = " + createDSetObject.toString());
         this.executeMethod(createDSetObject.toString(), 201 );
         
         this.consoleHandle.sleep(30000);
         List<String> dataSetList = this.consoleHandle.getAllDataSetName();
-        assertTrue("Expected dataset to be created with dataset name = " + dataSetName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(dataSetName) == true);
+        assertTrue("Expected dataset to be created with dataset name = " + this.dataSetName + "   but failed =  " + dataSetList.toString() , dataSetList.contains(this.dataSetName) == true);
         
-        String getDataSetURL = this.consoleHandle.getConsoleURL() + "/console/query/config/dataset/v1/" + dataSetName + "?format=json";
+        String getDataSetURL = this.consoleHandle.getConsoleURL() + "/console/query/config/dataset/v3/" + this.dataSetName + "?format=json";
         com.jayway.restassured.response.Response response = given().cookie(this.cookie).get(getDataSetURL);
         assertTrue("Expected that http status code is success, but got " + response.getStatusCode() , response.getStatusCode() == 200);
         
@@ -308,8 +336,11 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         TestSession.logger.info("responseString = " + responseString);
         JSONObject responseJsonObject =  (JSONObject) JSONSerializer.toJSON(responseString);
         JSONObject dataSetJsonObject = responseJsonObject.getJSONObject("DataSet");
-        
+
         assertTrue("Expected that dataSetName to be " + createDSetObject.getDataSetName() + "  but got  " + dataSetJsonObject.getString("DataSetName") , dataSetJsonObject.getString("DataSetName").equals(createDSetObject.getDataSetName()));
+        assertTrue("Expected that manifestFile to be " + createDSetObject.getS3Manifest() + "  but got  " + dataSetJsonObject.getString("S3ManifestFile") , dataSetJsonObject.getString("S3ManifestFile").equals(createDSetObject.getS3Manifest()));
+        assertTrue("Expected that s3Ykeykey to be " + createDSetObject.getS3Ykeykey() + "  but got  " + dataSetJsonObject.getString("S3Ykeykey") , dataSetJsonObject.getString("S3Ykeykey").equals(createDSetObject.getS3Ykeykey()));
+        eligibleForDelete = true;
     }
     
     
@@ -319,7 +350,7 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
      */
     private void executeMethod(String dataSetRequestJsonValue , final int HTTP_CODE) {
         TestSession.logger.info("dataset request: " + dataSetRequestJsonValue);
-        String url = this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/v1";
+        String url = this.consoleHandle.getConsoleURL() + "/console/rest/config/dataset/v3";
         com.jayway.restassured.response.Response response = given().cookie(this.cookie).param("format", "json").param("datasetRequest" ,dataSetRequestJsonValue ).post(url);
         String res = response.getBody().asString();
         TestSession.logger.info(res);
@@ -327,4 +358,10 @@ public class TestCreatingDataSetThroughDoppler extends TestSession {
         assertTrue("Expected HTTP  code " + HTTP_CODE  + "  but got " + response.getStatusCode() , response.getStatusCode() == HTTP_CODE);      
     }
 
+    @After
+    public void tearDown() throws Exception {
+        if (eligibleForDelete) {
+            this.consoleHandle.removeDataSet(this.dataSetName);
+        }
+    }
 }
