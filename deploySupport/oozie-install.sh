@@ -16,7 +16,7 @@ CLUSTER=$1
 REFERENCE_CLUSTER=$2
 STACK_COMP_INSTALL_SPARK=$3
 
-export JAVA_HOME="/home/gs/java8/jdk64/current"
+export JAVA_HOME="/home/gs/java/jdk64/current"
 export PARTITIONHOME=/home
 export GSHOME=$PARTITIONHOME/gs
 export yroothome=$GSHOME/gridre/yroot.$CLUSTER

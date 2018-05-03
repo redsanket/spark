@@ -19,7 +19,7 @@ if [ "$STARTYARN" = true ]
 then
     banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
 
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
 
 debug=
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz

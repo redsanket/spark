@@ -6,7 +6,7 @@ export PATH=$PATH:/home/gs/current/bin
 
 if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
     if [[ "$HADOOP_27" == "true" ]]; then
-        JAVA_HOME="$GSHOME/java8/jdk64/current"
+        JAVA_HOME="$GSHOME/java/jdk64/current"
     else
         JAVA_HOME="$GSHOME/java/jdk"
     fi

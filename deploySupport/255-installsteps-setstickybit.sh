@@ -1,7 +1,7 @@
 echo ================= Set sticky bit on /tmp hdfs directory
 
 if [[ "$HADOOP_27" == "true" ]]; then
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
 else
     JAVA_HOME="$GSHOME/java/jdk"
 fi

@@ -7,7 +7,7 @@ export PATH=$PATH:/home/gs/current/bin
 
 if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
 
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
 
      TEZ_RELEASE_VERSION=`echo $TEZVERSION | cut -c1-3`
      cmd="echo installing Tez on Tez hosts ; \

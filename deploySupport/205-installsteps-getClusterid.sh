@@ -27,7 +27,7 @@ then
         exit 1
     fi
     nn=$NAMENODE_Primary
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
     (
         set -x
         echo "cd ${yroothome}"

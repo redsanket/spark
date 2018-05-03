@@ -4,7 +4,7 @@ action=$1
 cluster=$2
 
 # we use 64-bit for datanode
-export JAVA_HOME=$GSHOME/java8/jdk64/current
+export JAVA_HOME=$GSHOME/java/jdk64/current
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs

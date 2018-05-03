@@ -30,7 +30,7 @@ if [[ $LENGTH_CLUSTER_STRING > 2 ]]; then
   exit -1
 fi
 
-export JAVA_HOME="/home/gs/java8/jdk64/current"
+export JAVA_HOME="/home/gs/java/jdk64/current"
 export PARTITIONHOME=/home
 export GSHOME=$PARTITIONHOME/gs
 export yroothome=$GSHOME/gridre/yroot.$CLUSTER

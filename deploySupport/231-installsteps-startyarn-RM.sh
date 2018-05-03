@@ -34,7 +34,7 @@ ssh  $jobtrackernode su - $MAPREDUSER
     fanoutGW "/usr/local/bin/yinst set -root ${yroothome} $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory   $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
     tmpfile=/tmp/xx.$$
 
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
 
     (
         echo "set -x"

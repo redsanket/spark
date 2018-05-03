@@ -27,7 +27,7 @@ then
 
     fanoutNN "rm /tmp/namenode-part-*-script.sh"
 
-    JAVA_HOME="$GSHOME/java8/jdk64/current"
+    JAVA_HOME="$GSHOME/java/jdk64/current"
     (
     echo "export CLUSTERID=$CLUSTERID"
     echo "export GSHOME=$GSHOME"
