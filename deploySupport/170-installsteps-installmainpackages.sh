@@ -146,3 +146,11 @@ HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
 echo "INFO: HTF uses default JDK on gateway so update it too" 
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
 
+
+# gridci-3318, we need to pass the kms truststore to docker tasks since docker image
+# JDK will not have this and we can't add it on the fly (would need to add to base 
+# image) so instead we place our jks in a docker bind mount, which conf/hadoop is,
+# and then tell pig tasks to use it via pig script 'set' cmds 
+fanout "sudo cp $CERT_HOME/kms.jks /home/gs/conf/current/."
+
+
