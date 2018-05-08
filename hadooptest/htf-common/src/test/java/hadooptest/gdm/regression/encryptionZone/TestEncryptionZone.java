@@ -16,7 +16,7 @@ import hadooptest.cluster.gdm.DataSetXmlGenerator;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class TestEncryptionZone extends TestSession {
 
@@ -42,22 +42,22 @@ public class TestEncryptionZone extends TestSession {
     private final static String HADOOP_CONF_DIR = "export HADOOP_CONF_DIR=/home/gs/conf/current;";
     private final static String KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload;";
     private String [] dataSetNames = {
-	"SourceEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis() ,
-//	"SourceNonEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis(),
-//	"SourceEZ-TargetNonEZ_Replication_DataOnly_" + System.currentTimeMillis()
-	//"TestEZ1_to_EZ2_Replication_DataOnly_" + System.currentTimeMillis()
+	    "SourceEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis() ,
+	    	"SourceNonEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis(),
+	    	"SourceEZ-TargetNonEZ_Replication_DataOnly_" + System.currentTimeMillis()
+	    //"TestEZ1_to_EZ2_Replication_DataOnly_" + System.currentTimeMillis()
     };
-    
+
     private String [] sourcePath = {
-	EZ_SOURCE_DATA_PATH,
-//	NON_EZ_SOURCE_DATA_PATH,
-//	EZ_SOURCE_DATA_PATH
+	    EZ_SOURCE_DATA_PATH,
+	    NON_EZ_SOURCE_DATA_PATH,
+	    EZ_SOURCE_DATA_PATH
     };
-    
+
     private String [] targetPath = {
-	EZ_TARGET_DATA_PATH,
-//	EZ_TARGET_DATA_PATH,
-//	NON_EZ_SOURCE_DATA_PATH
+	    EZ_TARGET_DATA_PATH,
+	    EZ_TARGET_DATA_PATH,
+	    NON_EZ_SOURCE_DATA_PATH
     };
 
     private boolean testCasePassedFlag = false;
@@ -136,31 +136,30 @@ public class TestEncryptionZone extends TestSession {
 	for ( int i = 0; i < dataSetNames.length ; i++) {
 	    createDataSet(dataSetNames[i] , sourcePath[i] , targetPath[i]);
 	    
-	 // check for replication workflow
-	    if (dataSetNames[i].indexOf("NonEZ") > -1) {
-		boolean result = workFlowHelper.workflowPassed(dataSetNames[i], "replication", END_INSTANCE_RANGE);
-		if (result == true) {
-		    Assert.fail(dataSetNames[i] + " is a nonEZ dataset, but still the workflow passed.");
-		    testCasePassedFlag = true;
-		}
-	    } else {
-		// check for replication workflow
-		workFlowHelper.checkWorkFlow(dataSetNames[i], "replication", this.datasetActivationTime);
-
-		// deactivate the dataset before applying retention to dataset
-		Response response = this.consoleHandle.deactivateDataSet(dataSetNames[i]);
-		Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
-
-		// set retention policy to zero
-		this.consoleHandle.setRetentionPolicyToAllDataSets(dataSetNames[i] , "0");
-		Thread.sleep(2000);
-
-		// check for retention workflow
-		workFlowHelper.checkWorkFlow(dataSetNames[i] , "retention", this.datasetActivationTime);
-
-		// set to true if both replication and retention are successful
+	    Thread.sleep(5000);
+	    
+	    boolean result = workFlowHelper.workflowPassed(dataSetNames[i], "replication", END_INSTANCE_RANGE);
+	    Assert.assertTrue("Expected workflow to pass, but failed", result );
+	    if ( result) {
 		testCasePassedFlag = true;
 	    }
+
+	    // check for replication workflow
+	    workFlowHelper.checkWorkFlow(dataSetNames[i], "replication", this.datasetActivationTime);
+
+	    // deactivate the dataset before applying retention to dataset
+	    Response response = this.consoleHandle.deactivateDataSet(dataSetNames[i]);
+	    Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+
+	    // set retention policy to zero
+	    this.consoleHandle.setRetentionPolicyToAllDataSets(dataSetNames[i] , "0");
+	    Thread.sleep(2000);
+
+	    // check for retention workflow
+	    workFlowHelper.checkWorkFlow(dataSetNames[i] , "retention", this.datasetActivationTime);
+
+	    // set to true if both replication and retention are successful
+	    testCasePassedFlag = true;
 	}
     }
 
@@ -177,7 +176,7 @@ public class TestEncryptionZone extends TestSession {
 	generator.setDiscoveryInterface("HDFS");
 	generator.addSourcePath("data", sourcePath + "%{date}");
 	generator.setSource(sourceCluster);
-	
+
 	/*if (dName.split("-")[1].indexOf("NonEZ") > -1) {
 	    generator.addParameter("working.dir", NON_EZ_WORKING_DIR);
 	    generator.addParameter("eviction.dir", NON_EZ_EVICTION_DIR);
@@ -185,7 +184,7 @@ public class TestEncryptionZone extends TestSession {
 	    generator.addParameter("working.dir", EZ_WORKING_DIR);
 	    generator.addParameter("eviction.dir", EZ_EVICTION_DIR);
 	}*/
-	
+
 	DataSetTarget target = new DataSetTarget();
 	target.setName(targetCluster);
 	target.setDateRangeStart(true, START_INSTANCE_RANGE);
@@ -206,5 +205,5 @@ public class TestEncryptionZone extends TestSession {
 	TestSession.logger.info("Wait for some time, so that dataset gets created, activated and ready for replication.");
 	this.consoleHandle.sleep(5000);
     }
-    
+
 }
