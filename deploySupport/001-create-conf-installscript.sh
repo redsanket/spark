@@ -113,13 +113,13 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     else
        case "$HADOOPVERSION" in
        2.[0-3])
-           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn:8020 \\
+           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
            ;;
        2.[4-9])
-           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn:8020/ \\
+           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
            ;;
        3.[0-9])
-	   echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn:8020/ \\
+	   echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
 	   ;;
        *)
            echo "Invalid Hadoop version $HADOOPVERSION"
