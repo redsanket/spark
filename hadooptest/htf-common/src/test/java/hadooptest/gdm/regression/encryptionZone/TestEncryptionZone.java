@@ -32,32 +32,30 @@ public class TestEncryptionZone extends TestSession {
     private final static String NON_EZ_TARGET_DATA_PATH = NON_EZ_PATH + "/data/";
     private final static String EZ_SOURCE_DATA_PATH = EZ_PATH + "/data/";
     private final static String EZ_TARGET_DATA_PATH = EZ_PATH + "/data/";
-    private final static String EZ_WORKING_DIR =  EZ_PATH + "/working/";
-    private final static String EZ_EVICTION_DIR =  EZ_PATH + "/todelete/";
-    private final static String NON_EZ_WORKING_DIR =  NON_EZ_PATH + "/working/";
-    private final static String NON_EZ_EVICTION_DIR =  NON_EZ_PATH + "/todelete/";
     private final static String CRYPTO_LIST_CMD = "hdfs crypto -listZones";
     private final static String HADOOP_HOME = "export HADOOP_HOME=/home/gs/hadoop/current;";
     private final static String JAVA_HOME = "export JAVA_HOME=/home/gs/java/jdk64/current/;";
     private final static String HADOOP_CONF_DIR = "export HADOOP_CONF_DIR=/home/gs/conf/current;";
     private final static String KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload;";
     private String [] dataSetNames = {
-	    "SourceEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis() ,
-	    	"SourceNonEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis(),
-	    	"SourceEZ-TargetNonEZ_Replication_DataOnly_" + System.currentTimeMillis()
-	    //"TestEZ1_to_EZ2_Replication_DataOnly_" + System.currentTimeMillis()
+	    "TestSourceEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis() ,
+	    "TestSourceNonEZ-TargetEZ_Replication_DataOnly_" + System.currentTimeMillis(),
+	    "TestSourceEZ-TargetNonEZ_Replication_DataOnly_" + System.currentTimeMillis(),
+	    "TestSourceNonEZ-TargetNonEZ_Replication_DataOnly_" + System.currentTimeMillis(),
     };
 
     private String [] sourcePath = {
 	    EZ_SOURCE_DATA_PATH,
 	    NON_EZ_SOURCE_DATA_PATH,
-	    EZ_SOURCE_DATA_PATH
+	    EZ_SOURCE_DATA_PATH,
+	    NON_EZ_SOURCE_DATA_PATH
     };
 
     private String [] targetPath = {
 	    EZ_TARGET_DATA_PATH,
 	    EZ_TARGET_DATA_PATH,
-	    NON_EZ_SOURCE_DATA_PATH
+	    NON_EZ_TARGET_DATA_PATH,
+	    NON_EZ_TARGET_DATA_PATH
     };
 
     private boolean testCasePassedFlag = false;
@@ -135,12 +133,12 @@ public class TestEncryptionZone extends TestSession {
 
 	for ( int i = 0; i < dataSetNames.length ; i++) {
 	    createDataSet(dataSetNames[i] , sourcePath[i] , targetPath[i]);
-	    
+
 	    Thread.sleep(5000);
-	    
+
 	    boolean result = workFlowHelper.workflowPassed(dataSetNames[i], "replication", END_INSTANCE_RANGE);
 	    Assert.assertTrue("Expected workflow to pass, but failed", result );
-	    if ( result) {
+	    if (result) {
 		testCasePassedFlag = true;
 	    }
 
@@ -176,15 +174,6 @@ public class TestEncryptionZone extends TestSession {
 	generator.setDiscoveryInterface("HDFS");
 	generator.addSourcePath("data", sourcePath + "%{date}");
 	generator.setSource(sourceCluster);
-
-	/*if (dName.split("-")[1].indexOf("NonEZ") > -1) {
-	    generator.addParameter("working.dir", NON_EZ_WORKING_DIR);
-	    generator.addParameter("eviction.dir", NON_EZ_EVICTION_DIR);
-	} else {
-	    generator.addParameter("working.dir", EZ_WORKING_DIR);
-	    generator.addParameter("eviction.dir", EZ_EVICTION_DIR);
-	}*/
-
 	DataSetTarget target = new DataSetTarget();
 	target.setName(targetCluster);
 	target.setDateRangeStart(true, START_INSTANCE_RANGE);
