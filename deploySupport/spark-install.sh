@@ -171,13 +171,13 @@ do
     # convert the label to lowercase to match the directory
     label=$(echo $label | tr '[:upper:]' '[:lower:]')
 
-    spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/"
+    spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
+    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
     
     if [[ $version == "2."* ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/ /sharelib/v1/spark/yspark_yarn-$version/share/spark/ ; \
-      $HADOOP fs -put /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/spark/yspark_yarn-$version/share/spark/"
+      $HADOOP fs -put /home/gs/spark/$label/lib/ /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/ ; \
+      $HADOOP fs -put /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/"
     else
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
       $HADOOP fs -put /home/gs/spark/$label/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
@@ -186,9 +186,9 @@ do
       $HADOOP fs -put /home/gs/spark/$label/lib/datanucleus-rdbms.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/"
     fi
 
-    echo "INFO: Copying yspark_yarn-$version jars to hdfs://sharelib/v1/spark/"
+    echo "INFO: Copying yspark_yarn-$version jars to hdfs://sharelib/v1/yspark_yarn/"
 
-    cmd="echo Creating hdfs://sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
+    cmd="echo Creating hdfs://sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/lib/ ; \
         export SPARK_HOME=/home/gs/spark/latest ; \
         export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
         export HADOOP_HOME=/home/gs/hadoop/current ; \
@@ -196,8 +196,8 @@ do
         export HADOOP_CONF_DIR=/home/gs/conf/current ; \
         export HADOOP_CLASSPATH="$yroothome/:$SPARK_CONF_DIR:$SPARK_HOME/*:$SPARK_HOME/lib/*" ; \
         echo installing yspark_yarn to hdfs ; \
-        $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-        $HADOOP fs -mkdir -p /sharelib/v1/spark/yspark_yarn-$version/share/spark/python/lib/ ; \
+        $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/lib/ ; \
+        $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
         $spark_install_jars_cmds"
 
     echo "$cmd"
