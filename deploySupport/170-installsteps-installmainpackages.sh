@@ -33,10 +33,11 @@ then
     #
     #
     # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
+    # gridci-3342, need quarantine on rhel7 in order to install with Core 3.x
     OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
     if [[ "$OS_VER" =~ ^7. ]]; then
         echo "INFO: OS is $OS_VER"
-        cmd="$yinst install  -br test  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
+        cmd="$yinst install  -br quarantine  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
 
     elif [[ "$OS_VER" =~ ^6. ]]; then
         echo "OS is $OS_VER"
