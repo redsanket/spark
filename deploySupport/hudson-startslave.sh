@@ -176,6 +176,11 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
     # if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
     # set earlier and has already been added to HADOOP_CORE_PKGS
     fi
+  
+    # explicitly set coretree and hadoopCommonsDaemon for rhel7
+    # must do this to get the rhel7 compat version on test branch
+    #phw HADOOP_INSTALL_STRING+=" hadoopcoretree hadoopCommonsDaemon-1.0.4.1707172207 "
+    HADOOP_INSTALL_STRING+=" hadoopCommonsDaemon-1.0.4.1707172207 "
 
     # explicitly set coretree and hadoopCommonsDaemon for rhel7
     # must do this to get the rhel7 compat version on test branch
@@ -517,6 +522,9 @@ scp $filelist  $ADMIN_HOST:/tmp/
 
 # Install and start the deployment package on the adm admin box to commence
 # deployment as root.
+#
+# adding 'force' to workaround yinst auto adding os requires directive for rhel-6
+
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
 ssh $ADMIN_HOST "\
