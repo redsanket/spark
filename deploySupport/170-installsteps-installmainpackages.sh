@@ -21,7 +21,7 @@ then
         elif [[ "$OS_VER" =~ ^6. ]]; then
             echo "OS is $OS_VER"
             #phw  spark_shuffle_cmd="$yinst install -yes -os rhel-6.x -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
-            spark_shuffle_cmd="$yinst install -br test -yes -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
+            spark_shuffle_cmd="$yinst install -br quarantine -yes -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
   
         else
             echo "WARN: Unknown OS $OS_VER!"
@@ -43,7 +43,7 @@ then
     elif [[ "$OS_VER" =~ ^6. ]]; then
         echo "OS is $OS_VER"
         #phw  cmd="$yinst install -br test -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
-        cmd="$yinst install -br test -yes -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
+        cmd="$yinst install -br quarantine -yes -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
 
     else
         echo "WARN: Unknown OS $OS_VER!"
