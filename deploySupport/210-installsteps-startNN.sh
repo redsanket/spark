@@ -46,7 +46,7 @@ then
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_DEFAULT_LIBEXEC_DIR=${HADOOP_HOME}/libexec"
-    echo "export HADOOPVERSION=$HADOOPVERSION"
+    echo "export HADOOPVERSION=$HADOOPVERSION "
     echo "sh /tmp/namenode-part-1-script.sh $arg " 
     ) > /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
@@ -77,6 +77,7 @@ then
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop   "
     echo "sh /tmp/namenode2-part-1-script.sh $arg " 
+    echo "export HADOOPVERSION=$HADOOPVERSION "
     ) > /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh __HOSTNAME__:/tmp/" "$ALLSECONDARYNAMENODESLIST"
     # Run startnn1.sh as HDFS user
@@ -97,6 +98,7 @@ export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_HOME=${yroothome}/share/hadoop && \
 export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && \
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && export JAVA_HOME=$JAVA_HOME && \
+export HADOOPVERSION=$HADOOPVERSION && \
 sh /tmp/datanode-script.sh $arg $cluster; \
 EC=\$?; echo EC=\$EC; [[ \$EC -eq 0 ]] && rm -f /tmp/datanode-script.sh\
 "
@@ -117,6 +119,7 @@ EC=\$?; echo EC=\$EC; [[ \$EC -eq 0 ]] && rm -f /tmp/datanode-script.sh\
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop   "
+    echo "export HADOOPVERSION=$HADOOPVERSION "
     echo "sh /tmp/namenode-part-3-script.sh $arg "
     ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
@@ -139,6 +142,7 @@ EC=\$?; echo EC=\$EC; [[ \$EC -eq 0 ]] && rm -f /tmp/datanode-script.sh\
     echo "export YARN_CONF_DIR=${yroothome}/conf/hadoop"
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop   "
+    echo "export HADOOPVERSION=$HADOOPVERSION "
     echo "sh /tmp/namenode2-part-3-script.sh $arg "
     ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh __HOSTNAME__:/tmp/" "$ALLSECONDARYNAMENODESLIST"
