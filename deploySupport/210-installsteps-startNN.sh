@@ -46,6 +46,7 @@ then
     echo "export HADOOP_HDFS_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_HOME=${yroothome}/share/hadoop"
     echo "export HADOOP_DEFAULT_LIBEXEC_DIR=${HADOOP_HOME}/libexec"
+    echo "export HADOOPVERSION=$HADOOPVERSION"
     echo "sh /tmp/namenode-part-1-script.sh $arg " 
     ) > /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh
     fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
