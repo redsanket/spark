@@ -61,7 +61,18 @@ ssh  $jobtrackernode su - $MAPREDUSER
     (
         cat $tmpfile
         echo 'export YARN_OPTS="$YARN_OPTS -Dmapred.jobsummary.logger=INFO,JSA"'
-        echo '$YARN_HOME/bin/mapred --daemon start historyserver'
+
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+          echo '$YARN_HOME/bin/mapred --daemon start historyserver'
+
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+          echo '$YARN_HOME/sbin/mr-jobhistory-daemon.sh start historyserver'
+
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
+
     )  | ssh $jobtrackernode su - $MAPREDUSER
    set +x
 
@@ -69,7 +80,17 @@ ssh  $jobtrackernode su - $MAPREDUSER
    set -x
    (
 	cat $tmpfile
-	echo '$YARN_HOME/bin/yarn --daemon start timelineserver'
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+	  echo '$YARN_HOME/bin/yarn --daemon start timelineserver'
+
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+	  echo '$YARN_HOME/sbin/yarn-daemon.sh start timelineserver'
+
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
+
    )   | ssh $jobtrackernode su - $MAPREDUSER
    set +x
 fi

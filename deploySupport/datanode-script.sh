@@ -49,7 +49,16 @@ if [ $CMD == "start" ]; then
     if [ "`whoami`" != "root" ]
     then
         # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start datanode $nameStartOpt
-	$HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
+
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+	  $HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+          $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start datanode $nameStartOpt
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
+
         echo "*** Note: not running as root. How to start data nodes?"
     fi
 
@@ -57,8 +66,15 @@ if [ $CMD == "start" ]; then
     then
         [ -f /var/run/jsvc.pid ] && rm -rf /var/run/jsvc.pid
         export HADOOP_SECURE_DN_USER=$HDFSUSER
-        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start datanode $nameStartOpt
-	$HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+	  $HADOOP_HDFS_HOME/bin/hdfs --daemon start datanode $nameStartOpt
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+          $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start datanode $nameStartOpt
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
+
     else
         echo ================================
         echo ================================
@@ -82,8 +98,15 @@ elif [ $CMD == "stop" ]; then
     then
         # echo "EXACT CMD: $HADOOP_HDFS_HOME/bin/hdfs  --config  $HADOOP_CONF_DIR  stop datanode"
         export HADOOP_SECURE_DN_USER=$HDFSUSER
-        # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop datanode $nameStartOpt
-	$HADOOP_HDFS_HOME/bin/hdfs --daemon stop datanode $nameStartOpt
+
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+	  $HADOOP_HDFS_HOME/bin/hdfs --daemon stop datanode $nameStartOpt
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+          $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop datanode $nameStartOpt
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
     fi
 else
     echo "Usage: datanode-script.sh [startonly|stop|start+erase]"
