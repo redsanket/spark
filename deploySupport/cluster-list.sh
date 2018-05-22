@@ -325,8 +325,8 @@ setGridParameters() {
        # OOZIEVERSION is not being passed in, see TODO in installgrid.sh 
        if [ -n "$OOZIEVERSION" ]; then
            if [ -n "$oozienode" ]; then
-               echo "NOT NOT oozie node '$oozienode' and hive node $hcatservernode to HOSTLIST"
-               stack_comp_nodes+="$oozienode $hcatservernode "
+               echo "Adding oozie node '$oozienode' to HOSTLIST"
+               stack_comp_nodes+="$oozienode "
            fi
        fi
        # step 2e: Set up file-contents that the deploy-script needs.

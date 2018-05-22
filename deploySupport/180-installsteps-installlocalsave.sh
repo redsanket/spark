@@ -10,7 +10,7 @@ then
     (
     echo "cd /tmp"
     echo 'mkdir /tmp/$$ && cd /tmp/$$ '
-    echo "/usr/local/bin/yinst fetch  $LOCAL_CONFIG_INSTALL_STRING -br quarantine "
+    echo "/usr/local/bin/yinst fetch  $LOCAL_CONFIG_INSTALL_STRING "
     echo "tar xzf $LOCAL_CONFIG_PKG_NAME-*.tgz"
     echo "cd share/localhadoopconfigs"
     echo  "[ -d ${GSHOME}/conf/local ] || mkdir -p ${GSHOME}/conf/local "

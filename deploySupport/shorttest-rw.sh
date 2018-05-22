@@ -80,9 +80,9 @@ for n in $NAMENODELIST
 do
    if [ "$readonly" = false ]
    then
-        fname=hdfs://${n}:8020/user/hadoopqa/rw.$n.$tmpfile.1mb
+        fname=hdfs://${n}/user/hadoopqa/rw.$n.$tmpfile.1mb
 
-        echo "==== running randomwriter to ${n}:8020"
+        echo "==== running randomwriter to ${n}"
         $HADOOP_COMMON_HOME/bin/hadoop jar $HADOOP_MAPRED_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar    randomwriter -Dmapreduce.job.queuename=grideng  -D mapreduce.randomwriter.totalbytes=$((128*1024)) $yarnparms  $fname
        [ $? -eq 0 ] && export written=`expr $written + 1`
    fi
@@ -92,9 +92,9 @@ do
 
    if [ "$readonly" = false ]
    then
-       fname=hdfs://${n}:8020/user/hadoopqa/rw.$n.$tmpfile.1mb
+       fname=hdfs://${n}/user/hadoopqa/rw.$n.$tmpfile.1mb
 
-       echo "==== testing JT run to ${n}:8020"
+       echo "==== testing JT run to ${n}"
        $debug $HADOOP_COMMON_HOME/bin/hadoop fs -ls -R $fname
        [ $? -eq 0 ] && export read=`expr $read + 1`
    fi
@@ -116,8 +116,8 @@ fi
 st=0
 if [ "$readonly" = false ]
 then
-    datadir=hdfs://${inNN}:8020/user/hadoopqa/indir-`date +%y%m%d%H%M`
-    outdir=hdfs://${outNN}:8020/user/hadoopqa/outdir-`date +%y%m%d%H%M`
+    datadir=hdfs://${inNN}/user/hadoopqa/indir-`date +%y%m%d%H%M`
+    outdir=hdfs://${outNN}/user/hadoopqa/outdir-`date +%y%m%d%H%M`
     tmpfile=tmp-`date +%y%m%d%H%M`
 
     echo ==== running teragen to $datadir

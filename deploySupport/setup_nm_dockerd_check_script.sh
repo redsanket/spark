@@ -11,6 +11,7 @@ OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 CLUSTER=`hostname | cut -d- -f1`
 DOCKER_YINST_SET=`/usr/local/bin/yinst set -root /home/gs/gridre/yroot."$CLUSTER" | grep TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES | cut -d: -f2`
 
+
 echo "Checking if we need to startup Docker daemon on node $HOSTNAME"
 
 

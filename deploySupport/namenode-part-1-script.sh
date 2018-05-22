@@ -39,12 +39,8 @@ if [ $CMD == "start" ]; then
     if [ "$ERASEENABLED" = true ]
     then
           if [ "$ENABLE_HA" = true ]; then
-	      echo "Value of DEFAULT\_LIBEXEC\_DIR is $DEFAULT_LIBEXEC_DIR"
-	      ls -lrt $HADOOP_HOME/libexec/hdfs-config.sh
-              $HADOOP_HDFS_HOME/bin/hdfs namenode -format -force -clusterid $CLUSTERID -v
+              $HADOOP_HDFS_HOME/bin/hdfs namenode -format -force -clusterid $CLUSTERID
           else
-	      echo "Value of DEFAULT\_LIBEXEC\_DIR is $DEFAULT_LIBEXEC_DIR"
-              ls -lrt $HADOOP_HOME/libexec/hdfs-config.sh
               echo Y | $HADOOP_HDFS_HOME/bin/hdfs namenode -format -clusterid $CLUSTERID
           fi
     fi
@@ -58,23 +54,8 @@ if [ $CMD == "start" ]; then
         nameStartOpt="-upgrade $nameStartOpt"
     fi
 
-
-    if [[ "$HADOOPVERSION" =~ ^3. ]]; then
-      echo "${HADOOP_HDFS_HOME}/bin/hdfs namenode -upgrade ${nameStartOpt}"
-      echo "${HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt"
-      ${HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt
-
-    elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
-      # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
-
-      echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
-      $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start namenode $nameStartOpt
-
-    else
-       echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
-       exit 1
-    fi
-
+    echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
+    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start namenode $nameStartOpt
 
     # transition ha1 to active. wait until it comes up in standby mode.
     # rather than sleep, we could use hadmin to query the namenode state.
@@ -84,21 +65,15 @@ if [ $CMD == "start" ]; then
         $HADOOP_HDFS_HOME/bin/hdfs --config $HADOOP_CONF_DIR haadmin -transitionToActive ha1
     fi
 
+#if [ -e ${GSHOME}/conf/local/masters ]; then
+#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs start secondarynamenode $nameStartOpt
+#    fi
     echo "Part 1 finishing immediately after start of name node."
 elif [ $CMD == "stop" ]; then 
-
-
-    if [[ "$HADOOPVERSION" =~ ^3. ]]; then
-     $HADOOP_HDFS_HOME/bin/hdfs --daemon stop namenode $nameStartOpt
-
-    elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
-      $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop namenode $nameStartOpt
-
-    else
-       echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
-       exit 1
-    fi
-
+#    if [ -e ${GSHOME}/conf/local/masters ]; then
+#        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs stop secondarynamenode $nameStartOpt
+#    fi
+    $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs stop namenode $nameStartOpt
     echo "Part 1 finishing immediately after stop of name node."
 else
     echo "Usage: namenodescript.sh [startonly|stop|start+erase]"
