@@ -67,7 +67,6 @@ else
   echo "INFO: KMS node is: $kmsnodeshort"
 fi
 
-
 # need the kgp from hadoopqa_headless_keys to find the KMS test key, hitusr_4
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 

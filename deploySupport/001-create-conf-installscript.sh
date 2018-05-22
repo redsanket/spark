@@ -84,7 +84,7 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     echo "   export rootdirparam=\"-root ${yroothome}  \"  "
     echo 'fi'
     # echo "echo ======= installing config-package using '$HADOOP_CONFIG_INSTALL_STRING'"
-    echo GSHOME=$GSHOME $yinst install -downgrade -yes \$rootdirparam  \\
+    echo GSHOME=$GSHOME $yinst install -downgrade -yes \$rootdirparam -br quarantine  \\
     echo "  " -set $confpkg.TODO_GSHOME=/home/gs \\
     echo "  " -set $confpkg.TODO_RMNODE_HOSTNAME=$jobtrackernode \\
     echo "  " -set $confpkg.TODO_NAMENODE_HOSTNAME=\$nn \\
@@ -116,6 +116,8 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     fi
 
     # The following is kept here to make old config work
+    # REVERTING GRIDCI-549 as Hadoop 2.x & 3.x both use 8020 default port
+    # It was defaulted to 8020 in Hadoop 2.x but in 3.x it was using 9820
     # GRIDCI-549 - defaultFS URL should not define the port number explicitly as
     # the value may change in the hadoop configuration. If it is not specified,
     # haddop fs will use the appropriate port number that's configured
@@ -129,19 +131,23 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         #     http://bug.corp.yahoo.com/show_bug.cgi?id=6941110
         # echo "  " -set $confpkg.TODO_QE_CLUSTER_NN_ADDR=\$nnalias \\
     else
-      case "$HADOOPVERSION" in
-      2.[0-3])
-          echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
-          ;;
-      2.[4-9])
-          echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
-              ;;
-      *)
-          echo "Invalid Hadoop version $HADOOPVERSION"
-          exit 1
-          ;;
-      esac
+       case "$HADOOPVERSION" in
+       2.[0-3])
+           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=\$nn \\
+           ;;
+       2.[4-9])
+           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
+           ;;
+       3.[0-9])
+	   echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
+	   ;;
+       *)
+           echo "Invalid Hadoop version $HADOOPVERSION"
+           exit 1
+           ;;
+       esac
     fi
+
 
     if [ "$USE_DEFAULT_QUEUE_CONFIG" = true ]; then
         echo "  " -set $confpkg.TODO_YARN_LOCAL_CAPACITY_SCHEDULER=/home/gs/gridre/yroot.${cluster}/conf/hadoop/EXAMPLE-local-capacity-scheduler.xml \\

@@ -62,9 +62,9 @@ do
 
    if [ "$REMOVEEXISTINGDATA" = true ]
    then
-        fname=hdfs://\${n}/user/hadoopqa/rw.\$n.\$tmpfile.1mb
+        fname=hdfs://\${n}:8020/user/hadoopqa/rw.\$n.\$tmpfile.1mb
 
-        echo "==== running randomwriter to \${n}"
+        echo "==== running randomwriter to \${n}:8020"
 
         cd \$YARN_HOME
         m=\`echo ${yroothome}/share/hadoop/modules/yarn-mapreduce-client-0.1.11*.jar \`
@@ -84,9 +84,9 @@ do
 
    if [ "$REMOVEEXISTINGDATA" = true ]
    then
-       fname=hdfs://\${n}/user/hadoopqa/rw.\$n.\$tmpfile.1mb
+       fname=hdfs://\${n}:8020/user/hadoopqa/rw.\$n.\$tmpfile.1mb
 
-       echo "==== testing JT run to \${n}"
+       echo "==== testing JT run to \${n}:8020"
        $debug \$HADOOP_COMMON_HOME/bin/hadoop fs -ls -R \$fname
        [ $? -eq 0 ] && export read=\`expr \$read + 1\`
    fi
