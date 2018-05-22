@@ -59,7 +59,7 @@ if [[ $OOZIEIGORTAG =~ $regex ]]; then
 
     # install yoozie pkg on $oozieserver node
     echo === installing oozie server from igor tag=\"$OOZIEIGORTAG\" on host $oozienode
-    ssh $oozienode /usr/local/bin/yinst restore -igor -igor_tag $OOZIEIGORTAG  -live -yes -quarantine --os rhel-7.x
+    ssh $oozienode /usr/local/bin/yinst restore -igor -igor_tag $OOZIEIGORTAG  -live -yes -quarantine --os rhel-6.x
     st=$?
     if [ "$st" -ne 0 ]
     then
