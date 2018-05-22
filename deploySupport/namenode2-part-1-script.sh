@@ -57,12 +57,35 @@ if [ $CMD == "start" ]; then
     fi
         
     if [ -e ${GSHOME}/conf/local/masters ]; then
-        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs start $TARGET_CMD $nameStartOpt
+
+        if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+	  $HADOOP_COMMON_HOME/bin/hdfs --daemon start masters $TARGET_CMD $nameStartOpt
+
+        elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+          $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters start $TARGET_CMD $nameStartOpt
+
+        else
+            echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+            exit 1
+        fi
+
+
     fi
     echo "Part 1 finishing immediately after start of secondary name node."
 elif [ $CMD == "stop" ]; then 
     if [ -e ${GSHOME}/conf/local/masters ]; then
-        $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters --script "$HADOOP_HDFS_HOME"/bin/hdfs stop $TARGET_CMD $nameStartOpt
+
+       if [[ "$HADOOPVERSION" =~ ^3. ]]; then
+ 	 $HADOOP_COMMON_HOME/bin/hdfs --daemon stop masters $TARGET_CMD $nameStartOpt
+         
+       elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
+         $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --hosts masters stop $TARGET_CMD $nameStartOpt
+         
+       else
+           echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
+           exit 1
+       fi
+
     fi
     echo "Part 1 finishing immediately after stop of secondary name node."
 else
