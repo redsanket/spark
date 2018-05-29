@@ -220,7 +220,7 @@ DEV_KMS_KEYTAB=kms.$kmsnodeshort.dev.service.keytab
 cmd_kms="ln -f -s /home/gs/conf/local/local-superuser-conf.xml  /home/y/conf/hadoop/local-superuser-conf.xml; \
 ln -f -s /etc/ssl/certs/prod/_open_ygrid_yahoo_com/kms.jks /etc/pki/tls/certs/prod/_open_ygrid_yahoo_com-dev.jks; \
 ln -f -s /etc/grid-keytabs/kms.$kmsnodeshort.dev.service.keytab /home/y/conf/kms/kms.dev.service.keytab; \
-yinst install  yahoo_kms -same -live -downgrade -br current \
+yinst install  yahoo_kms -same -live -downgrade -br test \
  -set yahoo_kms.TODO_KEYTAB_FILE=kms.dev.service.keytab \
  -set yahoo_kms.TODO_HOSTNAME=$kmsnode -set yahoo_kms.TODO_KMS_USER=hadoop8 -set yahoo_kms.autostart=off \
  -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM" 
