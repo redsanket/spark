@@ -225,9 +225,6 @@ yinst install  yahoo_kms -same -live -downgrade -br current \
  -set yahoo_kms.TODO_HOSTNAME=$kmsnode -set yahoo_kms.TODO_KMS_USER=hadoop8 -set yahoo_kms.autostart=off \
  -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM" 
 
-# set the correct kms keytab
-$SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
-
 
 $SSH $kmsnode $cmd_kms
 if [ $? -ne 0 ]; then
@@ -236,6 +233,8 @@ else
   echo "INFO: installed KMS package support" 
 fi
 
+# set the correct kms keytab
+$SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
 # gridci-2904, fix the oozie user we run as in kms-site 
 $SSH $kmsnode "sudo sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml"
 
