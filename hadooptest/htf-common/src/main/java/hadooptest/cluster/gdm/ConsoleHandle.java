@@ -1102,7 +1102,7 @@ public final class ConsoleHandle {
             for (String s : grids) {
                 listString += s + "  ";
             }
-            TestSession.logger.info("Unique Grids = " + listString);
+            TestSession.logger.info(listString);
             return getHealthyGrids(grids);
         } catch (Exception e) {
             TestSession.logger.error("Unexpected exception", e);
