@@ -465,11 +465,11 @@ through environment variable - ``OOZIE_ACTION_CONF_XML``.
 
 .. _workflow_with_Athens:
 
-Workflow with Athens
---------------------
+Workflow with on-prem Athens role token
+---------------------------------------
 
 
-Athens (http://devel.corp.yahoo.com/athens/guide/) is a hosted service at Yahoo supporting role-based authorization. 
+`Athens <https://git.ouroath.com/pages/athens/athenz-guide/>`_ is a hosted service at Yahoo supporting role-based authorization.
 Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
 To enable that, users will have to add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
 the username under which the Oozie workflow will be run as. The user can either be user.<Oath user> or ygrid.<headless user>.
@@ -597,10 +597,11 @@ As an alternate method to the ZTSClient API, tokens can be retrieved from the UG
 
 .. _workflow_with_ykeykey
 
-Workflow with ykeykey
----------------------
+Workflow with on-prem CKMS secret
+---------------------------------
 
-YKeyKey is Oath's centralized secret management and distribution system. Oozie supports retrieving ykeykey secrets for use in hadoop jobs launched through it. Oozie uses Athens token to authenticate and retrieve the ykeykey secret. The secret is then passed on to the hadoop job and made accessible via Credentials object in UserGroupInformation or JobConf.
+`CKMS <https://git.ouroath.com/pages/ykeykey/ckms-guide/>`_ (http://yo/ckms) which was earlier referred to as YKeyKey is Oath’s centralized secret management and distribution system.
+Oozie supports retrieving ykeykey secrets for use in hadoop jobs launched through it. Oozie uses Athens token to authenticate and retrieve the ykeykey secret. The secret is then passed on to the hadoop job and made accessible via Credentials object in UserGroupInformation or JobConf.
 
 Prerequisites:
 
@@ -614,13 +615,14 @@ Required properties for a ykeykey credential
 
 - ``ykeykey.group``: Name of the ykeykey key group.
 - ``ykeykey.key``: Name of the ykeykey key.
-- ``athens.domain``: Name of Athens paranoid domain. The value should be paranoids.ppse.ckms.
-- ``athens.role``: The Athens role of the form ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access in the paranoids.ppse.ckms domain.
+- ``ykeykey.athens.domain``: Name of the athens domain associated with ykeykey key group specified in ``ykeykey.group`` setting.
 
 Optional properties
 
 - ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
 - ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
+- ``ykeykey.env``: By default it is ``prod``. Possible values ``alpha``, ``beta``, ``corp``, ``edge``, ``vault``.
+
 
 Example Workflow XML
 ~~~~~~~~~~~~~~~~~~~~
@@ -645,15 +647,11 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
                   <value>0</value>
               </property>
               <property>
-                  <name>athens.domain</name>
-                  <value>paranoids.ppse.ckms</value>
+                  <name>ykeykey.athens.domain</name>
+                  <value>home.purushah</value>
               </property>
               <property>
-                  <name>athens.role</name>
-                  <value>ykeykey_prod.tenant.home.purushah.res_group.purushah.test.group.access</value>
-              </property>
-              <property>
-                  <name>athens.user.domain</name>
+                  <name>ykeykey.athens.user.domain</name>
                   <value>user</value>
               </property>
           </credential>
@@ -666,8 +664,12 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
   </workflow-app>
 
 
-Retriving secret using UGI
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _retrieving_ykeykey_secret:
+
+
+Retrieving secret using UGI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: java
 
    byte[] secret = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text("YKeyKey_test"));
@@ -704,4 +706,346 @@ Once keydb is setup, users can call YCR native call to retrieve secret. This req
 
    GridYKeyKeyUtil.setupKeyDB();
    YCR ycr = YCR.createYCR();
-   secret = ycr.getKey(key);   
+   secret = ycr.getKey(key);
+
+
+Workflow with AWS CKMS secret
+-----------------------------
+
+In addition to CKMS hosted in on-prem environment, CKMS is also hosted in AWS (http://yo/ckms-aws). Oozie can fetch secret from AWS CKMS as well.
+
+Prerequisites:
+
+.. _create_private_public_pair:
+
+
+- Create a PEM encoded private-public key pair.
+
+.. code-block:: bash
+
+    $ openssl genrsa -des3 -out pair.pem 2048
+    $ openssl rsa -in pair.pem -pubout -out public.pem -outform PEM
+    $ openssl rsa -in pair.pem -out private.pem -outform PEM
+
+
+.. _create_keygroup_on_prem:
+
+
+- In on-prem CKMS, associate an athens domain to key group. Refer to `Add athens domain using ykeykey UI <https://yahoo.jiveon.com/docs/DOC-70338#jive_content_id_Add_Your_Athens_Domain_Using_the_ykeykey_UI>`_ .
+  This automatically creates a role in the `paranoids.ppse.ckms <https://ui.athenz.ouroath.com/athenz/domain/paranoids.ppse.ckms/role>`_ athens domain in the form of ``ykeykey_prod.tenant.<ykeykey.athens.domain>.res_group.<ykeykey.keygroup>.access``.
+
+.. image:: images/keygroup-associated-to-athens-domain.png
+    :height: 300 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: Athens Domain Associated to a Key group
+    :align: left
+
+
+.. _create_ykeykey_on_prem:
+
+- Create a ykeykey in that key group. Store private key as secret.
+
+.. image:: images/ykeykey-containing-private-key.png
+    :height: 300 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: Ykeykey containing private key
+    :align: left
+
+
+.. _add_oozie_and_user_to_role:
+
+- There will be a corresponding role in associated athens domain of the format ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access`` .
+  To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username
+  used to run the Oozie workflow as members of the newly created paranoid role ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access``.
+  The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users.
+
+.. image:: images/add-oozie-and-headless-user-to-role.png
+    :height: 300 px
+    :width: 1000 px
+    :scale: 95 %
+    :alt: Adding Oozie and user as members in role
+    :align: left
+
+
+.. _create_athens_service_on_prem:
+
+- Create a service in on-prem athens using the public key.
+
+.. image:: images/athens-service-containing-public-key.png
+    :height: 500 px
+    :width: 800 px
+    :scale: 95 %
+    :alt: Athens service containing public key
+    :align: left
+
+
+- Migrate an athens domain to AWS. Refer `on boarding to AWS <https://thestreet.ouroath.com/docs/DOC-4068>`_
+- Create a key group in AWS CKMS. Make sure that AWS Athens domain is associated with the key group.
+
+.. image:: images/aws-keygroup-associated-to-aws-athens-domain.png
+    :height: 300 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: Migrated athens domain is associated to keygroup in AWS CKMS
+    :align: left
+
+
+- Create a key in the key group to hold store secret value.
+
+
+.. image:: images/aws-ykeykey.png
+    :height: 300 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: AWS CKMS ykeykey containing secret value.
+    :align: left
+
+
+- There will be a role in the `paranoids.ppse.ckms <https://ui.athenz.ouroath.com/athenz/domain/paranoids.ppse.ckms/role>`_
+  athens domain in the form of ``ykeykey_aws.tenant.<aws-ykeykey-athens-domain>.res_group.<aws.ykeykey.group>.access``
+- There will be a corresponding role in AWS athens domain in the form of ``paranoids.ppse.ckms.ykeykey_aws.res_group.<aws.ykeykey.group>.access``.
+- Users need to add on-prem athens service (specified in ``athens.service`` property) as member to it.
+
+
+.. image:: images/adding-on-prem-service-to-paranoid-role-in-aws-athens.png
+    :height: 400 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: AWS CKMS ykeykey containing secret value.
+    :align: left
+
+
+Required Properties:
+
+- ``ykeykey.group``: Name of the ykeykey key group.
+- ``ykeykey.key``: Name of the ykeykey key. This should contain PEM encoded private key.
+- ``ykeykey.athens.domain``: Name of the athens domain associated with ykeykey key group specified in ``ykeykey.group`` setting.
+- ``athens.service``: The Athens service which contains the PEM encoded public key corresponding to the private key.
+- ``athens.service.domain``: The domain in which service resides.
+- ``athens.service.public.key.id``: The public key id for the athens service specified in ``athens.service``.
+- ``aws.ykeykey.group``: Name of the ykeykey key group in AWS.
+- ``aws.ykeykey.key``: Name of the ykeykey key in AWS.
+
+Optional properties
+
+- ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
+- ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified. Oozie will take private key from
+  current version
+- ``ykeykey.env``: By default it is ``prod``. Possible values ``alpha``, ``beta``, ``corp``, ``edge``, ``vault``.
+- ``aws.ykeykey.version``: Oozie will fetch secret of current version, if no version is specified.
+- ``aws.ykeykey.env``: By default it is aws. Use ``aws_stage`` to refer to staging CKMS in AWS.
+
+
+.. code-block:: xml
+
+    <credential name='ykeykeyauth' type='ykeykey'>
+
+        <!-- Properties for ykeykey which is on-prem CKMS-->
+        <property>
+            <name>ykeykey.group</name>
+            <value>test.saley.v1.keygroup</value>
+        </property>
+        <property>
+            <name>ykeykey.key</name>
+            <value>test.saley.v1.key</value>
+        </property>
+        <property>
+            <name>ykeykey.version</name>
+            <value>0</value>
+        </property>
+        <property>
+            <name>ykeykey.athens.domain</name>
+            <value>yby.saley.subdomain</value>
+        </property>
+
+        <!-- Properties for athens service which is on-prem and contains public key corresponding to the private key specified in
+        ykeykey.key -->
+        <property>
+            <name>ykeykey.athens.service</name>
+            <value>testservice</value>
+        </property>
+
+        <property>
+            <name>ykeykey.athens.service.domain</name>
+            <value>yby.saley</value>
+        </property>
+
+        <property>
+            <name>ykeykey.athens.service.public.key.id</name>
+            <value>0</value>
+        </property>
+
+        <!-- Properties for the ykeykey in AWS CKMS -->
+        <property>
+            <name>aws.ykeykey.group</name>
+            <value>test.oozie.aws.keygroup</value>
+        </property>
+        <property>
+            <name>aws.ykeykey.key</name>
+            <value>test.oozie.aws.key.v1</value>
+        </property>
+        <property>
+            <name>aws.ykeykey.version</name>
+            <value>1</value>
+        </property>
+    </credential>
+
+
+Retrieving secret is explained :ref:`above <retrieving_ykeykey_secret>`
+
+
+Workflow with AWS Temporary Credentials
+---------------------------------------
+
+Oozie can fetch AWS Temporary Credentials.
+
+Prerequisites:
+
+- Migrate an athens domain to AWS. Refer `on-boarding to AWS <https://thestreet.ouroath.com/docs/DOC-4068>`_.
+- AWS Configuration must have been done. Refer `Athens Documentation <https://git.ouroath.com/pages/athens/athenz-guide/aws_temp_creds/>`_.
+- Create a PEM encoded private-public key pair. :ref:`Refer above <create_private_public_pair>`.
+- In on-prem CKMS, associate an athens domain to key group. Refer to `Add athens domain using ykeykey UI <https://yahoo.jiveon.com/docs/DOC-70338#jive_content_id_Add_Your_Athens_Domain_Using_the_ykeykey_UI>`_ .
+  This automatically creates a role in the `paranoids.ppse.ckms <https://ui.athenz.ouroath.com/athenz/domain/paranoids.ppse.ckms/role>`_ athens domain in the form of ``ykeykey_prod.tenant.<ykeykey.athens.domain>.res_group.<ykeykey.keygroup>.access``.
+  :ref:`Refer above screenshot<create_keygroup_on_prem>`.
+- Create a ykeykey in that key group. Store private key as secret. :ref:`Refer above <create_ykeykey_on_prem>`.
+- There will be a corresponding role in associated athens domain of the format ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access`` .
+  To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username
+  used to run the Oozie workflow as members of the newly created paranoid role ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access``.
+  The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users. :ref:`Refer above screenshot<add_oozie_and_user_to_role>`.
+- Create a service in on-prem athens using the public key. :ref:`Refer above screenshot<create_athens_service_on_prem>`.
+- The role specified while creating policy (`in this step <https://git.ouroath.com/pages/athens/athenz-guide/aws_temp_creds/#athenz-aws-assume-role-configuration-setup>`_ in AWS athens should contain on-prem
+  athens service as member.
+
+
+Properties:
+
+- ``ykeykey.group``: Name of the ykeykey key group.
+- ``ykeykey.key``: Name of the ykeykey key. This should contain PEM encoded private key.
+- ``ykeykey.athens.domain``: Name of the athens domain associated with ykeykey key group specified in ``ykeykey.group`` setting.
+- ``athens.service``: The Athens service which contains the PEM encoded public key corresponding to the private key.
+- ``athens.service.domain``: The domain in which service resides.
+- ``athens.service.public.key.id``: The public key id for the athens service specified in ``athens.service``.
+- ``aws.athens.domain``: The Athens domain in AWS.
+- ``aws.iam.role``: IAM role name for which temporary credentials are required.
+
+Optional properties:
+
+- ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified. Oozie will take private key from
+  current version.
+- ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as ``user``.
+- ``aws.credential.expiry.minutes``: The validity of AWS credentials. Default is 60 minutes. For more than 60 minutes, first you need to update session duration in AWS as specified in `Athenz Document <https://git.ouroath.com/pages/athens/athenz-guide/aws_temp_creds/#expiration-period>`_ and then specify validity accordingly.
+- ``aws.external.id.ykeykey.key``: Name of the ykeykey key containing external Id. This ykeykey should be in the same keygroup, mentioned in ``ykeykey.group`` setting. `Refer Athenz Guide for more information on external id. <https://git.ouroath.com/pages/athens/athenz-guide/aws_temp_creds/#external-id-condition>`_. This is a mandatory property if external id is configured for IAM role specified in ``aws.iam.role``.
+- ``aws.external.id.ykeykey.version``: The ykeykey version containing value of external id. If not specified, Oozie will consider current version.
+
+
+.. image:: images/external-id-setting.png
+    :height: 400 px
+    :width: 760 px
+    :scale: 95 %
+    :alt: External Id Setting.
+    :align: left
+
+
+.. code-block:: xml
+
+
+    <credential name='awsauth' type='aws'>
+        <!-- Properties for ykeykey which is in on-prem CKMS -->
+        <property>
+            <name>ykeykey.group</name>
+            <value>test.saley.v1.keygroup</value>
+        </property>
+        <property>
+            <name>ykeykey.key</name>
+            <value>test.saley.v1.key</value>
+        </property>
+        <property>
+            <name>ykeykey.version</name>
+            <value>0</value>
+        </property>
+        <property>
+            <name>ykeykey.athens.domain</name>
+            <value>yby.saley.subdomain</value>
+        </property>
+
+        <!-- Properties for athens service which is on-prem and contains public key corresponding to the private key specified in
+        ykeykey -->
+        <property>
+            <name>athens.service</name>
+            <value>testservice</value>
+        </property>
+        <property>
+            <name>athens.service.domain</name>
+            <value>yby.saley</value>
+        </property>
+        <property>
+            <name>athens.service.public.key.id</name>
+            <value>0</value>
+        </property>
+
+        <!-- Properties for IAM role -->
+        <property>
+            <name>aws.athens.domain</name>
+            <value>home.saley.aws</value>
+        </property>
+        <property>
+            <name>aws.iam.role</name>
+            <value>iam.test.role.ec2</value>
+        </property>
+
+        <!-- Optional Property -->
+
+        <property>
+            <name>aws.credential.expiration.minutes</name>
+            <value>70</value>
+        </property>
+
+        <!-- Since iam.test.role.ec2 is configured with external id, we need to specify ykeykey containing the external id -->
+        <property>
+            <name>aws.external.id.ykeykey.key</name>
+            <value>test.saley.aws.external.id</value>
+        </property>
+
+        <property>
+            <name>aws.external.id.ykeykey.version</name>
+            <value>0</value>
+        </property>
+    </credential>
+
+Oozie retrieves the AWS temporary credentials and sends it to the launcher job.
+
+Retrieving AWS temporary credentials using UGI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The fields for AWS Temporary credential are stored in JSON format inside ``UserGroupInformation``.
+
+.. code-block:: java
+
+    import org.json.simple.JSONObject;
+    import org.json.simple.parser.JSONParser;
+    import org.json.simple.parser.ParseException;
+
+
+    Credentials creds = UserGroupInformation.getCurrentUser().getCredentials();
+    // awsauth is the name of AWS credential provided in workflow.xml
+    secret = new String(creds.getSecretKey(new Text("awsauth")), "UTF-8");
+
+    JSONObject jsonObject = (JSONObject) new JSONParser().parse(secret);
+    String accessKeyId = (String) jsonObject.get("accessKeyId");
+    String secretAccessKey = (String) jsonObject.get("secretAccessKey");
+    String sessionToken = (String) jsonObject.get("sessionToken");
+    String expiration = (String) jsonObject.get("expiration");
+
+Dependency for parsing JSON -
+
+.. code-block:: xml
+
+    <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+    <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+
