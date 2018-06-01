@@ -183,21 +183,40 @@ Answers
 .. _reduce_mappers:
 .. topic:: **How do you reduce the number of mappers that are created for Hive queries?**
 
-   By using CombineHiveInputFormat, we can control the number of maps that are created 
-   for Hive jobs. Following are the parameters to be set:
+   In Hive 1.2.x, split combination is done in the Tez Application Master, by default. Please use the following settings:
 
    ::
 
-       set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;
-       set hive.hadoop.supports.splittable.combineinputformat=true";
+       set hive.input.format=org.apache.hadoop.hive.ql.io.HiveInputFormat;
+       set tez.grouping.min-size=16777216; -- 16 MB min split
+       set tez.grouping.max-size=1073741824; -- 1 GB max split
 
-   The parameter ``'hive.hadoop.supports.splittable.combineinputformat'`` is a Hive 
-   implementation tweak, which should be set by default on all installations. If not, 
-   set it. ``CombineHiveInputFormat`` depends on the parameters ``mapred.max.split.size``, 
-   ``mapred.min.split.size``, ``mapred.min.split.size.per.node``, and ``mapred.min.split.size.per.rack``. 
-   Set them accordingly to control the number of MAPs.
+   Increase min and max split size to reduce the number of mappers.
+   Please note that the ``org.apache.hadoop.hive.ql.io.CombineHiveInputFormat`` is no longer supported with Hive 1.2, and should not be used.
 
+.. _reducer_parallelism:
+.. topic:: **How do you increase reducer parallelism for Hive queries?**
 
+   By default, the number of reducers in a Hive query stage is derived from the input data-size. Roughly,
+
+   ::
+
+       num-reducers = max( (hive.exec.reducers.max), (input-data-size-in-bytes) / (hive.exec.reducers.bytes.per.reducer))
+
+   By default, the ``hive.exec.reducers.bytes.per.reducer)`` is 256MB. Thus, for a 1GB input, there are 4 reducers.
+   The reducer count can be increased by decreasing the denominator, up to a max of `hive.exec.reducers.max` (1009, by default). To increase further, please increase `hive.exec.reducers.max`.
+
+   ::
+
+       set hive.exec.reducers.bytes.per.reducer=64*1024*1024; -- 16MB
+       set hive.exec.reducers.max=2009;
+
+   Alternatively, the reducer-count can be hard-coded via the following setting:
+
+   ::
+
+       set mapreduce.job.reduces=2009;
+       set hive.exec.reducers.max=2009;
 
 .. _gateways:
 .. topic:: **What precautions should be taken when working on the gateways?** 
@@ -240,19 +259,19 @@ Answers
         set mapreduce.reduce.memory.mb=2048;
 
         -- Heap sizes.
-        set hive.tez.java.opts=-Xmx1536m;
-        set mapred.child.java.opts=-Xmx1536m;
+        set mapreduce.map.java.opts=-Xmx1536m;
+        set mapreduce.reduce.java.opts=-Xmx1536m;
 
-        -- Tez Application master settings:
+        -- Tez Application Master settings:
         set tez.am.resource.memory.mb=3072;
         set tez.am.launch.cmd-opts=-Xmx2560m;
 
    Please note the following::
 
       1. Container parameters should be tuned with ``mapreduce.*.memory.mb``, instead of ``hive.tez.container.size``, because this allows control over map/reduce tasks separately.
-      2. Ensure that the container sizes exceed the Xmx settings by 512MB. This is the JVM tax.
-      3. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
-
+      2. "The JVM Tax": Ensure that the heap-size (Xmx setting) is at 80% of the container size (or at least 512MB less than container size). This covers the JVM overhead.
+      3. In case more memory is required in a mapper/reducer, please try bumping the corresponding container sizes by 512MB at a time, and adjust the heap sizes according to above.
+      4. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
 
 .. |DDL| replace:: Hive Language Manual
 .. _DDL: https://cwiki.apache.org/confluence/display/Hive/LanguageManual 
