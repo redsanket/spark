@@ -47,8 +47,10 @@ public class S3ConsistentUploadDownloadTest {
     private String grid;
     private String s3Grid;
     private String datasetName;
-    private static final String YKEYKEY_PARAM = "fs.s3a.ykeykey.keyname";
-    private static final String YKEYKEY_NAME = "gdm.dev.s3.key";
+    private static final String ATHENZ_DOMAIN = "fs.s3a.athenz.domain";
+    private static final String ATHENZ_DOMAIN_VALUE = "gdm";
+    private static final String ATHENZ_RESOURCE = "fs.s3a.athenz.resource";
+    private static final String ATHENZ_RESOURCE_VALUE = "gdm-test-athenz";
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -154,7 +156,8 @@ public class S3ConsistentUploadDownloadTest {
         target.setReplicationStrategy("DistCp");
         generator.setTarget(target);
 
-        generator.addParameter(YKEYKEY_PARAM, YKEYKEY_NAME);
+        generator.addParameter(ATHENZ_DOMAIN, ATHENZ_DOMAIN_VALUE);
+        generator.addParameter(ATHENZ_RESOURCE, ATHENZ_RESOURCE_VALUE);
         generator.addParameter("working.dir", "s3-manifest-test/user/daqload/daqtest/tmp1/");
 
         generator.setGroup("jaggrp");
@@ -229,7 +232,8 @@ public class S3ConsistentUploadDownloadTest {
         target.setReplicationStrategy("DistCp");
         generator.setTarget(target);
 
-        generator.addParameter(YKEYKEY_PARAM, YKEYKEY_NAME);
+        generator.addParameter(ATHENZ_DOMAIN, ATHENZ_DOMAIN_VALUE);
+        generator.addParameter(ATHENZ_RESOURCE, ATHENZ_RESOURCE_VALUE);
 
         if (option == INVALID_MANIFEST){
             generator.addParameter("fs.s3a.manifest.file", "s3_manifest.invalid");
