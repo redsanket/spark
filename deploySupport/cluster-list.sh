@@ -204,7 +204,11 @@ setGridParameters() {
         roleExists $cluster.oozie && \
              export oozienode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.oozie)"`
 	if roleExists $cluster; then
-            teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway,@grid_re.clusters.${cluster}.hive,@grid_re.clusters.${cluster}.oozie)"`
+            roles="@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway"
+            roleExists $cluster.hive  && roles+=",@grid_re.clusters.${cluster}.hive"
+            roleExists $cluster.oozie && roles+=",@grid_re.clusters.${cluster}.oozie"
+            # teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway,@grid_re.clusters.${cluster}.hive,@grid_re.clusters.${cluster}.oozie)"`
+            teznode=`/usr/local/bin/yinst range -ir "(${roles})"`
             if [[ -n $gateway ]]; then
                 teznode+="\n$gateway"
             fi
