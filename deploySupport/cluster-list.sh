@@ -29,6 +29,13 @@ initRoleList()
 {
 	export base=conf/hadoop/hadoopAutomation
 	export roleList=$base/$cluster.rolelist.txt
+        # If Hbase is not being installed, remove the hbase related roles which
+        # are not needed. Otherwise, if these roles exists but are empty, they
+        # will cause the deployment to fail.
+        if [ -n "$HBASEVERSION" ]; then
+            cat $roleList|grep -v regionserver|grep -v master|grep -v zookeeper > ${roleList}.new
+            mv -f ${roleList}.new $roleList
+        fi
 }
 
 #
