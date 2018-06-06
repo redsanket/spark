@@ -25,31 +25,34 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestS3ManifestOnStaging {
+public class TestS3ReplicationOnStaging {
 	private static final String INSTANCE1 = "20160531";
 	private static final String INSTANCE2 = "20160601";
 	private static final String INSTANCE3 = "20160101";
-	private static final String TEST_BUCKET = "upload-test-bucket-1";
 	/* This option will set correct manifest name in the dataset, and replication start date will be set as "20160101"
-     * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
-     * Replication should copy instance1, instance2 and skip instance3
-     */
+	 * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
+	 * Replication should copy instance1, instance2 and skip instance3
+	 */
 	private static final int VALID_MANIFEST_SOME = 0;
 	/* This option will set correct manifest name in the dataset, and replication start date will be set as "20160501"
-     * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
-     * Replication should copy instance1, instance2 and skip instance3
-     */
+	 * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
+	 * Replication should copy instance1, instance2 and skip instance3
+	 */
 	private static final int VALID_MANIFEST_ALL = 1;
 	/* This option will set incorrect manifest name in the dataset, and replication start date will be set as "20160501"
-     * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
-     * Replication should copy instance1, instance2 and skip instance3
-     */
+	 * However, manifest file in instance "20160101" specifies additional file that does not exist in that instance.
+	 * Replication should copy instance1, instance2 and skip instance3
+	 */
 	private static final int INVALID_MANIFEST = 2;
 	private static final String[] OPTIONS = {"VALID_MANIFEST_SOME_","VALID_MANIFEST_ALL_","INVALID_MANIFEST_"};
 	private ConsoleHandle consoleHandle = new ConsoleHandle();
-	private String target;
-	private String source;
-	private String uploadDataSetName;
+	private String grid;
+	private String s3Grid;
+	private String datasetName;
+	private static final String ATHENZ_DOMAIN = "fs.s3a.athenz.domain";
+	private static final String ATHENZ_DOMAIN_VALUE = "gdm";
+	private static final String ATHENZ_RESOURCE = "fs.s3a.athenz.resource";
+	private static final String ATHENZ_RESOURCE_VALUE = "gdm-test-athenz";
 
 	@BeforeClass
 	public static void startTestSession() throws Exception {
@@ -58,17 +61,17 @@ public class TestS3ManifestOnStaging {
 
 	@Before
 	public void setUp() throws Exception {
-		this.source = "JetBlue-S3";
-		this.target = "JetBlue";
+		this.s3Grid = "AxoniteRed-S3";
+		this.grid = "AxoniteRed";
 
 		Assert.assertTrue("Expected source cluster " + this.source + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.source) != null);
 		Assert.assertTrue("Expected target cluster " + this.target + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.target) != null);
 
-		this.uploadDataSetName = "GridToS3OnStaging_" + System.currentTimeMillis();
-		createUploadDataSetInstance(this.uploadDataSetName);
-		createDataSet(this.uploadDataSetName, this.getUploadDataSetXml(this.uploadDataSetName));
-		validateUploadReplicationWorkflows(this.uploadDataSetName);
-		tearDown(this.uploadDataSetName);
+		this.datasetName = "GridTOS3OnStaging_" + System.currentTimeMillis();
+		createUploadDataSetInstance(this.datasetName);
+		createDataSet(this.datasetName, this.getUploadDataSetXml(this.datasetName));
+		validateUploadReplicationWorkflows(this.datasetName);
+		tearDown(this.datasetName);
 	}
 
 	@Test
@@ -79,32 +82,18 @@ public class TestS3ManifestOnStaging {
 	}
 
 	private void createUploadDataSetInstance(String dataSetName) throws Exception {
-		HadoopFileSystemHelper sourceHelper = new HadoopFileSystemHelper(this.target);
-		JSONObject fileContent=new JSONObject();
-		JSONArray urls=new JSONArray();
-		JSONObject jsonObject = new JSONObject();
+		CreateFileHelper CFH = new CreateFileHelper(new HadoopFileSystemHelper(this.grid));
 
-		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData");
-		urls.add(jsonObject);
-		fileContent.put("entries",urls);
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData");
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent.toString());
+		String fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160531/sampleData").generateFileContent();
+		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent);
 
-		urls.clear();
-		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData");
-		urls.add(jsonObject);
-		fileContent.put("entries",urls);
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData");
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent.toString());
+		fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160601/sampleData").generateFileContent();
+		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent);
 
-		urls.clear();
-		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData");
-		urls.add(jsonObject);
-		jsonObject.put("url", "s3a://" + TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData.NotExist");
-		urls.add(jsonObject);
-		fileContent.put("entries",urls);
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData");
-		sourceHelper.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent.toString());
+		fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData")
+			.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData.NotExist")
+			.generateFileContent();
+		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent);
 	}
 
 	private void createDataSet(String dataSetName, String xml) {
@@ -130,18 +119,19 @@ public class TestS3ManifestOnStaging {
 		generator.setSource(this.target);
 
 		DataSetTarget target = new DataSetTarget();
-		target.setName(this.source);
+		target.setName(this.s3Grid);
 		target.setDateRangeStart(true, "20160101");
 		target.setDateRangeEnd(false, "0");
 		target.setHCatType("DataOnly");
-		target.addPath("data", TEST_BUCKET + "/project-foo/" + dataSetName + "/feed1/%{date}");
+		target.addPath("data", "s3-manifest-test/project-foo/" + dataSetName + "/feed1/%{date}");
 
 		target.setNumInstances("1");
 		target.setReplicationStrategy("DistCp");
 		generator.setTarget(target);
 
-		generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
-		generator.addParameter("working.dir", TEST_BUCKET + "/user/daqload/daqtest/tmp1/");
+		generator.addParameter(ATHENZ_DOMAIN, ATHENZ_DOMAIN_VALUE);
+		generator.addParameter(ATHENZ_RESOURCE, ATHENZ_RESOURCE_VALUE);
+		generator.addParameter("working.dir", "s3-manifest-test/user/daqload/daqtest/tmp1/");
 
 		generator.setGroup("dfsload");
 		generator.setOwner("groups");
@@ -163,17 +153,13 @@ public class TestS3ManifestOnStaging {
 		createTopLevelDirectoryOnTarget(dataSetName);
 		createDataSet(dataSetName, this.getDownloadDataSetXml(option,dataSetName,false));
 		validateDownloadReplicationWorkflows(option, dataSetName);
-		if (option != INVALID_MANIFEST) {
-			enableRetention(option, dataSetName);
-			validateRetentionWorkflow(dataSetName);
-		}
 		// if all the above method and their asserts are success then this dataset is eligible for deletion
 		tearDown(dataSetName);
 	}
 
 	private void createTopLevelDirectoryOnTarget(String dataSetName) throws Exception {
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
-		targetHelper.createDirectory("/GDM/" + dataSetName);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
+		targetHelper.createDirectory("/projects/" + dataSetName);
 	}
 
 	private String getDownloadDataSetXml(int option, String dataSetName, boolean retentionEnabled) {
@@ -191,11 +177,11 @@ public class TestS3ManifestOnStaging {
 		generator.setFrequency("daily");
 		generator.setDiscoveryFrequency("500");
 		generator.setDiscoveryInterface("HDFS");
-		generator.addSourcePath("data", TEST_BUCKET + "/project-foo/" + this.uploadDataSetName + "/feed1/%{date}");
-		generator.setSource(this.source);
+		generator.addSourcePath("data", "s3-manifest-test/project-foo/" + this.datasetName + "/feed1/%{date}");
+		generator.setSource(this.s3Grid);
 
 		DataSetTarget target = new DataSetTarget();
-		target.setName(this.target);
+		target.setName(this.grid);
 		if (option == VALID_MANIFEST_SOME) {
 			target.setDateRangeStart(true, "20160101");
 		} else {
@@ -209,7 +195,8 @@ public class TestS3ManifestOnStaging {
 		target.setReplicationStrategy("DistCp");
 		generator.setTarget(target);
 
-		generator.addParameter("fs.s3a.conf.file", "/home/gs/sink/gdmtest/s3_gdm_dev_1.aws");
+		generator.addParameter(ATHENZ_DOMAIN, ATHENZ_DOMAIN_VALUE);
+		generator.addParameter(ATHENZ_RESOURCE, ATHENZ_RESOURCE_VALUE);
 
 		if (option == INVALID_MANIFEST){
 			generator.addParameter("fs.s3a.manifest.file", "s3_manifest.invalid");
@@ -282,22 +269,6 @@ public class TestS3ManifestOnStaging {
 		}
 		Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "jagpip");
 		Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "jaggrp");
-	}
-
-	private void enableRetention(int option, String dataSetName) {
-		String dataSetXml = this.getDownloadDataSetXml(option,dataSetName,true);
-		Response response = this.consoleHandle.modifyDataSet(dataSetName, dataSetXml);
-		if (response.getStatusCode() != HttpStatus.SC_OK) {
-			TestSession.logger.error("Failed to create dataset, xml: " + dataSetXml);
-			Assert.fail("Response status code is " + response.getStatusCode() + ", expected 200.");
-		}
-	}
-
-	private void validateRetentionWorkflow(String dataSetName) throws Exception {
-		WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-		Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "retention", INSTANCE1));
-		instanceDownloadExists(INSTANCE1, false, dataSetName);
-		instanceDownloadExists(INSTANCE2, true, dataSetName);
 	}
 
 	private void tearDown(String dataSetName) throws Exception {
