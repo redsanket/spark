@@ -86,15 +86,15 @@ public class TestS3ReplicationOnStaging {
 		CreateFileHelper CFH = new CreateFileHelper(new HadoopFileSystemHelper(this.grid));
 
 		String fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160531/sampleData").generateFileContent();
-		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent);
+		CFH.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/sampleData").createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE1 + "/s3_manifest.aws", fileContent);
 
 		fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160601/sampleData").generateFileContent();
-		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent);
+		CFH.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/sampleData").createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE2 + "/s3_manifest.aws", fileContent);
 
 		fileContent = CFH.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData")
 			.addJsonObject("s3a://s3-manifest-test/project-foo/" + dataSetName + "/feed1/20160101/sampleData.NotExist")
 			.generateFileContent();
-		CFH.createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData").createFile("/projects/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent);
+		CFH.createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE3 + "/sampleData").createFile("/GDM/" + dataSetName + "/feed1/" + INSTANCE3 + "/s3_manifest.aws", fileContent);
 	}
 
 	private void createDataSet(String dataSetName, String xml) {
@@ -160,7 +160,7 @@ public class TestS3ReplicationOnStaging {
 
 	private void createTopLevelDirectoryOnTarget(String dataSetName) throws Exception {
 		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
-		targetHelper.createDirectory("/projects/" + dataSetName);
+		targetHelper.createDirectory("/GDM/" + dataSetName);
 	}
 
 	private String getDownloadDataSetXml(int option, String dataSetName, boolean retentionEnabled) {
