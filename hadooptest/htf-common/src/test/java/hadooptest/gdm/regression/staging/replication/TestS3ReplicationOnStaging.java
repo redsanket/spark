@@ -62,8 +62,8 @@ public class TestS3ReplicationOnStaging {
 
 	@Before
 	public void setUp() throws Exception {
-		this.s3Grid = "openqe64blue-S3";
-		this.grid = "openqe64blue";
+		this.s3Grid = "AxoniteRed-S3";
+		this.grid = "AxoniteRed";
 
 		Assert.assertTrue("Expected source cluster " + this.s3Grid + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.s3Grid) != null);
 		Assert.assertTrue("Expected target cluster " + this.grid + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.grid) != null);
