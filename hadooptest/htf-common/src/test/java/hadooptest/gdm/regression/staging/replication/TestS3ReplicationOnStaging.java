@@ -8,6 +8,7 @@ import hadooptest.cluster.gdm.DataSetXmlGenerator;
 import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 import hadooptest.gdm.regression.HadoopFileSystemHelper;
+import hadooptest.gdm.regression.CreateFileHelper;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
