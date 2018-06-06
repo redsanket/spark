@@ -268,8 +268,8 @@ public class TestS3ReplicationOnStaging {
 		} else {
 			Assert.assertEquals("Unexpected permission for path " + path, "rw-r-----", fileStatus.getPermission().toString());
 		}
-		Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "jagpip");
-		Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "jaggrp");
+		Assert.assertEquals("Unexpected owner for path " + path, fileStatus.getOwner(), "dfsload");
+		Assert.assertEquals("Unexpected group for path " + path, fileStatus.getGroup(), "users");
 	}
 
 	private void tearDown(String dataSetName) throws Exception {
