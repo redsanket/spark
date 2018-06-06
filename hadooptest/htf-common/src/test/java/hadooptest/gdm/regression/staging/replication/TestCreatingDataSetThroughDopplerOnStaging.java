@@ -43,7 +43,7 @@ public class TestCreatingDataSetThroughDopplerOnStaging extends TestSession {
 		this.httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
 
-		this.sourceGridName = "openqe64blue";
+		this.sourceGridName = "AxoniteRed";
 
 		this.source = new SourcePath();
 		source.addSourcePath("/data/daqdev/data/%{date}").addSourcePath("/data/daqdev/count/%{date}").addSourcePath("/data/daqdev/schema/%{date}");
