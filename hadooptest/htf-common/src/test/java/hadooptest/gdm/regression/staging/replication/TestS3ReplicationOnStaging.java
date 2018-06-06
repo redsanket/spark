@@ -64,10 +64,10 @@ public class TestS3ReplicationOnStaging {
 		this.s3Grid = "AxoniteRed-S3";
 		this.grid = "AxoniteRed";
 
-		Assert.assertTrue("Expected source cluster " + this.source + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.source) != null);
-		Assert.assertTrue("Expected target cluster " + this.target + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.target) != null);
+		Assert.assertTrue("Expected source cluster " + this.s3Grid + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.s3Grid) != null);
+		Assert.assertTrue("Expected target cluster " + this.grid + " to exist in datasources", this.consoleHandle.getDataSourceXml(this.grid) != null);
 
-		this.datasetName = "GridTOS3OnStaging_" + System.currentTimeMillis();
+		this.datasetName = "GridToS3OnStaging_" + System.currentTimeMillis();
 		createUploadDataSetInstance(this.datasetName);
 		createDataSet(this.datasetName, this.getUploadDataSetXml(this.datasetName));
 		validateUploadReplicationWorkflows(this.datasetName);
@@ -116,7 +116,7 @@ public class TestS3ReplicationOnStaging {
 		generator.setDiscoveryFrequency("500");
 		generator.setDiscoveryInterface("HDFS");
 		generator.addSourcePath("data", "/GDM/" + dataSetName + "/feed1/%{date}");
-		generator.setSource(this.target);
+		generator.setSource(this.grid);
 
 		DataSetTarget target = new DataSetTarget();
 		target.setName(this.s3Grid);
@@ -245,13 +245,13 @@ public class TestS3ReplicationOnStaging {
 		instanceExistsForDownloadFeed(instance, exists, "feed1", dataSetName);
 
 		// feed2 not specified, verify not copied
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
 		boolean found = targetHelper.exists("/GDM/" + dataSetName + "/feed2/");
 		Assert.assertFalse("copied feed2 for instance " + instance, found);
 	}
 
 	private void instanceExistsForDownloadFeed(String instance, boolean exists, String feed, String dataSetName) throws Exception {
-		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.target);
+		HadoopFileSystemHelper targetHelper = new HadoopFileSystemHelper(this.grid);
 		String path = "/GDM/" + dataSetName + "/" + feed + "/" + instance + "/sampleData";
 		boolean found = targetHelper.exists(path);
 		Assert.assertEquals("incorrect state for sample data for instance " + instance, exists, found);
