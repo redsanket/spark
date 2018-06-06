@@ -28,12 +28,8 @@ public class TestCreatingDataSetThroughDopplerOnStaging extends TestSession {
 	private ConsoleHandle consoleHandle;
 	private String cookie;
 	private HTTPHandle httpHandle = null;
-	private List<String> grids;
 	private SourcePath source;
 	private String sourceGridName;
-	private String targetGridName;
-	private Target target1;
-	private Target target2;
 	private boolean eligibleForDelete = false;
 
 	@BeforeClass
@@ -44,18 +40,13 @@ public class TestCreatingDataSetThroughDopplerOnStaging extends TestSession {
 	@Before
 	public void setup() throws Exception {
 		this.consoleHandle = new ConsoleHandle();
-		this.grids = this.consoleHandle.getUniqueGrids();
 		this.httpHandle = new HTTPHandle();
 		this.cookie = httpHandle.getBouncerCookie();
 
-		this.sourceGridName = this.grids.get(0);
-		this.targetGridName = this.grids.get(1);
+		this.sourceGridName = "openqe64blue";
 
 		this.source = new SourcePath();
 		source.addSourcePath("/data/daqdev/data/%{date}").addSourcePath("/data/daqdev/count/%{date}").addSourcePath("/data/daqdev/schema/%{date}");
-		this.target1 = new Target();
-		this.target1.targetName(this.targetGridName).addPath("/data/daqdev/data/%{date}").addPath("/data/daqdev/count/%{date}").addPath("/data/daqdev/schema/%{date}")
-			.retentionNumber("92").retentionPolicy("DateOfInstance").numMaps("3");
 	}
 
 	/**
