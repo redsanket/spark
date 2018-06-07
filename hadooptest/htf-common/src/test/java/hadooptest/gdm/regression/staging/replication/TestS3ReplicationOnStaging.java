@@ -135,8 +135,8 @@ public class TestS3ReplicationOnStaging {
 		generator.addParameter(ATHENZ_RESOURCE, ATHENZ_RESOURCE_VALUE);
 		generator.addParameter("working.dir", "s3-manifest-test/user/daqload/daqtest/tmp1/");
 
-		generator.setGroup("dfsload");
-		generator.setOwner("groups");
+		generator.setGroup("users");
+		generator.setOwner("dfsload");
 		generator.setPermission("750");
 
 		String dataSetXml = generator.getXml();
@@ -153,9 +153,9 @@ public class TestS3ReplicationOnStaging {
 	private void runTest(int option) throws Exception{
 		String dataSetName = "S3ToGridOnStaging_" + this.OPTIONS[option] + System.currentTimeMillis();
 		createTopLevelDirectoryOnTarget(dataSetName);
-		createDataSet(dataSetName, this.getDownloadDataSetXml(option,dataSetName,false));
+		createDataSet(dataSetName, this.getDownloadDataSetXml(option,dataSetName,true));
 		validateDownloadReplicationWorkflows(option, dataSetName);
-
+		WorkFlowHelper workFlowHelper = new WorkFlowHelper();
 		// check for replication workflow
 		workFlowHelper.checkWorkFlow(dataSetName, "replication", this.datasetActivationTime);
 
@@ -221,8 +221,8 @@ public class TestS3ReplicationOnStaging {
 			generator.addParameter("fs.s3a.manifest.file", "s3_manifest.aws");
 		}
 
-		generator.setGroup("dfsload");
-		generator.setOwner("users");
+		generator.setGroup("users");
+		generator.setOwner("dfsload");
 		generator.setPermission("750");
 
 		String dataSetXml = generator.getXml();
