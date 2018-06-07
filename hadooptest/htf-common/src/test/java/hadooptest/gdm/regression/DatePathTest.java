@@ -66,6 +66,7 @@ public class DatePathTest extends TestSession {
                     for (int exclude=0; exclude<=1; exclude++) {
                         String dataSetName = this.getDataSetName(pathType, replStrategy, pathOverride, exclude);
                         validateReplicationWorkflows(dataSetName);
+                        Util.sleep(60);
                         enableRetention(dataSetName);
                     }
                 }
@@ -77,6 +78,7 @@ public class DatePathTest extends TestSession {
             for (int replStrategy=0; replStrategy<=1; replStrategy++) {
                 for (int pathOverride=0; pathOverride<=1; pathOverride++) {
                     for (int exclude=0; exclude<=1; exclude++) {
+                        Util.sleep(60);
                         String dataSetName = this.getDataSetName(pathType, replStrategy, pathOverride, exclude);
                         validateRetentionWorkflows(dataSetName);
                         validateTargetFiles(dataSetName, pathType, pathOverride, exclude);
