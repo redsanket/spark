@@ -1,4 +1,4 @@
-// Copyright 2016, Yahoo Inc.
+// Copyright 2018, Yahoo Inc.
 package hadooptest.gdm.regression.api;
 
 import static com.jayway.restassured.RestAssured.given;
