@@ -50,6 +50,7 @@ public class TestS3ReplicationOnStaging {
 	private String grid;
 	private String s3Grid;
 	private String datasetName;
+	private String datasetActivationTime;
 	private static final String ATHENZ_DOMAIN = "fs.s3a.athenz.domain";
 	private static final String ATHENZ_DOMAIN_VALUE = "gdm";
 	private static final String ATHENZ_RESOURCE = "fs.s3a.athenz.resource";
@@ -154,6 +155,21 @@ public class TestS3ReplicationOnStaging {
 		createTopLevelDirectoryOnTarget(dataSetName);
 		createDataSet(dataSetName, this.getDownloadDataSetXml(option,dataSetName,false));
 		validateDownloadReplicationWorkflows(option, dataSetName);
+
+		// check for replication workflow
+		workFlowHelper.checkWorkFlow(dataSetName, "replication", this.datasetActivationTime);
+
+		// deactivate the dataset before applying retention to dataset
+		Response response = this.consoleHandle.deactivateDataSet(dataSetName);
+		Assert.assertEquals("ResponseCode - Deactivate DataSet failed", HttpStatus.SC_OK, response.getStatusCode());
+
+		// set retention policy to zero
+		this.consoleHandle.setRetentionPolicyToAllDataSets(dataSetName , "0");
+		Thread.sleep(2000);
+
+		// check for retention workflow
+		workFlowHelper.checkWorkFlow(dataSetName , "retention", this.datasetActivationTime);
+
 		// if all the above method and their asserts are success then this dataset is eligible for deletion
 		tearDown(dataSetName);
 	}
