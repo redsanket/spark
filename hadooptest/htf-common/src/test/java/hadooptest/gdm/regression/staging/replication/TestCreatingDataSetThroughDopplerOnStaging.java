@@ -1,5 +1,5 @@
 // Copyright 2018, Yahoo Inc.
-package hadooptest.gdm.regression.api;
+package hadooptest.gdm.regression.staging.replication;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertTrue;
