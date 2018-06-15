@@ -71,8 +71,8 @@ public class TestCrossColoReplicationWithDistCpStrategyOnStaging extends TestSes
     private void createDataset() {
 	DataSetXmlGenerator generator = new DataSetXmlGenerator();
 	generator.setName(this.dataSetName);
-	generator.setDescription(this.getClass().getSimpleName());
-	generator.setCatalog(this.getClass().getSimpleName());
+	generator.setDescription("cross colo testing");
+	generator.setCatalog("cross colo testing");
 	generator.setActive("TRUE");
 	generator.setRetentionEnabled("TRUE");
 	generator.setPriority("NORMAL");
