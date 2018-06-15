@@ -22,7 +22,7 @@ public class TestCrossColoReplicationWithDistCpStrategyOnStaging extends TestSes
     private ConsoleHandle consoleHandle = new ConsoleHandle();
     private final static String SOURCE_CLUSTER_NAME = "AxoniteRed";
     private final static String TARGET_CLUSTER_NAME = "JetBlue";
-    private final String dataSetName = "TestCrossColoReplicationWithDistCpStrategyOnStaging_" + System.currentTimeMillis();
+    private final String dataSetName = "TestCrossColoReplWithDistCpStrategy_" + System.currentTimeMillis();
     private final static String START_INSTANCE_RANGE = "20160719";
     private final static String END_INSTANCE_RANGE = "20160721";
     private final static String SOURCE_DATA_PATH = "/user/hitusr_1/test/";
