@@ -158,6 +158,7 @@ public class TestEncryptionZone extends TestSession {
 
 	    // set to true if both replication and retention are successful
 	    testCasePassedFlag = true;
+	    tearDown(dataSetNames[i]);
 	}
     }
 
@@ -195,4 +196,9 @@ public class TestEncryptionZone extends TestSession {
 	this.consoleHandle.sleep(5000);
     }
 
+	private void tearDown(String dataSetName) {
+		if (testCasePassedFlag) {
+			this.consoleHandle.removeDataSet(dataSetName);
+		}
+	}
 }
