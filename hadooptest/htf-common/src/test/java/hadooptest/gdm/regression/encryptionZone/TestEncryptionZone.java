@@ -195,4 +195,10 @@ public class TestEncryptionZone extends TestSession {
 	this.consoleHandle.sleep(5000);
     }
 
+	@After
+	public void tearDown() {
+		if (testCasePassedFlag) {
+			this.consoleHandle.removeDataSet(this.dataSetName);
+		}
+	}
 }
