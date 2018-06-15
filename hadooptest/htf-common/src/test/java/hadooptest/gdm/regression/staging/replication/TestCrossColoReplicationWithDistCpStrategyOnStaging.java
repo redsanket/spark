@@ -87,7 +87,7 @@ public class TestCrossColoReplicationWithDistCpStrategyOnStaging extends TestSes
 	target.setDateRangeStart(true, START_INSTANCE_RANGE);
 	target.setDateRangeEnd(true, END_INSTANCE_RANGE);
 	target.setHCatType("DataOnly");
-	target.addPath("data", "/data/daqdev/data/${DataSetName}/%{date}");
+	target.addPath("data", SOURCE_DATA_PATH + "${DataSetName}/%{date}");
 	target.setNumInstances("5");
 	target.setReplicationStrategy("DistCp");
 	generator.setTarget(target);
