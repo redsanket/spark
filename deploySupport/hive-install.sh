@@ -5,7 +5,7 @@
 # The hive installation relies on keytabs which are generated in
 # the Build and Configure jobs.
 #
-# inputs: cluster being installed, reference cluster name 
+# inputs: cluster being installed, reference cluster name
 # outputs: 0 on success
 
 if [ $# -ne 2 ]; then
@@ -110,14 +110,14 @@ echo "INFO: Cluster being installed: $CLUSTER"
 echo "INFO: Hive node being installed: $HIVENODE"
 
 #
-# install the backing oracle DB client 
+# install the backing oracle DB client
 #
 # this needs the headless keys pkg in order to fetch the ora DB
 # key 'hiveqeint' from ykeykey
 #
 # need to add json-c needed for athens zts
 yinst install hadoopqa_headless_keys ports/json-c-0.11.3
-yinst install ora11gclient-1.0.3 
+yinst install ora11gclient-1.0.3
 
 # make sure we support hybrid mode for legacy keydb calls
 yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
@@ -125,9 +125,9 @@ yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
 # kinit as dfsload, the dfsload keytab should already be there from the Configure job
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
-# switched to using oracle per gridci-2434 
+# switched to using oracle per gridci-2434
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "+   Now using oracle DB on $HIVE_DB_NODE                " 
+echo "+   Now using oracle DB on $HIVE_DB_NODE                "
 echo "+   using SID $HIVE_DB                                  "
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
@@ -147,7 +147,7 @@ echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 # gridci-1937 allow installing from current branch
 if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
 
-  yinst i -same -live -downgrade -branch current  hive  hive_conf  
+  yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
 
 # else use artifactory
 else
@@ -160,10 +160,10 @@ else
     exit 1
   fi
 
-  # check we got a valid reference cluster 
+  # check we got a valid reference cluster
   RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
   RC=$?
-  if [ $RC -eq 0 ]; then 
+  if [ $RC -eq 0 ]; then
     # get Artifactory URI and log it
     ARTI_URI=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER  -v | grep downloadUri |cut -d\' -f4`
     echo "Artifactory URI with most recent versions:"
@@ -182,12 +182,13 @@ else
         PACKAGE_VERSION_HIVE_CONF=hive_conf_${REFERENCE_CLUSTER}-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive_conf_${REFERENCE_CLUSTER}`
     fi
 
+    PACKAGE_VERSION_HCAT_SERVER=hcat_server-`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hcat_server`
   else
-    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
+    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
     exit 1
   fi
 
-  yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF 
+  yinst i -same -live -downgrade -branch quarantine  $PACKAGE_VERSION_HIVE $PACKAGE_VERSION_HIVE_CONF $PACKAGE_VERSION_HCAT_SERVER
 fi
 
 # copy the hive-site.xml to hdfs
@@ -201,21 +202,38 @@ HIVE_CONF_VERSION=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f2`
 
 # copy the hive-site.xml from hcat to hdfs
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/hive_conf/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hcat_server/conf/hive-site.xml /sharelib/v1/hive_conf/libexec/hive/conf/
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/hive_conf/
 
 # hive yinst sets
+yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
+yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
+yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
+yinst set hcat_server.JAVA_HOME=/home/gs/java/jdk
+# yinst set hcat_server.database_connect_url=jdbc:mysql://$HIVENODE:3306/hivemetastoredb?createDatabaseIfNotExist=true
+yinst set hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
+yinst set hcat_server.database_user=hive
+yinst set hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
+yinst set hcat_server.hcat_server_keytab_file=/etc/grid-keytabs/hadoopqa.$HIVENODE_SHORT.keytab
+yinst set hcat_server.hcat_server_user=hadoopqa
+yinst set hcat_server.metastore_uris=thrift://$HIVENODE:9080
 #yinst set hive.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
 yinst set hive.metastore_uris=thrift://$HIVENODE:9080/
 yinst set hive.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
 yinst set hive_conf.metastore_uris=thrift://$HIVENODE:9080/
 yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
 
-
+# stop using keydb package and directly use hcat_server hive-site properties
+# for mysql metastore access
 #
-# create hive warehouse path for gdm db
-#
-echo "Creating path \"/user/hive/warehouse/gdm.db/user1\""
+#yinst set hcat_server.jdbc_driver=yjava.database.jdbc.mysql.KeyDbDriverWrapper
+#yinst install hcat_dbaccess-0.0.1.1360014220.T38813-rhel.tgz
+#yinst set hcat_server.keydb_passkey=hcatPassword
+yinst set hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper
+yinst set hcat_server.keydb_passkey=hiveqeint
 
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse/gdm.db/user1
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 777 /user/hive/warehouse/gdm.db/user1
+# GRIDCI-2587 The hive metastore setting should be objectstore
+yinst set hcat_server.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.ObjectStore
 
+yinst restart hcat_server
