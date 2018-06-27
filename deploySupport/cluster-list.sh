@@ -29,6 +29,13 @@ initRoleList()
 {
 	export base=conf/hadoop/hadoopAutomation
 	export roleList=$base/$cluster.rolelist.txt
+        # If Hbase is not being installed, remove the hbase related roles which
+        # are not needed. Otherwise, if these roles exists but are empty, they
+        # will cause the deployment to fail.
+        if [ -n "$HBASEVERSION" ]; then
+            cat $roleList|grep -v regionserver|grep -v master|grep -v zookeeper > ${roleList}.new
+            mv -f ${roleList}.new $roleList
+        fi
 }
 
 #
@@ -197,7 +204,11 @@ setGridParameters() {
         roleExists $cluster.oozie && \
              export oozienode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.oozie)"`
 	if roleExists $cluster; then
-            teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway,@grid_re.clusters.${cluster}.hive,@grid_re.clusters.${cluster}.oozie)"`
+            roles="@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway"
+            roleExists $cluster.hive  && roles+=",@grid_re.clusters.${cluster}.hive"
+            roleExists $cluster.oozie && roles+=",@grid_re.clusters.${cluster}.oozie"
+            # teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway,@grid_re.clusters.${cluster}.hive,@grid_re.clusters.${cluster}.oozie)"`
+            teznode=`/usr/local/bin/yinst range -ir "(${roles})"`
             if [[ -n $gateway ]]; then
                 teznode+="\n$gateway"
             fi
