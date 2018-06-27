@@ -196,7 +196,8 @@ public class StackComponentAggResult {
 					int count = this.getRecordCount(recordCountQuery);
 
 					TestSession.logger.info("Record count -  " + count);
-					if (count == 0 ) {   
+					TestSession.logger.info("GRIDCI JSON/ YDS DB REPORTING -- PIPELINE_NAME: " + this.getCurrentPipeLineName() );
+					if (this.getCurrentPipeLineName().equalsIgnoreCase("starling") || count == 0 ) {
 						// if record is zero, then you insert the record into DBCommands.FINAL_RESULT_TABLE_NAME from DBCommands.TABLE_NAME 
 						String countQuery = "SELECT * FROM  " + DBCommands.TABLE_NAME   + "  where date  like  "  + "\"" + getCurrentDate() + "\""
 								+ "  and gdmVersion=" + "\"" + this.getGdmVersion() + "\"" + "  and hadoopVersion="  + "\"" + this.getHadoopVersion() + "\""
@@ -810,7 +811,7 @@ public class StackComponentAggResult {
 		JSONObject jsonObj = new JSONObject();
 		JSONObject jsonObjTop = new JSONObject();
 
-		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 4)) + "_" + this.getCurrentPipeLineName();
 		jsonObj.put("dataSetName", dsName);
 		jsonObj.put("date" , date);
 		jsonObj.put("hadoopVersion", hadoopVersion);

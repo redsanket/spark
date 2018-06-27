@@ -541,6 +541,7 @@ public class CommonFunctions {
 
 		String pipeLineNameJenkinsParam = this.getPipeLineName();
 		switch (pipeLineNameJenkinsParam) {
+		case "starling":
 		case "hadoop":
 		case "tez":
 			TestSession.logger.info("WITH email reporting");

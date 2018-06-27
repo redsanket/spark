@@ -213,6 +213,7 @@ public class TestIntStarling implements java.util.concurrent.Callable<String> {
 	String dbUpdateResult = "";
 	boolean failedFlag = false;
 	
+	TestSession.logger.info("TestIntStarling : starlingResult = "+starlingResult);
 	// navigate the results
 	for ( String logType  : this.logTypesList) {
 	    StarlingExecutionResult starlingExecutionResultObject = starlingResult.get(logType.trim());
