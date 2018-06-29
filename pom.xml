@@ -78,6 +78,16 @@
             <version>${hbase.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>spark-avro_2.11</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks</groupId>
+            <artifactId>shc-core</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -116,9 +126,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>com.hortonworks</groupId>
+                            <artifactId>shc-core</artifactId>
+                            <version>1.0</version>
+                            <packaging>jar</packaging>
+                            <file>${basedir}/lib/shc-core-1.1.2-2.2-s_2.11-SNAPSHOT.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
