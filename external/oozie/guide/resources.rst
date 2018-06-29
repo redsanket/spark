@@ -38,5 +38,5 @@ Oozie Git Repository
 
 - `apache/oozie <https://github.com/apache/oozie>`_ (external)
 - `yahoo/oozie <https://github.com/yahoo/oozie>`_ (external)
-- `hadoop/yahoo-oozie <https://git.corp.yahoo.com/hadoop/yahoo-oozie>`_ (internal)
+- `hadoop/yahoo-oozie <https://git.ouroath.com/hadoop/yahoo-oozie>`_ (internal)
 

@@ -1459,7 +1459,7 @@ Scanner: LHistoryHTableScanStringGenerator
 In the code snippet below, the the string used for scanning an HBase
 table is generated.
 
-For the full code example, see `LHistoryHTableScanStringGenerator.java <https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableScanStringGenerator.java>`_.
+For the full code example, see `LHistoryHTableScanStringGenerator.java <https://git.ouroath.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableScanStringGenerator.java>`_.
 
 .. code-block:: java
 
@@ -1510,7 +1510,7 @@ Mapper: LHistoryHTableInputMapper
 
 In the code snippet below, you can see that the input mapper processes
 records for each row. In the full `code example 
-<https://git.corp.yahoo.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableInputMapper.java>`_,
+<https://git.ouroath.com/alles/HomeLocationDetection/blob/master/src/main/java/com/yahoo/coregeo/lh/homebusiness/grid/LHistoryHTableInputMapper.java>`_,
 you can see that the mapper scans each result, stores a count based on result attributes, and then
 writes the statistics if a latitude and longitude exist.
 

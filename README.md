@@ -13,10 +13,10 @@ The external documentation is generally authored in reStructuredText and rendere
 
 ## Where Do I View the Rendered External Documentation?
 
-The user documentation can be found on `http://git.corp.yahoo.com/pages/hadoop/docs/<product>`, where 
+The user documentation can be found on `http://git.ouroath.com/pages/hadoop/docs/<product>`, where 
 `<product>` can be `hue`, `hive`, `storm`, `starling`, `hbase`, or `oozie`. We may have other
 Hadoop guides in the future as well. For example,
-the Hive User Guide can be found at http://git.corp.yahoo.com/pages/hadoop/docs/hive/. 
+the Hive User Guide can be found at http://git.ouroath.com/pages/hadoop/docs/hive/. 
 
 The following is the general URI syntax for documentation: `http://devel.corp.yahoo.com/{hadoop_product}/guide` 
 
@@ -46,7 +46,7 @@ Install the following:
 
 ##### Edits 
 
-1. Go to `https://git.corp.yahoo.com/hadoop/docs/tree/master/external/<product>/guide/` (replace `<product>` with the Hadoop product, such as `oozie`).
+1. Go to `https://git.ouroath.com/hadoop/docs/tree/master/external/<product>/guide/` (replace `<product>` with the Hadoop product, such as `oozie`).
 1. Find the file you want to edit.
 1. Open the file in the GitHub Editor.
 1. Click the **Edit** icon.
@@ -58,7 +58,7 @@ Install the following:
 
 These are for much larger changes, so we recommend using the fork/clone paradigm. 
 
-1. [Fork the repository](https://git.corp.yahoo.com/hadoop/docs#fork-destination-box). 
+1. [Fork the repository](https://git.ouroath.com/hadoop/docs#fork-destination-box). 
 1. Clone your fork locally.
 1. [Add the remote repository](https://help.github.com/articles/adding-a-remote, "Add a Remote") 
    pointing to the original repository so you can pull in the latest changes to your local repository.
@@ -78,7 +78,7 @@ These are for much larger changes, so we recommend using the fork/clone paradigm
 1. Once your pull request has been merged, do your regular Git upkeep:
    * Pull the updates from the original repository into your master branch.
    * Delete the branch you used for the pull request both locally and remotely.
-1. View the updated documentation at http://git.corp.yahoo.com/pages/hadoop/docs/<product>.
+1. View the updated documentation at http://git.ouroath.com/pages/hadoop/docs/<product>.
  
 ## What if I Find Issues With the Documentation?
 

@@ -272,7 +272,7 @@ Receiving Credentials
 #####################
 
 To get the pushed credentials, a spout or a bolt can implement the 
-`ICredentialsListener <https://git.corp.yahoo.com/storm/storm/blob/master-security/storm-core/src/jvm/backtype/storm/ICredentialsListener.java>`_ 
+`ICredentialsListener <https://git.ouroath.com/storm/storm/blob/master-security/storm-core/src/jvm/backtype/storm/ICredentialsListener.java>`_ 
 interface. It provides the following single method:
 
 .. code-block:: java
@@ -418,7 +418,7 @@ HDFS
 
 HDFS is similar to HBase except the configuration is much simpler.
 
-`yahoo examples <https://git.corp.yahoo.com/storm/storm/tree/master-security/examples/yahoo-examples>`_ in the storm repo includes an example topology accessing HDFS.  This particular one uses storm-hdfs to access it, but you can access HDFS directly if you prefer.  The important things to remember to do are
+`yahoo examples <https://git.ouroath.com/storm/storm/tree/master-security/examples/yahoo-examples>`_ in the storm repo includes an example topology accessing HDFS.  This particular one uses storm-hdfs to access it, but you can access HDFS directly if you prefer.  The important things to remember to do are
 
 first include the storm client conf as a dependency.
 

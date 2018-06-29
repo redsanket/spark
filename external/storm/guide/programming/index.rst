@@ -315,7 +315,7 @@ CMS (JMS) Spout
 ---------------
 
 No official generic spout yet, but you can look at this example 
-`CMSSpout.java <https://git.corp.yahoo.com/slingstone/dataquality_metrics_pipeline/blob/master/src/main/java/com/yahoo/slingstone/dataquality/pipeline/storm/CMSSpout.java>`_. 
+`CMSSpout.java <https://git.ouroath.com/slingstone/dataquality_metrics_pipeline/blob/master/src/main/java/com/yahoo/slingstone/dataquality/pipeline/storm/CMSSpout.java>`_. 
 
 
 .. code-block:: java

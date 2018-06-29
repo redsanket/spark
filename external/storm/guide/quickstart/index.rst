@@ -49,9 +49,9 @@ need to manually start Storm with the following: ``yinst start daemontools_y zoo
 Building a Topology From Source
 ===============================
 
-#. Use Git to clone the source for ``storm-starter``. You may need to `set up SSH keys <https://git.corp.yahoo.com/settings/ssh>`_.
+#. Use Git to clone the source for ``storm-starter``. You may need to `set up SSH keys <https://git.ouroath.com/settings/ssh>`_.
 
-       git clone git@git.corp.yahoo.com:storm/storm-starter.git
+       git clone git@git.ouroath.com:storm/storm-starter.git
 #. Change to ``storm-starter``.
 #. Compile the package with Maven: ``mvn -f m2-pom.xml compile package`` 
 #. Verify you can launch a sample topology from the built package: 

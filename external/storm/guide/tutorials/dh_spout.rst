@@ -34,7 +34,7 @@ Setting Up
        yinst i yjava_yca-0.23.218 -br test
        yinst i mon_metrics_java -br quarantine
 
-#. Clone the ``storm-contrib`` repository: git@git.corp.yahoo.com:storm/storm-contrib.git
+#. Clone the ``storm-contrib`` repository: git@git.ouroath.com:storm/storm-contrib.git
    .. note:: We'll be using ``/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java``.
 #. Change to ``storm-contrib``.
 #. Build the package with Maven: ``mvn clean package``
@@ -120,7 +120,7 @@ Spouts
 This example uses the Rainbow DH spout that gets data from the Data Highway through the Registry Service.
 The Registry Service requires YCA v2 authentication.  
 
-In `EventCountTopology.java <https://git.corp.yahoo.com/storm/storm-contrib/blob/master/rainbow_spout_example/src/main/java/com/yahoo/spout/http/rainbow/EventCountTopology.java>`_,
+In `EventCountTopology.java <https://git.ouroath.com/storm/storm-contrib/blob/master/rainbow_spout_example/src/main/java/com/yahoo/spout/http/rainbow/EventCountTopology.java>`_,
 the method ``runTopology`` creates the topology builder, sets the spot, and attaches the bolt before submitting the topology for execution.
 Here we are using two workers and set credentials that were pushed by the method ``pushCreds``.
 
@@ -157,7 +157,7 @@ Here we are using two workers and set credentials that were pushed by the method
 Bolts
 #####
 
-The `EventCountBolt.java <https://git.corp.yahoo.com/storm/storm-contrib/blob/master/rainbow_spout_example/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java>`_
+The `EventCountBolt.java <https://git.ouroath.com/storm/storm-contrib/blob/master/rainbow_spout_example/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java>`_
 extends the class ``BaseBasicBolt``, which is the simplest of the many built-in `Storm classes <http://nathanmarz.github.io/storm/doc-0.8.1/index.html>`_ for bolts. 
 
 The ``execute`` method in our classes counts the number of records it receives from our spout and emits the value.

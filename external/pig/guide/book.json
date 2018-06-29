@@ -9,7 +9,7 @@
         },
         "expandable-chapters":{},
         "edit-link": {
-                "base": "https://git.corp.yahoo.com/jcatera/docs/edit/master/external/pig/guide/",
+                "base": "https://git.ouroath.com/jcatera/docs/edit/master/external/pig/guide/",
                 "label": {
                     "en": "Edit This Page",
                     "de": "Seite bearbeiten"
