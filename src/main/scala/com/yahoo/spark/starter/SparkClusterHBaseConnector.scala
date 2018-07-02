@@ -14,8 +14,8 @@ object SparkClusterHBaseConnector {
 
     def main(args: Array[String]) {
         
-        if (args == null || args.length < 1) {
-            System.err.println("Usage: SparkClusterHBaseConnector <tableName>")
+        if (args == null || args.length < 2) {
+          System.err.println("Usage: SparkClusterHBaseConnector <nameSpace> <tableName>")
             System.exit(1)
         }
 
@@ -27,7 +27,8 @@ object SparkClusterHBaseConnector {
 
         import spark.implicits._
 
-        val tableName = s"${args(0)}"
+        val nameSpace = s"${args(0)}"
+        val tableName = s"${args(1)}"
 
         val df = Seq( DataRow("harry", "hedwig", 0, null), DataRow("voldy", "nagini", 7, "Tom"))
           .toDF("name", "pet", "horcruxes", "original_name")
@@ -36,7 +37,7 @@ object SparkClusterHBaseConnector {
 
         // define the catalog
         def catalog = s"""{
-	        |"table":{"namespace":"spark_test", "name":"${tableName}"},
+	        |"table":{"namespace":"${nameSpace}", "name":"${tableName}"},
 	        |"rowkey":"name",
 	        |"columns":{
 	        |"name":{"cf":"rowkey", "col":"name", "type":"string"},
