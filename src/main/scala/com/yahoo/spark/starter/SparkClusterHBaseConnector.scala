@@ -7,7 +7,9 @@ import org.apache.spark.sql.SparkSession
 
 case class DataRow(name: String, pet: String, horcruxes: Int, original_name: String)
 
-// Simple example of accessing HBase from Spark using the Spark HBase connector
+// Simple example of accessing HBase from Spark using the Spark HBase connector.
+// The example creates an HBase table and writes sample data to it using the connector
+// and reads back data from the same table and displays it to the stdout.
 object SparkClusterHBaseConnector {
 
     def main(args: Array[String]) {
@@ -25,15 +27,16 @@ object SparkClusterHBaseConnector {
 
         import spark.implicits._
 
-        val tableName = s"spark_test:${args(0)}"
+        val tableName = s"${args(0)}"
 
-        val df = Seq( DataRow("harry", "hedwig", 0, null), DataRow("voldy", "nagini", 7, "Tom")).toDF("name", "pet", "horcruxes", "original_name")
+        val df = Seq( DataRow("harry", "hedwig", 0, null), DataRow("voldy", "nagini", 7, "Tom"))
+          .toDF("name", "pet", "horcruxes", "original_name")
         // print the original dataframe
         df.show
 
         // define the catalog
         def catalog = s"""{
-	        |"table":{"namespace":"spark_test", "name":"harrypotter"},
+	        |"table":{"namespace":"spark_test", "name":"${tableName}"},
 	        |"rowkey":"name",
 	        |"columns":{
 	        |"name":{"cf":"rowkey", "col":"name", "type":"string"},

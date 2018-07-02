@@ -62,13 +62,14 @@ $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf "spark.h
 * Launching in client mode
 ```bash
 # launch the shell
-$SPARK_HOME/bin/spark-submit  --master yarn --deploy-mode client --conf "spark.hadoop.validateOutputSpecs=false" --jars $HBASE_JARS/hbase-protocol.jar,$HBASE_JARS/hbase-common.jar,$HBASE_JARS/hbase-client.jar,$HBASE_JARS/htrace-core-3.1.0-incubating.jar,$HBASE_JARS/hbase-server.jar,$HBASE_JARS/guava-12.0.1.jar,$HBASE_JARS/metrics-core-2.2.0.jar .... 
+$SPARK_HOME/bin/spark-shell  --master yarn --deploy-mode client --conf "spark.hadoop.validateOutputSpecs=false"  --jars $HBASE_JARS/hbase-protocol.jar,$HBASE_JARS/hbase-common.jar,$HBASE_JARS/hbase-client.jar,$HBASE_JARS/htrace-core-3.1.0-incubating.jar,$HBASE_JARS/hbase-server.jar,$HBASE_JARS/guava-12.0.1.jar,$HBASE_JARS/metrics-core-2.2.0.jar,shc-core-1.1.2-2.2-s_2.11-SNAPSHOT.jar
 ```
 
 * If you plan to write to HBase using the connector, set the required conf `"spark.hadoop.validateOutputSpecs=false"`. This is to workaround a bug in HBase. See YHBASE-2131 for more details.
 
 ### Using the connector
-You need to define a catalog so that a DataFrame can be mapped to an HBase table or vice-versa. This is defined in a json format. Below is an example for your reference explaining how to define your own catalog.
+Check the hortonworks documentation for more details and examples [here](https://github.com/hortonworks-spark/shc) for further details.
+Below is an additional example for your reference explaining how to define your own catalog.You need to define a catalog so that a DataFrame can be mapped to an HBase table or vice-versa. This is defined in a json format. 
 ```
 def catalog = s"""{
         |"table":{"namespace":"default", "name":"table1"},
@@ -91,9 +92,6 @@ def catalog = s"""{
 * `columns` field, you specify the name of the column in the DataFrame and its corresponding column_family, column_name and column_type in hbase. You identify the column/s which are used to form the rowkey using the column_family as rowkey.
 
 Note: Since a user can add any arbitrary columns to a column family, individual columns are not specified under the table schema in HBase table description. Therefore it is helpful to know the columns of interest available in hbase table while defining the catalog.
-
-For more examples, you can check the examples in the original repo [here](https://github.com/hortonworks-spark/shc).
-
  
 
 
