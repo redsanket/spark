@@ -42,6 +42,7 @@ types of actions:
 - Streaming
 - DistCp
 - Spark
+- Sqoop2
 
 Oozie can also be extended to support additional type of actions. 
 We're going to take a look at each type of action in the sections below. 
@@ -831,6 +832,125 @@ Spark SQL Accessing Hive
 Getting YCA Certificate
 ***********************
 Please refer to :ref:`examples here<submit_ycav2-java_code_ex>`.
+
+
+.. _action-sqoop2:
+
+
+Sqoop2
+~~~~~~
+
+`Apache Sqoop <http://sqoop.apache.org/>`_ is a tool designed for efficiently transferring data between structured, semi-structured and unstructured data
+sources. Sqoop2 action is used for running Sqoop2 jobs. User can create a job using
+`Sqoop2 CLI <https://docs.google.com/document/d/1UDzu3rcNo4zBMsdxPkr7T03Z5C3CAweQcJCQaMXCsdQ/edit#heading=h.caoi5ab6ighc>`_.
+After creating job, it can be scheduled in Oozie.
+
+.. _sqoop2-workflow:
+
+
+Workflow XML
+************
+
+.. code-block:: xml
+
+   <workflow-app xmlns="uri:oozie:workflow:0.5" name="sqoop2-wf">
+      <start to="sqoop2-node"/>
+      <action name="sqoop2-node">
+         <sqoop2 xmlns="uri:oozie:sqoop2-action:0.1">
+            <job-tracker>kryptonitered-jt1.red.ygrid.yahoo.com:8032</job-tracker>
+            <name-node>hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020</name-node>
+            <prepare>
+               <delete path="hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/saley/output"/>
+            </prepare>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.queuename</name>
+                    <value>${queueName}</value>
+                </property>
+            </configuration>
+            <!-- Parameter sqoopJobName contains name of sqoop job created using Sqoop2 CLI -->
+            <job-name>${sqoopJobName}</job-name>
+            <file>hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/saley/lib/sqoop-client-1.99.7.jar</file>
+            <file>hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/saley/lib/sqoop-common-1.99.7.jar</file>
+            <file>hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/saley/lib/json-simple-1.1.jar</file>
+         </sqoop2>
+         <ok to="end"/>
+         <error to="fail"/>
+      </action>
+      <kill name="fail">
+         <message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+      </kill>
+      <end name="end"/>
+   </workflow-app>
+
+
+The location of following JARs needs to be specified in the ``<file>`` element or these jars should be in ``oozie.libpath``.
+
+- `sqoop-client-1.99.7.jar <https://mvnrepository.com/artifact/org.apache.sqoop/sqoop-client/1.99.7>`_
+- `sqoop-common-1.99.7.jar <https://mvnrepository.com/artifact/org.apache.sqoop/sqoop-common/1.99.7>`_
+- `json-simple-1.1.jar <https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple/1.1>`_
+
+
+.. _sqoop2-schema-def:
+
+
+XML Schema
+**********
+
+
+.. code-block:: xml
+
+   <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:sqoop2="uri:oozie:sqoop2-action:0.1" elementFormDefault="qualified"
+              targetNamespace="uri:oozie:sqoop2-action:0.1">
+
+       <xs:element name="sqoop2" type="sqoop2:ACTION"/>
+
+       <xs:complexType name="ACTION">
+           <xs:sequence>
+               <xs:element name="job-tracker" type="xs:string" minOccurs="0" maxOccurs="1"/>
+               <xs:element name="name-node" type="xs:string" minOccurs="0" maxOccurs="1"/>
+               <xs:element name="prepare" type="sqoop2:PREPARE" minOccurs="0" maxOccurs="1"/>
+               <xs:element name="job-xml" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+               <xs:element name="configuration" type="sqoop2:CONFIGURATION" minOccurs="0" maxOccurs="1"/>
+               <xs:element name="sqoop-uri" type="xs:string" minOccurs="0" maxOccurs="1"/>
+               <xs:element name="job-name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="file" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+               <xs:element name="archive" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+           </xs:sequence>
+       </xs:complexType>
+
+       <xs:complexType name="CONFIGURATION">
+           <xs:sequence>
+               <xs:element name="property" minOccurs="1" maxOccurs="unbounded">
+                   <xs:complexType>
+                       <xs:sequence>
+                           <xs:element name="name" minOccurs="1" maxOccurs="1" type="xs:string"/>
+                           <xs:element name="value" minOccurs="1" maxOccurs="1" type="xs:string"/>
+                           <xs:element name="description" minOccurs="0" maxOccurs="1" type="xs:string"/>
+                       </xs:sequence>
+                   </xs:complexType>
+               </xs:element>
+           </xs:sequence>
+       </xs:complexType>
+
+       <xs:complexType name="PREPARE">
+           <xs:sequence>
+               <xs:element name="delete" type="sqoop2:DELETE" minOccurs="0" maxOccurs="unbounded"/>
+               <xs:element name="mkdir" type="sqoop2:MKDIR" minOccurs="0" maxOccurs="unbounded"/>
+           </xs:sequence>
+       </xs:complexType>
+
+       <xs:complexType name="DELETE">
+           <xs:attribute name="path" type="xs:string" use="required"/>
+       </xs:complexType>
+
+       <xs:complexType name="MKDIR">
+           <xs:attribute name="path" type="xs:string" use="required"/>
+       </xs:complexType>
+
+   </xs:schema>
+
 
 
 .. _workflow-examples:
