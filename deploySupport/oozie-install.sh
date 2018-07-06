@@ -441,6 +441,7 @@ RC=$?
 EC=$((EC+RC))
 if [ $RC -ne 0 ]; then echo "Failed to chmod /tmp/oozie!"; fi
 # open /user/hive perms for multiple users
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /user/hive 
 RC=$?
 EC=$((EC+RC))
