@@ -92,7 +92,6 @@ do
       echo "[ERROR] MISSING: ${BASE_SRC_JAR_PATH}${i}"
     else
       echo "[INFO] COPYING: ${BASE_SRC_JAR_PATH}${i}"
-      hadoop fs -mkdir -p /tmp/integration_test_files
       hadoop fs -mkdir -p /tmp/integration_test_files/lib
       hadoop fs -chmod -R 755 /tmp/integration_test_files/lib/
       hadoop fs -cp "${BASE_SRC_JAR_PATH}${i}"    "${BASE_TGT_JAR_PATH}."
