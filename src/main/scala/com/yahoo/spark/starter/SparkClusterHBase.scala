@@ -13,8 +13,8 @@ object SparkClusterHBase {
 
     def main(args: Array[String]) {
         
-        if (args == null || args.length < 1) {
-            System.err.println("Usage: SparkClusterHBase <tableName>")
+        if (args == null || args.length < 2) {
+          System.err.println("Usage: SparkClusterHBase <nameSpace> <tableName>")
             System.exit(1)
         }
 
@@ -25,19 +25,21 @@ object SparkClusterHBase {
           getOrCreate()
 
         val hconf = HBaseConfiguration.create()
-        val tableName = s"spark_test:${args(0)}"
-        hconf.set(TableInputFormat.INPUT_TABLE, tableName)
+        val nameSpace = args(0)
+        val tableName = args(1)
+        val qualifiedTableName = nameSpace + ":" + tableName
+        hconf.set(TableInputFormat.INPUT_TABLE, qualifiedTableName)
         val admin = new HBaseAdmin(hconf)
 
         // create the table if not existed
-        if(!admin.isTableAvailable(tableName)) {
-            val tableDesc = new HTableDescriptor(tableName)
+        if(!admin.isTableAvailable(qualifiedTableName)) {
+            val tableDesc = new HTableDescriptor(qualifiedTableName)
             tableDesc.addFamily(new HColumnDescriptor("cf1".getBytes()));
             admin.createTable(tableDesc)
         }
 
         // put data into the table
-        val myTable = new HTable(hconf, tableName);
+        val myTable = new HTable(hconf, qualifiedTableName);
         for (i <- 0 to 5) {
             val p = new Put(new String("row" + i).getBytes());
             p.add("cf1".getBytes(), "column-1".getBytes(), new String("value " + i).getBytes());
