@@ -168,7 +168,7 @@ fi
 # yjava_jetty-9.3.15.v20161220_782 and yhdrs-1.28.5, lots of
 # dep breakage on 20171127
 #
-cmd_jetty="yinst i yjava_jetty yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_801 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
   -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
   -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
@@ -220,7 +220,7 @@ DEV_KMS_KEYTAB=kms.$kmsnodeshort.dev.service.keytab
 cmd_kms="ln -f -s /home/gs/conf/local/local-superuser-conf.xml  /home/y/conf/hadoop/local-superuser-conf.xml; \
 ln -f -s /etc/ssl/certs/prod/_open_ygrid_yahoo_com/kms.jks /etc/pki/tls/certs/prod/_open_ygrid_yahoo_com-dev.jks; \
 ln -f -s /etc/grid-keytabs/kms.$kmsnodeshort.dev.service.keytab /home/y/conf/kms/kms.dev.service.keytab; \
-yinst install  yahoo_kms -same -live -downgrade -br current \
+yinst install  yahoo_kms -same -live -downgrade -br test \
  -set yahoo_kms.TODO_KEYTAB_FILE=kms.dev.service.keytab \
  -set yahoo_kms.TODO_HOSTNAME=$kmsnode -set yahoo_kms.TODO_KMS_USER=hadoop8 -set yahoo_kms.autostart=off \
  -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM" 
