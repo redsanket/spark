@@ -71,3 +71,33 @@ echo PIGVERSION=$PIGVERSION
 # vers given, and not from quarantine either. Fix would be to re-dist the pkg(s)
 yinst install ygrid_pig_multi-1.3.2  -br current -set ygrid_pig_multi.CURRENT=$PIGVERSION -same -live
 
+
+# GRIDCI-3269: Integration deployment, add BaseFeed.jar and FETLProjector.jar
+echo "check if {BaseFeed.jar, FETLProjector.jar} are present, else copy"
+INT_JAR_NAMES=("BaseFeed.jar" "FETLProjector.jar")
+BASE_TGT_JAR_PATH="/tmp/integration_test_files/lib/"
+/usr/bin/kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
+echo "kinit success status: $?"
+for i in "${INT_JAR_NAMES[@]}"
+do
+  TGT_OUTPUT=$(hadoop fs -ls "${BASE_TGT_JAR_PATH}${i}")
+  echo "${TGT_OUTPUT}"
+  if [ -z "${TGT_OUTPUT}" ]
+  then
+    echo "[INFO] ABSENT: ${BASE_TGT_JAR_PATH}${i}"
+    BASE_SRC_JAR_PATH="hdfs://openqe5blue-n2/tmp/integration_test_files/lib/"
+    SRC_OUTPUT=$(hadoop fs -ls "${BASE_SRC_JAR_PATH}${i}")
+    if [ -z "${SRC_OUTPUT}" ]
+    then
+      echo "[ERROR] MISSING: ${BASE_SRC_JAR_PATH}${i}"
+    else
+      echo "[INFO] COPYING: ${BASE_SRC_JAR_PATH}${i}"
+      hadoop fs -mkdir -p /tmp/integration_test_files/lib
+      hadoop fs -chmod -R 755 /tmp/integration_test_files/lib/
+      hadoop fs -cp "${BASE_SRC_JAR_PATH}${i}"    "${BASE_TGT_JAR_PATH}."
+      hadoop fs -chmod -R 755 /tmp/integration_test_files/lib/
+    fi
+  else
+    echo "[INFO] PRESENT: ${BASE_TGT_JAR_PATH}${i}"
+  fi
+done

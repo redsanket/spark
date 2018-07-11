@@ -441,6 +441,7 @@ RC=$?
 EC=$((EC+RC))
 if [ $RC -ne 0 ]; then echo "Failed to chmod /tmp/oozie!"; fi
 # open /user/hive perms for multiple users
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /user/hive
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 /user/hive 
 RC=$?
 EC=$((EC+RC))
@@ -450,5 +451,18 @@ if [ $EC -ne 0 ]; then
   exit 1
 fi
 
-# open /user/hive perms for multiple users
 
+# GRIDCI-3269: add base path for IntegrationEmitterTest
+echo "add base path for IntegrationEmitterTest"
+DATA_PATH_NAMES=("/data/daqdev/abf/data/" "/data/daqdev/abf/schema/" "/data/daqdev/abf/count/")
+/usr/bin/kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
+echo "kinit success status: $?"
+for i in "${DATA_PATH_NAMES[@]}"
+do
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p "${i}"
+  RC=$?
+  if [ $RC -ne 0 ]; then echo "Failed to mkdir ${i}!"; fi
+  /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 777 "${i}"
+  RC=$?
+  if [ $RC -ne 0 ]; then echo "Failed to chmod ${i}!"; fi
+done
