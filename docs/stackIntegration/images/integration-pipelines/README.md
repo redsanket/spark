@@ -19,7 +19,7 @@ Use [draw.io](https://www.draw.io/) - a free tool. Use it offline on -
 
 ## Source reporsitory
 
-See code for integration tests on [git.corp.yahoo.com/.../hadooptest/.../htf-common/src/test/java/.../stackIntegration](https://git.corp.yahoo.com/HadoopQE/hadooptest/tree/master/hadooptest/htf-common/src/test/java/hadooptest/gdm/regression/stackIntegration)
+See code for integration tests on [git.ouroath.com/.../hadooptest/.../htf-common/src/test/java/.../stackIntegration](https://git.ouroath.com/HadoopQE/hadooptest/tree/master/hadooptest/htf-common/src/test/java/hadooptest/gdm/regression/stackIntegration)
 
 ## Output Images
 #### Pipeline 1 (Stack Components: Hadoop)
