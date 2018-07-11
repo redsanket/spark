@@ -78,16 +78,16 @@ if [ $TEZVERSION != none ] && [ $INSTALL_TEZ != false ]; then
         export JAVA_HOME=$JAVA_HOME ; \
         kinit -k -t $HOMEDIR/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa ; \
         echo installing Tez into hdfs ; \
-        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/tez/ytez-$TEZVERSION/ ; \
-        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/gridre/yroot.$CLUSTER/tez-$TEZVERSION/tez-$TEZVERSION-minimal.tar.gz /sharelib/v1/tez/ytez-$TEZVERSION/ ; \
+        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/ytez/ytez-$TEZVERSION/ ; \
+        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/gs/gridre/yroot.$CLUSTER/tez-$TEZVERSION/tez-$TEZVERSION-minimal.tar.gz /sharelib/v1/ytez/ytez-$TEZVERSION/ ; \
         echo after put command ; \
-        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 755 /sharelib/v1/tez/ytez-$TEZVERSION/ ; \
+        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 755 /sharelib/v1/ytez/ytez-$TEZVERSION/ ; \
         echo after  chmoding 755 /sharelib/v1/tez/; \
-        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 744 /sharelib/v1/tez/* ; \
+        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod 744 /sharelib/v1/ytez/* ; \
         echo after -chmod 744 /sharelib/v1/tez/* ; \
         /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/ ; \
         echo after chmoding -R 755 /sharelib ; \
-        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/tez/ "
+        /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/ytez/ "
 
 	echo "Continue with non-tarball deploy..."
 	fanoutOneTez "$cmd"
