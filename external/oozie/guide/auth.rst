@@ -471,10 +471,12 @@ Workflow with on-prem Athens role token
 
 `Athens <https://git.ouroath.com/pages/athens/athenz-guide/>`_ is a hosted service at Yahoo supporting role-based authorization.
 Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
-To enable that, users will have to add ``hadoop.oozie`` as member to the role that they want to give access to in addition to 
-the username under which the Oozie workflow will be run as. The user can either be user.<Oath user> or ygrid.<headless user>.
+To enable that, users will have to add ``hadoop.oozie`` in case of YGRID clusters and ``vcg.prod.oozie`` in case of VCG clusters
+as member to the role that they want to give access to in addition to the username under which
+the Oozie workflow will be run as. The user can either be user.<Oath user> or ygrid.<headless user>.
+`Refer this link <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop>`_ to determine type of cluster.
 
-For eg: If the workflow will be run as user filo, then ``hadoop.oozie`` and ``user.filo`` will have to be added as members
+For eg: If the workflow will be run as user filo on a YGRID cluster, then ``hadoop.oozie`` and ``user.filo`` will have to be added as members
 of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will 
 have to be added as members of that role. 
 
@@ -998,7 +1000,7 @@ Optional properties:
         <!-- Optional Property -->
 
         <property>
-            <name>aws.credential.expiration.minutes</name>
+            <name>aws.credential.expiry.minutes</name>
             <value>70</value>
         </property>
 
