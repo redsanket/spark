@@ -66,7 +66,8 @@ Answers
    ``hdfs://sourcenamenode.colo.ygrid.yahoo.com`` (the same colo, different cluster) or 
    ``webhdfs://sourcenamenode.colo.ygrid.yahoo.com`` (cross-colo cluster). You will have 
    to use the same protocol while referring the other NameNode in your Workflow or 
-   Pig scripts. A comma-separated list can be specified.
+   Pig scripts. A comma-separated list can be specified. Only read operations are allowed
+   via webhdfs.
 
    For example, the Workflow XML below allows an action running in Dilithium Blue trying 
    to access data in Uranium Blue (same colo) and Phazon Tan (cross-colo).
