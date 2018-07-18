@@ -713,37 +713,6 @@
                     <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar
                     </systemPath>
                 </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system1</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-common-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system2</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-hdfs-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system3</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-auth-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
                 <dependency>
                     <groupId>system</groupId>
                     <artifactId>system4</artifactId>
@@ -1148,36 +1117,6 @@
                     <version>0.9.2</version>
                     <scope>system</scope>
                     <systemPath>${HADOOP_SHARE}/yarn/hadoop-yarn-server-resourcemanager-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system1</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-common-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system2</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-hdfs-${HADOOP_VERSION}.jar
-                    </systemPath>
-                </dependency>
-
-                <dependency>
-                    <groupId>system</groupId>
-                    <artifactId>system3</artifactId>
-                    <version>0.9.2</version>
-                    <scope>system</scope>
-                    <systemPath>
-                        ${HADOOP_SHARE}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/hadoop-auth-${HADOOP_VERSION}.jar
                     </systemPath>
                 </dependency>
 

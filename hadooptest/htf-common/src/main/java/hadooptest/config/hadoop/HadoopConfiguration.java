@@ -254,7 +254,6 @@ public abstract class HadoopConfiguration extends Configuration {
      * this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
      * this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
      * this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("httpfs-default.xml"));
      * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
      */
     protected void loadDefaultResource() {
