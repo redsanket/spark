@@ -69,6 +69,7 @@ public class TestSparkHdfsLrCli extends TestSession {
             appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
             String[] argsArray = {lrDatafile, "100"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runSparkHdfsLRTestStandaloneModeSparkSubmit");
 
             appUserDefault.start();
 
@@ -101,6 +102,7 @@ public class TestSparkHdfsLrCli extends TestSession {
             String[] argsArray = {"/user/" + System.getProperty("user.name") + "/" + lrDatafile,
                 "100"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runSparkHdfsLRTestYarnClientModeSparkSubmit");
 
             appUserDefault.start();
 
@@ -131,6 +133,7 @@ public class TestSparkHdfsLrCli extends TestSession {
         appUserDefault.setClassName("org.apache.spark.examples.SparkHdfsLR");
         String[] argsArray = {"bogusnonexistentfile.txt", "100"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkHdfsLRTestNonexistHdfsFileSparkSubmit");
 
         appUserDefault.start();
 

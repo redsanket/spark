@@ -246,6 +246,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runNoAclsSet");
    
             startAndCheckUI(appUserDefault);
    
@@ -287,6 +288,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runUserViewAclsSet");
             startAndCheckUI(appUserDefault);
    
             String stagesUIURL = getAppClusterURL(appUserDefault) + "/stages/";
@@ -317,6 +319,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runUserAdminAclsSet");
             startAndCheckUI(appUserDefault);
    
             String stagesUIURL = getAppClusterURL(appUserDefault) + "/stages/";
@@ -349,6 +352,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runUserModifyAclsSet");
             startAndCheckUI(appUserDefault);
 
             String stagesUIURL = getAppClusterURL(appUserDefault)  + "/stages/";
@@ -383,6 +387,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runUserModifyAclsSetKill");
             startAndCheckUI(appUserDefault);
 
             // should pass since user has modify permissions
@@ -409,6 +414,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("runUserAdminAclsSetKill");
             startAndCheckUI(appUserDefault);
    
             // should pass since user has admin permissions

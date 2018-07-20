@@ -73,6 +73,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlefile.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneFileSparkSubmit");
 
         appUserDefault.start();
 
@@ -105,6 +106,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"renamed.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneFileWithHashSparkSubmit");
 
         appUserDefault.start();
 
@@ -134,6 +136,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"firstfile.txt", "renamedfile.txt", "thirdfile.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheThreeFilesSparkSubmit");
 
         appUserDefault.start();
 
@@ -161,6 +164,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlefile.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneFileHashBadFileSparkSubmit");
 
         appUserDefault.start();
 
@@ -187,6 +191,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"nonexistentfile.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheNonExistFileSparkSubmit");
 
         appUserDefault.start();
 
@@ -211,6 +216,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlefile.txt"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneFileFromHdfsSparkSubmit");
 
         appUserDefault.start();
 
@@ -241,6 +247,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlearchive.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneArchiveSparkSubmit");
 
         appUserDefault.start();
 
@@ -268,6 +275,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"renamed.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneArchiveWithHashSparkSubmit");
 
         appUserDefault.start();
 
@@ -298,6 +306,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"firstarchive.tgz", "renamedarchive.tgz", "thirdarchive.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheThreeArchivesSparkSubmit");
 
         appUserDefault.start();
 
@@ -326,6 +335,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlearchive.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneArchiveHashBadSparkSubmit");
 
         appUserDefault.start();
 
@@ -353,6 +363,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"nonexistentfile.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheNonExistArchiveSparkSubmit");
 
         appUserDefault.start();
 
@@ -378,6 +389,7 @@ public class TestSparkDistributedCache extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {"singlearchive.tgz"};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkDistributedCacheOneArchiveFromHdfsSparkSubmit");
 
         appUserDefault.start();
 

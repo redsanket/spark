@@ -35,7 +35,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
-        String appName = "SparkTestPiCliSparkSubmit";
+        String appName = "runSparkPiTestStandaloneModeSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("default");
@@ -67,7 +67,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         appUserDefault.setNumWorkers(1);
         appUserDefault.setWorkerCores(1);
         appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
-        String appName = "SparkTestPiCliSparkSubmit";
+        String appName = "runSparkPiTestYarnClientModeSparkSubmit";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("default");
@@ -102,7 +102,7 @@ public class TestSparkPiCliSparkSubmit extends TestSession {
         String localFile = Util.getResourceFullPath("resources/spark/data/log4j.properties");
         appUserDefault.setLog4jFile(localFile);
         appUserDefault.setClassName("org.apache.spark.examples.SparkPi");
-        String appName = "SparkTestPiCliSparkSubmit";
+        String appName = "runSparkPiTestStandaloneModeSparkSubmitWithDebugLogging";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("default");

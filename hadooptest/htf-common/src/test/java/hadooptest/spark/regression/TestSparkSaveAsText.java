@@ -85,6 +85,7 @@ public class TestSparkSaveAsText extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkSaveAsTextSparkSubmit");
 
         appUserDefault.start();
 
@@ -113,6 +114,7 @@ public class TestSparkSaveAsText extends TestSession {
         // tests can run in parallel so we need to use different file name
         String[] argsArray = {lrDatafile, hdfsDir + saveAsFile2};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkSaveAsTextClientModeSparkSubmit");
 
         appUserDefault.start();
 
@@ -141,6 +143,7 @@ public class TestSparkSaveAsText extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkSaveAsTextSparkSubmitWithExistingOutput");
 
         appUserDefault.start();
 
@@ -171,6 +174,7 @@ public class TestSparkSaveAsText extends TestSession {
         appUserDefault.setLog4jFile(localFile);
         String[] argsArray = {lrDatafile, hdfsDir + saveAsFile};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("runSparkSaveAsTextWithLoggingSparkSubmit");
 
         appUserDefault.start();
 
