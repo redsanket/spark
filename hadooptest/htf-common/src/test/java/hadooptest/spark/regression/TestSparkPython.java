@@ -74,7 +74,7 @@ public class TestSparkPython extends TestSession {
         appUserDefault.setWorkerCores(1);
         appUserDefault.setShouldPassClass(false);
         appUserDefault.setShouldPassJar(false);
-        String appName = "runSparkPiTestStandaloneModeSparkSubmitWithDebugLogging";
+        String appName = "SparkPiTestStandaloneModeSparkSubmitWithDebugLogging";
         appUserDefault.setAppName(appName);
         appUserDefault.setShouldPassName(true);
         appUserDefault.setQueueName("default");

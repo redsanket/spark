@@ -246,7 +246,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runNoAclsSet");
+            appUserDefault.setAppName("NoAclsSet");
    
             startAndCheckUI(appUserDefault);
    
@@ -288,7 +288,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runUserViewAclsSet");
+            appUserDefault.setAppName("UserViewAclsSet");
             startAndCheckUI(appUserDefault);
    
             String stagesUIURL = getAppClusterURL(appUserDefault) + "/stages/";
@@ -319,7 +319,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runUserAdminAclsSet");
+            appUserDefault.setAppName("UserAdminAclsSet");
             startAndCheckUI(appUserDefault);
    
             String stagesUIURL = getAppClusterURL(appUserDefault) + "/stages/";
@@ -352,7 +352,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runUserModifyAclsSet");
+            appUserDefault.setAppName("UserModifyAclsSet");
             startAndCheckUI(appUserDefault);
 
             String stagesUIURL = getAppClusterURL(appUserDefault)  + "/stages/";
@@ -387,7 +387,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runUserModifyAclsSetKill");
+            appUserDefault.setAppName("UserModifyAclsSetKill");
             startAndCheckUI(appUserDefault);
 
             // should pass since user has modify permissions
@@ -414,7 +414,7 @@ public class TestSparkUI extends TestSession {
             // use 500 so job stays active long enough to get to UI
             String[] argsArray = {lrDatafile, "500"};
             appUserDefault.setArgs(argsArray);
-            appUserDefault.setAppName("runUserAdminAclsSetKill");
+            appUserDefault.setAppName("UserAdminAclsSetKill");
             startAndCheckUI(appUserDefault);
    
             // should pass since user has admin permissions

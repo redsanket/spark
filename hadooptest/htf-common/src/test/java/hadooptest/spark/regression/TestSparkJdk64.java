@@ -78,7 +78,7 @@ public class TestSparkJdk64 extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile};
         appUserDefault.setArgs(argsArray);
-        appUserDefault.setAppName("runSparkPipesEnvVarsJdk64SparkSubmit");
+        appUserDefault.setAppName("SparkPipesEnvVarsJdk64SparkSubmit");
 
         appUserDefault.start();
 
@@ -109,7 +109,7 @@ public class TestSparkJdk64 extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {lrDatafile};
         appUserDefault.setArgs(argsArray);
-        appUserDefault.setAppName("runSparkPipesEnvVarsJdk64SparkSubmitClient");
+        appUserDefault.setAppName("SparkPipesEnvVarsJdk64SparkSubmitClient");
 
         appUserDefault.start();
 
