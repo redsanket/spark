@@ -21,7 +21,7 @@ public class TestCrossColoReplicationWithDistCpStrategyOnStaging extends TestSes
     private WorkFlowHelper workFlowHelper;
     private ConsoleHandle consoleHandle = new ConsoleHandle();
     private final static String SOURCE_CLUSTER_NAME = "AxoniteRed";
-    private final static String TARGET_CLUSTER_NAME = "JetBlue";
+    private final static String TARGET_CLUSTER_NAME = "PhazonTan";
     private final String dataSetName = "CrossColoTesting_" + System.currentTimeMillis();
     private final static String START_INSTANCE_RANGE = "20160719";
     private final static String END_INSTANCE_RANGE = "20160721";
