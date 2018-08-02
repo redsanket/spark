@@ -78,6 +78,7 @@ public class TestSparkPipes extends TestSession {
             appUserDefault.setJarName(localJar);
             String[] argsArray = {lrDatafile};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("SparkPipesEnvVars");
 
             appUserDefault.start();
 
@@ -111,6 +112,7 @@ public class TestSparkPipes extends TestSession {
             appUserDefault.setJarName(localJar);
             String[] argsArray = {lrDatafile};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("SparkPipesEnvVarsClientMode");
 
             appUserDefault.start();
 
@@ -147,6 +149,7 @@ public class TestSparkPipes extends TestSession {
             appUserDefault.setJarName(localJar);
             String[] argsArray = {lrDatafile};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("SparkPipesTaskDirs");
 
             appUserDefault.start();
 
@@ -184,6 +187,7 @@ public class TestSparkPipes extends TestSession {
             appUserDefault.setJarName(localJar);
             String[] argsArray = {lrDatafile};
             appUserDefault.setArgs(argsArray);
+            appUserDefault.setAppName("SparkPipesTaskDirsClientMode");
 
             appUserDefault.start();
 

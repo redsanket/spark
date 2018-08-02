@@ -68,6 +68,7 @@ public class TestSparkNewAPIHadoop extends TestSession {
         appUserDefault.setJarName(localJar);
         String[] argsArray = {ctrlBFile};
         appUserDefault.setArgs(argsArray);
+        appUserDefault.setAppName("SparkNewAPIHadoop");
 
         appUserDefault.start();
 
