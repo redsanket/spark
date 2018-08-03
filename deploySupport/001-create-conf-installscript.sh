@@ -173,20 +173,28 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
     then
         echo "echo ======= running yinst-set to disable Docker use and run tasks native, this has no effect on rhel6 nodes"
         echo "$yinst set -root ${yroothome} \\"
-        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default \\"
+        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default"
     else
         if [[ ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel7' || ${DOCKER_IMAGE_TAG_TO_USE} == 'rhel6' ]]; then
             echo "get latest ${DOCKER_IMAGE_TAG_TO_USE}:current tag image"
             echo "$yinst set -root ${yroothome} \\"
             echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
-            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE}"
         else
             echo "get specific ${DOCKER_IMAGE_TAG_TO_USE} tag image"
             echo "$yinst set -root ${yroothome} \\"
             echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
-            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE} \\"
+            echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/${DOCKER_IMAGE_TAG_TO_USE}"
         fi
     fi
+
+    # Hack to deal with split client/server configs. Currently QE does not
+    # support separate configs for client vs. datanode vs. nodemanager as
+    # is done in production. This forces the configs to always look like
+    # server configs which is not ideal and not what is run in production.
+    cfgscriptbase=${yroothome}/conf/hadoop/cfg-${confpkg#HadoopConfig}
+    echo "[ -f ${cfgscriptbase}-datanode.sh ] && YROOT=${yroothome} ${cfgscriptbase}-datanode.sh"
+    echo "[ -f ${cfgscriptbase}-nodemanager.sh ] && YROOT=${yroothome} ${cfgscriptbase}-nodemanager.sh"
 
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
