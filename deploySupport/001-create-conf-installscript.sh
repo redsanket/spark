@@ -188,6 +188,14 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         fi
     fi
 
+    # Hack to deal with split client/server configs. Currently QE does not
+    # support separate configs for client vs. datanode vs. nodemanager as
+    # is done in production. This forces the configs to always look like
+    # server configs which is not ideal and not what is run in production.
+    cfgscriptbase=${yroothome}/conf/hadoop/cfg-${confpkg#HadoopConfig}
+    echo "[ -f ${cfgscriptbase}-datanode.sh ] && YROOT=${yroothome} ${cfgscriptbase}-datanode.sh"
+    echo "[ -f ${cfgscriptbase}-nodemanager.sh ] && YROOT=${yroothome} ${cfgscriptbase}-nodemanager.sh"
+
     if [ "$HERRIOT_CONF_ENABLED" = true ]
     then
         echo "echo ======= running yinst-set to set Herriot config properties."
