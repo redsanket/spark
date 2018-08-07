@@ -469,6 +469,15 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 							"yarn.resourcemanager.nodes.include-path",
 							"yarn-site.xml", null);
 
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
+			fullyDistributedCluster.getConf(
+					HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+					.removeHadoopConfFileProp(
+							"yarn.resourcemanager.nodes.include-path",
+							"yarn-server-site.xml", null);
+
 			if (aclUser != null) {
 				if (!aclUser.isEmpty()) {
 					fullyDistributedCluster.getConf(
