@@ -249,12 +249,12 @@ public abstract class HadoopConfiguration extends Configuration {
      * 
      * NOTE:
      * Consider loading part or all of the following default xml files:
-     * this.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("distcp-default.xml"));
-     * this.addResource(this.getClassLoader().getResourceAsStream("testserver-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("core-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("hdfs-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("mapred-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("yarn-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("distcp-default.xml"));
+     * this.addResource(this.getConfResourceAsInputStream("testserver-default.xml"));
      */
     protected void loadDefaultResource() {
         if (TestSession.logger.isTraceEnabled()) {
@@ -263,10 +263,10 @@ public abstract class HadoopConfiguration extends Configuration {
             TestSession.logger.trace("Load hadoop default configurations via " +
                     "URL path: '" + dirURL.getPath() + "'.");            
         }
-        super.addResource(this.getClassLoader().getResourceAsStream("core-default.xml"));
-        super.addResource(this.getClassLoader().getResourceAsStream("hdfs-default.xml"));
-        super.addResource(this.getClassLoader().getResourceAsStream("mapred-default.xml"));
-        super.addResource(this.getClassLoader().getResourceAsStream("yarn-default.xml"));
+        super.addResource(this.getConfResourceAsInputStream("core-default.xml"));
+        super.addResource(this.getConfResourceAsInputStream("hdfs-default.xml"));
+        super.addResource(this.getConfResourceAsInputStream("mapred-default.xml"));
+        super.addResource(this.getConfResourceAsInputStream("yarn-default.xml"));
     }
 
     

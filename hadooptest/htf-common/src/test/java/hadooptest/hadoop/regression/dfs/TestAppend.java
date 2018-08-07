@@ -288,24 +288,15 @@ public class TestAppend {
 		mfc = FileContext.getFileContext();
 		// mconfig = new Configuration();
 		mconfig = new Configuration(true);
-		mconfig.addResource(HadooptestConstants.Location.CORE_SITE_XML);
-		mconfig.addResource(HadooptestConstants.Location.HDFS_SITE_XML);
-		mconfig.addResource(HadooptestConstants.Location.YARN_SITE_XML);
-		mconfig.addResource(HadooptestConstants.Location.MAPRED_SITE_XML);
 		mconfig.addResource(new Path(HadooptestConstants.Location.CORE_SITE_XML));
 		mconfig.addResource(new Path(HadooptestConstants.Location.HDFS_SITE_XML));
 		mconfig.addResource(new Path(HadooptestConstants.Location.YARN_SITE_XML));
 		mconfig.addResource(new Path(
 				HadooptestConstants.Location.MAPRED_SITE_XML));
-		ClassLoader classLoader = Configuration.class.getClassLoader();
-		mconfig.addResource(classLoader
-				.getResourceAsStream(HadooptestConstants.ConfFileNames.CORE_SITE_XML));
-		mconfig.addResource(classLoader
-				.getResourceAsStream(HadooptestConstants.ConfFileNames.HDFS_SITE_XML));
-		mconfig.addResource(classLoader
-				.getResourceAsStream(HadooptestConstants.ConfFileNames.YARN_SITE_XML));
-		mconfig.addResource(classLoader
-				.getResourceAsStream(HadooptestConstants.ConfFileNames.MAPRED_SITE_XML));
+		mconfig.addResource(HadooptestConstants.Location.CORE_SITE_XML);
+		mconfig.addResource(HadooptestConstants.Location.HDFS_SITE_XML);
+		mconfig.addResource(HadooptestConstants.Location.YARN_SITE_XML);
+		mconfig.addResource(HadooptestConstants.Location.MAPRED_SITE_XML);
 		// mconfig = TestSession.cluster.getConf();
 		mfs = FileSystem.get(mconfig);
 	}
