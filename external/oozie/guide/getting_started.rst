@@ -18,11 +18,29 @@ Setting Up
 #. Request access to Kryptonite Red (or other cluster) by completing the :ref:`On-Boarding <onboard>` steps.
 #. SSH to the Kryptonite Red gateway (i.e., ``kryptonite-gw.red.ygrid.yahoo.com``).
 #. Obtain and cache a Kerberos ticket for the purpose of authentication: ``$ kinit $USER@Y.CORP.YAHOO.COM``
-#. Get the Oozie examples: ``$ hdfs dfs -copyToLocal hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020/user/jcatera/oozie_examples $HOME/oozie_examples``
+#. Get the Oozie examples:
+
+
+.. code-block:: bash
+
+        ## fetch yoozie_examples from yinst
+        $ yinst fetch yoozie_examples -branch stable
+        $ mkdir yoozie_examples
+        $ cd yoozie_examples
+        ## extract yoozie_examples
+        $ tar -xvf ../yoozie_examples-*.tgz
+        ## copy over the oozie-examples to $HOME
+        $ cp var/yoozie_examples/oozie-examples.tar.gz $HOME/
+        $ cd $HOME
+        ## extract oozie-examples, it will get extracted as examples directory.
+        $ tar -xvf oozie-examples.tar.gz
+
+
+
 #. Set the global variables to the values below::
 
        export HADOOP_HOME=/home/gs/hadoop/current PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie OOZIE_AUTH=kerberos
-       
+
 
    We recommend adding the above export statements to the configuration file ``.bashrc``. 
 
