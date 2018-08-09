@@ -1142,7 +1142,7 @@ Setting Up
 
 #. Clone the example code:: 
 
-       git clone git@git.corp.yahoo.com:thiruvel/hive_jdbc_sample.git
+       git clone git@git.ouroath.com:thiruvel/hive_jdbc_sample.git
 #. Change to the ``hive_jdbc_sample`` directory.
 #. Update the version of Hive in the ``pom.xml`` file. See the ``hive-client`` 
    column in the `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_

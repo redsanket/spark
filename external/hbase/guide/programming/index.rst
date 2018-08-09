@@ -1461,7 +1461,7 @@ and write data to HBase. We'll provide a code example with a short summary.
 Accessing HBase From Storm 
 --------------------------
 
-This `sample application <https://git.corp.yahoo.com/evans/storm-hbase>`_ includes instructions to 
+This `sample application <https://git.ouroath.com/evans/storm-hbase>`_ includes instructions to 
 build the application, set up the Storm and HBase clusters, launch Storm and the 
 application, and monitor the topology using the Storm UI.
 

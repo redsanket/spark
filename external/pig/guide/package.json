@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.corp.yahoo.com/hadoop/docs"
+    "url": "https://git.ouroath.com/hadoop/docs"
   },
   "keywords": [
     "pig",

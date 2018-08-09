@@ -74,7 +74,7 @@ Apart from changing the URL from http to https, no other code change is required
 
 
 If you are making bouncer from same JVM then you need to make code changes. 
-Refer `this code <https://git.corp.yahoo.com/hadoop/yahoo-oozie/blob/ytrunk/yauth/src/main/java/com/yahoo/oozie/security/authentication/client/BouncerAuthenticator.java#L169>`_.
+Refer `this code <https://git.ouroath.com/hadoop/yahoo-oozie/blob/ytrunk/yauth/src/main/java/com/yahoo/oozie/security/authentication/client/BouncerAuthenticator.java#L169>`_.
 
 .. _curl_users:  
 
