@@ -62,6 +62,11 @@ mkmapredhdfs() {
 
    cd ${YROOTDIR} && find conf ! -type l -print0 | cpio --null -pvdu ${TARDR}
 
+   # HACK: Remove the server-site xincludes since these are client configs.
+   #       Will not be necessary once QE deploys support separate client/server
+   #       configs as production deploys do.
+   sed -i -e 's;.*<xi:include href=".*-server-site.xml".*;;' ${TARDR}/conf/hadoop/*-site.xml
+
    # create tarball
    cd ${TARDR}
    tar zcf ./hadoopmapreduceonhdfs-${VERSION}.tgz *
