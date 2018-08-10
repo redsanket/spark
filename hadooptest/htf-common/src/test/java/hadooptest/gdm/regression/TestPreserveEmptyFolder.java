@@ -36,9 +36,9 @@ public class TestPreserveEmptyFolder {
     private List<String> sourceInstanceValueList = new ArrayList<String>(Arrays.asList(INSTANCE1, INSTANCE2, INSTANCE3)) ;
     private List<String> dataSetNameList = new ArrayList<String>();
     private String dataSetNameWithPreverseTrue = "TestRetPresEmptyFldTrue_" + System.currentTimeMillis();
-    private String dataSetNameWithPreverseFalse = "TestRetPresEmptyFldFalse_" + System.currentTimeMillis();
+    private String dataSetNameWithOutPreverse = "TestRetPresEmptyFldFalse_" + System.currentTimeMillis();
     private String dataSetNameDefaultPath = "TestRetUsualPath_" + System.currentTimeMillis();
-    private HadoopFileSystemHelper hadoopFileSystemHelper;
+    private HadoopFileSystemHelper hadoopFileSystemHelperSource;
     private HadoopFileSystemHelper hadoopFileSystemHelperTarget ;
     private Map<String, String> dataSetNameAndPath = new HashMap<String,String>();
 
@@ -56,26 +56,17 @@ public class TestPreserveEmptyFolder {
 	this.sourceGrid = datastores.get(0);
 	this.targetGrid = datastores.get(1);
 	
-	
 	dataSetNameAndPath.put(dataSetNameWithPreverseTrue, BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "/generate=20180701");
-	dataSetNameAndPath.put(dataSetNameWithPreverseFalse, BASE_DATA_FOLDER + dataSetNameWithPreverseFalse+ "/generate=20180701");
+	dataSetNameAndPath.put(dataSetNameWithOutPreverse, BASE_DATA_FOLDER + dataSetNameWithOutPreverse + "/generate=20180701");
 	dataSetNameAndPath.put(dataSetNameDefaultPath, BASE_DATA_FOLDER + dataSetNameDefaultPath + "/20180701");
 
-	hadoopFileSystemHelper = new HadoopFileSystemHelper(this.sourceGrid);
+	hadoopFileSystemHelperSource = new HadoopFileSystemHelper(this.sourceGrid);
 	hadoopFileSystemHelperTarget = new HadoopFileSystemHelper(this.targetGrid);
-/*
-	for ( String dataSetName : this.dataSetNameList) {
-	    String temp = BASE_DATA_FOLDER + dataSetName + "/";
-	    hadoopFileSystemHelper.createDirectory(this.sourcePath);
-	    createBaseDataFolder(hadoopFileSystemHelper, sourceInstanceValueList,temp );
-	    Thread.sleep(5000);
-	    checkInstanceCreated(hadoopFileSystemHelper, sourceInstanceValueList, temp );
-	}
-	*/
+ 
 	
 	for ( String dsName : dataSetNameAndPath.keySet() ) {
 	    TestSession.logger.info("creating folder base folder for " + dsName + "  path : " + dataSetNameAndPath.get(dsName));
-	    createBaseDataFolder(hadoopFileSystemHelper, dataSetNameAndPath.get(dsName));
+	    createBaseDataFolder(hadoopFileSystemHelperSource, dataSetNameAndPath.get(dsName));
 	}
     }
 
@@ -83,7 +74,13 @@ public class TestPreserveEmptyFolder {
     public void test() throws Exception {
 	TestSession.logger.info("*******  TestCase ********  ");
 	for ( String dsName : dataSetNameAndPath.keySet() ) {
-	    checkInstanceCreated(hadoopFileSystemHelper, dataSetNameAndPath.get(dsName));
+	    checkInstanceCreated(hadoopFileSystemHelperSource, dataSetNameAndPath.get(dsName));
+	    
+	    // create dataset
+	    if ( dsName.startsWith("TestRetPresEmptyFldTrue_")) {
+		String path = dataSetNameAndPath.get(dsName).substring(0, dataSetNameAndPath.get(dsName).indexOf("="));
+		this.createDataSetXml(dsName, path + "%{date}", "true");
+	    }
 	}
     }
     
@@ -163,7 +160,7 @@ public class TestPreserveEmptyFolder {
 	generator.setFrequency("daily");
 	generator.setDiscoveryFrequency("50");
 	generator.setDiscoveryInterface("HDFS");
-	generator.addSourcePath("data",  BASE_DATA_FOLDER + "${DataSetName}" + "/generate=%{date}");
+	generator.addSourcePath("data",  dataPath + "/generate=%{date}");
 	generator.setSource(this.sourceGrid);
 
 	DataSetTarget target = new DataSetTarget();
