@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.FileStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -91,31 +90,33 @@ public class TestPreserveEmptyFolder {
 		hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue);
 		
 		Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue));
+		tearDown(dsName);
 		
 	    } else if ( dsName.startsWith("TestRetPresEmptyFldFalse_")) {
 		int index = dataSetNameAndPath.get(dsName).indexOf("=");
 		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
 		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "=%{date}", "false");
+		this.createDataSetXml(dsName, path + "=%{date}", "");
 		
 		workFlowHelper.workflowPassed(dsName, "replication", "20180701");
 		this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
 		workFlowHelper.workflowPassed(dsName, "retention", "20180701");
 		
 		Assert.assertFalse(BASE_DATA_FOLDER + dataSetNameWithOutPreverse + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithOutPreverse));
-		
+		tearDown(dsName);
 		
 	    } else  if ( dsName.startsWith("TestRetUsualPath_")) {
 		int index = dataSetNameAndPath.get(dsName).lastIndexOf("/");
 		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
 		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "/%{date}", "false");
+		this.createDataSetXml(dsName, path + "/%{date}", "");
 		
 		workFlowHelper.workflowPassed(dsName, "replication", "20180701");
 		this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
 		workFlowHelper.workflowPassed(dsName, "retention", "20180701");
 		
 		Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameDefaultPath + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameDefaultPath));
+		tearDown(dsName);
 	    }
 	}
     }
@@ -169,5 +170,12 @@ public class TestPreserveEmptyFolder {
 	}
 	TestSession.logger.info("Wait for some time, so that dataset gets created, activated and ready for replication.");
 	this.consoleHandle.sleep(5000);
+    }
+    
+    private void tearDown(String dataSetName) throws Exception {
+	Response response = this.consoleHandle.deactivateDataSet(dataSetName);
+	Assert.assertEquals("Deactivate DataSet failed", HttpStatus.SC_OK , response.getStatusCode());
+
+	this.consoleHandle.removeDataSet(dataSetName);
     }
 }
