@@ -652,7 +652,14 @@ DistCp Action
 ~~~~~~~~~~~~~
 
 `DistCp <https://hadoop.apache.org/docs/r1.2.1/distcp.html>`_ is a tool used for large inter/intra-cluster copying.
-The following ``workflow.xml`` copies a bzipped file to a user's home directory. 
+
+.. _in-colo-ex:
+
+
+In-Colo Example
+***************
+
+The following ``workflow.xml`` copies a bzipped file to a user's home directory.
 
 .. code-block:: xml
 
@@ -661,15 +668,57 @@ The following ``workflow.xml`` copies a bzipped file to a user's home directory.
      <action name="copy_data" cred="hcat">
        <distcp xmlns="uri:oozie:distcp-action:0.1">
          <job-tracker>${jobTracker}</job-tracker>
-         <name-node>${nameNode}</name-node>
+         <name-node>hdfs://dilithiumblue-nn1.blue.ygrid.yahoo.com:8020</name-node>
          <configuration>
            <property>
+             <!-- Namenode of source -->
              <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
-             <value>${sourceNameNode}</value>
+             <value>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020</value>
            </property>
          </configuration>
-         <arg>${sourceNameNode}/tmp/dataset.bz2</arg>
-         <arg>${nameNode}/user/yhoo_star/</arg>
+         <!-- Source Path -->
+         <arg>hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/tmp/dataset.bz2</arg>
+         <!-- Destination Path -->
+         <arg>hdfs://dilithiumblue-nn1.blue.ygrid.yahoo.com:8020/user/yhoo_star/</arg>
+       </distcp>
+       <ok to="del_db_tables"/>
+       <error to="kill"/>
+     </action>
+     <kill name="kill">
+       <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+     </kill>
+     <end name="end"/>
+   </workflow-app>
+
+
+.. _cross-colo-ex:
+
+
+Cross-Colo Example
+******************
+
+For cross colo distcp, webhdfs URI should be specified for source name node. For ex.
+``webhdfs://jetblue-nn1.blue.ygrid.yahoo.com``. Only read operations are allowed for webhdfs.
+
+.. code-block:: xml
+
+   <workflow-app name="hue_tutorial_workflow" xmlns="uri:oozie:workflow:0.4">
+     <start to="copy_dataset"/>
+     <action name="copy_data" cred="hcat">
+       <distcp xmlns="uri:oozie:distcp-action:0.1">
+         <job-tracker>${jobTracker}</job-tracker>
+         <name-node>hdfs://dilithiumred-nn1.red.ygrid.yahoo.com:8020</name-node>
+         <configuration>
+           <property>
+             <!-- Namenode of source -->
+             <name>oozie.launcher.mapreduce.job.hdfs-servers</name>
+             <value>webhdfs://jetblue-nn1.blue.ygrid.yahoo.com</value>
+           </property>
+         </configuration>
+         <!-- Source Path -->
+         <arg>webhdfs://jetblue-nn1.blue.ygrid.yahoo.com/tmp/dataset.bz2</arg>
+         <!-- Destination Path -->
+         <arg>hdfs://dilithiumred-nn1.red.ygrid.yahoo.com:8020/user/yhoo_star/</arg>
        </distcp>
        <ok to="del_db_tables"/>
        <error to="kill"/>
