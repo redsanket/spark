@@ -82,6 +82,16 @@ public class TestPreserveEmptyFolder {
 		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
 		TestSession.logger.info("path - " + path);
 		this.createDataSetXml(dsName, path + "=%{date}", "true");
+	    } else if ( dsName.startsWith("TestRetPresEmptyFldFalse_")) {
+		int index = dataSetNameAndPath.get(dsName).indexOf("=");
+		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
+		TestSession.logger.info("path - " + path);
+		this.createDataSetXml(dsName, path + "=%{date}", "false");
+	    } else  if ( dsName.startsWith("TestRetUsualPath_")) {
+		int index = dataSetNameAndPath.get(dsName).lastIndexOf("/");
+		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
+		TestSession.logger.info("path - " + path);
+		this.createDataSetXml(dsName, path + "%{date}", "false");
 	    }
 	}
     }
