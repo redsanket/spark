@@ -81,7 +81,7 @@ public class TestPreserveEmptyFolder {
 		int index = dataSetNameAndPath.get(dsName).indexOf("=");
 		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
 		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "%{date}", "true");
+		this.createDataSetXml(dsName, path + "=%{date}", "true");
 	    }
 	}
     }
@@ -101,56 +101,6 @@ public class TestPreserveEmptyFolder {
 	Assert.assertTrue(" Failed to create " + fullPath , hadoopFileSystemHelper.exists(fullPath));
     }
 
-    private void checkReplicationWorkFlow() throws Exception {
-	for ( String dataSetName :  this.dataSetNameList) {
-	    validateWorkflows(dataSetName, "replication");
-	    for (String instanceDir : sourceInstanceValueList) {
-		String fullPath = this.sourcePath + "generate=" + instanceDir + "/" + INSTANCE_FILE_NAME;
-		TestSession.logger.info("Checking for " + fullPath  + "  on  " + this.targetGrid );
-		Assert.assertTrue(fullPath + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(fullPath));
-	    }
-	}
-    }
-
-    private void checkRetentionWorkFlow() throws Exception {
-	for ( String dataSetName :  this.dataSetNameList) {
-
-	    // set retention policy to zero
-	    this.consoleHandle.setRetentionPolicyToAllDataSets(dataSetName , "0");
-	    Thread.sleep(2000);
-	    validateWorkflows(dataSetName, "retention");
-	    for (String instanceDir : sourceInstanceValueList) {
-		String fullPath = this.sourcePath + "generate=" + instanceDir + "/" + INSTANCE_FILE_NAME;
-		TestSession.logger.info("Checking for " + fullPath  + "  on  " + this.targetGrid ); 
-		Assert.assertFalse(fullPath + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(fullPath) );
-	    }
-	}
-    }
-
-  //  @Test
-    public void testPreserveEmptyFolder() throws Exception {
-	TestSession.logger.info("  ******  testPreserveEmptyFolder  *****  ");
-
-	for ( int i=0; i <  this.dataSetNameList.size() ; i++) {
-	    String dataSetName = this.dataSetNameList.get(i);
-
-	    if ( i == 0) {
-		this.createDataSetXml(dataSetName, this.sourcePath + "generate=" , "true");
-	    } else if ( i == 1) {
-		this.createDataSetXml(dataSetName, this.sourcePath + "generate=" , "false");
-	    }
-	}
-	checkReplicationWorkFlow(); 
-	checkRetentionWorkFlow();
-	/*if ( i == 1) {
-	    Assert.assertTrue(" expected " + this.sourcePath + " to exist  on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(this.sourcePath) == true);
-	} else if ( i == 2) {
-	    Assert.assertFalse(" expected " + this.sourcePath + " to exist  on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(this.sourcePath) == true);
-	}*/
-    }
-    
- 
-
     private void createDataSetXml(String dataSetName , String dataPath , String preserveEmptyFolder) {
 	DataSetXmlGenerator generator = new DataSetXmlGenerator();
 	generator.setName(dataSetName);
@@ -162,7 +112,7 @@ public class TestPreserveEmptyFolder {
 	generator.setFrequency("daily");
 	generator.setDiscoveryFrequency("50");
 	generator.setDiscoveryInterface("HDFS");
-	generator.addSourcePath("data",  dataPath + "=%{date}");
+	generator.addSourcePath("data",  dataPath);
 	generator.setSource(this.sourceGrid);
 
 	DataSetTarget target = new DataSetTarget();
@@ -183,26 +133,5 @@ public class TestPreserveEmptyFolder {
 	}
 	TestSession.logger.info("Wait for some time, so that dataset gets created, activated and ready for replication.");
 	this.consoleHandle.sleep(5000);
-    }
-
-    private void validateUploadReplicationWorkflows(String dataSetName) throws Exception {
-	WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE1));
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE2, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE2));
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE3, workFlowHelper.workflowPassed(dataSetName, "replication", INSTANCE3));
-    }
-
-    private void validateWorkflows(String dataSetName , String facetName) throws Exception {
-	WorkFlowHelper workFlowHelper = new WorkFlowHelper();
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE1, workFlowHelper.workflowPassed(dataSetName, facetName, INSTANCE1));
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE2, workFlowHelper.workflowPassed(dataSetName, facetName, INSTANCE2));
-	Assert.assertTrue("Expected workflow to pass for instance " + INSTANCE3, workFlowHelper.workflowPassed(dataSetName, facetName, INSTANCE3));
-    }
-
-    private void tearDown(String dataSetName) throws Exception {
-	Response response = this.consoleHandle.deactivateDataSet(dataSetName);
-	Assert.assertEquals("Deactivate DataSet failed", HttpStatus.SC_OK , response.getStatusCode());
-
-	this.consoleHandle.removeDataSet(dataSetName);
     }
 }
