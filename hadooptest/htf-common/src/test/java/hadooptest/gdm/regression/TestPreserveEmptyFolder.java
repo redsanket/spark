@@ -79,7 +79,7 @@ public class TestPreserveEmptyFolder {
 	    // create dataset
 	    if ( dsName.startsWith("TestRetPresEmptyFldTrue_")) {
 		int index = dataSetNameAndPath.get(dsName).indexOf("=");
-		String path = dataSetNameAndPath.get(dsName).substring(0, index) + 1;
+		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
 		TestSession.logger.info("path - " + path);
 		this.createDataSetXml(dsName, path + "%{date}", "true");
 	    }
@@ -162,7 +162,7 @@ public class TestPreserveEmptyFolder {
 	generator.setFrequency("daily");
 	generator.setDiscoveryFrequency("50");
 	generator.setDiscoveryInterface("HDFS");
-	generator.addSourcePath("data",  dataPath + "/generate=%{date}");
+	generator.addSourcePath("data",  dataPath + "=%{date}");
 	generator.setSource(this.sourceGrid);
 
 	DataSetTarget target = new DataSetTarget();
