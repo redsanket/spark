@@ -234,8 +234,8 @@ There are three optional parameters for the credential type ``yca``:
 - ``yca-cert-add-to-jobconf``: This can be *true* or *false*, default being *true* for backward compatibility reasons. If it is set to true, YCA certificate will be added to 
   action configuration. Adding YCA certificate to action configuration is less secure because the certificate is visible in the Configuration page of the Job UI
   and has to be secured by additionally setting ``mapreduce.job.acl-view-job`` to only users or groups with access instead of * (all).
-  Instead, YCA certificate is now added as secret key to action configuration. :ref:`This example explains more <yca_cert_secretkey_example>`. 
-  Therefore, it is good to set this property to *false* and retrive the YCA certificate from secret keys. 
+  Instead, YCA certificate is now added as secret key to action credentials. :ref:`This example explains more <yca_cert_secretkey_example>`.
+  Therefore, it is good to set this property to *false* and retrieve the YCA certificate from secret keys.
 
   For example, the following contains the hosts of the production ``httpproxy``: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy``
   This role is the parent role containing the staging, research, and production ``httpproxy`` hosts: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
@@ -336,7 +336,7 @@ how to communicate with the YCAV2-protected Web service from the grid.
 
    //**web service call**
    //Get the secret key by passing the name of credential
-   byte[] bytes = conf.getCredentials().getSecretKey(new Text("myyca"));
+   byte[] bytes = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text("myyca"));
    //Create certificate string using bytes with UTF-8
    String ycaCertificate = new String(bytes, "UTF-8"); 
    HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
@@ -371,6 +371,11 @@ Example workflow xml including Java Action:
 YCA Certificate inside Action Configuration
 +++++++++++++++++++++++++++++++++++++++++++
 
+We have deprecated the way of adding YCA Certificate to action configuration as it was less secure.
+We advice to disable this by setting ``yca-cert-add-to-jobconf`` to ``false`` and use the Credentials
+by referring to :ref:`this example <java_yca_inside_sec_key>`.
+
+
 With respect to :ref:`above workflow snippet:<java_action_ex>`, we can retrieve yca certificate from Configuration as follows-
 
 .. code-block:: java
@@ -399,14 +404,11 @@ YCA certificate is present as Secret Key inside Credentials.
     public class TestYcaCert {
       // for oozie java action
       public static void main(String[] args) throws Throwable {
-         String YCA_CERT = args[0]; // YCA_CERT is the name of yca credential.
-         Configuration actionConf = new Configuration(false);
-         actionConf.addResource(new Path("file:///", System.getProperty("oozie.action.conf.xml")));
-         //Get the secret key by passing the name of credential
-         byte[] bytes = actionConf.getCredentials().getSecretKey(new Text(YCA_CERT));
-         //Create certificate string using bytes with UTF-8
-         String ycaCertificate = new String(bytes, "UTF-8"); 
-         ......
+        String YCA_CERT = args[0]; // YCA_CERT is the name of yca credential.
+        byte[] bytes = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text(YCA_CERT));
+        //Create certificate string using bytes with UTF-8
+        String ycaCertificate = new String(bytes, "UTF-8");
+        ......
 
 
 Following example shows how to retrive YCA certificate in Scala.
@@ -621,7 +623,7 @@ Required properties for a ykeykey credential
 
 Optional properties
 
-- ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
+- ``ykeykey.athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
 - ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
 - ``ykeykey.env``: By default it is ``prod``. Possible values ``alpha``, ``beta``, ``corp``, ``edge``, ``vault``.
 
