@@ -78,7 +78,9 @@ public class TestPreserveEmptyFolder {
 	    
 	    // create dataset
 	    if ( dsName.startsWith("TestRetPresEmptyFldTrue_")) {
-		String path = dataSetNameAndPath.get(dsName).substring(0, dataSetNameAndPath.get(dsName).indexOf("="));
+		int index = dataSetNameAndPath.get(dsName).indexOf("=");
+		String path = dataSetNameAndPath.get(dsName).substring(0, index) + 1;
+		TestSession.logger.info("path - " + path);
 		this.createDataSetXml(dsName, path + "%{date}", "true");
 	    }
 	}
