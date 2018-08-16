@@ -3,10 +3,12 @@
 Spark From Oozie
 ================
 
-.. _sfo_yarn:
+This guide will walk you through launching spark jobs using oozie.
 
-Running Spark on Yarn through Oozie using Spark Action
-------------------------------------------------------
+.. _sfo_spark_action:
+
+Using Spark Action
+------------------
 
 The Yahoo version of oozie recently started supporting the Spark action in oozie.
 
@@ -82,8 +84,8 @@ Full example workflow.xml for reference
 
 .. _sfo_debug_logging:
 
-Enable debug logging for spark through oozie
---------------------------------------------
+Enable Debug Logging
+--------------------
 If you just want to change the Spark core log level you can specify it in the configuration section of your workflow.xml:
 
 .. code-block:: xml
@@ -103,10 +105,10 @@ If you want to specify a custom log4j.properties file you can upload a log4j.pro
 
 .. _sfo_other_namenode:
 
-Accessing other namenodes through oozie
----------------------------------------
+Accessing other namenodes
+-------------------------
 
-In your workflow.xml configuration add the servers with oozie.launcher.mapreduce.job.hdfs-servers, similar to below:
+This section describes how to access other namenodes through oozie. In your workflow.xml configuration add the servers with oozie.launcher.mapreduce.job.hdfs-servers, similar to below:
 
 .. code-block:: xml
 
@@ -119,14 +121,18 @@ This allows you to use the spark --conf spark.yarn.access.namenodes=hdfs://phazo
 
 .. _sfo_oozie_pyspark:
 
-Running Spark 2.2 on Yarn through Oozie using PySpark with Python 3.6 Example
------------------------------------------------------------------------------
+PySpark with Python 3.6
+-----------------------
+This section describes how to run Spark 2.2 on Yarn through Oozie using PySpark with Python 3.6 Example.
+
 Spark 2.2 automatically picks up python 3.6 for you so as long as you are using sharelib you should automatically get python 3.6. You can get python 2.7 by overriding the configs talked about `here <https://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Using_Python_2.7_473.6_installed_in_Grid_with_Pyspark_91_BEING_DEPLOYED_not_on_all_GRIDS_YET_93>`_
 
 .. _sfo_pyspark_default_python:
 
-Running Spark on Yarn through Oozie using PySpark with default grid installed version of Python
------------------------------------------------------------------------------------------------
+PySpark & default grid Python installation 
+------------------------------------------
+
+This section describes how to run Spark on Yarn through Oozie using PySpark with default grid installed version of Python.
 
 You can use the default python installed on the grid (reference https://twiki.corp.yahoo.com/view/Grid/PySparkIPython) with oozie. This happens by default without needing to specify extra parameters.
 
@@ -178,8 +184,8 @@ job.properties
 
 .. _sfo_pyspark_grid_python-2.7:
 
-Running Spark on Yarn through Oozie using PySpark with grid installed version of Python 2.7 Example ( Spark 2.x instructions )
-------------------------------------------------------------------------------------------------------------------------------
+PySpark & grid installed Python 2.7 Example (Spark 2.x)
+-------------------------------------------------------
 
 You can use the python 2.7 or 3.6 installed on the grid (reference https://twiki.corp.yahoo.com/view/Grid/PySparkIPython) with oozie.
 
@@ -232,8 +238,8 @@ job.properties:
 
 .. _sfo_pyspark_custom_python-2.7:
 
-Running Spark on Yarn through Oozie using PySpark with your own version of Python 2.7 Example ( Spark 2.x instructions )
-------------------------------------------------------------------------------------------------------------------------
+PySpark & own version of Python 2.7 Example (Spark 2.x)
+-------------------------------------------------------
 
 To run Python 2.7 you need to first follow the instructions to get Python 2.7 here: https://twiki.corp.yahoo.com/view/Grid/PySparkIPython Those instructions put Python2.7 into HDFS in a directory like /user/tgraves. Once you have that you just need to specify the configs mentioned on that page as well.
 
@@ -289,14 +295,14 @@ job.properties
 
 .. _sfo_sparkr-2.2:
 
-Running Spark on Yarn through Oozie using Spark R ( Spark 2.2 only )
---------------------------------------------------------------------
+Using Spark R (Spark 2.2 only)
+------------------------------
 With spark 2.2 we automatically include R so there should be no extra steps to use it.
 
 .. _sfo_sparkr-2.1:
 
-Running Spark on Yarn through Oozie using Spark R ( Spark 2.0 and 2.1 only )
-----------------------------------------------------------------------------
+Using Spark R (Spark 2.0 & 2.1)
+-------------------------------
 
 Assuming R installation(https://twiki.corp.yahoo.com/view/Grid/SparkRInstall) is done.
 - Create a hdfs directory for your oozie application, (oozieR/apps).
@@ -393,8 +399,8 @@ Assuming R installation(https://twiki.corp.yahoo.com/view/Grid/SparkRInstall) is
 
 .. _sfo_custom_version:
 
-Running a Spark version not installed on the grid through Oozie using Spark Action
-----------------------------------------------------------------------------------
+Running a different Spark version
+---------------------------------
 To use a different or an older version of spark from oozie you need to do the following apart from following the instructions listed above:
 - Remove spark sharelib from workflow.xml, i.e. remove the property below:
 
@@ -416,8 +422,10 @@ To use a different or an older version of spark from oozie you need to do the fo
 
 .. _sfo_java_action:
 
-Running Spark on Yarn through Oozie using Java Action (NOT RECOMMENDED)
------------------------------------------------------------------------
+Using Java Action
+-----------------
+
+.. note:: Using Java Action is NOT RECOMMENDED
 
 IMPORTANT: if you are using the java action you will need to make sure to upload the spark-defaults.conf file we provide and make sure you upload it everytime we do new spark release. Otherwise the confs will not match the oozie sharelib current/latest labels.
 I have successfully launch Spark on Yarn through oozie using the java action on a secure Hadoop QE cluster. Here is the workflow and job.properties file I used.
@@ -469,8 +477,8 @@ Change or add any configs you need by using the --conf option to spark-submit
 
 .. _sfo_workflow_sparkpi:
 
-Worflow.xml for SparkPi via new SparkSubmit (spark 1.0 and newer)
------------------------------------------------------------------
+workflow.xml for SparkPi via SparkSubmit
+----------------------------------------
 
 .. code-block:: xml
 
@@ -652,8 +660,8 @@ An example of this is bundled with the spark-starter to try out. You can get the
 
 .. _sfo_pyspark_cluster_mode:
 
-Using pyspark in cluster mode via Oozie
----------------------------------------
+PySpark in cluster mode
+-----------------------
 
 These are instructions in addition to the ones above in Running Spark on Yarn through Oozie section.
 

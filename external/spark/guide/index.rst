@@ -13,6 +13,7 @@ Spark User Guide
    pyspark_with_python
    debugging
    history_server
+   spark_sql
 
 This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
