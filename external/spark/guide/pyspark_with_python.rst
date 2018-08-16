@@ -1,12 +1,13 @@
 .. _swp:
 
-Using PySpark with Python 2.7, Python 3.5, Python 3.6 Anaconda, Ipython, Hive and Pypy
-======================================================================================
-
+Using PySpark with Python
+=========================
+ This section details the information required to run PySpark with Python 2.7, Python 3.5, Python 3.6 Anaconda, Ipython, Hive and Pypy.
+ 
 .. _swp_grid_python:
 
-Using Python 2.7/3.6 installed in Grid with Pyspark
----------------------------------------------------
+PySpark + Grid Python 2.7/3.6
+-----------------------------
 Python 2.7 and 3.6 are being installed on the grid gateways and in HDFS. They contain a few extra packages including: "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
 
 .. note:: These are just rolling out so first check that your cluster supports them ``hadoop fs -ls hdfs:///sharelib/v1/python*`` and on the gateway ``ls /home/y/var/python*`` to make sure they are there first.
@@ -73,8 +74,8 @@ PySpark cluster mode 2.7:
 
 .. _swp_grid_python_jupyter:
 
-Override python with Jupyter on Spark
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding python with Jupyter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is an example using the python 3.6 version, you can change to the 2.7 version as well.
 
@@ -95,8 +96,8 @@ Here is an example using the python 3.6 version, you can change to the 2.7 versi
 
 .. _swp_addon_packages:
 
-Adding additional python packages not in base Python install provided
-----------------------------------------------------------------------
+Adding additional python packages
+---------------------------------
 Using the python packages above you can create a tgz with addition python packages you want to use. Use a VM to create the tgz. Instructions below are with python36, if you are using python 27 just change the paths from /home/y/var/python36 to /home/y/var/python27 and use python27_grid package.
 
 - in Linux rhel6 vm
@@ -112,10 +113,18 @@ Using the python packages above you can create a tgz with addition python packag
 - copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
 - send the zip file along with your job ``--py-files hdfs://user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
 
+
+.. _swp_manuall_install:
+
+Manual Python Installation
+--------------------------
+
+This is required by some of the ML python libraries.
+
 .. _swp_manual_python2.7:
 
-Basic Python 2.7 Manual installation (required by some of the ML python libraries)
-----------------------------------------------------------------------------------
+Python 2.7
+~~~~~~~~~~
 
 You can grab a working Python 2.7 zip file that has python2.7, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
 
@@ -257,8 +266,11 @@ For Example:
 
 .. _swp_manual_python3.5:
 
-Basic Python 3.5 Manual installation (required by some of the ML python libraries)
-----------------------------------------------------------------------------------
+Python 3.5
+~~~~~~~~~~
+
+
+required by some of the ML python libraries
 
 You can grab a working Python 3.5 zip file that has python3.5, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
 If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: http://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Create_a_Python.zip_with_modules_installed_for_Python_3.5
@@ -397,8 +409,10 @@ For Example:
 
 .. _swp_anaconda:
 
-PySpark+Anaconda (for additional python packages like numpy,scipy,pandas,scikit-learn, etc.)
---------------------------------------------------------------------------------------------
+PySpark + Anaconda 
+------------------
+
+This is for additional python packages like numpy,scipy,pandas,scikit-learn, etc.
 
 These are instructions for you to package and and use anaconda with pyspark. This in general is not recommend as anaconda is huge, you are better off to use python and just the packages you require.
 
