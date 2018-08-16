@@ -13,6 +13,7 @@ Grid Install
 Starting with spark 2.2 we automatically handle shipping R for you. You simply start sparkR.
 
 .. code-block:: console
+
   For example:
   $SPARK_HOME/bin/sparkR  --master yarn --deploy-mode client
 
@@ -40,17 +41,20 @@ If you need to use other R modules in spark you can install those in a separate 
 For instance, I can package the astsa module and ship it with my spark application. In my R code when I load it I would load it like: library("astsa",lib.loc='./R_library/')
 
 Create an archive with the R modules you want: (assumes you installed manually installed base R package below in /homes/schintap/R_installation. See section on Manually Install Base R package)
-- cd R_installation
-- mkdir /homes/schintap/R_library
-- export PATH=/homes/schintap/R_installation/bin:$PATH
-- ./bin/R to start R
-- install.packages('packageName',lib='/homes/schintap/R_library')
-- follow prompts to install
-- Iterate if you need to install other packages
-- once installed all then exit R
-- cd /homes/<user>/R_library
-- tar -zcvf R_library.tgz *
-- Put it into HDFS if using with yarn cluster mode: hadoop fs -put R_library.tgz
+
+.. code-block:: console
+
+  cd R_installation
+  mkdir /homes/schintap/R_library
+  export PATH=/homes/schintap/R_installation/bin:$PATH
+  ./bin/R to start R
+  install.packages('packageName',lib='/homes/schintap/R_library')
+  follow prompts to install
+  Iterate if you need to install other packages
+  once installed all then exit R
+  cd /homes/<user>/R_library
+  tar -zcvf R_library.tgz *
+  Put it into HDFS if using with yarn cluster mode: hadoop fs -put R_library.tgz
 
 You now have an archive you can ship with your spark application. Your code needs to load it via the path you specify for yarn cluster mode.
 Examples below use "./R_library/". for yarn client mode it should load them from the gateway install location /homes/schintap/R_library.
@@ -85,6 +89,7 @@ This assumes you have already manually installed R.
 - For accessing other R modules you installed in R_library.tgz change your R code to access them via library("astsa",lib.loc='./R_library/.
 
 .. code-block:: console
+
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.sparkr.r.command=./R_installation/bin/Rscript --archives hdfs:///user/%USERNAME%/__yspark_R.tgz#R_installation,hdfs:///user/%USERNAME%//R_library.tgz#R_library ~/test.R
 
 .. _r_oozie:
@@ -92,13 +97,14 @@ This assumes you have already manually installed R.
 Spark R with Oozie
 ------------------
 Information regarding running Spark R with Oozie is in the link below
-https://git.ouroath.com/pages/hadoop/docs/spark/spark_from_oozie.rst
+https://git.ouroath.com/pages/hadoop/docs/spark/spark_from_oozie.html#using-spark-r-spark-2-2-only
+https://git.ouroath.com/pages/hadoop/docs/spark/spark_from_oozie.html#using-spark-r-spark-2-0-2-1
 
 .. _r_hive:
 
 Spark R with Hive
 -----------------
-For client mode it should just work, in cluster mode see the version specific instructions (https://git.ouroath.com/pages/hadoop/docs/spark/spark_on_yarn.rst).
+For client mode it should just work, in cluster mode see the version specific instructions (https://git.ouroath.com/pages/hadoop/docs/spark/spark_on_yarn.html#sparkr).
 In general you need to send along the hive-site.xml and possibly the datanucleus jars (for 1.x versions).
 Make sure to initialize your spark session with hive enabled: sparkR.session(appName = "test", enableHiveSupport = TRUE)
 
@@ -130,6 +136,7 @@ Get https://github.com/apache/spark/blob/master/examples/src/main/resources/user
 library(SparkR)
 
 .. code-block:: console
+
   sc <- sparkR.init()
   sqlContext <- sparkRSQL.init(sc)
   people <- read.df(sqlContext, "/user/%USERNAME%/users.parquet")
