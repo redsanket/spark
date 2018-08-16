@@ -3,7 +3,7 @@
 Using PySpark with Python
 =========================
  This section details the information required to run PySpark with Python 2.7, Python 3.5, Python 3.6 Anaconda, Ipython, Hive and Pypy.
- 
+
 .. _swp_grid_python:
 
 PySpark + Grid Python 2.7/3.6
@@ -128,7 +128,7 @@ Python 2.7
 
 You can grab a working Python 2.7 zip file that has python2.7, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
 
-If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: http://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Create_a_Python.zip_with_modules_installed_for_Python_2.7
+If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: :ref:`swp_addon_packages`
 
 
 - Get Python2.zip
@@ -273,7 +273,8 @@ Python 3.5
 required by some of the ML python libraries
 
 You can grab a working Python 3.5 zip file that has python3.5, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
-If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: http://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Create_a_Python.zip_with_modules_installed_for_Python_3.5
+If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: 
+:ref:`swp_addon_packages`
 
 - Get Python3.zip:
 
