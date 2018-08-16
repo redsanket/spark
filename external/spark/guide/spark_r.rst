@@ -1,4 +1,4 @@
-.. _sparkr:
+.. _r:
 
 How to use R on Spark
 =====================
@@ -6,7 +6,7 @@ How to use R on Spark
 Using R on Spark requires spark to be compiled with R support and R to be available on the nodes.
 sparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or higher.
 
-.. _sparkr_grid:
+.. _r_grid:
 
 R installed on the Grid gateways and HDFS for Spark > 2.2
 ---------------------------------------------------------
@@ -19,7 +19,7 @@ Starting with spark 2.2 we automatically handle shipping R for you. You simply s
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster ~/datamanipulation.R flights.csv
   You can also use the tgz installed in hdfs for older versions: /sharelib/v1/yspark_yarn_R32/yspark_yarn_R32.tgz and on the gateways /home/y/var/yspark_yarn_R32/
 
-.. _sparkr_manual:
+.. _r_manual_install:
 
 Manually Install Base R package (if not using grid installed version)
 ---------------------------------------------------------------------
@@ -32,7 +32,7 @@ Assumes running from /homes/<user>
 - ./configure prefix=$R_HOME/R
 - make && make install
 
-.. _sparkr_modules:
+.. _r_modules:
 
 Add other R modules (if you need to)
 ------------------------------------
@@ -56,7 +56,7 @@ You now have an archive you can ship with your spark application. Your code need
 Examples below use "./R_library/". for yarn client mode it should load them from the gateway install location /homes/schintap/R_library.
 See examples in sections below.
 
-.. _sparkr_client_mode:
+.. _r_client_mode:
 
 Run Spark R in yarn client mode using Manual installed R
 --------------------------------------------------------
@@ -75,7 +75,7 @@ Run Spark R in yarn client mode using Manual installed R
   For accessing other R modules in client mode simply access them like: library("astsa",lib.loc='./R_library/') or library("astsa",lib.loc='/homes/%USERNAME%/R_library/')
 
 
-.. _sparkr_cluster_mode:
+.. _r_cluster_mode:
 
 Run Spark R in yarn cluster mode using Manual installed R
 ---------------------------------------------------------
@@ -87,14 +87,14 @@ This assumes you have already manually installed R.
 .. code-block:: console
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.sparkr.r.command=./R_installation/bin/Rscript --archives hdfs:///user/%USERNAME%/__yspark_R.tgz#R_installation,hdfs:///user/%USERNAME%//R_library.tgz#R_library ~/test.R
 
-.. _sparkr_oozie:
+.. _r_oozie:
 
 Run Spark R with Oozie
 ----------------------
 Information regarding running Spark R with Oozie is in the link below
 https://git.ouroath.com/pages/hadoop/docs/spark/spark_from_oozie.rst
 
-.. _sparkr_hive:
+.. _r_hive:
 
 Hive Access
 -----------
@@ -115,14 +115,14 @@ Make sure to initialize your spark session with hive enabled: sparkR.session(app
   --archives hdfs:///user/tgraves/__yspark_R.tgz#R_installation,hdfs:///user/tgraves//R_library.tgz#R_library
   --files $SPARK_CONF_DIR/hive-site.xml ~/test.R
 
-.. _sparkr_examples:
+.. _r_examples:
 
 Examples
 --------
 See the spark R documentation. http://spark.apache.org/docs/latest/sparkr.html.
 Note the faithful dataset they refer to doesn't seem to be present in this distribution of R.
 
-.. _sparkr_parquet:
+.. _r_parquet:
 
 Reading and writing parquet
 ---------------------------
