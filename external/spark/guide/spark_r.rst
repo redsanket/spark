@@ -1,15 +1,15 @@
 .. _r:
 
-How to use R on Spark
-=====================
+R on Spark
+==========
 
 Using R on Spark requires spark to be compiled with R support and R to be available on the nodes.
 sparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or higher.
 
 .. _r_grid:
 
-R installed on the Grid gateways and HDFS for Spark > 2.2
----------------------------------------------------------
+Grid Install
+------------
 Starting with spark 2.2 we automatically handle shipping R for you. You simply start sparkR.
 
 .. code-block:: console
@@ -21,8 +21,8 @@ Starting with spark 2.2 we automatically handle shipping R for you. You simply s
 
 .. _r_manual_install:
 
-Manually Install Base R package (if not using grid installed version)
----------------------------------------------------------------------
+Manual install
+--------------
 Assumes running from /homes/<user>
 - mkdir R_installation
 - wget http://cran.rstudio.com/src/base/R-3/R-3.2.1.tar.gz
@@ -34,8 +34,8 @@ Assumes running from /homes/<user>
 
 .. _r_modules:
 
-Add other R modules (if you need to)
-------------------------------------
+Add R modules
+-------------
 If you need to use other R modules in spark you can install those in a separate archive and send them with your application. You just need to load them from whatever location you specify.
 For instance, I can package the astsa module and ship it with my spark application. In my R code when I load it I would load it like: library("astsa",lib.loc='./R_library/')
 
@@ -58,8 +58,8 @@ See examples in sections below.
 
 .. _r_client_mode:
 
-Run Spark R in yarn client mode using Manual installed R
---------------------------------------------------------
+Spark R client mode
+-------------------
 - export PATH=/homes/schintap/R_installation/bin:$PATH
 - export R_HOME=/homes/tgraves/R_installation/lib64/R
 - cd /homes/schintap (or where ever your base install of R_installation is)
@@ -77,8 +77,8 @@ Run Spark R in yarn client mode using Manual installed R
 
 .. _r_cluster_mode:
 
-Run Spark R in yarn cluster mode using Manual installed R
----------------------------------------------------------
+Spark R cluster mode
+--------------------
 
 This assumes you have already manually installed R.
 - Run specifying archives and path to R installation. Note the config spark.sparkr.r.command must be as specified (--conf spark.sparkr.r.command=./R_installation/bin/Rscript).
@@ -89,15 +89,15 @@ This assumes you have already manually installed R.
 
 .. _r_oozie:
 
-Run Spark R with Oozie
-----------------------
+Spark R with Oozie
+------------------
 Information regarding running Spark R with Oozie is in the link below
 https://git.ouroath.com/pages/hadoop/docs/spark/spark_from_oozie.rst
 
 .. _r_hive:
 
-Hive Access
------------
+Spark R with Hive
+-----------------
 For client mode it should just work, in cluster mode see the version specific instructions (https://git.ouroath.com/pages/hadoop/docs/spark/spark_on_yarn.rst).
 In general you need to send along the hive-site.xml and possibly the datanucleus jars (for 1.x versions).
 Make sure to initialize your spark session with hive enabled: sparkR.session(appName = "test", enableHiveSupport = TRUE)
@@ -124,8 +124,8 @@ Note the faithful dataset they refer to doesn't seem to be present in this distr
 
 .. _r_parquet:
 
-Reading and writing parquet
----------------------------
+Spark R with parquet
+--------------------
 Get https://github.com/apache/spark/blob/master/examples/src/main/resources/users.parquet and put into hdfs in /user/%USERNAME%/
 library(SparkR)
 
