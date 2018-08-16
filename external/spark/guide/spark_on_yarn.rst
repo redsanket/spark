@@ -24,7 +24,7 @@ Getting Started
 ---------------
 Spark can be run on any of the Yahoo Grids. You must have onboarded to Hadoop and have capacity and access to a queue on the grid you want to run.
 
-Please subscribe to yspark-users ilist (yspark-users@yahoo-inc.com) to get announcements about Spark.
+Please subscribe to yspark-users ilist (yspark-users@oath.com) to get announcements about Spark.
 
 
 .. _soy_installation:
@@ -238,9 +238,10 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
     pyspark --master yarn --deploy-mode client
 
-- sparkR for interactive queries in R: http://twiki.corp.yahoo.com/view/Grid/SparkOnYarnProduct#SparkR
+FIXME: replace it with tag for R.
+- sparkR for interactive queries in R: http://twiki.corp.yahoo.com/view/Grid/SparkOnYarnProduct#SparkR 
 
-- spark-sql for interactive queries in SQL: http://twiki.corp.yahoo.com/view/Grid/SparkSqlCli
+- spark-sql for interactive queries in SQL: :ref:`sql`
 
 - Batch mode
 
@@ -254,7 +255,7 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
 Spark via Oozie
 ---------------
-Fixme: https://twiki.corp.yahoo.com/view/Grid/SparkFromOozie
+:ref:`sfo`
 
 .. _soy_addon_svc:
 
@@ -658,13 +659,13 @@ SparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or greater to
 
 Spark-sql
 ---------
-  - `spark-sql introduction <https://twiki.corp.yahoo.com/view/Grid/SparkSqlCli>`_
+  - spark-sql introduction :ref:`sql`
 
 .. _soy_pyspark:
 
 PySpark usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
 --------------------------------------------------------------------
-  - `PYspark, Pyspark + Anaconda,IPython,Hive <http://twiki.corp.yahoo.com/view/Grid/PySparkIPython>`_
+  - `PYspark, Pyspark + Anaconda,IPython,Hive` :ref:`swp`
 
 .. _soy_jupyter:
 
@@ -676,7 +677,7 @@ Start at: yo/jupyter
 
 Python packages with HUE/Jupyter
 --------------------------------
-  - `Hue - add python packages <http://twiki.corp.yahoo.com/view/Grid/SparkPythonPackages>`_
+  - `Hue - add python packages` :ref:`swp_packages`
 
 .. _soy_hue:
 
@@ -697,7 +698,7 @@ From there you can just type spark commands. To do tables you can use %table dat
     %table textFile
 
 If you are using pyspark you by default get python 2.7 with numpy and pandas. If you need to add your own python packages follow instructions here:
-  - `Hue - add python packages <http://twiki.corp.yahoo.com/view/Grid/SparkPythonPackages>`_
+  - `Hue - add python packages` :ref:`swp_packages`
 
 
 .. _soy_sparkconfs_hue:
@@ -763,14 +764,14 @@ Spark version < 2.2:
 
 If you are bundling the avro jar as a dependency with your application, then you don't need to supply any additional files. If not, you would have to first download the avro jar file and upload it to hdfs. Then you can select the avro jar by following the instructions above and recreate the hue session. The avro file should now be loaded and available to use.
 
-You can find the required avro jar version and try out an example by refering the section http://twiki.corp.yahoo.com/view/Grid/SparkOnYarnProduct#Reading_Avro_data_from_Spark and download the avro jar from http://spark-packages.org/package/databricks/spark-avro
+You can find the required avro jar version and try out an example by refering the section :ref:`soy_avro` and download the avro jar from ``http://spark-packages.org/package/databricks/spark-avro``
 
 Spark version >= 2.2: spark-avro jar is included with yspark so you can just use it.
 
 .. _soy_monitoring:
 
-Controlling and Monitoring Spark application on Yarn
-----------------------------------------------------
+Controlling & Monitoring 
+------------------------
 
 You can kill a spark application via:
   - ``yarn application -kill <application id>``
@@ -780,12 +781,12 @@ You can see the logs for your application by either going to the web ui or with:
 You can see the log files for your individual workers by going to the Yarn NodeManager WebUI and clicking on the container.
 
 See more information:
-  - `SparkDebugging <http://twiki.corp.yahoo.com/view/Grid/SparkDebugging>`_
+  - `SparkDebugging` :ref:`dbg`
 
 .. _soy_sparkstarter:
 
-Spark starter repo/Creating your own application jar/yspark via maven
----------------------------------------------------------------------
+Creating your own application jar/Spark starter repo
+----------------------------------------------------
 
 If you are starting out writing a spark application and don't yet have a build environment setup, there is an example starter repo here: https://git.corp.yahoo.com/hadoop/spark-starter/tree/branch-2.0
 
@@ -874,8 +875,8 @@ JavaWordCount example
 
 .. _soy_conf:
 
-Config Setup if not using default configs
------------------------------------------
+Custom configs
+--------------
 
 .. _soy_conf_setup:
 
@@ -921,7 +922,7 @@ See `YahooZip user guide <http://twiki.corp.yahoo.com/view/SDSMain/YahooZipUserG
 
 Debugging information
 ---------------------
-- `SparkDebugging <http://twiki.corp.yahoo.com/view/Grid/SparkDebugging>`_
+- `SparkDebugging` :ref:`dbg`
 
 .. _soy_faq:
 
@@ -954,4 +955,12 @@ Spark Jira
 
 Spark Users mailing list
 ------------------------
-- yspark-users@yahoo-inc.com
+``yspark-users@oath.com``
+
+Spark Dev mailing list
+----------------------
+``spark-devel@oath.com``
+
+Spark Users slack channel
+-------------------------
+``#spark-users``

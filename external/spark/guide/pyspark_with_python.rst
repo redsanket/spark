@@ -123,11 +123,14 @@ If you need Python with more modules than just numpy, pandas, sklearn, scipy, an
 
 
 - Get Python2.zip
-- mkdir tmpfetch; cd tmpfetch
-- yinst fetch yspark_yarn_python-2.7.10.1 -br current (choose whichever is the desired version)
-- tar -zxvf yspark_yarn_python-*.tgz share/spark_python/__spark_python.zip
-- hadoop fs -put share/spark_python/__spark_python.zip Python2.zip (puts into hdfs:///user/YOURUSER/Python2.zip)
-- cd ../; rm -r tmpfetch
+
+.. code-block:: console
+
+  mkdir tmpfetch; cd tmpfetch
+  yinst fetch yspark_yarn_python-2.7.10.1 -br current (choose whichever is the desired version)
+  tar -zxvf yspark_yarn_python-*.tgz share/spark_python/__spark_python.zip
+  hadoop fs -put share/spark_python/__spark_python.zip Python2.zip #(puts into hdfs:///user/YOURUSER/Python2.zip)
+  cd ../; rm -r tmpfetch
 
 Running:
 
@@ -261,11 +264,14 @@ You can grab a working Python 3.5 zip file that has python3.5, numpy, pandas, sk
 If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: http://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Create_a_Python.zip_with_modules_installed_for_Python_3.5
 
 - Get Python3.zip:
-- mkdir tmpfetch; cd tmpfetch
-- yinst fetch yspark_yarn_python-3.5.3.2 -br current (choose whichever is the desired version)
-- tar -zxvf yspark_yarn_python-*.tgz share/spark_python/__spark_python.zip
-- hadoop fs -put share/spark_python/__spark_python.zip Python3.zip (puts into hdfs:///user/YOURUSER/Python3.zip)
-- cd ../; rm -r tmpfetch
+
+.. code-block:: console
+
+  mkdir tmpfetch; cd tmpfetch
+  yinst fetch yspark_yarn_python-3.5.3.2 -br current (choose whichever is the desired version)
+  tar -zxvf yspark_yarn_python-*.tgz share/spark_python/__spark_python.zip
+  hadoop fs -put share/spark_python/__spark_python.zip Python3.zip # (puts into hdfs:///user/YOURUSER/Python3.zip)
+  cd ../; rm -r tmpfetch
 
 Running:
 
@@ -446,6 +452,7 @@ You also need to set the PYSPARK_PYTHON env variable on the executor nodes. Pass
 .. code-block:: console
 
     --conf spark.executorEnv.PYSPARK_PYTHON=./anaconda/bin/python
+
 to spark-submit
 
 If you are running in cluster mode for Spark <= 2.1 you also have to export PYSPARK_PYTHON? on the application master so also add:
@@ -523,3 +530,49 @@ Pyspark:
 
   $SPARK_HOME/bin/pyspark --master yarn --conf spark.pyspark.driver.python=/homes/YOUR_USERNAME/pypy/share/pypy/bin/pypy --conf spark.pyspark.python=./Pypy/bin/pypy --archives hdfs:///user/YOUR_USERNAME/pypy-2.6.1.zip#Pypy
 
+.. _swp_packages:
+
+Spark Python Packages
+---------------------
+With Hue 3.10+ you can use pyspark and it automatically loads Python 2.7.10 with numpy and pandas for you. If you need to ship other packages you can follow these instructions to create an archive that you can upload with your spark job. If you are just using pyspark you should go back and see the instructions on using Ipython/anaconda.
+Instructions are from a Gateway or VM, note most gateways might not have access anymore and you need to run from a vm:
+
+.. code-block:: console
+
+  export IPYTHON_ROOT=~/Python2.7.10 #Change this directory to install elsewhere.
+  export http_proxy=`hostname | sed -r 's/([^\.])*.(.*)/httpproxy-res.\2:4080/'`
+  export HTTP_PROXY=”${http_proxy}”
+  curl -O https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
+  tar -xvf Python-2.7.10.tgz
+  rm Python-2.7.10.tgz
+  pushd Python-2.7.10 >/dev/null
+  ./configure --prefix="${IPYTHON_ROOT}"
+  make
+  make install
+  popd >/dev/null
+  rm -rf Python-2.7.10
+  pushd "${IPYTHON_ROOT}" >/dev/null
+  curl -O https://bootstrap.pypa.io/get-pip.py
+  bin/python get-pip.py
+  rm get-pip.py
+  # install any other packages you need at this point
+  For example we install numpy and pandas
+  bin/pip install numpy
+  bin/pip install pandas
+  # now zip it up
+  pushd Python2.7.10/lib/python2.7/site-packages >/dev/null
+  tar -zcvf ~/python27sitepackages.tgz *
+  popd > /dev/null
+
+Then to use the packages with Hue send them along as an archive. Upload the tgz into hdfs: hadoop fs -put python27sitepackages.tgz
+
+For using it on Hue:
+- Open a pyspark notebook
+- In the upper right corner, open the "Context" menu
+- Select "Archives" under the "Add a property.." menu
+- Press the "+" button on right
+- Type in where you put it in hdfs, ``hdfs:///user/myuser/python27sitepackages.tgz``
+- Hit the "Recreate" button
+
+For using it on Jupyter:
+- use the %%configure option with jupyter to send it as an archive, see: https://jetblue-jupyter.blue.ygrid.yahoo.com:9999/nb/notebooks/projects/jupyter/demo/samples/Jupyter_Reference__Magics.ipynb
