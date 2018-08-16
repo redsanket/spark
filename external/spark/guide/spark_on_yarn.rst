@@ -238,8 +238,7 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
     pyspark --master yarn --deploy-mode client
 
-FIXME: replace it with tag for R.
-- sparkR for interactive queries in R: http://twiki.corp.yahoo.com/view/Grid/SparkOnYarnProduct#SparkR 
+- sparkR for interactive queries in R: :ref:`soy_sparkr`
 
 - spark-sql for interactive queries in SQL: :ref:`sql`
 
@@ -346,9 +345,6 @@ Example python sql script accessing hive:
           print(r)
 
         spark.stop()
-
-Older Releases:
-Fixme.
 
 .. _soy_addon_svc_known_issues:
 
@@ -653,7 +649,7 @@ Start the spark-shell and load some sample data to HDFS (make sure hive-site.xml
 SparkR
 ------
 SparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or greater to use. 
-  - `Spark R instructions <http://twiki.corp.yahoo.com/view/Grid/SparkRInstall>`_
+  - :ref:`r` 
 
 .. soy_sql:
 

@@ -125,7 +125,7 @@ PySpark with Python 3.6
 -----------------------
 This section describes how to run Spark 2.2 on Yarn through Oozie using PySpark with Python 3.6 Example.
 
-Spark 2.2 automatically picks up python 3.6 for you so as long as you are using sharelib you should automatically get python 3.6. You can get python 2.7 by overriding the configs talked about `here <https://twiki.corp.yahoo.com/view/Grid/PySparkIPython#Using_Python_2.7_473.6_installed_in_Grid_with_Pyspark_91_BEING_DEPLOYED_not_on_all_GRIDS_YET_93>`_
+Spark 2.2 automatically picks up python 3.6 for you so as long as you are using sharelib you should automatically get python 3.6. You can get python 2.7 by overriding the configs talked about :ref:`swp`
 
 .. _sfo_pyspark_default_python:
 
@@ -134,7 +134,7 @@ PySpark & default grid Python installation
 
 This section describes how to run Spark on Yarn through Oozie using PySpark with default grid installed version of Python.
 
-You can use the default python installed on the grid (reference https://twiki.corp.yahoo.com/view/Grid/PySparkIPython) with oozie. This happens by default without needing to specify extra parameters.
+You can use the default python installed on the grid :ref:`swp` with oozie. This happens by default without needing to specify extra parameters.
 
 workflow.xml
 
@@ -187,7 +187,7 @@ job.properties
 PySpark & grid installed Python 2.7 Example (Spark 2.x)
 -------------------------------------------------------
 
-You can use the python 2.7 or 3.6 installed on the grid (reference https://twiki.corp.yahoo.com/view/Grid/PySparkIPython) with oozie.
+You can use the python 2.7 or 3.6 installed on the grid :ref:`swp` with oozie.
 
 workflow.xml
 
@@ -241,7 +241,7 @@ job.properties:
 PySpark & own version of Python 2.7 Example (Spark 2.x)
 -------------------------------------------------------
 
-To run Python 2.7 you need to first follow the instructions to get Python 2.7 here: https://twiki.corp.yahoo.com/view/Grid/PySparkIPython Those instructions put Python2.7 into HDFS in a directory like /user/tgraves. Once you have that you just need to specify the configs mentioned on that page as well.
+To run Python 2.7 you need to first follow the instructions to get Python 2.7 here: :ref:`swp` Those instructions put Python2.7 into HDFS in a directory like /user/tgraves. Once you have that you just need to specify the configs mentioned on that page as well.
 
 workflow.xml
 
@@ -304,7 +304,7 @@ With spark 2.2 we automatically include R so there should be no extra steps to u
 Using Spark R (Spark 2.0 & 2.1)
 -------------------------------
 
-Assuming R installation(https://twiki.corp.yahoo.com/view/Grid/SparkRInstall) is done.
+Assuming R installation :ref:`r_manual_install` is done.
 - Create a hdfs directory for your oozie application, (oozieR/apps).
 - Upload the application file to be run to hdfs (oozieR/apps/lib/myscript.R)
 - Upload sparkr.zip into the oozie lib dir which is where spark.rpackage.home will point (oozieR/lib/R/lib/sparkr.zip).
@@ -413,7 +413,7 @@ To use a different or an older version of spark from oozie you need to do the fo
     </property>
   </configuration>
 
-- Install the required version of spark on the gateway. Refer to the instructions to perform self installation of yspark_yarn package in https://twiki.corp.yahoo.com/view/Grid/SparkOnYarnProduct#Self_Installation_40if_you_need_a_version_not_on_the_gateway_41.
+- Install the required version of spark on the gateway. Refer to the instructions to perform self installation of yspark_yarn package in :ref:`soy_selfinstall`
 - Upload the ysarpk-jars-version.tgz file present in share/spark (e.g. yspark-jars-2.2.0.29.tgz) to an hdfs directory (example: hdfs:///user/YOUR_USERNAME/spark_jars_tgz/yspark-jars-2.2.0.29.tgz). You must also upload all the jars present in share/spark/lib to a separate directory (hdfs:///user/YOUR_USERNAME/spark_lib/spark_jars) in hdfs.
 - Upload the corresponding version of conf, i.e. spark-defaults.conf from the cluster configs in $SPARK_CONF_DIR (see below for example) into hdfs: hdfs:///user/YOUR_USERNAME/spark_lib/spark_jars/spark-defaults.conf.
 - If you are using hive you also need hive-site.xml and the datanucleus jars
@@ -543,7 +543,8 @@ Access Hive from Spark via Oozie
 
 These are instructions in addition to the ones above in Running Spark on Yarn through Oozie section. Note that if you are using the spark sharelib, it automatically pulls in hive-site.xml and any other jars you need.
 
-Please check the known issues section: http://twiki.corp.yahoo.com/view/Grid/SparkEngineering#Known_Issues
+
+Please check the known issues section: http://twiki.corp.yahoo.com/view/Grid/SparkEngineering#Known_Issues 
 
 You need a build of spark which allows you to turn off getting hive credentials on the client.
 - add ``conf: spark.yarn.security.tokens.hive.enabled=false``
