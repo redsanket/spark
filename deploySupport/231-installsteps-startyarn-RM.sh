@@ -27,6 +27,18 @@ ssh  $jobtrackernode su - $MAPREDUSER
     fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
     slavefanout "sh -x /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
 
+    # Setup cgroups on the worker nodes
+    tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
+    (
+        echo "for i in \$(grep ^cgroup /proc/mounts | awk '{print \$2}'); do"
+        echo "  mkdir -p \$i/hadoop-yarn"
+        echo "  chown $MAPREDUSER:hadoop \$i/hadoop-yarn"
+        echo "done"
+    ) > $tmpsetupfile
+
+    fanoutcmd "scp $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+    slavefanout "sh -x /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 #    echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
 
