@@ -25,7 +25,7 @@ to access data.
 Prerequisites
 =============
 
-- :ref:`On-Board to Axonite Blue <onboard>`_.
+- `On-Board to Axonite Blue <onboard><http://yo/grid-onboarding-howto>`_.
 - Log onto Axonite Blue.
 
 Querying Data
