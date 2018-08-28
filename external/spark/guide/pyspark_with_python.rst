@@ -579,7 +579,8 @@ Instructions are from a Gateway or VM, note most gateways might not have access 
 
 Then to use the packages with Hue send them along as an archive. Upload the tgz into hdfs: hadoop fs -put python27sitepackages.tgz
 
-For using it on Hue:
+For using it on Hue
+
 - Open a pyspark notebook
 - In the upper right corner, open the "Context" menu
 - Select "Archives" under the "Add a property.." menu
@@ -587,5 +588,6 @@ For using it on Hue:
 - Type in where you put it in hdfs, ``hdfs:///user/myuser/python27sitepackages.tgz``
 - Hit the "Recreate" button
 
-For using it on Jupyter:
+For using it on Jupyter
+
 - use the %%configure option with jupyter to send it as an archive, see: https://jetblue-jupyter.blue.ygrid.yahoo.com:9999/nb/notebooks/projects/jupyter/demo/samples/Jupyter_Reference__Magics.ipynb
