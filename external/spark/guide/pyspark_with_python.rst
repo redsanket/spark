@@ -10,8 +10,6 @@ PySpark + Grid Python 2.7/3.6
 -----------------------------
 Python 2.7 and 3.6 are being installed on the grid gateways and in HDFS. They contain a few extra packages including: "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
 
-.. note:: These are just rolling out so first check that your cluster supports them ``hadoop fs -ls hdfs:///sharelib/v1/python*`` and on the gateway ``ls /home/y/var/python*`` to make sure they are there first.
-
 .. _swp_grid_python_spark2.2+:
 
 Spark 2.2 and 2.3

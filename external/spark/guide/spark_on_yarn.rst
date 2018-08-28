@@ -3,7 +3,7 @@
 Spark on YARN Product
 ============================
 
-Spark on YARN is running Spark in batch mode on top of Hadoop YARN.
+Spark on YARN is running Spark on top of Hadoop YARN.
 
 .. _soy_releases:
 
@@ -12,10 +12,7 @@ Releases
 
 Release Information:
 
-Note that spark 2.3 is rolling out and will be the latest link, spark 2.2 will be the current link.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
-
-Spark 2.2 is latest link, see:  https://twiki.corp.yahoo.com/view/Grid/SparkOnYarn22028ReleaseNotes
-
+Note that spark 2.3 is latest and spark 2.2 is the current version.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
 
 .. _soy_start:
 
@@ -34,7 +31,7 @@ Installation on the Grids
 
 The grid gateways will have Spark installed on them in ``/home/gs/spark``. There is a ``latest`` symlink and then a ``current`` symlink. There are also some default spark configs install in ``/home/gs/conf/spark`` with both current and latest symlinks. These will automatically be set for you when you login to a grid gateway via the environment variables below. You can change this from latest to current to change the spark version.
 
-Currently Spark 2.1 is current link and spark 2.2 is latest. Note that spark 2.3 is rolling out and will be the latest link, spark 2.2 will be the current link.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
+To check the installation of spark on a grid gateway refer :ref: `soy_releases` 
 
 To change to use latest you just have to export the following variables:
 
@@ -141,10 +138,8 @@ You should find the latest versions for your grid and then install it like
 ::
 
     yinst i yspark_yarn_install -br current \
-    -set yspark_yarn_install.DOT_SIX=yspark_yarn-1.6.1.0_2.6.0.16.1506060127_1605271611 \ 
-    -set yspark_yarn_install.TWO_ZERO=yspark_yarn-2.0.0.19 \ 
-    -set yspark_yarn_install.CURRENT=yspark_yarn-1.6.1.0_2.6.0.16.1506060127_1605271611 \ 
-    -set yspark_yarn_install.LATEST=yspark_yarn-2.0.0.19
+    -set yspark_yarn_install.CURRENT=yspark_yarn-2.2.1.45 \
+    -set yspark_yarn_install.LATEST=yspark_yarn-2.3.0.60
 
 This will create ``/home/gs/spark`` and ``/home/gs/conf/spark`` symlinks.
 
@@ -361,22 +356,6 @@ Known Issues with Spark Sql accessing hive
 
 Accessing hive through HCatalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. _soy_addon_svc_hive_hcatalog_2.1:
-
-From spark 1.4 till spark 2.1
-+++++++++++++++++++++++++++++
-
-Here we give an example to access hive from spark-shell using hcatalog. Make sure to use yspark_yarn-1.4.1.0_2.6.0.16.1506060127_1508271636 or higher as the version of hive changed
-
-.. code-block:: console
-
-    export SPARK_CLASSPATH="/home/y/libexec/hive/lib/hcatalog-support.jar:/home/y/libexec/hive/lib/hive-hcatalog-core.jar
-    :$(ls /home/y/libexec/hive/lib/guava-*.jar):$(ls ${HADOOP_PREFIX}/share/hadoop/common/hadoop-gpl-compression.jar)
-    :$(ls ${HADOOP_PREFIX}/share/hadoop/hdfs/lib/YahooDNSToSwitchMapping-*.jar)"
-
-    /homes/%USERNAME%/testroot/share/spark/bin/spark-shell --master yarn --deploy-mode client --conf spark.ui.port=4044 
-    --jars /home/y/libexec/hive/lib/hcatalog-support.jar,/home/y/libexec/hive/lib/hive-hcatalog-core.jar,$(ls /home/y/libexec/hive/lib/guava-*.jar)
 
 .. _soy_addon_svc_hive_hcatalog_2.2+:
 

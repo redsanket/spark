@@ -12,7 +12,6 @@ Spark User Guide
    spark_from_oozie
    pyspark_with_python
    debugging
-   history_server
    spark_sql
    spark_r
 
@@ -49,7 +48,9 @@ General Questions
 Support
 -------
 
-- spark-devel@yahoo-inc.com
+- spark-devel@oath.com
+
+You could also reach out on the slack channel for spark - `#spark-users`
 
 Filing Jira Tickets
 -------------------
