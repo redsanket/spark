@@ -183,7 +183,14 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
 
     # all of the yjava_jetty dep pkgs listed here need explicit versions becuase they are too old, built pre-rhel7 support in yinst so yinst
     # reports not found even though they are really there
-    cmd_jetty="yinst i yjava_jetty-9.3.15.v20161220_782 yjava_jmx_singleton_server-1.0.0 yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.10  yjava_resource_handler-1.0.21 ysysctl-2.2.3  jports_org_json__json-1.20090211_1  -br test  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1   -set yjava_jetty.options="-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760"   -set yjava_jetty.key_store="/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS   -set yjava_jetty.trust_store="/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks"  -set yjava_jetty.trust_store_password_key_var=password    -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off   -set yjava_jetty.garbage_collection="-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
+    cmd_jetty="yinst i yjava_jetty-9.3.15.v20161220_782 yjava_jmx_singleton_server-1.0.0 yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.10  \
+      yjava_resource_handler-1.0.21 ysysctl-2.2.3  jports_org_json__json-1.20090211_1 -br test  -same -live -downgrade \
+      -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+      -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
+      -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
+      -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
+      -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
+      -set yjava_jetty.garbage_collection=\"-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
 
 else
     echo "WARN: Unknown OS $OS_VER!"
@@ -218,8 +225,6 @@ if [ $? -ne 0 ]; then
   echo "Failed to set ZK jvm_args!"
   exit 1
 fi
-
-
 
 
 #
