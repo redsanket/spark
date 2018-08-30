@@ -70,12 +70,6 @@ fi
 # need the kgp from hadoopqa_headless_keys to find the KMS test key, hitusr_4
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i hadoopqa_headless_keys ports/json-c-0.11.3\""
-if [ $? -ne 0 ]; then
-  echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
-  exit 1
-fi
-
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
 if [ $? -ne 0 ]; then 
   echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
