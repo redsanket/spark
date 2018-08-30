@@ -192,12 +192,16 @@ else
     exit 1
 fi
 
+echo Timestamps is `date`
+$SSH $kmsnode "ps aux|grep yinst" 
 $SSH $kmsnode $cmd_jetty
 if [ $? -ne 0 ]; then
   echo "Failed to install yjava_jetty support!"
 else
   echo "INFO: installed yjava_jetty support"
 fi
+$SSH $kmsnode "ps aux|grep yinst" 
+echo Timestamps is `date`
 
 
 #
