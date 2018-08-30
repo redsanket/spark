@@ -1,0 +1,3 @@
+#!/bin/sh
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/hadooptest/scripts/certify-hadoop-rpm.sh hadoopqa\@${CLUSTER}-gw.blue.ygrid.yahoo.com:/grid/0/tmp/hadooptest-hadoopqa-${CLUSTER}/hadooptest/scripts
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l hadoopqa -oStrictHostKeyChecking=no ${CLUSTER}-gw.blue.ygrid.yahoo.com "sh -x /grid/0/tmp/hadooptest-hadoopqa-${CLUSTER}/hadooptest/scripts/certify-hadoop-rpm.sh"
