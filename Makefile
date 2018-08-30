@@ -38,6 +38,7 @@ gh-pages:
 	rm -rf storm/_images/ storm/_sources/ storm/_static/ storm/*.html storm/*.js storm/objects.inv
 	rm -rf starling/_images/ starling/_sources/ starling/_static/ starling/*.html starling/*.js starling/objects.inv
 	rm -rf hbase/_images/ hbase/_sources/ hbase/_static/ hbase/*.html hbase/*.js hbase/objects.inv
+	rm -rf spark/_images/ spark/_sources/ spark/_static/ spark/*.html spark/*.js spark/objects.inv
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
@@ -50,6 +51,7 @@ publish: gh-pages build
 	cp -R docs/storm/* storm
 	cp -R docs/starling/* starling
 	cp -R docs/hbase/* hbase
+	cp -R docs/spark/* spark
 	@echo "Removing build files."
 	rm -rf docs setup.cfg tox.ini MANIFEST.ini external
 	@echo "Adding and saving new docs."

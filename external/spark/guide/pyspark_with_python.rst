@@ -106,7 +106,7 @@ Using the python packages above you can create a tgz with addition python packag
 - You can also use the ``--ignore-installed`` option with pip to avoid overriding any existing installed packages
 - install any other packages
 - ``cd ~/addons/site-packages``
-- ``zip -r python36addon.zip [your package list]``. Note: You can also use a tarball instead.
+- ``zip -r python36addon.zip [your package list]``. Note: You can also use a tarball instead. Do not include any packages already in the python zip provided like "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
 - copy to the grid gateway
 - copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
 - send the zip file along with your job ``--py-files hdfs://user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
