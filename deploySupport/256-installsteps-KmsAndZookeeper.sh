@@ -207,10 +207,27 @@ fi
 #
 # install ZK server
 #
-cmd_zk="yinst i zookeeper_server -same -live -downgrade -set zookeeper_server.clientPort=50512 \
- -set zookeeper_server.kerberos=true -set zookeeper_server.jvm_args=\" \\
- -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \\
- -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+if [[ "$OS_VER" =~ ^6. ]]; then
+    echo "INFO: OS is $OS_VER"
+
+    cmd_zk="yinst i zookeeper_server -same -live -downgrade -set zookeeper_server.clientPort=50512 \
+     -set zookeeper_server.kerberos=true -set zookeeper_server.jvm_args=\" \\
+     -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \\
+     -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+
+elif [[ "$OS_VER" =~ ^7. ]]; then
+    echo "OS is $OS_VER"
+
+    # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
+    # and only thing on branches is 3.4.13... something
+    cmd_zk="yinst i zookeeper_server zookeeper_core-3.4.10.y.2  -br test  -same -live -downgrade -set zookeeper_server.clientPort=50512 \
+     -set zookeeper_server.kerberos=true -set zookeeper_server.jvm_args=\" \\
+     -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \\
+     -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+else
+    echo "WARN: Unknown OS $OS_VER!"
+    exit 1
+fi
 
 $SSH $kmsnode $cmd_zk
 if [ $? -ne 0 ]; then
