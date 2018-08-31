@@ -419,7 +419,19 @@ To use a different or an older version of spark from oozie you need to do the fo
 - If you are using hive you also need hive-site.xml and the datanucleus jars
 - In the job.properties, you have to specify two paths to the oozie.libpath property like below, the example below assumes your normal oozie workflow lib dir is /user/${user.name}/spark_oozie/apps/lib, so essentially you are just adding in the libpath for where you put spark in the steps above: oozie.libpath=/user/${user.name}/spark_oozie/apps/lib,/user/${user.name}/spark_lib/spark_jars
 - Set the config --conf spark.yarn.archive=hdfs:///user/YOUR_USERNAME/spark_jars_tgz/yspark-jars-2.2.0.29.tgz in <spark-opts> in your workflow.xml file.
+- If you are accessing hive, you cannot provide your own hive-site.xml as oozie doesn't support this. You need to set the sharelib entry to fetch hive-site.xml for you. You can do this by adding a configuration as below:
 
+.. code:: xml
+
+  <configuration>
+    <property>
+      <name>oozie.action.sharelib.for.spark</name>
+      <value>hcat_current</value>
+    </property>
+  </configuration>
+
+.. note:: Using the sharelib entry `hcat_current` for pulling hive-site.xml can cause your spark job to fail because of conflicting or unwanted jars being pulled into the classpath. Try to avoid this as much as you can.
+  
 .. _sfo_java_action:
 
 Using Java Action
