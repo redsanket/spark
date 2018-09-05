@@ -44,30 +44,6 @@ public class TestArchivalOnStaging  extends TestSession {
 	@Before
 	public void setUp() throws NumberFormatException, Exception {
 		this.workFlowHelper = new WorkFlowHelper();
-		List<String> datastores = this.consoleHandle.getUniqueGrids();
-		if (datastores.size() < 2) {
-			Assert.fail("Only " + datastores.size() + " of 2 required grids exist");
-		}
-
-		// check whether source cluster exists in the current console data source configuration
-		if (! datastores.contains(SOURCE_CLUSTER_NAME)) {
-			Assert.fail( SOURCE_CLUSTER_NAME + " cluster does not exists.");
-		}
-
-		// check whether target cluster exists in the current console data source configuration
-		if (! datastores.contains(TARGET_CLUSTER_NAME)) {
-			Assert.fail( TARGET_CLUSTER_NAME + " cluster does not exists.");
-		}
-		
-		// check whether archival cluster exists in the current console data source configuration
-		List<String> archivalStores = this.consoleHandle.getArchivalDataStores();
-		if (! archivalStores.contains(ARCHIVAL_CLUSTER_NAME)) {
-			Assert.fail( ARCHIVAL_CLUSTER_NAME + " archival cluster does not exists.");
-		}
-		
-		if ( this.consoleHandle.isFacetRunning("replication", "red", "bf1") == false ) {
-		    Assert.fail("Looks like Red replication facet in bf1 colo is down.");
-		}
 	}
 
 	@Test

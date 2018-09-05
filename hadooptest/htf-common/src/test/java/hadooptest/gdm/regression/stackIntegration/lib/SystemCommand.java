@@ -19,7 +19,6 @@ public class SystemCommand {
 		String res = "";
 		int exitValue = 0;
 		try {
-			Runtime r = Runtime.getRuntime();
 
 			// Things like pipe and redirection are performed by a shell. You will
 			// need to execute the commands within a shell like bash, csh, ksh, etc
@@ -31,14 +30,15 @@ public class SystemCommand {
 			builder.redirectErrorStream(true);
 			Process p = builder.start();
 
-			p.waitFor();
-			exitValue = p.exitValue();
 			BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line = "";
-
 			while ((line = b.readLine()) != null) {
 				res += line + "\n";
 			}
+			
+			p.waitFor();
+			exitValue = p.exitValue();
+
 		} catch (InterruptedException e) {
 			setErrorMessage(e.getMessage());
 			return null;
@@ -54,7 +54,7 @@ public class SystemCommand {
 	}
 
 	public static  void setErrorMessage(String errorMessage) {
-		errorMessage = errorMessage;
+		SystemCommand.errorMessage = errorMessage;
 	}
 
 }

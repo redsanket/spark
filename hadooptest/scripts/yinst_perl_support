@@ -5,9 +5,36 @@
 # scripts. This is most useful on a system or yroot that didn't previously
 # have any yahoo perl support installed on it. Many existing systems will
 # already have many of these packages installed.
-yinst i perl
-yinst i perlbase
-yinst i local_perl_compat
-yinst i perl_Yahoo_Backyard_SingleSignOn
-yinst i perl-File-Find-Rule
-yinst i chartdirector_perl -br test
+
+# need the OS version, if rhel7 a lot of the packages are RPMs now
+
+OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+if [[ ! "$OS_VER" =~ "6." ]] && [[ ! "$OS_VER" =~ "7." ]]; then 
+  echo "Error: OS version is empty or unknown, OS_VER: $OS_VER"
+  exit 1
+else
+  echo "INFO: our OS is $OS_VER"
+fi
+
+if [[ "$OS_VER" =~ "7." ]]; then
+
+  # NOTE: there is no rhel-7 version of chartdirector, 
+  # as RPM or yinst pkg
+
+  echo "INFO: installing HTF support RPMs"
+  sudo yum -y install --enablerepo=non-core perl-Test-Simple \
+    perl-Test-Fatal perl-Test-Warn perl-Test-Harness \
+    perl-File-Find-Rule
+
+else
+
+  echo "INFO: installing yinst perl support packages"
+  yinst i perl
+  yinst i perlbase
+  yinst i local_perl_compat
+  yinst i perl_Yahoo_Backyard_SingleSignOn
+  yinst i perl-File-Find-Rule
+  yinst i chartdirector_perl -br test
+
+fi
+

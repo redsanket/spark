@@ -2,6 +2,8 @@ HTF
 ==========
 Cloud Engineering Group Test Automation Framework (Hadoop/Storm/Spark/GDM)
 
+Integration Testing Docs: [docs/stackIntegration/images/integration-pipelines/README.md](docs/stackIntegration/images/integration-pipelines/README.md)
+
 Twiki:  http://yo/framework
 
 Javadoc:  http://yo/javadoc

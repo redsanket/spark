@@ -34,7 +34,8 @@ public class CreateIntegrationDataSet {
     
     public CreateIntegrationDataSet() {
     	String absolutePath = new File("").getAbsolutePath();
-    	String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+        String dataSetConfigFile = Util.getResourceFullPath("gdm/datasetconfigs/IntegrationBaseDataSet.xml");
+
     	TestSession.logger.info("dataSetConfigFile  = " + dataSetConfigFile);
         File file = new File(dataSetConfigFile);
         if (!file.exists()) {
@@ -188,6 +189,7 @@ public class CreateIntegrationDataSet {
             }
         }
     }
+
     
     public void createDataSet() {
     	 Document doc = this.getDocument();
@@ -204,6 +206,11 @@ public class CreateIntegrationDataSet {
              dateRangeElement.appendChild(startDateElement);
              dateRangeElement.appendChild(endtDateElement);
              newTargetElement.appendChild(dateRangeElement);
+
+             // gridci-3280, Targets nested ReplicationStrategy XML block
+             Element replStrategyElement = this.createNewNode("ReplicationStrategy");
+             replStrategyElement.setTextContent("DistCp");
+             newTargetElement.appendChild(replStrategyElement);
 
              Element hcatTypeElement = this.createNewNode("HCatTargetType");
              hcatTypeElement.setTextContent(this.getHcatType());
@@ -237,6 +244,7 @@ public class CreateIntegrationDataSet {
          }
          this.writeModifiedDocumentToFile();
     }
+
 
     public static void main(String... args) {
     	CreateIntegrationDataSet obj = new CreateIntegrationDataSet();

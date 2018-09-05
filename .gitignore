@@ -1,5 +1,17 @@
 *.class
 *.jar
 *.DS_Store
+
 */target/**
 */*/target/**
+
+*/bin/**
+*/*/bin/**
+
+*/tmp_stresstest
+
+#eclipse project settings
+*.settings
+*.project
+*.classpath
+*.externalToolBuilders

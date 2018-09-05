@@ -24,6 +24,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.mysql.jdbc.ResultSetMetaData;
+
 import hadooptest.TestSession;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.db.AggIntResult;
@@ -34,8 +36,8 @@ public class SendIntegrationResultMail {
     
     private AggIntResult aggIntResultObject;
     private DataBaseOperations dbOperations ;
-    private static final String TO = "hadoop-hit@yahoo-inc.com";
-    private static final String FROM = "hadoopqa@yahoo-inc.com";
+    private static final String TO = "cloud-integration-pipeline@oath.com";
+    private static final String FROM = "champaign-hadoop-qe-team@oath.com";
     private static final String SMTP = "mtarelay.ops.yahoo.net";
 
     public SendIntegrationResultMail() {
@@ -85,7 +87,8 @@ public class SendIntegrationResultMail {
         message.setFrom(new InternetAddress(FROM));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(TO));
         String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
-        message.setSubject(pipeLineName + " Integration test result for " + this.getTodaysDate());
+        String clusterName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+        message.setSubject(pipeLineName + " (" + clusterName + ") " + "integration test result for " + this.getTodaysDate());
         message.setContent(multipart);
 
         // Send message
@@ -146,11 +149,20 @@ public class SendIntegrationResultMail {
                 .append("<th>").append("HCatalog").append("</th>")
                 .append("<th>").append("HBase").append("</th>")
                 .append("<th>").append("Oozie").append("</th>")
+                .append("<th>").append("Starling").append("</th>")
                 .append("<th>").append("Comments").append("</th>")
                 .append("</tr>")
                 .append("</thead>").append("<tbody>");
                 while (resultSet.next()) {
-
+                	java.sql.ResultSetMetaData rsmd = resultSet.getMetaData();
+                	int columnsNumber = rsmd.getColumnCount();
+                	System.out.println("\n\n GRIDCI-3039 : Start \n\n");
+                	System.out.println("Columns Number : " + columnsNumber);
+                	for (int i = 1; i <= columnsNumber; i++) {
+                        if (i > 1) System.out.print(",  ");
+                        System.out.print(rsmd.getColumnName(i) + "\t : \t" + resultSet.getString(i));
+                    }
+                	System.out.println("\n\n GRIDCI-3039 : End \n\n");
                     tableBuilder.append("<tr>");
 
                     String dataSetName = resultSet.getString("dataSetName");
@@ -266,8 +278,22 @@ public class SendIntegrationResultMail {
                     }
                     tableBuilder.append("</td>");
 
-                    String comments = resultSet.getString("comments");
+                    String starlingVersion = resultSet.getString("starlingVersion");
+                    if ((starlingVersion != null) && !(starlingVersion.indexOf("UNKNOWN") > -1)) {
+                        tableBuilder.append("<td>").append(starlingVersion);
+                    } else {
+                        tableBuilder.append("<td>").append("-");
+                    }
 
+                    String starlingResult = resultSet.getString("starlingResult");
+                    if ((starlingResult != null) && starlingResult.indexOf("PASS") > -1) {
+                        tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"cid:image\" title=\"Cluster is active\" />");
+                    } else if ( (starlingResult.indexOf("FAIL") > -1 ) ||   (starlingResult.indexOf("NULL") > -1 ) ) {
+                        tableBuilder.append("<span>\t<img style=\"float: center; margin: 0px 0px 10px 10px;\" src=\"https://cdn2.iconfinder.com/data/icons/oxygen/16x16/actions/no.png\" width=\"20\" title=\"Cluster is active\" />");
+                    }
+                    tableBuilder.append("</td>");
+
+                    String comments = resultSet.getString("comments");
                     tableBuilder.append("<td>").append(comments).append("</td>");
                     tableBuilder.append("</tr>");
                 }

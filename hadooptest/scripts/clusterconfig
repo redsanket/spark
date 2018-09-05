@@ -9,12 +9,12 @@
 # http://twiki.corp.yahoo.com/view/Grid/SelfHelpBreakfix
 #
 # The script is store on github at: 
-# https://git.corp.yahoo.com/HadoopQE/hadooptest/blob/master/hadooptest/scripts/clusterconfig 
+# https://git.ouroath.com/HadoopQE/hadooptest/blob/master/hadooptest/scripts/clusterconfig 
 # You can clone the git repository of hadooptest to your local machine by
 # running the following command:
 # $ yinst install git -br test
 # $ cd <your local directory here you want to clone the git repository>
-# $ git clone git@git.corp.yahoo.com:HadoopQE/hadooptest.git
+# $ git clone git@git.ouroath.com:HadoopQE/hadooptest.git
 # After clone the git repo to your local macchine, the script can be found in
 # the directory <local git repo dir>/hadooptest/scripts
 #

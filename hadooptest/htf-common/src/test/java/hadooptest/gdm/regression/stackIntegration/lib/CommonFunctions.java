@@ -1,12 +1,7 @@
 package hadooptest.gdm.regression.stackIntegration.lib;
 
-import static com.jayway.restassured.RestAssured.given;
-import static java.nio.file.Paths.get;
-import static java.nio.file.Files.readAllBytes;
-
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.mail.MessagingException;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -46,6 +41,7 @@ import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HadoopHealthChec
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.HiveHealthCheckup;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.OozieHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.PigHealthCheckup;
+import hadooptest.gdm.regression.stackIntegration.healthCheckUp.StarlingHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.healthCheckUp.TezHealthCheckUp;
 import hadooptest.gdm.regression.stackIntegration.tests.hbase.TestIntHBase;
 import hadooptest.gdm.regression.stackIntegration.tests.hive.TestIntHive;
@@ -53,6 +49,7 @@ import hadooptest.gdm.regression.stackIntegration.tests.oozie.TestIntOozie;
 import hadooptest.gdm.regression.stackIntegration.tests.pig.TestPig;
 import hadooptest.gdm.regression.stackIntegration.tests.tez.TestTez;
 import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
+import hadooptest.gdm.regression.stackIntegration.starling.TestIntStarling;
 
 public class CommonFunctions {
 
@@ -64,6 +61,8 @@ public class CommonFunctions {
 	private String errorMessage;
 	private String scriptLocation;
 	private String pipeLineName;
+	private String starlingHostName;
+	private String starlingLogTypes;
 	private static String dataSetName;
 	private Map<String,StackComponent> healthyStackComponentsMap;
 	private Map<String,String> hostsNames;
@@ -87,21 +86,47 @@ public class CommonFunctions {
 	public static final String HADOOP_HOME="/home/gs/hadoop/current";
 	
 	public CommonFunctions() {
-		this.consoleHandle = new ConsoleHandle();
-		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
-		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
-		dbOperations = new DataBaseOperations();
+	    this.init();
 	}
 
 	public CommonFunctions(String clusterName) {
-		this.setClusterName(clusterName);
-		//this.clusterName = clusterName;
-		this.consoleHandle = new ConsoleHandle();
-		this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
-		this.constructCurrentHrMin();
-		this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
-		dbOperations = new DataBaseOperations();
+	    this.setClusterName(clusterName);
+	    this.init();
+	}
+
+	private void init() {
+	    this.consoleHandle = new ConsoleHandle();
+	    this.setCookie(this.consoleHandle.httpHandle.getBouncerCookie());
+	    this.constructCurrentHrMin();
+	    this.setPipeLineName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName"));
+	    this.setStarlingHostName(GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingHostName"));
+	    String starlingTestLogs = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.starlingLogTypes").trim();
+	    TestSession.logger.info("**** starlingTestLogs - " + starlingTestLogs);
+	    this.setStarlingLogTypes(starlingTestLogs);
+	    this.dbOperations = new DataBaseOperations();
+	}
+
+	public String getClusterNodeName(String clusterName, String node) {
+		String command = "yinst range -ir \"(@grid_re.clusters." + clusterName + "." + node +")\"";
+		TestSession.logger.info("Command = " + command);
+		String host = this.executeCommand(command).trim();
+		return host;
+	}
+
+	private String getStarlingHostName() {
+	    return starlingHostName;
+	}
+
+	private void setStarlingHostName(String starlingHostName) {
+	    this.starlingHostName = starlingHostName;
+	}
+
+	public String getStarlingLogTypes() {
+	    return starlingLogTypes;
+	}
+
+	private void setStarlingLogTypes(String starlingLogTypes) {
+	    this.starlingLogTypes = starlingLogTypes;
 	}
 
 	public List<String> getCurrentStackComponentTestList() {
@@ -210,7 +235,12 @@ public class CommonFunctions {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String cName = this.getClusterName();
-		currentHrPath = cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		if (StringUtils.isNotBlank(cName)) {
+		    currentHrPath = cName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		} else {
+		    String tcName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName").trim();
+		    currentHrPath = tcName + "_Integration_Testing_DS_" + simpleDateFormat.format(calendar.getTime()) + "00";
+		}
 		TestSession.logger.info("currentHrPath  = " + currentHrPath);
 		return currentHrPath;
 	}
@@ -236,7 +266,7 @@ public class CommonFunctions {
 			}
 		} else {
 			output = result.getRight();
-			TestSession.logger.info("log = " + output);
+			TestSession.logger.debug("log = " + output);
 		}
 		return output;
 	}
@@ -297,25 +327,35 @@ public class CommonFunctions {
 	}
 
 	public void checkClusterHealth( ) throws InterruptedException, ExecutionException {
-		
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String currentHrPath = simpleDateFormat.format(calendar.getTime());
-		
+
+	    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+	    String currentHrPath = simpleDateFormat.format(calendar.getTime());
+
+	    String currentStackComponentTestList =  GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.stackComponents");
+	    if ( currentStackComponentTestList.equalsIgnoreCase("starling")) {
+		if ( ! this.dbOperations.checkRecordAlreadyExists(this.getDataSetName(), currentHrPath) ){
+		    TestSession.logger.warn("NOTE : Integration was not executed on " + currentHrPath);
+		    
+			// insert current dataSetName into the db
+			this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
+		}
+	    } else {
 		// insert current dataSetName into the db
 		this.dbOperations.insertDataSetName(this.getDataSetName() , currentHrPath);
-		
-		Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
-		setHealthyStackComponentsMap(healthyStackComponentsMap);
+	    }
 
-                // set the individual run's start date and time
-                java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+	    Map<String,StackComponent>healthyStackComponentsMap = this.getStackComponentHealthCheckUp();
+	    setHealthyStackComponentsMap(healthyStackComponentsMap);
 
-                TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
-		  currentStartDateTime);
-                this.updateDB(this.getDataSetName(), "startDateTime", currentStartDateTime);
+	    // set the individual run's start date and time
+	    java.text.SimpleDateFormat sdfStartDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+	    String currentStartDateTime = sdfStartDateTime.format(calendar.getTime());
+
+	    TestSession.logger.info("GRIDCI-1667, populate startDateTime for this iteration pass, startDateTime is: " + 
+		    currentStartDateTime);
+	    this.updateDB(this.getDataSetName(), "startDateTime", currentStartDateTime);
 	}
 
 	public void preInit() {
@@ -359,60 +399,65 @@ public class CommonFunctions {
 
 	public void testStackComponent() throws InterruptedException, ExecutionException {
 		List<Callable<String>> testList = new ArrayList<Callable<String>>();
-		Map<String,String> hostsNames = this.getAllStackComponentHostNames();
-		String nNodeName = hostsNames.get("namenode") ;
+		Map<String, String> hostsNames = this.getAllStackComponentHostNames();
+		String nNodeName = hostsNames.get("namenode");
 		Map<String, StackComponent> stackComponentMap = this.getHealthyStackComponentsMap();
-		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size()  + "   \n " + stackComponentMap.toString());
-		
-		
+		TestSession.logger.info("stackComponentMap size - " + stackComponentMap.size() + "   \n " + stackComponentMap.toString());
+
 		List<String> currentStackTestComponent = this.getCurrentStackComponentTestList();
-		
+
 		if (currentStackTestComponent.contains("tez")) {
 			StackComponent tezStackComponent = stackComponentMap.get("tez");
 			Callable<String> testTezComponent = null;
-			if (tezStackComponent != null ) {
-				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  tezStackComponent = " + tezStackComponent.toString());
-				testTezComponent = new  TestTez(tezStackComponent ,tezStackComponent.getHostName() ,  nNodeName ,  this.getCurrentHourPath());
+			if (tezStackComponent != null) {
+				TestSession.logger.info("nNodeName  = " + nNodeName + "  tezStackComponent = " + tezStackComponent.toString());
+				testTezComponent = new TestTez(tezStackComponent, tezStackComponent.getHostName(), nNodeName,
+						this.getCurrentHourPath());
 				testList.add(testTezComponent);
 			}
 		}
-		
+
 		if (currentStackTestComponent.contains("pig")) {
 			StackComponent tezStackComponent = stackComponentMap.get("pig");
 			Callable<String> testPigComponent = null;
-			if (tezStackComponent != null ) {
-				TestSession.logger.info("nNodeName  = " + nNodeName  +  "  pigStackComponent = " + tezStackComponent.toString());
-				testPigComponent = new  TestPig(tezStackComponent,tezStackComponent.getHostName(),nNodeName,this.getCurrentHourPath() );
+			if (tezStackComponent != null) {
+				TestSession.logger.info("nNodeName  = " + nNodeName + "  pigStackComponent = " + tezStackComponent.toString());
+				testPigComponent = new TestPig(tezStackComponent, tezStackComponent.getHostName(), nNodeName,
+						this.getCurrentHourPath());
 				testList.add(testPigComponent);
 			}
 		}
-		
+
 		if (currentStackTestComponent.contains("hive")) {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
-				testIntHive = new TestIntHive(hiveStackComponent , hiveStackComponent.getHostName(), nNodeName , hiveStackComponent.getScriptLocation() , this.getClusterName());
-				testList.add(testIntHive);	
+				testIntHive = new TestIntHive(hiveStackComponent, hiveStackComponent.getHostName(), nNodeName,
+						hiveStackComponent.getScriptLocation(), this.getClusterName());
+				testList.add(testIntHive);
 			}
 		}
-			
+
 		if (currentStackTestComponent.contains("hbase")) {
 			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
 			Callable<String> testHbaseComponent = null;
-			if (hbaseStackComponent != null)  {
-				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()  +  "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = " + hbaseStackComponent.getScriptLocation());
-				testHbaseComponent = new TestIntHBase(hbaseStackComponent , nNodeName);
+			if (hbaseStackComponent != null) {
+				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()
+						+ "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = "
+						+ hbaseStackComponent.getScriptLocation());
+				testHbaseComponent = new TestIntHBase(hbaseStackComponent, nNodeName, this.getClusterName());
 				testList.add(testHbaseComponent);
-			}			
+			}
 		}
-		
+
 		if (currentStackTestComponent.contains("oozie")) {
 			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 			Callable<String> testIntOozie = null;
 			if (oozieStackComponent != null) {
 				try {
 					org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
-					testIntOozie = new TestIntOozie(oozieStackComponent , oozieStackComponent.getHostName() , configuration);
+					testIntOozie = new TestIntOozie(oozieStackComponent, oozieStackComponent.getHostName(),
+							configuration);
 					testList.add(testIntOozie);
 				} catch (IOException e) {
 					TestSession.logger.error("Failed to create configuration " + e);
@@ -420,12 +465,25 @@ public class CommonFunctions {
 				}
 			}
 		}
-				
-		boolean overAllExecutionResult = true; 
+
+		if (currentStackTestComponent.contains("starling")) {
+			StackComponent starlingStackComponent = stackComponentMap.get("starling");
+			Callable<String> testStarlingComponent = null;
+			if (starlingStackComponent != null) {
+				TestSession.logger.info("starling hostname  = " + starlingStackComponent.getHostName()
+						+ "  starlingStackComponent = " + starlingStackComponent.toString() + "  script location = "
+						+ starlingStackComponent.getScriptLocation());
+				testStarlingComponent = new TestIntStarling(starlingStackComponent, this.getStarlingHostName(),
+						this.getClusterName());
+				testList.add(testStarlingComponent);
+			}
+		}
+
+		boolean overAllExecutionResult = true;
 		if (testList.size() > 0) {
 			ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 			List<Future<String>> testExecutionList = executor.invokeAll(testList);
-			for ( Future<String> result : testExecutionList) {
+			for (Future<String> result : testExecutionList) {
 				List<String> testExecutionResult = Arrays.asList(result.get().split("-"));
 				if (testExecutionResult.size() > 0) {
 					if (testExecutionResult.get(1).equals("false") == true) {
@@ -437,52 +495,68 @@ public class CommonFunctions {
 			}
 			executor.shutdown();
 		}
-		
-		// navigate the health of the stack component and check whether any one of the component is down. If down mark the testcase as fail.
+
+		// navigate the health of the stack component and check whether any one
+		// of the component is down. If down mark the testcase as fail.
 		boolean isHealth = true;
-		for ( String key : stackComponentMap.keySet()) {
+		for (String key : stackComponentMap.keySet()) {
 			StackComponent scomponent = stackComponentMap.get(key);
 			boolean flag = scomponent.getHealth();
-			// if one of the component health is bad , then mark the execution test as failed.
+			// if one of the component health is bad , then mark the execution
+			// test as failed.
 			if (flag == false) {
 				isHealth = false;
 			}
 		}
-		
+
 		String overAllResult = null;
-		if ( ( isHealth == true) && (overAllExecutionResult == true) ) {
+		if ((isHealth == true) && (overAllExecutionResult == true)) {
 			overAllResult = "PASS";
-		} else  {
+		} else {
 			overAllResult = "FAIL";
 		}
 		this.updateDB(this.getDataSetName(), "result", overAllResult);
 
-                // set the individual run's end date and time
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-                java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
-                String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
+		// set the individual run's end date and time
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		java.text.SimpleDateFormat sdfEndDateTime = new java.text.SimpleDateFormat("yyyyMMddhhmmss");
+		String currentEndDateTime = sdfEndDateTime.format(calendar.getTime());
 
-                TestSession.logger.info("GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
+		TestSession.logger.info(
+				"GRIDCI-1667, populate endDateTime for this iteration pass, endDateTime is: " + currentEndDateTime);
 		this.updateDB(this.getDataSetName(), "endDateTime", currentEndDateTime);
 
-                // set the interative run's uniqueId
-                String uniqueId = "This_Is_My_Unique_ID_1234";
+		// set the interative run's uniqueId
+		String uniqueId = "This_Is_My_Unique_ID_1234";
 
-                TestSession.logger.info("GRIDCI-1667, populate uniqueId for interative run, uniqueId is: " +
-                        uniqueId);
-                this.updateDB(this.getDataSetName(), "uniqueId", uniqueId);
+		TestSession.logger.info("GRIDCI-1667, populate uniqueId for interative run, uniqueId is: " + uniqueId);
+		this.updateDB(this.getDataSetName(), "uniqueId", uniqueId);
 
-                // set the total run's uniqueId 
-                TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " +
-                        uniqueId);
+		// set the total run's uniqueId
+		TestSession.logger.info("GRIDCI-1667, populate uniqueId for total run, uniqueId is: " + uniqueId);
 		String tmpStr = dataSetName.substring(0, (dataSetName.length() - 4));
-                TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
-                this.updateDB(true, tmpStr, "uniqueId", uniqueId);
+		TestSession.logger.info("GRIDCI-1667, tmpStr is: " + tmpStr);
+		this.updateDB(true, tmpStr, "uniqueId", uniqueId);
 
-		if ( (this.getPipeLineName().indexOf("hadoop") > -1) == true || (this.getPipeLineName().indexOf("tez") > -1) == true)  {
+		String pipeLineNameJenkinsParam = this.getPipeLineName();
+		switch (pipeLineNameJenkinsParam) {
+		case "starling":
+		case "hadoop":
+		case "tez":
+			TestSession.logger.info("WITH email reporting");
 			AggIntResult aggIntResultObj = new AggIntResult();
-			aggIntResultObj.finalResult();
+			if (currentStackComponentTestList.indexOf("starling") > -1) {
+				TestSession.logger.info("updating_starling_results");
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+				String dt = simpleDateFormat.format(calendar.getTime());
+				this.dbOperations.updateStarlingExecutionResult(dt.trim());
+			} else {
+				TestSession.logger.info("skipping_starling_results");
+				aggIntResultObj.finalResult();
+			}
 			SendIntegrationResultMail obj = new SendIntegrationResultMail();
 			try {
 				obj.sendMail();
@@ -490,8 +564,11 @@ public class CommonFunctions {
 					| MessagingException e) {
 				e.printStackTrace();
 			}
-		} else {
+
+		default:
+			TestSession.logger.info("WITHOUT email reporting");
 			StackComponentAggResult stackComponentAggResultObj = new StackComponentAggResult();
+			TestSession.logger.info("skipping_starling_results");
 			stackComponentAggResultObj.test();
 		}
 	}
@@ -512,22 +589,22 @@ public class CommonFunctions {
 				e.printStackTrace();
 			}
 		}
-		boolean gdmFlag = false, hadoopFlag = false, tezFlag = false, pigFlag = false, hiveFlag=false, hcatalogFlag = false, hbaseFlag = false, oozieFlag = false;
+		boolean gdmFlag = false, hadoopFlag = false, tezFlag = false, pigFlag = false, hiveFlag=false, hcatalogFlag = false, hbaseFlag = false, oozieFlag = false, starlingFlag = false;
 		 
 		if (currentTestComponentList.contains("gdm")) {
 			Callable gdmHealthCheckUpObj = new GDMHealthCheckUp();
 			healthCheckList.add(gdmHealthCheckUpObj);
 			gdmFlag = true;
-		} else {
-			unTestedComponentListString.append("gdm").append(",");
-			this.updateDB(this.getDataSetName(), "gdmResult", "SKIPPED");
+		} else if ( !currentTestComponentList.contains("starling")) {
+		    unTestedComponentListString.append("gdm").append(",");
+		    this.updateDB(this.getDataSetName(), "gdmResult", "SKIPPED");
 		}
 		
 		if (currentTestComponentList.contains("hadoop")) {
 			Callable hadoopHealthCheckupObj = new HadoopHealthCheckup(hostsNames.get("namenode"));
 			healthCheckList.add(hadoopHealthCheckupObj);
 			hadoopFlag = true;
-		}  else {
+		}  else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hadoop").append(",");
 			this.updateDB(this.getDataSetName(), "hadoopResult", "SKIPPED");
 		}
@@ -536,7 +613,7 @@ public class CommonFunctions {
 			Callable tezHealthCheckUpObj = new TezHealthCheckUp(hostsNames.get("gateway"));	
 			healthCheckList.add(tezHealthCheckUpObj);
 			tezFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("tez").append(",");
 			this.updateDB(this.getDataSetName(), "tezResult", "SKIPPED");
 		}
@@ -545,7 +622,7 @@ public class CommonFunctions {
 			Callable pigHealthCheckupObj = new PigHealthCheckup(hostsNames.get("gateway"));
 			healthCheckList.add(pigHealthCheckupObj);
 			pigFlag = true;
-		}else {
+		} else {
 			// since tez is executed using pig, so skipping this
 			//unTestedComponentListString.append("pig").append(",");
 			;	
@@ -555,7 +632,7 @@ public class CommonFunctions {
 			Callable hiveHealthCheckupObj = new HiveHealthCheckup(hostsNames.get("hive"));
 			healthCheckList.add(hiveHealthCheckupObj);
 			hiveFlag = true;
-		}else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hive").append(",");
 			this.updateDB(this.getDataSetName(), "hiveResult", "SKIPPED");
 		}
@@ -564,7 +641,7 @@ public class CommonFunctions {
 			Callable hCatalogHealthCheckUpObj = new HCatalogHealthCheckUp(hostsNames.get("hive"));
 			healthCheckList.add(hCatalogHealthCheckUpObj);
 			hcatalogFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hcat").append(",");
 			this.updateDB(this.getDataSetName(), "hcatResult", "SKIPPED");
 		}
@@ -573,7 +650,7 @@ public class CommonFunctions {
 			Callable hBaseHealthCheckUpObj = new HBaseHealthCheckUp();
 			healthCheckList.add(hBaseHealthCheckUpObj);
 			hbaseFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("hbase").append(",");
 			this.updateDB(this.getDataSetName(), "hbaseResult", "SKIPPED");
 		}
@@ -582,11 +659,21 @@ public class CommonFunctions {
 			Callable oozieHealthCheckUpObj = new OozieHealthCheckUp(hostsNames.get("oozie"));
 			healthCheckList.add(oozieHealthCheckUpObj);
 			oozieFlag = true;
-		} else {
+		} else if ( !currentTestComponentList.contains("starling")) {
 			unTestedComponentListString.append("oozie");
 			this.updateDB(this.getDataSetName(), "oozieResult", "SKIPPED");
 		}
 		
+		if (currentTestComponentList.contains("starling")) {
+		    Callable starlingHealCheckUpObj = new StarlingHealthCheckUp(this.getStarlingHostName()); 
+		    healthCheckList.add(starlingHealCheckUpObj);
+		    starlingFlag = true;
+		    this.updateDB(this.getDataSetName(), "starlingResult", "");
+		} else {
+		    unTestedComponentListString.append("starling");
+		    this.updateDB(this.getDataSetName(), "starlingResult", "SKIPPED");
+		}
+
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		List<Future<StackComponent>> healthCheckUpResultList = executor.invokeAll(healthCheckList);
 		for ( Future<StackComponent> result : healthCheckUpResultList) {
@@ -635,7 +722,11 @@ public class CommonFunctions {
 		if (oozieFlag == false) {
 			this.updateDB(this.getDataSetName(), "oozieComments", "SKIPPED");
 		}
-		
+
+		if (starlingFlag == false) {
+		    this.updateDB(this.getDataSetName(), "starlingComments", "SKIPPED");
+		}
+
 		if (unTestedComponentListString.length() > 1) {
 			this.updateDB(this.getDataSetName(), "comments", unTestedComponentListString.toString() + "  SKIPPED" );
 		}

@@ -120,7 +120,7 @@ public class WorkFlowHelper {
             this.consoleHandle.sleep(sleepTime);
             totSleepTimeMs += sleepTime;
         }
-        fail("Workflow " + instanceDate + " timed out (not completed or failed)");
+        fail("Workflow for dataset :" + dataSetName + "/"  + instanceDate + " timed out (not completed or failed)");
         return false;
     }
     

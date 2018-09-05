@@ -71,7 +71,9 @@ public class DatePathTest extends TestSession {
                 }
             }
         }
-        
+        //sleep for 5 minutes
+        Util.sleep(300);
+
         // validate retention workflows and files copied
         for (int pathType=0; pathType<=2; pathType++) {
             for (int replStrategy=0; replStrategy<=1; replStrategy++) {

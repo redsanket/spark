@@ -9,7 +9,7 @@ then
 else
    echo "$SERVICE is not running"
    set -x 
-   sudo  /usr/local/bin/yinst  start yjava_jetty
+   sudo  /usr/local/bin/yinst  start $SERVICE
    RC = $?
    set +x
    if [ $RC -eq 0 ]; then

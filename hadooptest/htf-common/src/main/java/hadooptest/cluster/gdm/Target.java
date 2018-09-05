@@ -24,13 +24,10 @@ public class Target {
     }
     
     public Target addPath(String pathValue) {
-        JSONObject pathJSONObject = new JSONObject();
         if (this.targetPaths == null) {
             this.targetPaths = new JSONArray();
         }
-        pathJSONObject.put("Path", pathValue);
-        this.targetPaths.add(this.targetPathsCount, pathJSONObject);
-        this.targetPathsCount++;
+        this.targetPaths.add(pathValue);
         return this;
     }
     
@@ -64,7 +61,7 @@ public class Target {
         this.targetJsonObject.put("NumMaps", targetNumMaps);
         return this;
     }
-    
+
     public String toString(){ 
         String returnValue = null;
         try {

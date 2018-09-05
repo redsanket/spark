@@ -178,6 +178,14 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 		 * command here, because the dfsadmin -report doesnot include the
 		 * excluded nodes in its response.
 		 */
+
+		/*
+		 * gridci-2956, rhel7 docker is taking longer to complete NM
+		 * phone-in, adding 60 sec delay to be sure we get them all
+		*/
+		TestSession.logger.info("Wait 60 secs for all NodeManagers to register with RM...");
+		Thread.sleep(60000);
+
 		int initialCountOfActiveTrackers = getCountOfActiveTrackers();
 		TestSession.logger.info("Initial count of active trackers:" + initialCountOfActiveTrackers);
 
@@ -460,6 +468,15 @@ public class TestExcludeNodeCheck extends YarnTestsBaseClass {
 					.removeHadoopConfFileProp(
 							"yarn.resourcemanager.nodes.include-path",
 							"yarn-site.xml", null);
+
+			// Since setting the HadoopConf file also backs up the config dir,
+			// wait for a minute before this command.
+			Thread.sleep(60000);
+			fullyDistributedCluster.getConf(
+					HadooptestConstants.NodeTypes.RESOURCE_MANAGER)
+					.removeHadoopConfFileProp(
+							"yarn.resourcemanager.nodes.include-path",
+							"yarn-server-site.xml", null);
 
 			if (aclUser != null) {
 				if (!aclUser.isEmpty()) {

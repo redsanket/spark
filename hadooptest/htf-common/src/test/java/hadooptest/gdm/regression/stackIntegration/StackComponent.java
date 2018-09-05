@@ -132,7 +132,7 @@ public class StackComponent {
 		TestSession.logger.info("component Name = " + this.getStackComponentName());
 		TestSession.logger.info("version = " + this.getResult());
 		TestSession.logger.info("-----------------------------------------$$$$$$$$$$$$$$$$$$$$$$$---------------------------------------------------------------------");
-		commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() , this.getErrorString());
+		commonFunctions.updateDB(currentDataSetName, this.getStackComponentName() + "Comments", this.getErrorString());
 	}
 
 	public void setTestList(String testList) {

@@ -19,7 +19,9 @@
         <Path location="ABF-DATA-PATH" type="count"/>
         <Path location="ABF-DATA-PATH" type="schema"/>
     </Paths>
-    <Parameters/>
+    <Parameters>
+        <attribute name="working.dir" value="/data/daqdev/abf/working"/>
+    </Parameters>
     <DataDefinition>
         <StaticSchemaPath/>
         <RecordDelimiter/>

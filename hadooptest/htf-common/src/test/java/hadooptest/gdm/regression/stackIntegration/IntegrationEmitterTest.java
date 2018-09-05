@@ -159,6 +159,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	this.workFlowHelper = new WorkFlowHelper();
     }
     
+
     @Test
     public void integrationTest() throws Exception {
 	
@@ -167,6 +168,7 @@ public class IntegrationEmitterTest  extends TestSession {
 	assertTrue("Instance files dn't exists at " + ABF_DATA_PATH  +  "  on  " + this.sourceCluster , dates != null);
 
 	this.dataSetName = getDataSetName();
+
 	if (!checkDataSetAlreadyExists()) {
 	    createIntegrationDataSetObj.createDataSet();
 	    this.modifyDataSet();

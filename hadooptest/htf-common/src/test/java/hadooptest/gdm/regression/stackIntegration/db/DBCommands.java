@@ -136,6 +136,12 @@ public interface DBCommands {
 				+ "hive_verifyMRJobURL VARCHAR(250)  DEFAULT 'UNKNOWN' , "
 				+ "hive_verifyComments TEXT   , "
 				
+				// starling
+				+ "starlingVersion VARCHAR(30) DEFAULT 'UNKNOWN' , "
+				+ "starlingResult VARCHAR(30)  DEFAULT 'UNKNOWN' , "
+				+ "starlingComments VARCHAR(250) DEFAULT 'UNKNOWN' , "
+				+ "starlingJSONResults LONGTEXT , "
+				
 				+ "comments TEXT   , "
 				+ "result VARCHAR(50)  DEFAULT 'UNKNOWN' , "
 

@@ -1,0 +1,17 @@
+PRODUCT_NAME = starling_integration_log_collection
+VERSION = 1.0
+SHORT_DESC = starling integration log collection
+LONG_DESC = starling integration log collection currently collects fsimage, nnaudit and jobsumm logs
+CUSTODIAN = gdm-dev@yahoo-inc.com https://yahoo.jiveon.com/community/science-technology/hadoop-and-big-data-platform/starling
+PACKAGE_OS_SPECIFIC = no
+SRCDIRS = .
+
+APP_HOME=libexec/starling_integration_log_collection/
+
+YINST bug-product starling
+YINST bug-component General
+
+glob 0755 - - $(APP_HOME)/library/  integration_tools/starling/library/*
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_fsimage_log_collection.sh
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_jobsumm_log_collection.sh
+glob 0755 - - $(APP_HOME)/  integration_tools/starling/starling_nnaudit_log_collection.sh

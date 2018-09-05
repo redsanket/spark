@@ -151,6 +151,7 @@
 									<th class="text-center">HCatalog</th>
 									<th class="text-center">HBase</th> 
 									<th class="text-center">Oozie</th>
+									<th class="text-center">Starling</th>
 									<th class="text-center">Comment</th>
 								</tr>
 				</thead>
@@ -195,6 +196,9 @@
 					String oozieVersion = resultSet.getString("oozieVersion");
 					String oozieResult = resultSet.getString("oozieResult"); 
 					
+					String starlingVersion = resultSet.getString("starlingVersion");
+					String starlingResult = resultSet.getString("starlingResult");
+
 					String comments = resultSet.getString("comments");
 				 %>
 				<tr>
@@ -456,6 +460,27 @@
 										%>			
 						</td>
 						
+						<!--  starling -->
+							<td class="text-center">
+								<%
+									if ( starlingResult.equalsIgnoreCase("fail") ) {
+								%>
+												<%= starlingVersion %>
+			 								<img style="float: center; margin: 0px 0px 10px 10px;" src="./images/cross.png" width="20" title="starling test failed" />
+								<%
+									} else if ( starlingResult.equalsIgnoreCase("pass") ) {
+								%>
+									<%= starlingVersion %>
+									<img style="float: center; margin: 0px 0px 10px 10px;" src="./images/check.png" width="20" title="starling test passed" />
+								<%
+									} if ( starlingResult.equalsIgnoreCase("NULL") ) {
+								%>
+								<%= "starling is not yet started, its run separately" %>
+								<%
+									}
+								%>
+							</td>
+
 						<!-- comment -->
 						<td class="text-center">
 						 		<%

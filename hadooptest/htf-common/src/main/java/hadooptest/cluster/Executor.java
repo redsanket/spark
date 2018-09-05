@@ -265,10 +265,6 @@ public abstract class Executor {
 						TestSessionCore.logger.info("cmd='"
 								+ StringUtils.join(commandArray, " ") + "'");
 					}
-					if ((output != null) && !output.isEmpty()) {
-						TestSessionCore.logger.warn("Captured stdout = '"
-								+ output.trim() + "'");
-					}
 					if ((error != null) && !error.isEmpty()) {
 						TestSessionCore.logger.warn("Captured stderr = '"
 								+ error.trim() + "'");

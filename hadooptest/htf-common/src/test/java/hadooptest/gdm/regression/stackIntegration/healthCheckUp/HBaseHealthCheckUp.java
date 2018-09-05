@@ -1,7 +1,5 @@
 package hadooptest.gdm.regression.stackIntegration.healthCheckUp;
 
-import static com.jayway.restassured.RestAssured.given;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -12,9 +10,13 @@ import hadooptest.cluster.gdm.ConsoleHandle;
 import hadooptest.cluster.gdm.GdmUtils;
 import hadooptest.gdm.regression.stackIntegration.StackComponent;
 import hadooptest.gdm.regression.stackIntegration.lib.CommonFunctions;
+import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 public class HBaseHealthCheckUp implements Callable<StackComponent>{
 	
@@ -38,6 +40,12 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 		this.setCookie(consoleHandle.httpHandle.getBouncerCookie());
 	}
 	
+    public String getJSONResponse(String stringUrl) {
+    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" " + stringUrl;
+    	String output = this.commonFunctionsObj.executeCommand(cmd);
+    	return output;
+    }
+    
 	public String getCookie() {
 		return cookie;
 	}
@@ -95,15 +103,15 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 		String hbaseVersion = null;
 		boolean flag= false;
 		try {
-			String hbaseJmxUrl = "http://" + this.getHbaseMasterHostName() + ":" + this.getHbaseMasterPortNo() + "/jmx?qry=java.lang:type=Runtime"; 
-			com.jayway.restassured.response.Response response = given().cookie(this.getCookie()).get(hbaseJmxUrl);
-			String reponseString = response.getBody().asString();
-			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(reponseString.toString());
+			String hbaseJmxUrl = "https://" + this.getHbaseMasterHostName() + ":" + this.getHbaseMasterPortNo() + "/jmx?qry=java.lang:type=Runtime";
+			String responseString = this.getJSONResponse(hbaseJmxUrl);
+			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(responseString);
 			JSONArray beanJsonArray = obj.getJSONArray("beans");
 			String str = beanJsonArray.getString(0);
 			JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(str.toString());
 			TestSession.logger.info("name  = " +obj1.getString("name") );
 			JSONArray SystemPropertiesJsonArray = obj1.getJSONArray("SystemProperties");
+			
 			if ( SystemPropertiesJsonArray.size() > 0 ) {
 				Iterator iterator = SystemPropertiesJsonArray.iterator();
 				while (iterator.hasNext()) {
@@ -157,12 +165,10 @@ public class HBaseHealthCheckUp implements Callable<StackComponent>{
 			String hbaseMasterPortNo = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterPort").trim();
 			ConsoleHandle consoleHandle = new ConsoleHandle();
 			String cookie  = consoleHandle.httpHandle.getBouncerCookie();
-			String hbaseJmxUrl = "http://" + hbaseMasterHostName + ":" + hbaseMasterPortNo + "/jmx?qry=hadoop:service=Group,name=Group";
-			com.jayway.restassured.response.Response response = given().cookie(cookie).get(hbaseJmxUrl);
-			String reponseString = response.getBody().asString();
-			TestSession.logger.info("reponseString = " + reponseString);
-
-			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(reponseString.toString());
+			
+			String hbaseJmxUrl = "https://" + hbaseMasterHostName + ":" + hbaseMasterPortNo + "/jmx?qry=hadoop:service=Group,name=Group";
+			String responseString = this.getJSONResponse(hbaseJmxUrl);
+			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(responseString);
 			JSONArray beanJsonArray = obj.getJSONArray("beans");
 			String str = beanJsonArray.getString(0);
 			JSONObject obj1 =  (JSONObject) JSONSerializer.toJSON(str.toString());

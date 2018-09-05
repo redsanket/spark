@@ -28,11 +28,14 @@ public class StackComponentAggResult {
 	private DataBaseOperations dataBaseOperations;
 	private java.sql.Connection connection;
 	private String currentPipeLineName;
-	
+	private String clusterName;
+
 	public StackComponentAggResult() {
 		componentsResultMap = new HashMap<String,String>();
 		String pipeLineName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.pipeLineName");
 		this.setCurrentPipeLineName(pipeLineName);
+		String cName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.clusterName");
+		this.setClusterName(cName);
 		java.text.SimpleDateFormat simpleDateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -46,6 +49,14 @@ public class StackComponentAggResult {
 		}
 	}
 	
+	public String getClusterName() {
+		return this.clusterName;
+	}
+
+	public void setClusterName(String currentClusterName) {
+		this.clusterName = currentClusterName;
+	}
+
 	public String getCurrentPipeLineName() {
 		return currentPipeLineName;
 	}
@@ -185,7 +196,8 @@ public class StackComponentAggResult {
 					int count = this.getRecordCount(recordCountQuery);
 
 					TestSession.logger.info("Record count -  " + count);
-					if (count == 0 ) {   
+					TestSession.logger.info("GRIDCI JSON/ YDS DB REPORTING -- PIPELINE_NAME: " + this.getCurrentPipeLineName() );
+					if (this.getCurrentPipeLineName().equalsIgnoreCase("starling") || count == 0 ) {
 						// if record is zero, then you insert the record into DBCommands.FINAL_RESULT_TABLE_NAME from DBCommands.TABLE_NAME 
 						String countQuery = "SELECT * FROM  " + DBCommands.TABLE_NAME   + "  where date  like  "  + "\"" + getCurrentDate() + "\""
 								+ "  and gdmVersion=" + "\"" + this.getGdmVersion() + "\"" + "  and hadoopVersion="  + "\"" + this.getHadoopVersion() + "\""
@@ -345,6 +357,12 @@ public class StackComponentAggResult {
 					String hive_verifyCurrentState = resultSet.getString("hive_verifyCurrentState");
 					String hive_verifyMRJobURL = resultSet.getString("hive_verifyMRJobURL");
 					String hive_verifyComments = resultSet.getString("hive_verifyComments");
+
+					String starlingVersion = resultSet.getString("starlingVersion");
+					String starlingResult = resultSet.getString("starlingResult");
+					String starlingComments = resultSet.getString("starlingComments");
+					String starlingJSONResults = resultSet.getString("starlingJSONResults");
+
 					String comments =  resultSet.getString("comments");
 					String result =  resultSet.getString("result");
                                         String startDateTime =  resultSet.getString("startDateTime");
@@ -374,6 +392,7 @@ public class StackComponentAggResult {
 							pig_abf_input_PageValidNewsResult,pig_abf_input_PageValidNewsCurrentState,pig_abf_input_PageValidNewsMRJobURL,pig_abf_input_PageValidNewsComments,
 							hive_storageResult,hive_storageCurrentState, hive_storageMRJobURL,hive_storageComments,
 							hive_verifyResult,hive_verifyCurrentState,hive_verifyMRJobURL,hive_verifyComments,
+							starlingVersion, starlingResult, starlingComments, starlingJSONResults,
 							comments, result, startDateTime, endDateTime, uniqueId));
 
 					TestSession.logger.info("dataSetName =  " + dataSetName1 + "    result - " + result);
@@ -792,7 +811,7 @@ public class StackComponentAggResult {
 		JSONObject jsonObj = new JSONObject();
 		JSONObject jsonObjTop = new JSONObject();
 
-		String dsName = dataSetName.substring(0, (dataSetName.length() - 4));
+		String dsName = dataSetName.substring(0, (dataSetName.length() - 4)) + "_" + this.getCurrentPipeLineName();
 		jsonObj.put("dataSetName", dsName);
 		jsonObj.put("date" , date);
 		jsonObj.put("hadoopVersion", hadoopVersion);
@@ -885,7 +904,7 @@ public class StackComponentAggResult {
 
 
 		String pipelineName = this.getCurrentPipeLineName();
-		jsonObjTop.put("pipeline", pipelineName);
+		jsonObjTop.put("pipeline", pipelineName + "_" + this.getClusterName());
 		jsonObjTop.put("resultset", jsonObj);
 
 		String absolutePath = new File("").getAbsolutePath();

@@ -17,6 +17,7 @@
 	  <base_url>http://$(CONSOLE_HOST):$(CONSOLE_PORT)</base_url>
 	  <staging_console_url>http://$(STAGING_CONSOLE_HOST):$(STAGING_CONSOLE_PORT)</staging_console_url>
 	  <deployment-suffix-name>$(MY_SUFFIX)</deployment-suffix-name>
+	  <crcValue>$(CRC_VALUE)</crcValue>
 	  <performance-iteration-value>$(NUMBER_OF_ITERATION)</performance-iteration-value>
 	  <stress-noOfDataSets>$(NUMBER_OF_DATASETS)</stress-noOfDataSets>
 	  <stress-noOfinstances>$(NUMBER_OF_INSTANCES_PER_DATASET)</stress-noOfinstances>
@@ -101,6 +102,7 @@
     <TestWatchForDataDrop>
 		<clusterName>$(CLUSTER_NAME)</clusterName>
 		<pipeLineName>$(PIPELINE_NAME)</pipeLineName>
+		<noOfIteration>NO_OF_ITERATION</noOfIteration>
 		<stackComponents>$(STACK_COMPONENT_TEST_LIST)</stackComponents>
 		<duration>$(DURATION)</duration> <!-- duration in days -->
 		<frequency>$(FREQUENCY)</frequency>
@@ -117,6 +119,8 @@
 		<hbaseRegionalServerPort>$(HBASE_REGIONAL_SERVER_PORT)</hbaseRegionalServerPort>
 		<gateWayName>$(GATEWAY_HOST_NAME)</gateWayName>
 		<hiveHostName>${HIVE_HOST_NAME}</hiveHostName>
+		<starlingHostName>$(STARLING_HOST_NAME)</starlingHostName>
+	 <starlingLogTypes>$(STARLING_LOGS_TO_TEST)</starlingLogTypes>
     </TestWatchForDataDrop>
   </testconfig>
   <auth>

@@ -240,7 +240,7 @@ public class HtfTezUtils {
 		String response = printResponseAndReturnItAsString(process);
 		// Response is of the format
 		// Hadoop 2.5.0.3.1408251445
-		// Subversion git@git.corp.yahoo.com:hadoop/Hadoop.git -r
+		// Subversion git@git.ouroath.com:hadoop/Hadoop.git -r
 		// 3afaa2c152b18a45f4314808c9d0dd7af75a4f84
 		// Compiled by hadoopqa on 2014-08-25T21:55Z
 		// Compiled with protoc 2.5.0

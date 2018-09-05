@@ -3,6 +3,8 @@ package hadooptest.gdm.regression.stress;
 import static org.junit.Assert.assertTrue;
 import hadooptest.TestSession;
 import hadooptest.automation.constants.HadooptestConstants;
+import hadooptest.cluster.gdm.ConsoleHandle;
+
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
@@ -42,6 +44,7 @@ public class StressTestingInit   {
 	private String deploymentSuffixName;
 	private String sourceFilePath;
 	private String nameNodeName;
+	private String crcValue;
 	
 	public StressTestingInit() {
 		
@@ -52,7 +55,11 @@ public class StressTestingInit   {
 		this.noOfInstance = noOfInstance;
 		this.noOfFilesInInstance = noOfFilesInInstance;
 		this.nameNodeName = nameNodeName;
-
+		
+		ConsoleHandle consoleHandle = new ConsoleHandle();
+		org.apache.commons.configuration.Configuration configuration = consoleHandle.getConf();
+	        this.crcValue = configuration.getString("hostconfig.console.crcValue").trim();
+		
 		// Populate the details for DFSLOAD
 		HashMap<String, String> fileOwnerUserDetails = new HashMap<String, String>();
 		fileOwnerUserDetails = new HashMap<String, String>();
@@ -140,7 +147,11 @@ public class StressTestingInit   {
 		conf.set("fs.defaultFS", namenodeWithChangedSchemaAndPort);
 		conf.set("dfs.namenode.kerberos.principal", "hdfs/_HOST@DEV.YGRID.YAHOO.COM");
 		conf.set("hadoop.security.authentication", "true");
-		conf.set("dfs.checksum.type" , "CRC32C");
+		if (this.crcValue != null) {
+	            conf.set("dfs.checksum.type" , this.crcValue);
+	        } else {
+	            conf.set("dfs.checksum.type" , "CRC32");
+	        }
 		TestSession.logger.info(conf);
 		return conf;
 	}

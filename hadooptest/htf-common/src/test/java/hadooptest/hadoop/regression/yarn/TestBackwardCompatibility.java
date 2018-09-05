@@ -409,7 +409,19 @@ public class TestBackwardCompatibility extends YarnTestsBaseClass {
 				HadooptestConstants.Schema.HDFS,
 				TestSession.cluster.getClusterName(), dirInHdfs + "/Output1/*");
 
-		String stringToLookFor = "<property><name>mapreduce.job.working.dir</name><value>/tmp</value><source>because mapred.working.dir is deprecated</source><source>job.xml</source></property>";
+		// gridci-2383, property changed in 2.8.1 to include 'final' so need to leave
+		// 2.7 and 2.8.0 as-is but check for 'final' block in 2.8.1 and forward
+		String clusterVersion = TestSession.cluster.getVersion();
+		TestSession.logger.debug("\nHadoop cluster version is: " + clusterVersion);
+		String stringToLookFor;
+		if (clusterVersion.contains("2.8.0") || clusterVersion.contains("2.7."))
+		{
+			stringToLookFor = "<property><name>mapreduce.job.working.dir</name><value>/tmp</value><source>because mapred.working.dir is deprecated</source><source>job.xml</source></property>";
+		}
+		else
+		{
+			stringToLookFor = "<property><name>mapreduce.job.working.dir</name><value>/tmp</value><final>false</final><source>because mapred.working.dir is deprecated</source><source>job.xml</source></property>";
+		}
 		Assert.assertTrue(genericCliResponse.response + " DID NOT CONTAIN "
 				+ stringToLookFor,
 				genericCliResponse.response.contains(stringToLookFor));
