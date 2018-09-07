@@ -38,24 +38,6 @@
 # inputs: cluster being installed
 # outputs: 0 on success
 
-# gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
-# ref jiras JAVAPLATF-2893, JAVAPLATF-2894
-function cp_files {
-  SRC_FILE=$1
-  DEST_FILE=$2
-
-  if [ -f "$DEST_FILE" ]; then
-    echo "Have $DEST_FILE"
-  else
-    echo "No such file $DEST_FILE"
-    sudo cp $SRC_FILE $DEST_FILE
-    if [ $? -ne 0 ]; then
-      echo "Failed to cp $DEST_FILE !"
-    fi
-  fi
-}
-
-
 echo "================= Install KeyManagementService (KMS) and ZooKeeper ================="
 
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -67,6 +49,25 @@ kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 
 CONF_KMS="/home/y/conf/kms"
 CONF_ZK="/home/y/conf/zookeeper"
+
+
+# gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
+# ref jiras JAVAPLATF-2893, JAVAPLATF-2894
+function cp_files {
+  SRC_FILE=$1
+  DEST_FILE=$2
+
+  if [ -f "$DEST_FILE" ]; then
+    echo "Have $DEST_FILE"
+  else
+    echo "No such file $DEST_FILE"
+    $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
+    if [ $? -ne 0 ]; then
+      echo "Failed to cp $DEST_FILE !"
+    fi
+  fi
+}
+
 
 # if kms role is not populated, warn but don't fail to allow for
 # most existing clusters that weren't built with kms support roles,
