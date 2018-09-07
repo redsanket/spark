@@ -57,15 +57,7 @@ function cp_files {
   SRC_FILE=$1
   DEST_FILE=$2
 
-  if [ -f "$DEST_FILE" ]; then
-    echo "Have $DEST_FILE"
-  else
-    echo "No such file $DEST_FILE"
-    $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
-    if [ $? -ne 0 ]; then
-      echo "Failed to cp $DEST_FILE !"
-    fi
-  fi
+  $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
 }
 
 
