@@ -50,6 +50,17 @@ kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 CONF_KMS="/home/y/conf/kms"
 CONF_ZK="/home/y/conf/zookeeper"
 
+
+# gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
+# ref jiras JAVAPLATF-2893, JAVAPLATF-2894
+function cp_files {
+  SRC_FILE=$1
+  DEST_FILE=$2
+
+  $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
+}
+
+
 # if kms role is not populated, warn but don't fail to allow for
 # most existing clusters that weren't built with kms support roles,
 # just continue deployment 
@@ -180,6 +191,17 @@ if [[ "$OS_VER" =~ ^6. ]]; then
 
 elif [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER"
+
+    # gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
+    # ref jiras JAVAPLATF-2893, JAVAPLATF-2894
+    SRC_FILE='/home/y/bin/yjava_daemon'
+    DEST_FILE='/home/y/bin64/yjava_daemon'
+    cp_files $SRC_FILE $DEST_FILE
+
+    SRC_FILE='/home/y/bin/yjava_xml_config'
+    DEST_FILE='/home/y/bin64/yjava_xml_config'
+    cp_files $SRC_FILE $DEST_FILE
+    # gridci-3618, end of workaround 
 
     # all of the yjava_jetty dep pkgs listed here need explicit versions becuase they are too old, built pre-rhel7 support in yinst so yinst
     # reports not found even though they are really there
