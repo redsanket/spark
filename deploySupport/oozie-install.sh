@@ -320,7 +320,6 @@ yinst set ygrid_sharelib.metafile_hdfs_path=hdfs:///tmp/sharelib/v1/conf \
 yinst set ygrid_sharelib.pkg_hadoop=hadoopcoretree-$HADOOP_VERSION \
   ygrid_sharelib.pkg_pig=pig-$PIG_VERSION \
   ygrid_sharelib.pkg_hive=hive-$HIVE_VERSION \
-  ygrid_sharelib.pkg_hcat=hcat_common-$HCAT_VERSION \
   ygrid_sharelib.pkg_ytez=ytez-$TEZ_VERSION \
   ygrid_sharelib.pkg_hbase=hbase-$HBASE_VERSION
 ##
@@ -328,10 +327,6 @@ yinst set ygrid_sharelib.pkg_hadoop=hadoopcoretree-$HADOOP_VERSION \
 ##
 yinst set ygrid_sharelib.oozie_tag_distcp=hdfs:///tmp/ygrid_sharelib_dir/hadoop/hadoopcoretree-$HADOOP_VERSION/share/hadoop/share/hadoop/tools/lib/hadoop-distcp-$HADOOP_VERSION.jar \
   ygrid_sharelib.oozie_tag_streaming=hdfs:///tmp/ygrid_sharelib_dir/hadoop/hadoopcoretree-$HADOOP_VERSION/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-$HADOOP_VERSION.jar
-##
-yinst set ygrid_sharelib.oozie_tag_hcat_current=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hcat_latest=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
-  ygrid_sharelib.oozie_tag_hcat_05=hdfs:///tmp/ygrid_sharelib_dir/hcat/hcat_common-$HCAT_VERSION/libexec/hive/lib,hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib
 ##
 yinst set ygrid_sharelib.oozie_tag_hive_current=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
   ygrid_sharelib.oozie_tag_hive_latest=hdfs:///tmp/ygrid_sharelib_dir/hive/hive-$HIVE_VERSION/libexec/hive/lib \
