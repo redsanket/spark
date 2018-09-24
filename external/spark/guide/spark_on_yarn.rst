@@ -29,9 +29,7 @@ Please subscribe to yspark-users ilist (yspark-users@oath.com) to get announceme
 Installation on the Grids
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The grid gateways will have Spark installed on them in ``/home/gs/spark``. There is a ``latest`` symlink and then a ``current`` symlink. There are also some default spark configs install in ``/home/gs/conf/spark`` with both current and latest symlinks. These will automatically be set for you when you login to a grid gateway via the environment variables below. You can change this from latest to current to change the spark version.
-
-To check the installation of spark on a grid gateway refer :ref: `soy_releases` 
+The grid gateways will have Spark installed on them in ``/home/gs/spark``. There is a ``latest`` symlink and then a ``current`` symlink. There are also some default spark configs install in ``/home/gs/conf/spark`` with both current and latest symlinks. These will automatically be set for you when you login to a grid gateway via the environment variables below. They default to the spark current version. You can change this from current to latest to change the spark version.
 
 To change to use latest you just have to export the following variables:
 
@@ -61,9 +59,9 @@ Self Installation (if you need a version not on the gateway)
 
 The spark on yarn package is here: `yspark_yarn <http://dist.corp.yahoo.com/by-package/yspark_yarn/>`_
 
-If you are running on a gateway you can install this package in the root somewhere. Please always check dist to make sure these are the latest versions. The below versions are built with Scala 2.10, if you need versions built with Scala 2.11 look for the versions with _211 in the name of them (for instance: yspark_yarn-1.5.2.1_2.6.0.16.1506060127_1512101635_211).
+If you are running on a gateway you can install this package in the root somewhere. Please always check dist to make sure these are the latest versions. 
 Also note that the newer versions of Spark conf point to a jar in hdfs. If you do self install a different version you will want to override that or install yspark_yarn_conf package as well.
-To point to your self installed version: For spark 1.6: ``--conf spark.yarn.jar=file:////homes/dashar/testroot/share/spark/lib/spark-assembly.jar``
+To point to your self installed version: 
 
 For spark 2.x: ``--conf spark.yarn.archive=file:///homes/$USERNAME$/testroot/share/spark/yspark-jars-2.0.0.24.tgz``
 
@@ -71,7 +69,7 @@ You can also install yspark_yarn_conf package to get the default set of confs. I
 
 ::
 
-    export SPARK_CONF _DIR=/homes/$USERNAME$/testrootconfs/conf/spark
+    export SPARK_CONF_DIR=/homes/$USERNAME$/testrootconfs/conf/spark
 
 Once you install it locally you need to change ``SPARK_HOME`` to point the install location, for example: ``export SPARK_HOME=/homes/dashar/testroot/share/spark``.
 
@@ -533,17 +531,6 @@ Databricks has created a spark-avro library for easily reading avro data in Spar
 
 .. _soy_avro_till2.2:
 
-Spark version < 2.2
-+++++++++++++++++++
-
-Make sure to choose the library specific to the version of Spark you are using. You can either include it in your pom file and bundle it with your jar or you could also download just the avro jar file and then send it along with your application using the '--jars' option.
-
-http://spark-packages.org/package/databricks/spark-avro
-
-instructions: https://github.com/databricks/spark-avro
-
-.. _soy_avro_2.2+:
-
 Spark version >= 2.2
 ++++++++++++++++++++
 
@@ -659,7 +646,7 @@ Python packages with HUE/Jupyter
 Spark access from Hue
 ---------------------
 
-Yahoo production grids currently are on spark 1.6, sandbox and research (AR/KR/JB/TT/MR is on spark 2.1.
+Yahoo production grids currently are on spark 2.2.
 
 Hue currently supports pyspark and scala. Go to notebooks and select new notebook. Then in the middle of the screen you can choose either Scala or PySpark. Note that access to Hive from Hue is currently not supported, we are working on it.
 

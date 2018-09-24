@@ -24,8 +24,6 @@ Go to http://spark.apache.org/docs/latest/running-on-yarn.html and see the "Debu
 - add ``--files ~/log4j.properties``
 - for spark-shell in client mode if you want to see message on the driver you can set with ``sc.setLogLevel("DEBUG")``
 
-Old method to pick up * export SPARK_LOG4J_CONF=conf/log4j.properties
-
 .. _dbg_tuning:
 
 Tuning and Monitoring

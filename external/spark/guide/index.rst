@@ -40,17 +40,11 @@ steps:
 Getting Help
 ============
 
-General Questions
+General Questions and Announcements
 -----------------
 
-- spark-users@oath.com
-
-Support
--------
-
-- spark-devel@oath.com
-
-You could also reach out on the slack channel for spark - `#spark-users`
+- yspark-users@oath.com
+- You could also reach out on the slack channel for spark - `#spark-users`
 
 Filing Jira Tickets
 -------------------

@@ -2,7 +2,7 @@
 
 Using PySpark with Python
 =========================
- This section details the information required to run PySpark with Python 2.7, Python 3.5, Python 3.6 Anaconda, Ipython, Hive and Pypy.
+ This section details the information required to run PySpark with Python 2.7, Python 3.6, Anaconda, Ipython, Hive and Pypy.
 
 .. _swp_grid_python:
 
@@ -23,8 +23,6 @@ For example:
 ::
 
   $SPARK_HOME/bin/pyspark  --master yarn --deploy-mode client  --conf spark.yarn.pythonZip=hdfs:///sharelib/v1/python27/python27.tgz
-
-Also note that if you have your customer python archive you can still ship it the same way you were with spark 2.1
 
 .. _swp_grid_python_spark2.1:
 
@@ -75,20 +73,20 @@ PySpark cluster mode 2.7:
 Overriding python with Jupyter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here is an example using the python 3.6 version, you can change to the 2.7 version as well.
+Spark with Jupyter currently automatically ships with Python 3.6, if you want to change it to 2.7 or another version self installed you can:
 
 .. code-block:: console
 
   %%configure -f
   {
-     “archives”: [“hdfs:///sharelib/v1/python36/python36.tgz#python36”],
+     “archives”: [“hdfs:///sharelib/v1/python27/python27.tgz#python27”],
      “conf”:
      {
-         “spark.pyspark.python” : “./python36/bin/python3.6",
-         “spark.executorEnv.LD_LIBRARY_PATH” : “./python36/lib”,
-         “spark.yarn.appMasterEnv.LD_LIBRARY_PATH” : “./python36/lib”,
-         “spark.yarn.appMasterEnv.PYSPARK_PYTHON” : “./python36/bin/python3.6",
-         “spark.pyspark.driver.python” : “./python36/bin/python3.6"
+         “spark.pyspark.python” : “./python27/bin/python2.7",
+         “spark.executorEnv.LD_LIBRARY_PATH” : “./python27/lib”,
+         “spark.yarn.appMasterEnv.LD_LIBRARY_PATH” : “./python27/lib”,
+         “spark.yarn.appMasterEnv.PYSPARK_PYTHON” : “./python27/bin/python2.7",
+         “spark.pyspark.driver.python” : “./python27/bin/python2.7"
      }
   }
 
@@ -204,214 +202,10 @@ Client Mode:
     --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10 \
   sample_spark.py
 
-**Spark 2.0.x and older**
-
-- Cluster Mode:
-
-  - Add the PYSPARK_PYTHON env variables
-
-    - --conf spark.executorEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python
-    - --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python
-
-  - Add the --archives option to specify the Python2.zip be distributed with your application and put into a directory path named Python2.7.10
-
-    - --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10
-
-For Example:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode cluster \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.executorEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python \
-    --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python \
-    --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10 \
-  sample_spark.py
-
-- Client Mode:
-
-  - You need Python locally as well so you have to unzip Python.zip and point to it (assuming you are in /homes/YOURUSER)
-
-    - mkdir Python2.7.10; cd Python2.7.10
-    - hadoop fs -get Python2.zip
-    - unzip Python2.zip
-
-  - cd /homes/YOURUSERID (or wherever ./Python2.7.10 would be)
-  - export PYSPARK_PYTHON=./Python2.7.10/bin/python
-  - Add the PYSPARK_PYTHON env variables to executors
-
-    - --conf spark.executorEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python
-
-  - Add the --archives option to specify the Python2.zip be distributed with your application and put into a directory path named Python2.7.10
-
-    - --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode client \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.executorEnv.PYSPARK_PYTHON=./Python2.7.10/bin/python \
-    --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10 \
-  sample_spark.py
-
-.. _swp_manual_python3.5:
-
-Python 3.5
-~~~~~~~~~~
-
-
-required by some of the ML python libraries
-
-You can grab a working Python 3.5 zip file that has python3.5, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
-If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: 
-:ref:`swp_addon_packages`
-
-- Get Python3.zip:
-
-.. code-block:: console
-
-  mkdir tmpfetch; cd tmpfetch
-  yinst fetch yspark_yarn_python-3.5.3.2 -br current (choose whichever is the desired version)
-  tar -zxvf yspark_yarn_python-*.tgz share/spark_python/__spark_python.zip
-  hadoop fs -put share/spark_python/__spark_python.zip Python3.zip # (puts into hdfs:///user/YOURUSER/Python3.zip)
-  cd ../; rm -r tmpfetch
-
-Running:
-
-.. note:: Spark > 2.1 has added new configuration parameters "spark.pyspark.driver.python" and "spark.pyspark.python" to be used instead of the environment variables "PYSPARK_DRIVER_PYTHON" and "PYSPARK_PYTHON" respectively.
-
-**Spark > 2.1:**
-
-- Cluster Mode:
-
-  - Add the spark.pyspark.python and spark.driver.pyspark.python config parameters
-
-    - --conf spark.pyspark.driver.python=./Python3/bin/python3
-    - --conf spark.pyspark.python=./Python3/bin/python3
-
-  - Add the --archives option to specify the Python3.zip be distributed with your application and put into a directory path named Python3
-
-    - --archives hdfs:///user/YOURUSERID/Python3.zip#Python3
-
-For Example:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode cluster \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.pyspark.driver.python=./Python3/bin/python3 \
-    --conf spark.pyspark.python=./Python3/bin/python3 \
-    --archives hdfs:///user/YOURUSERID/Python3.zip#Python3 \
-  sample_spark.py
-
-
-- Client Mode:
-
-  - You need Python locally as well so you have to unzip Python.zip and point to it (assuming you are in /homes/YOURUSER)
-
-    - mkdir Python3; cd Python3
-    - hadoop fs -get Python3.zip
-    - unzip Python3.zip
-
-  - cd /homes/YOURUSERID (or wherever ./Python3 would be)
-  - Add the spark.pyspark.python and spark.driver.pyspark.python config parameters
-
-    - --conf spark.pyspark.driver.python=/homes/YOURUSERID/Python3/bin/python3
-    - --conf spark.pyspark.python=./Python3/bin/python3
-
-  - Add the --archives option to specify the Python3.zip be distributed with your application and put into a directory path named Python3
-
-    - --archives hdfs:///user/YOURUSERID/Python3.zip#Python3
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode client \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.pyspark.driver.python=/homes/YOURUSERID/Python3/bin/python3 \
-    --conf spark.pyspark.python=./Python3/bin/python3 \
-    --archives hdfs:///user/YOURUSERID/Python3.zip#Python3 \
-  sample_spark.py
-
-**Spark 2.0.x and older:**
-
-- Cluster Mode:
-
-  - Add the PYSPARK_PYTHON env variables
-
-    - --conf spark.executorEnv.PYSPARK_PYTHON=./Python3/bin/python3
-    - --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./Python3/bin/python3
-
-  - Add the --archives option to specify the Python3.zip be distributed with your application and put into a directory path named Python3
-
-    - --archives hdfs:///user/YOURUSERID/Python3.zip#Python3
-
-For Example:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode cluster \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.executorEnv.PYSPARK_PYTHON=./Python3/bin/python3 \
-    --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./Python3/bin/python3 \
-    --archives hdfs:///user/YOURUSERID/Python3.zip#Python3 \
-  sample_spark.py
-
-- Client Mode:
-
-  - You need Python locally as well so you have to unzip Python.zip and point to it (assuming you are in /homes/YOURUSER)
-
-    - mkdir Python3; cd Python3
-    - hadoop fs -get Python3.zip
-    - unzip Python3.zip
-
-  - cd /homes/YOURUSERID (or wherever ./Python3 would be)
-  - export PYSPARK_PYTHON=./Python3/bin/python3
-  - Add the PYSPARK_PYTHON env variables to executors
-
-    - --conf spark.executorEnv.PYSPARK_PYTHON=./Python3/bin/python3
-
-  - Add the --archives option to specify the Python3.zip be distributed with your application and put into a directory path named Python3
-
-    - --archives hdfs:///user/YOURUSERID/Python3.zip#Python3
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit \
-    --master yarn \
-    --deploy-mode client \
-    --queue default \
-    --num-executors 10 \
-    --driver-memory 2G \
-    --conf spark.executorEnv.PYSPARK_PYTHON=./Python3/bin/python3 \
-    --archives hdfs:///user/YOURUSERID/Python3.zip#Python3 \
-  sample_spark.py
-
 .. _swp_anaconda:
 
 PySpark + Anaconda 
 ------------------
-
-This is for additional python packages like numpy,scipy,pandas,scikit-learn, etc.
 
 These are instructions for you to package and and use anaconda with pyspark. This in general is not recommend as anaconda is huge, you are better off to use python and just the packages you require.
 
