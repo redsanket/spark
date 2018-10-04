@@ -74,7 +74,7 @@ cd deploySupport
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
 echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tag '$HADOOP_RELEASE_TAG'."
-cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300"
+cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
