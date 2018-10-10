@@ -182,7 +182,7 @@ OS_VER=`$SSH $kmsnode "cat /etc/redhat-release | cut -d' ' -f7"`
 if [[ "$OS_VER" =~ ^6. ]]; then
     echo "INFO: OS is $OS_VER"
 
-    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_801 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade   -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
+    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_801 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade -set yjava_jetty.enable_https=true -set yjava_jetty.https_port=4443 -set yjava_jetty.http_port=-1 -set yjava_jetty.requestLog_asyncWrite=false -set yjava_jetty.remote_ip_global_url_pattern=/ -set yjava_jetty.dnt_filter_url_pattern=/ -set  yjava_jetty.cookie_data_global_url_pattern=/ -set yjava_jetty.yhdrs_global_url_pattern=/ \
   -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
   -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
