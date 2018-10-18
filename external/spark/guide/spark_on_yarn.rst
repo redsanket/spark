@@ -536,6 +536,8 @@ Spark version >= 2.2
 
 Starting with Spark 2.2 we are including the spark-avro jar with the yspark distribution.  So all you have to do is reference it from the code.
 
+Note: The configuration setting spark.sql.files.maxPartitionBytes is not always honoured by spark-avro. It only works when the size of the avro file to be read is large enough. For small files, you have to set the value of the setting spark.sql.files.openCostInBytes greater than spark.sql.files.maxPartitionBytes in order to make it work.
++++++
 .. _soy_avro_example:
 
 Example
