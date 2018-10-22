@@ -81,7 +81,7 @@ public class TestPreserveEmptyFolder {
 			workFlowHelper.workflowPassed(dsName, "retention", "20180701");
 			hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue);
 
-			Assert.assertFalse(path + "=%{date}", hadoopFileSystemHelperTarget.exists(path + "=%{date}"));
+			Assert.assertFalse(path + "=%{date}" + " does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(path + "=%{date}"));
 
 			Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue));
 			tearDown(dsName);
@@ -95,7 +95,7 @@ public class TestPreserveEmptyFolder {
 			this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
 			workFlowHelper.workflowPassed(dsName, "retention", "20180701");
 
-			Assert.assertFalse(path + "/%{date}", hadoopFileSystemHelperTarget.exists(path + "/%{date}"));
+			Assert.assertFalse(path + "/%{date}" + " does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(path + "/%{date}"));
 
 			Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameDefaultPath + "exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameDefaultPath));
 			tearDown(dsName);
