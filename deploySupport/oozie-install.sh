@@ -224,6 +224,9 @@ yinst set yjava_jetty.PATH="/bin:/sbin:/usr/bin:/usr/sbin:/home/y/bin:/home/y/sb
   yjava_jetty.https_compression_min_size=1000 \
   yjava_jetty.enable_spdy=true \
   yjava_jetty.spdyPort=4443 \
+  yjava_jetty.https_port=4443 \
+  yjava_jetty.enable_https=true \
+  yjava_jetty.enable_ssl_reload=true \
   yjava_jetty.key_file=/home/y/conf/yjava_jetty/ssl.key/server.key \
   yjava_jetty.crt_file=/home/y/conf/yjava_jetty/ssl.crt/server.crt
 
