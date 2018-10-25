@@ -30,10 +30,17 @@ ssh  $jobtrackernode su - $MAPREDUSER
     # Setup cgroups on the worker nodes
     tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
     (
-        echo "for i in \$(grep ^cgroup /proc/mounts | awk '{print \$2}'); do"
-        echo "  mkdir -p \$i/hadoop-yarn"
-        echo "  chown $MAPREDUSER:hadoop \$i/hadoop-yarn"
-        echo "done"
+        echo "mkdir -p /cgroup/cpu"
+        echo "if [[ \$(uname -r) =~ ^2\\. ]] && ! mountpoint -q /cgroup/cpu; then"
+        echo "  mount -t cgroup -o cpu none /cgroup/cpu"
+        echo "  mkdir /cgroup/cpu/hadoop-yarn"
+        echo "  chown $MAPREDUSER:hadoop /cgroup/cpu/hadoop-yarn"
+        echo "else"
+        echo "  for i in \$(grep ^cgroup /proc/mounts | awk '{print \$2}'); do"
+        echo "    mkdir -p \$i/hadoop-yarn"
+        echo "    chown $MAPREDUSER:hadoop \$i/hadoop-yarn"
+        echo "  done"
+        echo "fi"
     ) > $tmpsetupfile
 
     fanoutcmd "scp $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
