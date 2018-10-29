@@ -171,7 +171,7 @@ fi
 #
 # need to fix versions for jports_org_json__json-1.20090211_1  ysysctl-2.2.3
 # yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.11
-# yjava_jetty-9.3.24.v20180605_801 and yhdrs-1.28.5, lots of
+# yjava_jetty-9.3.24.v20180605_806 and yhdrs-1.28.5, lots of
 # dep breakage on 20171127
 #
 #
@@ -182,7 +182,7 @@ OS_VER=`$SSH $kmsnode "cat /etc/redhat-release | cut -d' ' -f7"`
 if [[ "$OS_VER" =~ ^6. ]]; then
     echo "INFO: OS is $OS_VER"
 
-    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_801 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade -set yjava_jetty.enable_https=true -set yjava_jetty.https_port=4443 -set yjava_jetty.http_port=-1 -set yjava_jetty.requestLog_asyncWrite=false -set yjava_jetty.remote_ip_global_url_pattern=/ -set yjava_jetty.dnt_filter_url_pattern=/ -set  yjava_jetty.cookie_data_global_url_pattern=/ -set yjava_jetty.yhdrs_global_url_pattern=/ \
+    cmd_jetty="yjava_jetty-9.3.24.v20180605_806 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade -set yjava_jetty.enable_https=true -set yjava_jetty.https_port=4443 -set yjava_jetty.http_port=-1 -set yjava_jetty.requestLog_asyncWrite=false -set yjava_jetty.remote_ip_global_url_pattern=/ -set yjava_jetty.dnt_filter_url_pattern=/ -set  yjava_jetty.cookie_data_global_url_pattern=/ -set yjava_jetty.yhdrs_global_url_pattern=/ \
   -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
   -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
   -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
@@ -205,7 +205,7 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
 
     # all of the yjava_jetty dep pkgs listed here need explicit versions becuase they are too old, built pre-rhel7 support in yinst so yinst
     # reports not found even though they are really there
-    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_801 yjava_jmx_singleton_server-1.0.0 yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.10  \
+    cmd_jetty="yjava_jetty-9.3.24.v20180605_806 yjava_jmx_singleton_server-1.0.0 yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.10  \
       yjava_resource_handler-1.0.21 ysysctl-2.2.3  jports_org_json__json-1.20090211_1 -br test  -same -live -downgrade \
       -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
       -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
