@@ -432,40 +432,58 @@ public class CommonFunctions {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
+				TestSession.logger.info("mjaglan hive - 1");
 				testIntHive = new TestIntHive(hiveStackComponent, hiveStackComponent.getHostName(), nNodeName,
 						hiveStackComponent.getScriptLocation(), this.getClusterName());
+				TestSession.logger.info("mjaglan hive - 2");
 				testList.add(testIntHive);
+				TestSession.logger.info("mjaglan hive - 3");
 			}
 		}
-
+		TestSession.logger.info("mjaglan hive/ hbase - 0");
 		if (currentStackTestComponent.contains("hbase")) {
+			TestSession.logger.info("mjaglan hbase - 1");
 			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
+			TestSession.logger.info("mjaglan hbase - 2");
 			Callable<String> testHbaseComponent = null;
+			TestSession.logger.info("mjaglan hbase - 3");
 			if (hbaseStackComponent != null) {
+				TestSession.logger.info("mjaglan hbase - 4");
 				TestSession.logger.info("hbase hostname  = " + hbaseStackComponent.getHostName()
 						+ "  hbaseStackComponent = " + hbaseStackComponent.toString() + "  script location = "
 						+ hbaseStackComponent.getScriptLocation());
+				TestSession.logger.info("mjaglan hbase - 5");
 				testHbaseComponent = new TestIntHBase(hbaseStackComponent, nNodeName, this.getClusterName());
+				TestSession.logger.info("mjaglan hbase - 6");
 				testList.add(testHbaseComponent);
+				TestSession.logger.info("mjaglan hbase - 7");
 			}
 		}
-
+		TestSession.logger.info("mjaglan hbase/ oozie - 0");
 		if (currentStackTestComponent.contains("oozie")) {
+			TestSession.logger.info("mjaglan oozie - 1");
 			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
+			TestSession.logger.info("mjaglan oozie - 2");
 			Callable<String> testIntOozie = null;
 			if (oozieStackComponent != null) {
+				TestSession.logger.info("mjaglan oozie - 3");
 				try {
 					org.apache.hadoop.conf.Configuration configuration = this.getNameConfForRemoteFS(nNodeName);
+					TestSession.logger.info("mjaglan oozie - 4");
 					testIntOozie = new TestIntOozie(oozieStackComponent, oozieStackComponent.getHostName(),
 							configuration);
+					TestSession.logger.info("mjaglan oozie - 5");
 					testList.add(testIntOozie);
+					TestSession.logger.info("mjaglan oozie - 6");
 				} catch (IOException e) {
 					TestSession.logger.error("Failed to create configuration " + e);
 					e.printStackTrace();
 				}
+				TestSession.logger.info("mjaglan oozie - 7");
 			}
 		}
-
+		TestSession.logger.info("mjaglan oozie/ starling - 0");
+		
 		if (currentStackTestComponent.contains("starling")) {
 			StackComponent starlingStackComponent = stackComponentMap.get("starling");
 			Callable<String> testStarlingComponent = null;
