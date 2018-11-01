@@ -45,7 +45,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 		this.stackComponent.setStackComponentName(COMPONENT_NAME);
 		this.stackComponent.setHostName(this.getHostName());
 		this.stackComponent.setDataSetName(this.commonFunctionsObj.getDataSetName());
-		String query = "http://" + this.getHostName() + QUERY;
+		String query = "https://" + this.getHostName() + QUERY;
 		TestSession.logger.info("query = " + query);
 		this.executeRestQuery(query);
 		return this.stackComponent;
