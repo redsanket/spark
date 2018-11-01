@@ -51,17 +51,28 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 		return this.stackComponent;
 	}
 	
+    public String getJSONResponse(String stringUrl) {
+    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" " + stringUrl;
+    	String output = this.commonFunctionsObj.executeCommand(cmd);
+    	return output;
+    }
+	
 	public void executeRestQuery(String query) {
 		String currentDataSet = this.stackComponent.getDataSetName(); 
 		TestSession.logger.info("____________________________________________________________________________________________________");
 		try {
-			com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctionsObj.getCookie()).get(query);
-			TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-		if (response.getStatusCode() == 200) {
-			JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
-			String oozieVersion = jsonPath.getString("buildVersion");
+//			com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctionsObj.getCookie()).get(query);
+//			TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
+//		if (response.getStatusCode() == 200) {
+			String responseString = this.getJSONResponse(query);
+			JSONObject obj =  (JSONObject) JSONSerializer.toJSON(responseString);
+			String oozieVersion = obj.getString("buildVersion");
+		// TODO: check zero value in the valid json response?
+		if (true) {
+//			JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
+//			String oozieVersion = jsonPath.getString("buildVersion");
 			this.stackComponent.setHealth(true);
-			
+
 			// since webservice dn't give the full version (timestamp is missing ). 
 			String command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  " + this.getHostName() + "   \"yinst ls | grep oozie | head -1 | cut -d\'-\' -f2 \"";
 			TestSession.logger.info("command - " + command);
