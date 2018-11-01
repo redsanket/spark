@@ -24,7 +24,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	private CommonFunctions commonFunctionsObj;
 	private final String COMPONENT_NAME = "oozie";
 	private final String kINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
-	private final static String QUERY = ":4080/oozie/v1/admin/build-version";
+	private final static String QUERY = ":4443/oozie/v1/admin/build-version";
 
 	public OozieHealthCheckUp(String hostName) {
 		this.setHostName(hostName);
