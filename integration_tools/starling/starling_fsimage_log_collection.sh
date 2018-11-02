@@ -11,8 +11,11 @@ LOGTYPE="fsimage"
 LOGPATH="/grid/0/hadoop/var/hdfs/name/current/"
 GRIDNAME=`hostname | cut -d . -f 1 | cut -d '/' -f 3`
 
-DAYS=0
-echo "`date +%FT%T` info: Collecting fsimage logs for today and ${DAYS} days prior to today"
+#back fill date should be YYYY-MM-DD
+BACKFILLDATE=${1:-`date +%F -d "0 days"`}
+#days should be a number
+DAYS=${2:-0}
+echo "`date +%FT%T` info: Collecting fsimage logs for ${BACKFILLDATE} and ${DAYS} days prior to today"
 
 fsimage_ctime=`stat -c %Y ${LOGPATH}VERSION`
 if [ ! -z "$fsimage_ctime" ] ; then
@@ -20,7 +23,7 @@ if [ ! -z "$fsimage_ctime" ] ; then
     if [ $((now-fsimage_ctime)) -gt 3600 ] ; then
         echo "`date +%FT%T` info: +++$+++"
         while [ ${DAYS} -ge 0 ]; do
-            read STARTDATE ENDDATE < <(get_dates ${DAYS})
+            read STARTDATE ENDDATE < <(get_backfill_dates ${BACKFILLDATE} ${DAYS})
             fsimage_files=`find ${LOGPATH} -type f -newermt ${STARTDATE} ! -newermt ${ENDDATE} | grep -E "fsimage_[0-9]*" | grep -v "md5" | rev | cut -d / -f 1 | rev`
             if [[ -z $fsimage_files ]]; then
                 echo "`date +%FT%T` info: skipping.. no fsimage files present on ${STARTDATE}"

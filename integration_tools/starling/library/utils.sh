@@ -17,6 +17,19 @@ function get_dates(){
     echo "${STARTDATE} ${ENDDATE}"
 }
 
+function get_backfill_dates(){
+    BACKFILLDATE=$1
+    DAYS=$2
+    if [ ${DAYS} -eq 0 ]; then
+        ENDDATE=`date +%F -d "${BACKFILLDATE} + $((${DAYS} + 1)) days"`
+    else
+        ENDDATE=`date +%F -d "${BACKFILLDATE} - $((${DAYS} - 1)) days"`
+    fi
+    STARTDATE=`date +%F -d "${BACKFILLDATE} - ${DAYS} days"`
+    echo "${STARTDATE} ${ENDDATE}"
+}
+
+
 function create_folder(){
     dest_pfx=$1
     $HDFS dfs -test -d ${dest_pfx} || $HDFS dfs -Dfs.permissions.umask-mode=027 -mkdir -p ${dest_pfx}
