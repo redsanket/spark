@@ -432,15 +432,12 @@ public class CommonFunctions {
 			StackComponent hiveStackComponent = stackComponentMap.get("hive");
 			Callable<String> testIntHive = null;
 			if (hiveStackComponent != null) {
-				TestSession.logger.info("mjaglan hive - 1");
 				testIntHive = new TestIntHive(hiveStackComponent, hiveStackComponent.getHostName(), nNodeName,
 						hiveStackComponent.getScriptLocation(), this.getClusterName());
-				TestSession.logger.info("mjaglan hive - 2");
 				testList.add(testIntHive);
-				TestSession.logger.info("mjaglan hive - 3");
 			}
 		}
-		TestSession.logger.info("mjaglan hive/ hbase - 0");
+		TestSession.logger.info("mjaglan hbase - 0");
 		if (currentStackTestComponent.contains("hbase")) {
 			TestSession.logger.info("mjaglan hbase - 1");
 			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
@@ -459,7 +456,7 @@ public class CommonFunctions {
 				TestSession.logger.info("mjaglan hbase - 7");
 			}
 		}
-		TestSession.logger.info("mjaglan hbase/ oozie - 0");
+		TestSession.logger.info("mjaglan oozie - 0");
 		if (currentStackTestComponent.contains("oozie")) {
 			TestSession.logger.info("mjaglan oozie - 1");
 			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
@@ -482,7 +479,7 @@ public class CommonFunctions {
 				TestSession.logger.info("mjaglan oozie - 7");
 			}
 		}
-		TestSession.logger.info("mjaglan oozie/ starling - 0");
+		TestSession.logger.info("mjaglan starling - 0");
 		
 		if (currentStackTestComponent.contains("starling")) {
 			StackComponent starlingStackComponent = stackComponentMap.get("starling");
