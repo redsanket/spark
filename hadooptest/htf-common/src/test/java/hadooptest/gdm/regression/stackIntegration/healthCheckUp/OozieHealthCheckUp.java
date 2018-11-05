@@ -52,7 +52,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	}
 	
     public String getJSONResponse(String stringUrl) {
-    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" " + stringUrl;
+    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" --negotiate -u : --cacert /home/y/conf/ygrid_cacert/ca-cert.pem " + stringUrl;
     	String output = this.commonFunctionsObj.executeCommand(cmd);
     	return output;
     }
