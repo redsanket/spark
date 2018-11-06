@@ -200,27 +200,26 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
     
     public String getResult() {
         String status =  null;
+
         String query = "https://" + this.getHostName() + ":4443/oozie/v1/job/" + this.getOozieJobID();
         TestSession.logger.info("oozie query = " + query);
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        if (response != null) {
-            JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
-            status = jsonPath.getString("status");
-            
+        JSONObject oozieJsonResult =  pollOozieJobResult(query);
+
+        if (oozieJsonResult != null) {
+            status = oozieJsonResult.getString("status");
+            TestSession.logger.info("oozie job status = " + status);
+
             while ( status.indexOf("RUNNING") > -1) {
-                jsonPath = pollOozieJobResult();
-                String result = jsonPath.prettyPrint();
-                TestSession.logger.info("result = " + result);
-                JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
+                oozieJsonResult =  pollOozieJobResult(query);
                 status = walkToOozieResponseAndUpdateResult(oozieJsonResult);
+
                 if (status != null) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    status = jsonPath.getString("status");
+                    status = oozieJsonResult.getString("status");
                     if (! (status.indexOf("RUNNING") > -1)   ) {
                         break;
                     }
@@ -268,12 +267,10 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         return status;
     }
 
-    private JsonPath pollOozieJobResult() {
-        String query = "https://" + this.getHostName() + ":4443/oozie/v1/job/" + this.getOozieJobID();
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
-        return jsonPath;
+    private JSONObject pollOozieJobResult(String query) {
+        String responseString = this.getJSONResponse(query);
+        JSONObject response =  (JSONObject) JSONSerializer.toJSON(responseString);
+        return response;
     }
     
     /**
