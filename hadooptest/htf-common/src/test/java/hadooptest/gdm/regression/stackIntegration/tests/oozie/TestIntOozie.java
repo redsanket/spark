@@ -160,7 +160,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         String currentHR = getCurrentHr();
         boolean oozieResult = false;
 
-        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.OOZIE_ENV_EXPORT_COMMAND + ";" + this.DFSLOAD_KINIT_COMMAND + ";"  +  OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "http://" + this.getHostName() + ":4080/oozie -auth kerberos"   + " \"";
+        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.OOZIE_ENV_EXPORT_COMMAND + ";" + this.DFSLOAD_KINIT_COMMAND + ";"  +  OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "https://" + this.getHostName() + ":4443/oozie -auth kerberos"   + " \"";
         String tempOozieJobID = this.commonFunctions.executeCommand(oozieCommand);
         if (tempOozieJobID == null) {
             this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
@@ -192,9 +192,15 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         return "" + oozieResult;
     }
     
+    public String getJSONResponse(String stringUrl) {
+    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" --negotiate -u : --cacert /home/y/conf/ygrid_cacert/ca-cert.pem " + stringUrl;
+    	String output = this.commonFunctions.executeCommand(cmd);
+    	return output;
+    }
+    
     public String getResult() {
         String status =  null;
-        String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
+        String query = "https://" + this.getHostName() + ":4443/oozie/v1/job/" + this.getOozieJobID();
         TestSession.logger.info("oozie query = " + query);
         com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
         TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
@@ -263,7 +269,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
     }
 
     private JsonPath pollOozieJobResult() {
-        String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
+        String query = "https://" + this.getHostName() + ":4443/oozie/v1/job/" + this.getOozieJobID();
         com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
         TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
         JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
