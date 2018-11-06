@@ -38,6 +38,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
     private String currentJobName;
     org.apache.hadoop.conf.Configuration configuration;
     private CommonFunctions commonFunctions;
+    private final static String OOZIE_ENV_EXPORT_COMMAND = "export OOZIE_SSL_ENABLE=true;export OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks";
     private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
     private final static String DFSLOAD_KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
     private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
@@ -159,7 +160,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         String currentHR = getCurrentHr();
         boolean oozieResult = false;
 
-        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.DFSLOAD_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "http://" + this.getHostName() + ":4080/oozie -auth kerberos"   + " \"";
+        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.OOZIE_ENV_EXPORT_COMMAND + ";" + this.DFSLOAD_KINIT_COMMAND + ";"  +  OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "http://" + this.getHostName() + ":4080/oozie -auth kerberos"   + " \"";
         String tempOozieJobID = this.commonFunctions.executeCommand(oozieCommand);
         if (tempOozieJobID == null) {
             this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
