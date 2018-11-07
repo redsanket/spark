@@ -80,7 +80,7 @@ public class TestHBaseCreateTable {
 		this.commonFunctions.updateDB(currentDataSet, "hbaseCreateTableCurrentState", "RUNNING");
 		TestSession.logger.info("path = " + this.getPath() + "   knit = " + this.getKinitCommand()  + "  script location =   " + this.getScriptPath());
 		boolean hbaseTableCreated = false;
-		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getScriptPath() + "/createHBaseIntegrationTable_temp.txt\"";
+		String command = "ssh " + this.getHostName() + "  \"" +  this.getPath() + ";"  + this.getKinitCommand() + ";/home/y/libexec/hbase/bin/hbase shell " + this.getScriptPath() + "/createHBaseIntegrationTable_temp.txt\"";
 		String output = this.commonFunctions.executeCommand(command);
 		if ( output != null ) {
 			List<String> creatTableLogOuputList = Arrays.asList(output.split("\n"));
