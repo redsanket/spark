@@ -125,7 +125,7 @@ echo "Creating path \"/tmp/sharelib/v1/conf\""
 # 0.23 hadoop)
 #
 set -x
-yinst i ygrid_cacert 
+yinst i ygrid_cacert-2.1.1 -downgrade -live
 
 # gridci-2227, needed for oozie webui change to https/4443, NOTE this will prompt
 # for passwd since it's a keyed pkg, per oozie team, pkg should be manually installed so if 
@@ -198,13 +198,13 @@ if [ $? -ne 0 ]; then
 fi
 
 ##
-# Install oozie_client and ygrid_cacert on gateway
+# Install oozie_client and ygrid_cacert-2.1.1 on gateway
 ##
-$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert"
+$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert-2.1.1 -downgrade -live"
 RC=$?
 
 if [ $RC -ne 0 ]; then
-  echo "ERROR: Failed to install oozie_client and ygrid_cacert on the gateway - $OOZIE_GW_NODE"
+  echo "ERROR: Failed to install oozie_client and ygrid_cacert-2.1.1 on the gateway - $OOZIE_GW_NODE"
 fi
 
 #
