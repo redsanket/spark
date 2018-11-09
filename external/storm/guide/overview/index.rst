@@ -58,7 +58,7 @@ offers the following benefits:
   | **Scenario**                   | **Built-In Tolerance**                                                                |
   +================================+=======================================================================================+
   | Worker Dies                    | - Either Supervisor will restart it.                                                  |
-  |                                | - If it fails on startup, then Nimbus will reassign task to another node.             |
+  |                                | - If it fails on startup, then Nimbus will reassign the task to another worker.           |
   +--------------------------------+---------------------------------------------------------------------------------------+
   | Node Dies                      | The task on the node will time out and be assigned to new nodes by Nimbus.            |
   +--------------------------------+---------------------------------------------------------------------------------------+
@@ -71,6 +71,8 @@ offers the following benefits:
   |                                |   can manually fail over to new hardware. Topologies will not be rescheduled during   |
   |                                |   this time and the UI will not function, but the supervisors and workers will still  |
   |                                |   function.                                                                           |
+  |                                | - Note that Storm 1.0 introduces high availability nimbus, so there will be no single |
+  |                                |   point failture starting from 1.0.                                                    |
   +--------------------------------+---------------------------------------------------------------------------------------+
 
 
@@ -105,32 +107,24 @@ Internal Use
 
 - **Slingstone** - The owned and operated content is analyzed/categorized and further 
   streamed to other serving systems using Storm and HBase.
-- **Content Agility** - `SIPPER <http://developer.corp.yahoo.com/product/SIPPER>`_ is the inline processing 
-  engine to process the Ingested content through HBase, CMS, etc., in parallel to 
-  `TIPSY <http://developer.corp.yahoo.com/product/Tipsy>`_ (Batch Layer).
-- **RMX/NGD** -  The RMX Fast Feedback Loop will be a new data pipeline (in addition to current Hadoop 
+- **RMX/NGD** -  The RMX Fast Feedback Loop in a data pipeline (in addition to current Hadoop 
   pipeline), and enables campaign budgets to be adjusted within ``n`` minutes.
 - **Ads and Data** - A low latency, real-time, or near real-time reporting platform built on top of a stream, low latency data 
   processing solution that perpetually transforms and aggregates data. 
 - **Sponsored Search** - Migrating stream pipeline for search to Storm. Getting search events from DH 
   Rainbow, do some in-memory calculation and push the results to HTTP servers.
-- **Flickr** - Flickr is auto tagging the photos using the deep machine learning algorithm. Storm 
+- **Tripod** - Tripod is auto tagging the photos using the deep machine learning algorithm. Storm 
   reads data from Redis server and processes them in real time. The results are written 
   to the Vespa for search and Sherpa to store auto-tags.
 - **Search (Commerce/Shopping)** - Grid reporting UI that directly exposes data on grid with a simple UI, minimum 
   data SLA, and report response time--allows users to build their own reports and
   choose to compute non-additive metrics (UUs) across various dimension combinations 
   defined at run time.
-- **SMILE** - `SMILE <http://twiki.corp.yahoo.com/view/Grid/Smile#Overview>`_ is a scalable machine 
-  learning platform built on top of Storm. While SMILE
-  emphasizes online machine learning, it also provides hooks to update and produce 
-  bulk models via a batch training phase. One can run algorithms both in batch and 
-  online mode.
 
 External Use
 ------------
 
-Storm was originally a Twitter project, but as you can see from the list, many companies are now using it.
+Storm was originally a Twitter project, but many companies are now using it including:
 
 - **Twitter** - discovery, real-time analytics, personalization, search, revenue optimization, and in many more ways.
 - **Groupon** - real-time data integration systems.
@@ -149,23 +143,17 @@ Other Stream Processing Solutions
 Some companies have turned to other technologies to process streams or developed their own.
 The following lists only a few examples.
 
-- `Samza <http://samza.incubator.apache.org/>`_ - is a distributed stream processing 
+- `Samza <http://samza.apache.org/>`_ - is a distributed stream processing 
   framework. It uses Apache Kafka for messaging, and Apache Hadoop YARN to provide 
   fault tolerance, processor isolation, security, and resource management.
-- `Spark <http://spark.apache.org/>`_ - is a fast and general engine for large-scale data processing.
-- `S4 <http://incubator.apache.org/s4/>`_ - is a general-purpose, distributed, scalable, 
-  fault-tolerant, pluggable platform that allows programmers to easily develop applications 
-  for processing continuous unbounded streams of data.
-- `Amazon Kinesis <http://aws.amazon.com/kinesis/>`_ - is a fully managed service 
+- `Spark <http://spark.apache.org/>`_ - is a unified analytics engine for large-scale data processing.
+- `Flink <https://flink.apache.org/>`_ - is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams.
+- `Amazon Kinesis <https://aws.amazon.com/kinesis/>`_ - is a fully managed service 
   for real-time processing of streaming data at massive scale.  
 - `Millwheel <http://research.google.com/pubs/pub41378.html>`_ - is a framework for 
   building low-latency data-processing applications that is widely used at Google. 
-- `MicroSoft StreamInsight <http://msdn.microsoft.com/en-us/sqlserver/ee476990.aspx>`_ - makes implementing robust and highly-efficient complex event 
+- `MicroSoft StreamInsight <https://blogs.msdn.microsoft.com/streaminsight/>`_ - makes implementing robust and highly-efficient complex event 
   processing (CEP) applications easy with its high-throughput stream processing architecture 
   and familiar .NET-based development platform.
-- `DataTorrent <https://www.datatorrent.com/>`_ - enables enterprises to take action in real-time as a result 
-  of high-performance complex  processing of data as it is created
-- `SQLstream Blaze <http://www.sqlstream.com/blaze/>`_ - is a stream processing 
-  suite for real-time operational intelligence from the integration, analysis and 
-  visualization of high volume, high velocity machine data.  
+- `SQLstream Blaze <https://sqlstream.com/>`_ - SQLstream makes it painless for Kafka, Kinesis and other stream users to discover, analyze and act on their data streams in real time.
 
