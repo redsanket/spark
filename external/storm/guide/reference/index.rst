@@ -159,7 +159,7 @@ Logging
 =======
 
 The logs for the Storm daemon are located by default in ``${storm.home}/logs``. 
-The <code>ystorm`` daemons (``nimbus``, ``ui``, ``supervisor</code>, etc.) write 
+The ystorm daemons (``nimbus``, ``ui``, ``supervisor``, etc.) write 
 logs to ${YINST_ROOT}/y/lib64/storm/current/logs.
 
 For example::
@@ -171,14 +171,20 @@ For example::
     /home/y/lib64/storm/current/logs/ui.log
     ...
 
-The <code>ystorm_*</code> launcher scripts have logs as well. If the ystorm daemons 
-fail to write logs, check the launcher logs::
+The ``ystorm_*`` launcher scripts have logs as well. If the ystorm daemons 
+fail to write logs, check the launcher logs on rhel6::
 
     /home/y/logs/ystorm_daemons/nimbus/current
     /home/y/logs/ystorm_daemons/supervisor/current
     /home/y/logs/ystorm_daemons/ui/current
     ...
+    
+If it's on Rhel7, check logs using the following command (replace <daemon> with actual daemon name, e.g. nimbus)::
 
+   systemctl status ystorm_<daemon>.service
+   journalcrtl -u ystorm_<daemon>.service
+   
+    
 Nimbus Log
 ----------
 
@@ -188,50 +194,32 @@ Startup
 #######
 
 The first thing we expect to see when Nimbus starts is some diagnostic output from ZooKeeper/Curator code and then 
-the message "Starting nimbus with conf..." as seen below::
+the message "Starting Nimbus with conf" as seen below::
 
 
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:zookeeper.version=3.4.5--1, built on 09/11/2013 20:08 GMT
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:host.name=tellingsmelling.corp.gq1.yahoo.com
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.version=1.7.0_13
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.vendor=Oracle Corporation
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.home=/home/y/libexec64/jdk1.7.0/jre
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.class.path=/home/y/lib64/storm/0.9.0-wip21/storm-netty-0.9.0-wi
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.library.path=/home/y/lib64:/usr/local/lib64:/usr/lib64:/lib64:
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.io.tmpdir=/tmp
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:java.compiler=<NA>
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:os.name=Linux
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:os.arch=amd64
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:os.version=2.6.32-358.6.2.el6.YAHOO.20130516.x86_64
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:user.name=nobody
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:user.home=/
-    2013-09-21 22:47:04 o.a.z.ZooKeeper [INFO] Client environment:user.dir=/home/y/var/daemontools/ystorm_nimbus
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:zookeeper.version=3.4.5--1, built on 09/11/2013 20:08 GMT
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:host.name=tellingsmelling.corp.gq1.yahoo.com
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.version=1.7.0_13
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.vendor=Oracle Corporation
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.home=/home/y/libexec64/jdk1.7.0/jre
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.class.path=/home/y/lib64/storm/0.9.0-wip21/storm-netty-
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.library.path=/home/y/lib64:/usr/local/lib64:/usr/lib64:
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.io.tmpdir=/tmp
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:java.compiler=<NA>
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:os.name=Linux
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:os.arch=amd64
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:os.version=2.6.32-358.6.2.el6.YAHOO.20130516.x86_64
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:user.name=nobody
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:user.home=/
-    2013-09-21 22:47:04 o.a.z.s.ZooKeeperServer [INFO] Server environment:user.dir=/home/y/var/daemontools/ystorm_nimbus
-    2013-09-21 22:47:09 b.s.d.nimbus [INFO] Starting Nimbus with conf {"dev.zookeeper.path" "/tmp/dev-storm-zookeeper", "topology.tick
+   2018-11-09 19:48:04.543 o.a.s.v.ConfigValidation main [WARN] topology.backpressure.enable is a deprecated config please see class org.apache.storm.Config.TOPOLOGY_BACKPRESSURE_ENABLE for more information.
+   2018-11-09 19:48:04.610 o.a.s.v.ConfigValidation main [WARN] task.heartbeat.frequency.secs is a deprecated config please see class org.apache.storm.Config.TASK_HEARTBEAT_FREQUENCY_SECS for more information.
+   2018-11-09 19:48:04.715 o.a.s.s.o.a.c.u.Compatibility main [INFO] Running in ZooKeeper 3.4.x compatibility mode
+   2018-11-09 19:48:04.767 o.a.s.z.ClientZookeeper main [INFO] Staring ZK Curator
+   2018-11-09 19:48:04.767 o.a.s.s.o.a.c.f.i.CuratorFrameworkImpl main [INFO] Starting
+   2018-11-09 19:48:04.778 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+   2018-11-09 19:48:04.778 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:host.name=openstorm3blue-n1.blue.ygrid.yahoo.com
+   2018-11-09 19:48:04.779 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:java.version=1.8.0_102
+   2018-11-09 19:48:04.779 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:java.vendor=Oracle Corporation
+   2018-11-09 19:48:04.779 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:java.home=/home/y/libexec64/jdk64-1.8.0/jre
+   2018-11-09 19:48:04.779 o.a.s.s.o.a.z.ZooKeeper main [INFO] Client environment:java.class.pat ...
+   ...
+   2018-11-09 19:48:08.202 o.a.s.d.n.Nimbus main [INFO] Starting Nimbus with conf {storm.messaging.netty.min_wait_ms=100, topology.backpressure.wait.strategy=org.apache.storm.policy.WaitStrategyProgressive, ...(omitted)
 
 Shutdown
 ########
 
 Shutdown is similar with the message "Shutting down master" followed by "Shut down master"::
 
-    2013-11-08 18:44:32 b.s.d.nimbus [INFO] Shutting down master
-    2013-11-08 18:44:32 o.a.z.ZooKeeper [INFO] Session: 0x142368cbb2f0001 closed
-    2013-11-08 18:44:32 o.a.z.ClientCnxn [INFO] EventThread shut down
-    2013-11-08 18:44:32 b.s.d.nimbus [INFO] Shut down master
+   2018-11-09 19:47:51.162 o.a.s.s.o.a.c.f.i.CuratorFrameworkImpl Curator-Framework-0 [INFO] backgroundOperationsLoop exiting
+   2018-11-09 19:47:51.164 o.a.s.s.o.a.z.ZooKeeper Thread-19 [INFO] Session: 0x166f9b5ba250247 closed
+   2018-11-09 19:47:51.164 o.a.s.s.o.a.z.ClientCnxn main-EventThread [INFO] EventThread shut down
+   2018-11-09 19:47:51.199 o.a.s.d.n.Nimbus Thread-19 [INFO] Shut down master
 
 
 Topology Submission, Assignment, and Killing
@@ -239,35 +227,34 @@ Topology Submission, Assignment, and Killing
 
 When topologies are submitted, the log message will being with "Received topology submission for..."::
 
-    2013-11-08 18:09:21 b.s.d.nimbus [INFO] Received topology submission for test-topo-derekd2 with conf {"storm.id" "test-topo-derekd2-8-1383934161", "topology.users" ("derekd" "derekd@DEREKD.YSTORM.NET"), "topology.acker.executors" nil, "to ...
-    2013-11-08 18:09:21 b.s.d.nimbus [INFO] nimbus file location:/home/y/var/storm/nimbus/stormdist/test-topo-derekd2-8-1383934161 ...
+   2018-11-09 19:43:59.914 o.a.s.d.n.Nimbus pool-24-thread-203 [INFO] Received topology submission for topology-testSpreadBasedOnWorkerHeapLimit-1 (storm-0.10.2.y.278 JDK-1.8.0_102) with conf {topology.users=[hadoopqa@DEV.YGRID.YAHOO.COM, hadoopqa], topology.acker.executors=0, storm.zookeeper.superACL=sasl:gstorm, topology.workers=3, topology.submitter.principal=hadoopqa@DEV.YGRID.YAHOO.COM, topology.debug=true, topology.disable.loadaware.messaging=true, storm.zookeeper.topology.auth.payload=*****, topology.name=topology-testSpreadBasedOnWorkerHeapLimit-1, storm.zookeeper.topology.auth.scheme=digest, topology.kryo.register={}, nimbus.task.timeout.secs=200, storm.id=topology-testSpreadBasedOnWorkerHeapLimit-1-2-1541792639, topology.kryo.decorators=[], topology.eventlogger.executors=0, topology.submitter.user=hadoopqa, topology.max.task.parallelism=null}
+   2018-11-09 19:44:10.627 o.a.s.d.n.Nimbus pool-24-thread-203 [INFO] uploadedJar /home/y/var/storm/nimbus/inbox/stormjar-3b2593a3-742b-42e4-a528-6021bf7cf8e8.jar
 
 This is following by "Activating ..."::
 
-
-    2013-11-08 18:09:21 b.s.d.nimbus [INFO] Activating test-topo-derekd2: test-topo-derekd2-8-1383934161 ...
+    2018-11-09 19:44:11.894 o.a.s.d.n.Nimbus pool-24-thread-203 [INFO] Activating topology-testSpreadBasedOnWorkerHeapLimit-1: topology-testSpreadBasedOnWorkerHeapLimit-1-2-1541792639
 
 Assignments are the result of scheduling, so when a topology has successfully 
 been scheduled, or has been re-balanced, etc., you'll see the message "Setting new assignment for topology id..."::
 
-    2013-11-08 18:09:21 b.s.d.nimbus [INFO] Setting new assignment for topology id test-topo-derekd2-8-1383934161: #backtype.storm.daemon.common.Assignment{:master-code-dir "/home/y/var/storm/nimbus/stormdist/test-topo-derekd2-8-1383934161", ...
+    2018-11-09 19:44:20.669 o.a.s.d.n.Nimbus timer [INFO] Setting new assignment for topology id topology-testSpreadBasedOnWorkerHeapLimit-1-2-1541792639: Assignment(master_code_dir:/home/y/var/storm, ...
 
 When topologies are killed, you'll see the following log messages:
 
-- Delaying event :remove for X secs for ...
-- Updated ... with status {:type :killed, :kill-time-secs X}
-- Killing topology: ...
-- Cleaning up ...
+- Delaying event REMOVE for X secs for <topology-id>
+- Killing topology:  <topology-id>
+- Cleaning up <topology-id>
 
 For example::
 
-    2013-11-08 18:13:40 b.s.d.nimbus [INFO] Delaying event :remove for 30 secs for test-topo-derekd2-9-1383934302
-    2013-11-08 18:13:40 b.s.d.nimbus [INFO] Updated test-topo-derekd2-9-1383934302 with status {:type :killed, :kill-time-secs 30}
-    2013-11-08 18:14:10 b.s.d.nimbus [INFO] Killing topology: test-topo-derekd2-9-1383934302
-    2013-11-08 18:14:15 b.s.d.nimbus [INFO] Cleaning up test-topo-derekd2-9-1383934302
+   2018-11-09 19:43:36.906 o.a.s.d.n.Nimbus pool-24-thread-124 [INFO] Delaying event REMOVE for 0 secs for topology-testClientSideVerifySchedulable-1-1-1541792592
+   2018-11-09 19:43:36.913 o.a.s.d.n.Nimbus pool-24-thread-124 [INFO] Adding topo to history log: topology-testClientSideVerifySchedulable-1-1-1541792592
+   2018-11-09 19:43:37.905 o.a.s.d.n.Nimbus timer [INFO] TRANSITION: topology-testClientSideVerifySchedulable-1-1-1541792592 REMOVE null false
+   2018-11-09 19:43:37.907 o.a.s.d.n.Nimbus timer [INFO] Killing topology: topology-testClientSideVerifySchedulable-1-1-1541792592
+   2018-11-09 19:53:23.906 o.a.s.d.n.Nimbus timer [INFO] Cleaning up topology-testClientSideVerifySchedulable-1-1-1541792592
 
 Supervisors can be seen in the Nimbus log by looking for their IDs, which look 
-like UUIDs. For example: <code>7c024f9d-673d-49e7-aa7f-56d9e535f994</code>
+like UUIDs. For example: ``7c024f9d-673d-49e7-aa7f-56d9e535f994``
 
 Supervisor Log 
 --------------
@@ -278,7 +265,7 @@ Supervisor Log
 Startup/Shutdown
 ################
 
-Supervisors start with a log message similar to "Starting supervisor with id ....". 
+Supervisors start with a log message similar to "Starting supervisor for storm version ...". 
 The supervisor does not log a message when it is stopped manually.
 
 Launching & Killing Workers
@@ -288,34 +275,8 @@ The Supervisor's job is to start workers. When the supervisor launches a worker,
 we expect a pair of log messages beginning with "Launching worker ..."
 as shown below::
 
-    2013-11-08 18:11:43 b.s.d.supervisor [INFO] Launching worker with assignment #backtype.storm.daemon.supervisor.LocalAssignment{:st
-    2013-11-08 18:11:43 b.s.d.supervisor [INFO] Launching worker with command: java -server -Xmx768m  -Djava.library.path=/home/y/var/
-
-:timed-out versus :disallowed
-*****************************
-
-There could be several reasons a worker shuts down. 
-
-- If the worker has been "un-scheduled", there will be a log message that includes 
-  "Shutting down and clearing state for id ... State: :disallowed".
-- If a worker hangs such that it does not heartbeat to the supervisor within the 
-  expected interval (5s default), you should see a log message like "Shutting down 
-  and clearing state for id ... State: :timed-out".
-- If a worker crashes, you should see a log message involving an exit code
-  such as "Worker process ... exited with code: X".
-
-For example::
-
-    2013-11-08 06:04:19 b.s.d.supervisor [INFO] Shutting down and clearing state for id 0c8439c6-a4fe-47c4-9c62-b8d06e44aa98. Current supervisor time: 1383890658. State: :timed-out, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:ti ...
-    ...
-    2013-11-08 18:22:13 b.s.d.supervisor [INFO] Shutting down and clearing state for id e7846155-3656-424f-84bf-f133e5891c81. Current supervisor time: 1383934933. State: :disallowed, Heartbeat: #backtype.storm.daemon.common.WorkerHeartbeat{:t ...
-    2013-11-08 18:22:13 b.s.d.supervisor [INFO] Worker Process e7846155-3656-424f-84bf-f133e5891c81 exited with code: 137
-
-.. tip:: If a log message indicates that a worker is :timed-out, then it means the heartbeat 
-         thread was starved from being scheduled to run. This can happen because the garbage 
-         collection takes over the JVM. If this happens repeatedly with a worker, try 
-         submitting the topology with an increased worker JVM heap size: <code>append -Xmx${SIZE_MB}m</code> 
-         to <code>topology.worker.childopts</code>.
+    2018-11-09 19:44:22.026 o.a.s.d.s.BasicContainer SLOT_6700 [INFO] Launching worker with assignment LocalAssignment(topology_id:topology-testSpreadBasedOnWorkerHeapLimit-1-2-1541792639, ...
+    2018-11-09 19:44:22.030 o.a.s.d.s.BasicContainer SLOT_6700 [INFO] Launching worker with command: '/home/y/share/yjava_jdk/java/bin/java' '-cp'...
 
 Worker Log
 ----------
@@ -326,11 +287,11 @@ Startup/Shutdown
 ################
 
 When a worker starts, you should see similar ZooKeeper/Curator diagnostic logs, followed by a 
-log message similar to "Launching worker for ${TOPOLOGY_NAME} on ${SUPERVISOR_ID}:${WORKER_PORT} with id ${WORKER_ID}".
+log message similar to "Launching worker for ${TOPOLOGY_ID} on ${SUPERVISOR_ID}:${WORKER_PORT} with id ${WORKER_ID} and conf ...".
 
 For example::
 
-    Launching worker for test-topo-derekd-1-1383340860 on 04fa4628-2ab9-468b-b457-c36079921b80:6701 with id 7737e1f4-eec4-4975-87ef-81541496009e
+    2018-11-01 15:47:32.341 b.s.d.worker main [INFO] Launching worker for blitz-dsp-hdfs-fubariteblue-1541086925-227-1541087122 on 003fc909-a3e6-41a2-a553-10a661de9748-10.211.243.59:6707 with id 716953cc-2f7c-4036-a56d-95d705863ee7 and conf ...
 
 Normally, a worker is not shut down. When it is, the current storm implementation 
 kills the process (``kill -9``), so we do not expect the logs to show anything as the 
@@ -339,7 +300,7 @@ worker does not know what is happening.
 Cleanup configuration
 ################
 
-For limiting the disk usage of workers' logs and dump files, two parameters are defined to restrict all workers' total usage and each worker's usage: logviewer.max.sum.worker.logs.size.mb, logviewer.max.per.worker.logs.size.mb. Cluster admins may customize their thresholds as needed.
+For limiting the disk usage of workers' logs and dump files, two parameters are defined to restrict all workers' total usage and each worker's usage: ``logviewer.max.sum.worker.logs.size.mb``, ``logviewer.max.per.worker.logs.size.mb``. Cluster admins may customize their thresholds as needed.
 
 Other Resources
 ===============
