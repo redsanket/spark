@@ -7,28 +7,11 @@ Reference
 .. include:: ../faq/index.rst
 .. include:: ../troubleshooting/index.rst
 
-Environments
-============
-
-.. ebony-gw.red.ygrid.yahoo.com
-
-
-Multi-Tenant Secure Storm
--------------------------
+Deployment at Oath
+===================
 
 We host several non-production and production storm clusters for Oath and Verizon. Please visit `dopper <http://yo/doppler-storm>`_ for the details.
 
-
-
-Deployment at Yahoo
-===================
-
-.. image:: images/deployment.jpg
-   :height: 100px
-   :width: 200 px
-   :scale: 50 %
-   :alt: alternate text
-   :align: right
 
 Use Case Example
 ================
@@ -361,7 +344,6 @@ For limiting the disk usage of workers' logs and dump files, two parameters are 
 Other Resources
 ===============
 
-- `Multi-Tenant Storm Tech Talk <http://video.corp.yahoo.com/video_detail.php?vid=8497>`_
-- `Apache Storm Documentation <http://storm.incubator.apache.org/documentation.html>`_
+- `Apache Storm Documentation <http://storm.apache.org/index.html>`_
 - `Hortonworks: Apache Storm <http://hortonworks.com/hadoop/storm/>`_
 
