@@ -26,13 +26,10 @@ Setting Up
 Launch Storm Topology
 ---------------------
 
-.. Here, we're just running the Storm jobs w/ the specified number of machines, instances.
+.. Here, we're just running the Storm jobs w/ the specified number of spout instances.
 
-For example, we will launch topology with [n] machines and [n] spout instances:
+For example, we will launch topology with [n] spout instances:
 
-#. Configure the topology to use two machines and two spout instances::
-
-       yinst set ystorm.topology_isolate_machines=2
 #. Launch storm with the two spouts::
 
        storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://dh-demo-ebonyred.ygrid.local:50700 -n dh-demo-w-2spouts -p 2

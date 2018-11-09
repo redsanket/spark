@@ -5,7 +5,7 @@ Counting Data Highway Events
 
 This tutorial shows you how to set up a Storm project on an OpenStack instance, launch it on the Grid cluster Ebony Red, and
 then create events to alter the results of your project. You will also be using the Data Highway (DH) Rainbow spout,
-a built-in Yahoo spout, to count DH Rainbow events. 
+a built-in Yahoo spout, to count DH Rainbow events.
 
 The diagram below shows how the DH Rainbow bolt gets data from the Data Highway and feeds it to the bolt that counts events.
 
@@ -27,32 +27,31 @@ You should have completed the following:
 Setting Up
 ----------
 
-#. Log onto an OpenHouse instance.
-#. Install the following ``yinst`` packages::
-
-       yinst i yjava_jetty_core-9.2.1.v20140609_126
-       yinst i yjava_yca-0.23.218 -br test
-       yinst i mon_metrics_java -br quarantine
-
+#. Log onto an OpenHouse instance. We use OpenHouse to compile the topology and tools as the grid nodes and gateway do not have public internet access for security reasons.
+#. Install ``yinst i yjava_maven yjava_yca``.
 #. Clone the ``storm-contrib`` repository: git@git.ouroath.com:storm/storm-contrib.git
-   .. note:: We'll be using ``/src/main/java/com/yahoo/spout/http/rainbow/EventCountBolt.java``.
 #. Change to ``storm-contrib``.
-#. Build the package with Maven: ``mvn clean package``
-#. Copy ``storm-contrib`` to Ebony Red: ``scp -r ../storm_contrib {user_name}@ebony-gw.red.ygrid.yahoo.com:~``
+#. Build the package with Maven: ``LD_LIBRARY_PATH=/home/y/lib64 mvn clean install``
+#. Copy ``storm-contrib`` to Ebony Red: ``rsync -razv --progress ../storm-contrib/ ebony-gw.red.ygrid.yahoo.com:./storm-contrib/``
 
 Defining Your Virtual Host
 --------------------------
 
-The virtual host URI should have the following syntax: ``http://<virtual_host>:<virtual_port>``
+Originally Data Highway would have a real host registered for it to send data to.  With Storm there is no real host, 
+as the spouts can be scheduled anywhere on the cluster.  To work around this Storm Data Highway Spouts 
+register themselves with the registry service under a virtual host name, that corresponds with a topology.
+The virtual host URI should have the following syntax: ``http://<virtual_host>``  If you are doing a production
+topology you will need to use https to ensure that everything is secure.
+
 For example, if your topology name is ``mydemo`` and you were using the Ebony Red cluster,
-your virtual host URI might be ``mydemo-ebonyred.ygrid.local:50701``.
+your virtual host URI might be something like ``http://mydemo-ebonyred.ygrid.local``.
 
 
-#. Before you set the name and port of your virtual host, check the `Storm Data Highway Registry <http://twiki.corp.yahoo.com/view/Grid/SupportStormDHRegistry>`_
-   to make sure that the  virtual host is not be used.
+#. Before you set the name of your virtual host, check the `Storm Data Highway Registry <http://twiki.corp.yahoo.com/view/Grid/SupportStormDHRegistry>`_
+   to make sure that the  virtual host is not be used.  You can do this by calling `registry_client list` from a gateway.
 #. Add your virtual service URI using the following command::
 
-       registry_client addvh  http://{topology_name}-ebonyred.ygrid.local:{unique_port:50600-50700}
+       registry_client addvh  http://{topology_name}-ebonyred.ygrid.local
 
 
 Launching Your Storm Topology
@@ -62,22 +61,21 @@ For our example, we will launch our sample topology with 2 machines and 2 spout 
 
 #. Log onto the cluster Ebony Red (ebony-gw.red.ygrid.yahoo.com) or another non-production environment that you created a topology for.
 #. Authenticate with ``kinit``: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
-#. Change to ``storm-contrib/rainbow_spout_example/target/classes``.
 #. Launch storm with the two spouts below. Replace ``{your_topology_name}`` with the topology name you requested during on-boarding::
 
-       storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{your_topology_name}-ebonyred.ygrid.local:{port-specified-with-registry_client} -c topology.isolate.machines=2 -n {your_topology_name} -p 2 -c http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
+       storm-contrib/rainbow_spout_example/target/rainbow_spout_example-*-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://{topology_name}-ebonyred.ygrid.local/ -n {topology_name} -p 2 -c http.registry.uri='https://registry-a.red.ygrid.yahoo.com:4443/registry/v1/'
 
    The main difference between the topology name in this tutorial from that in the 
    quick start is that the topology here represents an instance on the Storm
    cluster as well as the name of the topology running.
 
-.. Ex: storm jar /home/y/lib/jars/rainbow_spout_example-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://RainbowSpoutTest-ebonyred.ygrid.local:50609/ -c topology.isolate.machines=2 -n RainbowSpoutTest -p 2 -c http.registry.uri='http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/'
+.. Ex: storm-contrib/rainbow_spout_example/target/rainbow_spout_example-*-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.EventCountTopologyCompat run http://RainbowSpoutTest-ebonyred.ygrid.local/ -n RainbowSpoutTest -p 2 -c http.registry.uri='https://registry-a.red.ygrid.yahoo.com:4443/registry/v1/'
  
       
 #. You can see your job running in the **Storm UI**. 
    The URL to the **Storm UI** depends on your
-   environment. The URL syntax is ``http://{environment}-ni.{color}.ygrid.yahoo.com:9999``, so the
-   URL to the **Storm UI** for Ebony Red is ``http://ebonyred-ni.red.ygrid.yahoo.com:9999``.
+   environment. The URL syntax is ``https://{environment}-ni.{color}.ygrid.yahoo.com:4443``, so the
+   URL to the **Storm UI** for Ebony Red is ``https://ebonyred-ni.red.ygrid.yahoo.com:4443``.
 
 #. Click on your job and take a look at your spouts, bolts, the number of executors, tasks, and the topology
    configuration.
@@ -85,24 +83,13 @@ For our example, we will launch our sample topology with 2 machines and 2 spout 
 Injecting Sample Rainbow Events
 -------------------------------
 
-To inject events, we'll be using ``curl`` to enable communication with multiple spouts that we have launched.
+To inject events, we'll be using a DataHighwaySimulator built into the storm-contrib example.
 
-#. The first use of ``curl`` is to get the host that is associated with your virtual host.
+``storm jar storm-contrib/rainbow_spout_example/target/rainbow_spout_example-*-jar-with-dependencies.jar com.yahoo.spout.http.rainbow.DHSimulator -r https://registry-a.red.ygrid.yahoo.com:4443/registry/v1/ http://{topology_name}-ebonyred.ygrid.local --batches 100``
 
-       curl http://registry-a.red.ygrid.yahoo.com:4080/registry/v1/virtualHost/{your_topology_name}-ebonyred.ygrid.local/ext/yahoo/yfor_config; echo; 
-#. The output should look like the following where the value given to ``host`` is the machine that you will directing HTTP requests to::
+This code looks up the spouts associated with the http://{topology_name}-ebonyred.ygrid.local virtual host and sends 100 batches of data highway events to them.
 
-       name {your_topology_name}-ebonyred.ygrid.local
-       host gsrd453n02.red.ygrid.yahoo.com
-       check-type none
-       mode all-active
-       ttl 30000
-
-#. With the host above, you can then send a DH event to your topology (the ``/homes/afeng/dh_events`` directory has many test files to use for cURL calls):
-   
-       curl --data-binary @/homes/afeng/dh_events/out.prism.30 http://gsrd453n02.red.ygrid.yahoo.com:{port_specified_with_registry_client}
-
-#. Go back to the `Storm UI <http://ebonyred-ni.red.ygrid.yahoo.com:9999>`_. You should see changes in the topology statistics as 
+#. Go back to the `Storm UI <http://ebonyred-ni.red.ygrid.yahoo.com:9999>`_. You should see changes in the topology statistics.  You should see that some events were emitted from the spouts and processed by the bolts.
   
 
 Killing Your Topology
@@ -118,7 +105,7 @@ Spouts
 ######
 
 This example uses the Rainbow DH spout that gets data from the Data Highway through the Registry Service.
-The Registry Service requires YCA v2 authentication.  
+The Registry Service requires YCA v2 authentication when security is enabled (which it must be in production).  
 
 In `EventCountTopology.java <https://git.ouroath.com/storm/storm-contrib/blob/master/rainbow_spout_example/src/main/java/com/yahoo/spout/http/rainbow/EventCountTopology.java>`_,
 the method ``runTopology`` creates the topology builder, sets the spot, and attaches the bolt before submitting the topology for execution.
