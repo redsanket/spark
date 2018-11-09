@@ -6,28 +6,30 @@ FAQ
 
 .. _faq-reset_errs:
 
-Q: Why am I seeing "Connection reset by peer" errors and "Netty Client Reconnect" messages?
+Q: Why am I seeing "Connection reset by peer" errors and "Connection refused" messages?
 ###########################################################################################
 
 The messages usually take the following form::
 
-    [INFO] b.s.m.n.Client:88 thd=netty-client-timer tplg= cmpn= trcid= msg= Reconnect ... [2] to {HOST}/{IP}:{PORT}
+    2018-11-09 18:04:07.408 b.s.m.n.Client client-boss-1 [ERROR] connection attempt 8 to Netty-Client-{HOST}/{IP}:{PORT}  failed: java.net.ConnectException: Connection refused: {HOST}/{IP}:{PORT} 
     or
-    2014-07-07 07:49:35 [INFO] b.s.m.n.StormClientHandler:63 thd=New I/O worker #1 tplg= cmpn= trcid= msg= Connection to {HOST}/{IP}:{PORT} failed:
+    2018-11-09 15:10:11.462 b.s.m.n.StormClientHandler client-worker-1 [INFO] Connection to {HOST}/{IP}:{PORT} failed:
     java.io.IOException: Connection reset by peer
-            at sun.nio.ch.FileDispatcherImpl.read0(Native Method) ~[na:1.7.0_51]
-            at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:39) ~[na:1.7.0_51]
-            at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:223) ~[na:1.7.0_51]
-            at sun.nio.ch.IOUtil.read(IOUtil.java:192) ~[na:1.7.0_51]
-            at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:379) ~[na:1.7.0_51]
-            at org.jboss.netty.channel.socket.nio.NioWorker.read(NioWorker.java:64) ~[netty-3.8.0.Final.jar:na]
-            at org.jboss.netty.channel.socket.nio.AbstractNioWorker.process(AbstractNioWorker.java:108) ~[netty-3.8.0.Final.jar:na]
-            at org.jboss.netty.channel.socket.nio.AbstractNioSelector.run(AbstractNioSelector.java:318) ~[netty-3.8.0.Final.jar:na]
-            at org.jboss.netty.channel.socket.nio.AbstractNioWorker.run(AbstractNioWorker.java:89) ~[netty-3.8.0.Final.jar:na]
-            at org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:178) ~[netty-3.8.0.Final.jar:na]
-            at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145) [na:1.7.0_51]
-            at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615) [na:1.7.0_51]
-            at java.lang.Thread.run(Thread.java:744) [na:1.7.0_51]
+	    at sun.nio.ch.FileDispatcherImpl.read0(Native Method) ~[?:1.8.0_102]
+	    at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:39) ~[?:1.8.0_102]
+	    at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:223) ~[?:1.8.0_102]
+	    at sun.nio.ch.IOUtil.read(IOUtil.java:192) ~[?:1.8.0_102]
+	    at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:380) ~[?:1.8.0_102]
+	    at org.apache.storm.shade.org.jboss.netty.channel.socket.nio.NioWorker.read(NioWorker.java:64) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.channel.socket.nio.AbstractNioWorker.process(AbstractNioWorker.java:108) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.channel.socket.nio.AbstractNioSelector.run(AbstractNioSelector.java:318) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.channel.socket.nio.AbstractNioWorker.run(AbstractNioWorker.java:89) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:178) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.util.ThreadRenamingRunnable.run(ThreadRenamingRunnable.java:108) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at org.apache.storm.shade.org.jboss.netty.util.internal.DeadLockProofWorker$1.run(DeadLockProofWorker.java:42) [storm-core-0.10.2.y.jar:0.10.2.y]
+	    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:1.8.0_102]
+	    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:1.8.0_102]
+	    at java.lang.Thread.run(Thread.java:745) [?:1.8.0_102]
 
 This indicates that the worker process on ``{HOST}`` is listening on port 
 ``{PORT}`` has gone down for some reason and this worker process is just letting 
@@ -54,7 +56,7 @@ is unlikely if your process is restarting regularly. If you think this is happen
 contact the Storm team and we can help debug what is going on.
 
 If your worker stopped heartbeating, the most likely suspect is Java Garbage Collection. 
-If the Supervisor does not see heartbeats from your process for more then five seconds, 
+If the Supervisor does not see heartbeats from your process for more then 30 seconds, 
 it assumes it is dead and will try to restart it. Heartbeats are on a separate 
 high-priority thread and only world garbage collection tends 
 to stop them. Please look at the size of the heap you are using, but be careful 
@@ -72,7 +74,7 @@ HTTP clients return this, like the one that we have used with the Registry Servi
 This usually means that you included a YCAv2 header in the request to the Registry 
 Service, but did not go through the HTTP proxy. We usually have this set on all 
 the gateways by default. If you ran your topology from a hosted gateway and got 
-this error please `file a bug in low latency <http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency>`_ 
+this error please `file an issue <http://yo/ystorm-request>`_ 
 to let us know. If it was from your launcher box, you probably need to configure it. 
 See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for 
 the available HTTP proxies by colo.
@@ -90,7 +92,7 @@ or programmatically in the conf map.
 Q: Which JDK version does yStorm support?
 #########################################
 
-Storm at Yahoo (yStorm) supports JDK7 on 64-bit OS. On grid gateway, make sure that you are 
+Storm at Oath (yStorm) supports JDK8 on 64-bit OS. On grid gateway, make sure that you are 
 using ``/home/gs/java/jdk64/current/``.
 
 .. _faq-launch_storm:
@@ -127,7 +129,7 @@ Q: Does Storm support dependency isolation?
 
 Storm does not currently support dependency isolation, and Storm's class path takes 
 precedence over the topology jar. This means that for the time being you are limited 
-in what you can have as a dependency. See the `full list of Storm's dependencies <https://git.ouroath.com/storm/storm/blob/master-security/storm-core/pom.xml>`_.
+in what you can have as a dependency. See the full list of `Storm-0.10's dependencies <https://git.ouroath.com/storm/storm/blob/master-security/storm-core/pom.xml>`_. and `Storm-2.x's dependencies <https://git.ouroath.com/storm/storm/blob/master/pom.xml>`_.
 
 One common dependencies that may cause you problems is ``Guava``.
 
