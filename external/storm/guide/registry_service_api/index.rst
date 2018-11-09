@@ -12,13 +12,13 @@ services running on a cloud, similar to Hadoop or Storm, and securely connect to
 them (as the registry is a trusted 3rd party). There are really two concepts involved here.
 
 The first is that of a virtual host. A virtual host represents a service. It is 
-called a virtual host because it is intended to be compatible with DNS or other 
+called a virtual host because it was originally intended to be compatible with DNS or other 
 name services and might appear to end user applications as a logical host similar 
-to a virtual IP address.
+to a virtual IP address. But because of port conflicts this has changed a bit.
 
 The second concept is that of a server. A server provides the service that a 
 virtual host represents and places itself in the registry so that clients can 
-find it.
+find it.  That service may also contain an port so multiple instances may share a host.
 
 Security
 ========
@@ -33,7 +33,8 @@ data about the virtual host. Owners are optionally prefixed with a type to indic
 exactly how the user should authenticate. By default, an owner without a type 
 corresponds to a user.
 
-At Yahoo, we use YCA for this Authentication: both YCA v1 and v2 are supported. 
+At Oath, this has been hard coded to YCA: both YCA v1 and v2 are supported. Athenz 
+auth is still a work in progress.
 YCA owners must be prefixed with ``"yca:"``. Any API that requires authorization will 
 need to have an appropriate YCA header set, and, in the case of YCA v2, will need 
 to go through the appropriate proxy servers.
