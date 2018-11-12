@@ -23,23 +23,21 @@ On a multi-tenant cluster, the file system permissions should be set such that n
 worker can access another worker's heartbeats.
 
 When we list the information about the ``/workers`` directory, we can learn some information about the topology and cluster.
-In this example, we see ``derekd`` is who submitted the topology, that ``gstorm`` is the cluster group, and that
+In this example, we see ``pint_storm_dev`` is who submitted the topology, that ``gstorm`` is the cluster group, and that
 the mode ``770`` has the sticky bit set::
 
-    ``drwxrws--- 4 derekd gstorm 4096 Dec 18 21:45 145bbb17-6a29-4396-bc20-3bb6b96fb4a1`` 
+    ``drwxrws--- 5 pint_storm_dev gstorm 4096 Nov 11 06:13 5300499a-d91b-4c33-8099-ac8be56e7d6e`` 
 
-Beats should happen once per second, and the supervisor will time out a Worker after five seconds by default.
+Beats should happen once per second, and the supervisor will time out a Worker after thirty seconds by default.
 Workers that time out in this way are rescheduled.
 
-Worker -> Nimbus
+Worker -> Pacemaker -> Nimbus
 ****************
 
-Workers also heartbeat to Nimbus through ZooKeeper.
-On a multi-tenant cluster, heartbeats are protected with ACLs within 
-ZooKeeper such that workers cannot access each others' data.
+Workers also heartbeat to Nimbus through Pacemaker. Previously this used to happen via Zookeeper but that became a bottleneck on larger clusters. Authentication with Pacemaker is done via Kerberos.
 
-Beats should happen three times per second, and the Nimbus will time out a Worker after 30 seconds by default.
-Workers are killed with ``SIGKILL`` when they have timed out.
+Beats should happen once per second, and the Nimbus will time out a Worker after 30 seconds by default and reschedule the assignment.
+Workers are killed with ``SIGKILL`` by the supervisor when they have timed out.
 
 Supervisor -> Nimbus
 ********************
@@ -60,7 +58,7 @@ Nimbus
 **State**
 
 Nimbus stores topologies and their configurations on local disk at ``/home/y/var/storm/nimbus/stormdist/``
-and stores scheduling assignments in ZooKeeper. Worker and Supervisor heartbeats are also stored there.
+and stores scheduling assignments in ZooKeeper. Supervisor heartbeats are also stored there.
 
 **Bouncing**
 
@@ -69,14 +67,14 @@ Everything should carry on as normal (even user topologies).
 **Deleting**
 
 You can delete Nimbus scheduler data in ZooKeeper (or wipe ZooKeeper): the topologies will likely die.
-When you delete the Nimbus local disk state, the topologies will die.
+When you delete the Nimbus local disk state, the topologies will die. It is recommended that you use the storm admin subcommand to access Zookeeper instead of accessing Zookeeper directly
 
 Supervisors
 ***********
 
 **State**
 
-Local disk stores topologies (and configurations) are downloaded from Nimbus and worker heartbeats.
+Local disk stores topologies (and configurations) are downloaded from Nimbus.
 
 **Bouncing**
 
@@ -114,6 +112,17 @@ There is no state (reads logs).
 
 You can bounce whenever you want.
 
+Pacemaker
+****************
+
+**State**
+
+There is no state - handles incoming messages without writing it out.
+
+**Bouncing**
+
+You can bounce whenever you want (preferably in a staggered way).
+
 ZooKeeper 
 ---------
 
@@ -123,12 +132,6 @@ have faced and here are the work-arounds.
 Disk Load
 #########
 
-- Workers heartbeat through ZooKeeper to Nimbus. When many workers are alive, this puts tremendous 
-  load on ZooKeeper. Heavy disk load means anything using the ZooKeeper cluster slows down and 
-  things start timing out or becoming slow and unresponsive.
-  - Mitigations:
-    - Mount disk with no-barrier (Good improvement while on ``ext3``)
-    - Add ``-Dzookeeper.forceSync=no`` to ``zookeeper_server.jvm_args`` and you will see a major improvement.
 - Cleaning up many huge old data logs at once can peg the disk unless spaced out.
   - Wrote custom purge script available in dist package ``zkp_txnlogs_cleanup``.
   - Migrated to RHEL6 ext4 (slowed down ZooKeeper until "forceSync=no" was used).
@@ -149,113 +152,18 @@ JVM
 jstack (Stack Traces)
 #####################
 
-``jstack`` works best when run with the same JDK and as the same user as the target process.
-
-#. Find the PID of the target process using ``jps`` and the port number. In this example, 
-   we are looking for a the worker running on 6734 on a particular host.
-  
-   ::
-
-       -bash-4.1$ sudo jps -v | grep 6734
-       1870 worker -Xmx1024m -Djute.maxbuffer=4097150 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseConcMarkSweepGC 
-       -XX:NewSize=128m -XX:CMSInitiatingOccupancyFraction=70 -XX:-CMSConcurrentMTEnabled -Djava.net.preferIPv4Stack=true 
-       -Djava.security.auth.login.config=/home/y/lib/storm/current/conf/storm_jaas.conf -Djute.maxbuffer=4097150 
-       -Djava.library.path=/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources/Linux-amd64:/home/y/var/storm/supervisor/stormdist/test-word_count-5-1387400559/resources:/home/y/lib64:/usr/local/lib64:/usr/lib64:/lib64: 
-       -Dlogfile.name=test-word_count-5-1387400559-worker-6734.log -Dstorm.home=/home/y/lib64/storm/0.9.0-wip21 
-       -Dlogback.configurationFile=/home/y/lib64/storm/0.9.0-wip21/logback/worker.xml -Dstorm.id=test-word_count-5-1387400559 
-       -Dworker.id=145bbb17-6a29-4396-bc20-3bb6b96fb4a1 -Dworker.port=6734
-
-   Core is the storm UI. The other daemons appear as Nimbus, Supervisor, Logviewer, and Workers as worker.
-
-#. Find the user and JDK used.
-
-   ::
-
-       bash-4.1$ ps -fp 1870
-       UID        PID  PPID  C STIME TTY          TIME CMD
-       derekd    1870 17840  9 21:02 ?        00:03:55 /home/y/share/yjava_jdk/java/bin/java -server -Xmx1024m -D
-
-#. Obtain a stack trace as that user by calling the appropriate jstack executable.
-
-   ::
-
-       -bash-4.1$ sudo -u derekd /home/y/share/yjava_jdk/java/bin/jstack 1870 > stack.txt
-       
-       2013-12-18 21:45:38
-       Full thread dump Java HotSpot(TM) 64-Bit Server VM (23.7-b01 mixed mode):
-       
-       "Attach Listener" daemon prio=10 tid=0x00007f6194001000 nid=0x294e waiting on condition [0x0000000000000000]
-          java.lang.Thread.State: RUNNABLE
-       
-       "New I/O client worker #1-1" prio=10 tid=0x00007f612801b000 nid=0x857 waiting on condition [0x00007f61a7eb8000]
-          java.lang.Thread.State: WAITING (parking)
-               at sun.misc.Unsafe.park(Native Method)
-               - parking to wait for  <0x00000000d10f6790> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
-               at java.util.concurrent.locks.LockSupport.park(LockSupport.java:186)
-               at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2043)
-               at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
-               at backtype.storm.messaging.netty.Client.takeMessages(Client.java:126)
-               at backtype.storm.messaging.netty.StormClientHandler.messageReceived(StormClientHandler.java:56)
-               at org.jboss.netty.channel.SimpleChannelUpstreamHandler.handleUpstream(SimpleChannelUpstreamHandler.java:80)
-               at org.jboss.netty.channel.DefaultChannelPipeline.sendUpstream(DefaultChannelPipeline.java:545)
-               at org.jboss.netty.channel.DefaultChannelPipeline$DefaultChannelHandlerContext.sendUpstream(DefaultChannelPipeline.java:754)
-               at org.jboss.netty.channel.Channels.fireMessageReceived(Channels.java:302)
-               at org.jboss.netty.handler.codec.frame.FrameDecoder.unfoldAndFireMessageReceived(FrameDecoder.java:317)
-               at org.jboss.netty.handler.codec.frame.FrameDecoder.callDecode(FrameDecoder.java:299)
-               at org.jboss.netty.handler.codec.frame.FrameDecoder.messageReceived(FrameDecoder.java:216)
-               at org.jboss.netty.channel.SimpleChannelUpstreamHandler.handleUpstream(SimpleChannelUpstreamHandler.java:80)
-               at org.jboss.netty.channel.DefaultChannelPipeline.sendUpstream(DefaultChannelPipeline.java:545)
-               at org.jboss.netty.channel.DefaultChannelPipeline.sendUpstream(DefaultChannelPipeline.java:540)
-               at org.jboss.netty.channel.Channels.fireMessageReceived(Channels.java:274)
-               at org.jboss.netty.channel.Channels.fireMessageReceived(Channels.java:261)
-               at org.jboss.netty.channel.socket.nio.NioWorker.read(NioWorker.java:350)
-               at org.jboss.netty.channel.socket.nio.NioWorker.processSelectedKeys(NioWorker.java:281)
-               at org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:201)
-               at org.jboss.netty.util.ThreadRenamingRunnable.run(ThreadRenamingRunnable.java:108)
-               at org.jboss.netty.util.internal.IoWorkerRunnable.run(IoWorkerRunnable.java:46)
-               at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
-               at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
-               at java.lang.Thread.run(Thread.java:722)
-       
-       "New I/O server worker #1-1" prio=10 tid=0x00007f60e4002000 nid=0x854 runnable [0x00007f61a7fb9000]
-          java.lang.Thread.State: RUNNABLE
-               at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method)
-               at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:228)
-               at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:81)
-               at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:87)
-               - locked <0x00000000d1188bf0> (a sun.nio.ch.Util$2)
-               - locked <0x00000000d1188c08> (a java.util.Collections$UnmodifiableSet)
-               - locked <0x00000000d117be78> (a sun.nio.ch.EPollSelectorImpl)
-               at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:98)
-               at org.jboss.netty.channel.socket.nio.SelectorUtil.select(SelectorUtil.java:38)
-               at org.jboss.netty.channel.socket.nio.NioWorker.run(NioWorker.java:164)
-               at org.jboss.netty.util.ThreadRenamingRunnable.run(ThreadRenamingRunnable.java:108)
-               at org.jboss.netty.util.internal.IoWorkerRunnable.run(IoWorkerRunnable.java:46)
-               at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
-               at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
-               at java.lang.Thread.run(Thread.java:722)
-       
-       "DestroyJavaVM" prio=10 tid=0x00007f61b800a800 nid=0x78a waiting on condition [0x0000000000000000]
-          java.lang.Thread.State: RUNNABLE
-       
-       "New I/O server boss #1 ([id: 0x4364cbbb, /0.0.0.0:6734])" prio=10 tid=0x00007f60e8003800 nid=0x84d runnable [0x00007f61ac18d000]
-          java.lang.Thread.State: RUNNABLE
-               at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method)
-               at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:228)
-               at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:81)
-       ...
+You can take a jstack of a worker from the topology component page and download it.
 
 jmap (Heap Dumps)
 #################
 
-#. Follow similar steps as above to discover the user and PID.
-#. Execute a binary heap dump with jmap.
+You can take a heapdump of a worker from the topology component page and download it.
 
-   ::
+profiling (Flight Recorder)
+#################
 
-       bash-4.1$ sudo -u derekd /home/y/share/yjava_jdk/java/bin/jmap -dump:format=b,file=heap.bin 1870
-       Dumping heap to /home/derekd/heap.bin ...
-       Heap dump file created
+You can take a flight recording (by setting a timeout) of a worker from the topology component page and download it.
+
 
 gdb (For Memory leaks/Direct Byte Buffers)
 ##########################################
