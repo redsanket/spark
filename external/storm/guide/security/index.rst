@@ -2,29 +2,15 @@
 Authorization/Authentication
 ============================
 
-.. Status: first draft. Needs tighter writing and a technical review.
 
 Authorization
 =============
 
 By default, you will have permissions to manipulate and see any topology that you 
 launch. If you want to allow others to also manipulate this topology you need to 
-set the topology configuration ``topology.users`` to be a list of all the users you want to 
-be able to manipulate this topology. This must be set in the configuration you pass 
-to ``StormStarter`` when launching your topology.
-
-.. note:: Distributed PRC (DRPC) Authorization is still being worked on, but should be done soon.
-
-Plugin API
-----------
-
-A plugin API has also been added to block unwanted operations, along with some reasonable implementations.
-
-For example ``SimpleACLAuthorizer`` for Nimbus.
-
-- Can configure administrators to do anything.
-- Users that the supervisors are running as.
-- Topology can also configure who is allowed to kill or re-balance it.
+set the topology configuration ``topology.users`` or ``topology.groups`` to be a list of all the users or groups you want to 
+be able to manipulate this topology. This must be specified in the configuration used for
+launching your topology.
 
 
 Authentication
@@ -48,7 +34,7 @@ The following authorization methods are supported:
 Kerberos Authentication
 -----------------------
 
-Storm at Yahoo uses Kerberos to authenticate the end user with Nimbus. For hosted 
+Storm at Oath uses Kerberos to authenticate the end user with Nimbus. For hosted 
 clusters, it should already be set up on the gateways so that all you need to do 
 to access Storm is to run ``kinit`` before running the ``storm`` command.
 
@@ -87,19 +73,6 @@ If you have a headless user with a ``keytab``, you can use a ``jaas.conf`` like 
        principal="$principal";
     };
 
-Zookeeper Authentication
-------------------------
-
-We have secured access to Zookeeper as well. For workers, this is done through a 
-MD5 digest authentication. For most topologies, you should not need to worry about 
-it at all as a new secret will be generated for each topology launched. But, if 
-you are using Trident or any other transactional state topology, you will want to 
-provide that secret yourself. Otherwise, later topologies will not have access to 
-the previous topologies state to pick up where it left off. To set this payload, 
-you want to be set the following::
-
-    storm.zookeeper.topology.auth.scheme: digest
-    storm.zookeeper.topology.auth.payload: <username>:<password>
 
 Authentication for External Services
 ------------------------------------
@@ -107,34 +80,25 @@ Authentication for External Services
 Multi-tenant storm supports pushing credentials as well as tickets and tokens when launching 
 a topology and on demand when they are about to expire.
 
-This code has not been accepted back into open source Storm yet, so if you wish 
-to use it, you need ``ystorm`` to be a Maven dependency. You do this
-by adding the dependency below to ``pom.xml``:: 
-
-    <dependency>
-      <groupId>yahoo.yinst.ystorm</groupId>
-      <artifactId>storm-core</artifactId>
-      <version>0.9.0_wip21.205</version>
-      <!-- keep storm out of the jar-with-dependencies -->
-      <scope>provided</scope>
-    </dependency>
 
 Automatic Credentials Push
 ##########################
 
-As of ``ystorm-0.9.0_wip21.205`` credentials can be gathered automatically by the 
+Credentials can be gathered automatically by the 
 client and put into the current Java Subject on the workers. By default, on 
 multi-tenant clusters that support this a plugin for pushing the TGT and setting 
 it up so that it is compatible with Hadoop should be automatic. There is also a 
-plugin that will renew the Granting Ticket Ticket (TGT), so you will only have to push a new TGT once or 
+plugin that will renew the Ticket-Granting Ticket (TGT), so you will only have to push a new TGT once or 
 twice a week. If you have other credentials that you would like to automatically 
-push, `ask the Storm team <email:yahoo-storm-team@yahoo-inc.com>`_ how to set this up.
+push, `ask the Storm team <email:storm-devel@oath.com>`_ how to set this up.
 
 These plugins do not schedule anything to push credentials periodically, so before 
 they are about to expire you will need to have something cron, etc., that will log 
 the user in through a keytab and run ``storm upload-credentials <topology-name>`` or 
 call ``StormSubmitter.pushCredentials`` programatically. Both of these options can 
 be combined with manually populated credentials.
+
+For TGT, the metric TGT-TimeToExpiryMsecs exists to indicate when the credentials will expire.
 
 
 Manual Credentials Push
@@ -150,8 +114,7 @@ To push new credentials, use the command-line tool::
 
     storm upload-credentials <topology-name> [-f <cred-file.properties>] [<cred-key> <cred-value>]*
 
-As of ``ystorm-0.9.0_wip21.205``, you can use the ``StormSubmitter.pushCredentials`` API. 
-(If you have to do this on an older cluster please see the ystorm team for your options.)
+You can also use the ``StormSubmitter.pushCredentials`` API. 
 
 See :ref:`Accessing External Services Through Multitenant Storm <auth-access_ext_services>` 
 for details about specific services.
@@ -173,7 +136,7 @@ A set of APIs and plugins that allow credentials to securely be delivered and re
 Accessing External Services Through Multitenant Storm 
 ======================================================
 
-We've discussed authorization and authentication for Storm at Yahoo. In this section, 
+We've discussed authorization and authentication for Storm at Oath. In this section, 
 we'll look at using credentials for multi-tenant Storm to access external services. 
 
 If you are running your own cluster without multi-tenancy, you can simply use 
@@ -181,7 +144,7 @@ credentials in a more traditional way with host-based YCA v1, ``ykeykey``, etc. 
 multi-tenant Storm, we do not plan on installing any credentials for individuals on the cluster. 
 You will have to transmit those credentials with the topology.
 
-There are numerous services used at Yahoo that require authentication to be able to access them. 
+There are numerous services used at Oath that require authentication to be able to access them. 
 We are working on proper solutions and examples for many of these. If you need 
 more of them, please mention it when `on-boarding <../onboarding>`_ 
 or `file a yo/ystorm-request <http://yo/ystorm-request>`_
@@ -190,22 +153,12 @@ so that we can work on it with the other teams involved.
 Credentials API
 ---------------
 
-A new API has been added that allows owners of a topology to send credentials to 
+The credentials API has been added that allows owners of a topology to send credentials to 
 a topology when it is launched and to send updated credentials periodically
-before the old ones expire. This API has not been accepted back into open source 
-yet, so to use it, you will need to compile your topology with
-``ystorm`` 0.9.0_wip21.205 or higher.
-
-.. code-block:: xml
-
-   <dependency>
-       <groupId>yahoo.yinst.ystorm</groupId>
-       <artifactId>storm</artifactId>
-       <version>0.9.0_wip21.205</version>
-   </dependency>
+before the old ones expire. 
 
 For most cases, plugins that automatically push credentials on your behalf should 
-allow your topology to run unchanged as of ``ystorm`` 0.9.0_wip21.205. These plugins support 
+allow your topology to run unchanged. These plugins support 
 pushing your TGT out and allowing services like Hadoop and HBASE to access it 
 unchanged.
 
@@ -217,7 +170,7 @@ plugins that automatically push them with a small amount of configuration.
 Credentials Push
 ################
 
-To submit a topology with this new API you would run something like the following:
+To submit a topology with the credential API you would run something like the following:
 
 .. code-block:: java
 
@@ -297,7 +250,7 @@ The V2 certificate being fetched must be for a role that includes a special host
 
     <username>.wsca.user.yahoo.com
 
-As of ``ystorm-0.9.0_wip21.225`` code has been added to Storm to automatically fetch 
+Code has been added to Storm to automatically fetch 
 and push YCA certificates on your behalf. To use this, you need to know about the
 three configurations in the table below.
 
@@ -310,7 +263,7 @@ three configurations in the table below.
    "``yahoo.autoyca.proxyappid``", "This is the role for the http proxies that should be used with this YCAv2 cert. If not set YCA will guess based off of the colo you are in. It almost always gets this correct."
 
 On the worker side, you can fetch the most up-to-date certificate using static methods in 
-the ``com.yahoo.storm.security.yca.AutoYCA`` class. This class is in a separate Yahoo-
+the ``com.yahoo.storm.security.yca.AutoYCA`` class. This class is in a separate Oath-
 specific ``storm`` jar in the same ``yinst`` package/maven artifact. You need to 
 include a dependency on ``storm_yahoo`` to compile your code.
 
@@ -360,7 +313,6 @@ The following are some examples:
 
       storm upload-credentials my-topology-name -c yahoo.autoyca.appids=yahoo.role.name1,yahoo.role.name2"
 
-The older way of doing this is not recommended as it is much more complex and error prone. 
 
 
 HBase
@@ -376,7 +328,7 @@ gateway/launcher box.  When you run ``kinit`` to get a TGT from the
 Key Distribution Center (KDC) you need to be sure you either pass in the ``-f`` flag 
 or have you ``krb5.conf`` file set up to get a TGT that can be forwarded.
 Then when you submit your Storm topology, a piece of
-code we wrote called AutoTGT will take your TGT and send it to the processes
+code called AutoTGT will take your TGT and send it to the processes
 in your topology. It also knows about Hadoop/HBase, so if it finds Hadoop on
 your class path and the Hadoop configuration indicates that security is enabled, it will
 do what is needed to make Hadoop/HBase use the TGT.
@@ -468,3 +420,167 @@ Finally you need to use a fully qualified path to get the FileSystem, and ideall
    Path path = new Path("hdfs://mithrilred-nn1.red.ygrid.yahoo.com:8020/");
    Configuration conf = new Configuration();
    FileSystem fs = path.getFileSystem(conf);
+
+
+YkeyKey
+-------
+
+The preferred way to get YKeyKey data to your topology is to use Athenz to authenticate with YKeyKey and pull the credentials down yourself.  See documentation 
+`How-To: Use ykeykey in GRID <https://yahoo.jiveon.com/docs/DOC-128583>`_
+
+It should come down to setting up an Athenz domain and service that you can use an SIA server to get role tokens for. Once you have that setup you need to setup 
+your ykeykey keygroup to allow your domain to access this. You can do this through the CKMS UI for the keygroup. Each keygroup has a field in the UI for the Athenz 
+domain where you would put this role. Once you have that setup you need to grant the ckms access to your service so they can verify you are you. To do this run::
+
+    zms-cli -d $DOMAIN add-provider-role-member paranoids.ppse.ckms.ykeykey_prod $KEY_GROUP access $DOMAIN.$SERVICE
+
+If you want to do it for a different ckms like corp or alpha replace the _prod in the command above with _corp or _alpha. The DOMAIN is the Athenz domain you setup. 
+The SERVICE is the Athenz service you setup and the $KEY_GROUP is the key group you setup just above.
+
+Once you have all of this done you need to write a very small amount of code to access the ckms from storm, and a bit of configuration to have the Athenz credentials fetched on your behalf.
+
+First you need to add com.yahoo.cryptogen:credbank:0.1.20 as a dependency to your topology. It includes the code needed to fetch your keys from the ckms. Next when your bolt or spout is 
+initialized you will want to create a ZTSClient and YKeyKeyBank instance to give you access to these credentials.
+
+
+.. code-block:: java
+
+   import com.yahoo.auth.zts.ZTSClient;
+   import com.yahoo.cryptogen.credbank.ykeykey.YKeyKeyBank;
+   import com.yahoo.cryptogen.Credential;
+
+   ...
+
+   ZTSClient ztsClient = new ZTSClient(DOMAIN, SERVICE);
+   YKeyKeyBank bank = new YKeyKeyBank("corp", Arrays.asList(KEY_GROUP), ztsClient);
+   bank.start();
+   //The background thread can take a while to read all of the creds so do the manualRefresh to be sure we are ready to go
+   bank.manualRefresh();
+
+   ...
+
+   //Wen you need a credential you can call
+   Credential cred = bank.get(KEY);
+
+   ...
+
+   //when closing your bolt/spout you probably want to call
+   bank.stop();
+   ztsClient.close();
+
+When launching your topology, and periodically as you push new credentials you will want to configure AutoAthens to fetch the Athenz tokens for you and push them to your topology. 
+The tenant domain and service are the domain and service you configured above. The role you want to configure Athenz to fetch is “paranoids.ppse.ckms".
+
+
+Athenz
+------
+
+Athenz support for Storm is provided by AutoAthens plugin. It is similar to other automatic credentials plugins where it will pull package credentials for you on a 
+gateway/launcher box and forward them to your running topology. In this case, AutoAthens will fetch RoleTokens using the ZTSClient Java API and then on the worker 
+side insert them into the token cache for the ZTSClient. 
+
+This means that unlike AutoYCA, code written to use the ZTSClient can run unmodified on Storm clusters.
+
+Athenz supports several different ways of authenticating, aka telling Athenz who you are, but because AutoAthens was written initially for CMS and CMS only supports 
+authenticating using the SIA server we have done the same thing. If you have a use case that needs other forms of authentication please feel free to reach out to 
+the storm team. Setting up and running an SIA server is beyond the scope of this document. But to make this work you need the SIA server configured with the 
+private key(s) for the domain/service(s) you need to authenticate as running on your launcher box.
+
+Once you have your launcher box setup you need to tell AutoAthens the RoleTokens you want to fetch and the tenant domain/service you want to fetch them with. 
+Conceptually the tenant domain/service is who you are, the role and role-suffix indicate who you want to talk to. This can be done by setting the yahoo.athens.roles 
+config to be a list of maps in the form:
+
+.. code-block:: java
+   {“role”: <role>, “suffix”: <role-suffix>, “trust-domain”:<trust-domain>, “tenant-domain”: <tenant-domain>, “tenant-service”: <tenant-service>}
+
+Role is required and is the role that you are fetching the token for, aka who you want to talk to.
+
+Suffix and trust-domain are optional. It is beyond the scope of this document to describe how Athenz uses them.
+
+tenant-domain and tenant-service are the domain and the service that the client is a part of and will be used to fetch the role token. 
+These are required unless defaults are provided by the storm configs yahoo.athens.tenant.domain and yahoo.athens.tenant.service respectively. 
+These represent who you are, or how you authenticated with Athenz.
+
+If the only thing in the map is the “role” you can replace the map with the string name of the role.
+
+For Example::
+
+   storm upload_credentials MyTopology -c yahoo.athens.tenant.domain=”my.storm.prod.domain” -c yahoo.athens.tenant.service=”client” -c yahoo.athens.roles=’[“remote.special.service”,  “some.other.remote.service”, {“role”: “final.remote.service”, “tenant-service”: “test.client”, “tenant-domain”: “my.storm.test”}]’
+
+
+would fetch and forward three role tokens. One each for “remote.special.service” and “some.other.remote.service” using “my.storm.prod.domain:client” and one for “final.remote.service” using “my.storm.test:test.client”.
+
+When fetching a RoleToken, Athenz requires you to specify a time range that the token should be good for. If Athenz cannot find a valid token with that time range 
+in its cache it will try to fetch a new one from the SIA server. This can be problematic because if we ship a RoleToken to your topology with an expiration 
+time that is either too far in the future or not far enough the token will be rejected. This can be seen by looking in the logs for messages like::
+
+   LookupRoleTokenInCache: role-cache-lookup key: p=something;d=something.else token-expiry: 85949 req-min-expiry: 86399 req-max-expiry: 86400 client-min-expiry: 900 result: expired
+
+If this happens it either means that you are not pushing new tokens frequently enough using upload_credentials or the client in your topology is asking for a range 
+that is not compatible with the range of tokens that AutoAthens uses. Currently AutoAthens will fetch a token that is good for between 1 day and 1 second less than 
+1 day. It does this to be sure that we get a token with a very strict expiry (not too long and not too short), and it is expected that you will push a new token 
+twice a day. This is because CMS requests a token that is good for between 2 hours and 1 day. If the token used is good for longer than 1 day we risk the token 
+being rejected, and you need to push a new one before it only has 2 hours left or you risk it expiring. If you do have a client where the 1 day expiry AutoAthens 
+uses is not compatible please reach out to the Storm team and we can make that configurable as well.
+
+
+Athenz TSL Certs using AutoSSL
+==============================
+
+Storm has an AutoSSL plugin similar to AutoAthens that you can use to send both private and public key files to your topology. AutoAthens is specific to role tokens. 
+Role tokens have their own API that is controlled by the athenz team and as such we can plug into it to make accessing the role tokens fairly transparent to the end 
+user. Athenz TLS certs are not nearly as transparent because there is no java API for fetching them and they tend to be used just by reading them from a file. As 
+such AutoSSL just provides the ability to ship small files securely to your topology. You can specify which files you want to ship by setting the config 
+ssl.credential.files to be a list of strings that are paths to the files. The exact location of these files is specific to Athens and the SIA server. I don't know 
+all of the details of this, but I believe that they are at /var/lib/sia/keys/ but https://git.ouroath.com/pages/athens/athenz-guide/service_x509_credentials/ should 
+explain more of how to generate them. Any file that you ship will show up in the current working directory of the worker process with the same name as the local file.
+
+Because Athenz is doing mutual authentication using SSL you need to make sure you ship the public and private keys for the role you want to use. The default java 
+trust-store that we ship with storm is not guaranteed to allow you to authenticate with the server. It may but that is tied to the version of java that is shipped 
+with storm, and we are rather conservative about upgrading java versions. So please make sure you install the yahoo_certificate_bundle package as described here 
+https://git.ouroath.com/pages/athens/athenz-guide/athenz_ca_certs/ and ship one of the truststores in /opt/yahoo/share/ssl/certs.
+
+One of the key differences between Athenz TLS certs and most other TLS certs is that the athenz ones expire after about 30 days. AutoSSL allows you to ship new 
+versions of the files when you run storm upload-credentials, but most web servers/clients don't support switching certs wile the system is live. To work around this 
+the Athenz team has provided an SSLContext that for most java web servers and clients should work, but you should also explicitly test this with whatever server/client 
+you are using.
+
+All of the following came from https://git.ouroath.com/pages/athens/athenz-guide/client_side_x509_credentials/
+
+You might want to check with the Athenz team to be sure the versions and everything are up to date.
+
+Maven dependency:
+
+.. code-block:: java
+       <dependency>
+           <groupId>com.yahoo.athenz</groupId>
+           <artifactId>athenz-cert-refresher</artifactId>
+           <version>1.7.33</version>
+       </dependency>
+
+How to use it:
+
+.. code-block:: java
+
+    // Create our SSL Context object based on our private key and
+    // certificate and jdk truststore
+
+    KeyRefresher keyRefresher = Utils.generateKeyRefresher(trustStorePath, trustStorePassword,
+        certPath, keyPath);
+    // Default refresh period is every hour.
+    keyRefresher.startup();
+    // Can be adjusted to use other values in milliseconds.
+    //keyRefresher.startup(900000);
+    SSLContext sslContext = Utils.buildSSLContext(keyRefresher.getKeyManagerProxy(),
+        keyRefresher.getTrustManagerProxy());
+
+A pointer to the actual code:
+
+https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyRefresher.java
+https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyManagerProxy.java
+https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/TrustManagerProxy.java
+
+
+
+
+
