@@ -631,6 +631,17 @@ PySpark usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
 --------------------------------------------------------------------
   - `PYspark, Pyspark + Anaconda,IPython,Hive` :ref:`swp`
 
+.. _soy_streaming:
+
+Spark Streaming
+-----------------------
+Spark streaming can be run on Yarn but there are a few things to keep in mind since Yarn is a multi-tenant environment. 
+
+- Spark Streaming is not good for sub-second latency requirements, we recommend you look at Storm for this
+- Yarn does not provide network or disk isolation. This can affect Spark Streaming jobs since they are running on multi-tenant hosts and another application may start to use all the network or disk bandwidth which could slow your streaming job down or worst case cause that executor to fail.
+- HDFS tokens have a max lifetime of 28 days so you must restart your application at least once every 28 days.
+- Yarn does not handle aggregating the spark streaming job logs while its running, so be sure to use a log4j configuration that removes them so you don't cause the nodes to run out of disk space.
+
 .. _soy_jupyter:
 
 Spark on Jupyter hosted
