@@ -4,6 +4,14 @@ spark-starter contains simple examples of using Spark. These simple examples sho
 
 #Running with Maven
 
+Before creating a package:
+
+You will need to install the hortonworks Spark HBase Connector jar in your maven repository locally.
+
+```
+ mvn install:install-file  -Dfile=./lib/shc-core-1.1.2-2.2-s_2.11-SNAPSHOT.jar -DgroupId=com.hortonworks -DartifactId=shc-core -Dversion=1.0 -Dpackaging=jar
+```
+
 To create a package:
 
 ```
