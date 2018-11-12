@@ -75,10 +75,9 @@ Try the `Tutorial: Counting Data Highway Events <../tutorials/index.html#storm_t
 or on-board to the production environment by following the same steps above but selecting
 **Production** and specifying your capacity needs:
 
-- number of servers
-- number of workers
+- number of vCores
+- amount of Memory
 - number of executors
-- isolated topology
 - Rainbow Data Highway integration
 - throughput
 - SLA requirements

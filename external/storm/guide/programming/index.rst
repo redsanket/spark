@@ -43,17 +43,17 @@ Yahoo Spouts
 
 Because of common use cases, the following spouts were created to help Yahoos use Storm. 
 
-- **DH Rainbow Spout** - The `Data Highway (DH) Rainbow <http://developer.corp.yahoo.com/product/Data%20Highway%20Rainbow>`_
+- **DH Rainbow Spout** - The `Data Highway (DH) Rainbow <http://yo/dhdoc>`_
   spout allows Storm to ingest Data Highway Rainbow events. 
   DH Rainbow pushes events directly to customers over HTTP. This model is different from most 
   pub-sub systems that Storm normally interacts with, as such setting up and using 
   the DH Rainbow spout is a bit more involved then a typical Storm spout.
 
 - **CMS Spout** - The CMS spout allows your topology to integrate with the 
-  `Yahoo Cloud Messaging Service Queue <http://developer.corp.yahoo.com/product/Cloud%20Messaging%20Service>`_.
+  `Yahoo Cloud Messaging Service Queue <http://yo/cmsv2>`_.
 
 - **Redis Spout** - The Redis spout allows your topology to integrate with the 
-  `Redis <http://developer.corp.yahoo.com/product/Redis>`_ database.
+  `Redis <http://yo/redis-security>`_ database.
 
 
 Sending Data Directly to Spouts
@@ -153,13 +153,6 @@ Storm uses a very old version of Jetty for the Web UI. It is not needed when
 running the worker process, but still remains as a dependency in Maven. The 
 DH Rainbow Spout uses a much newer and more improved version of Jetty, which can 
 have a few conflicts with the older version of Jetty when running tests through maven.
-
-Another thing to be aware of is that many dependencies, the Data Highway APIs in 
-particular, use ``slf4j`` as their logging API, but also include the back-end bridge 
-to write the logs out through ``log4j``. Storm 0.9.0 and above has replaced ``log4j`` 
-with ``logback`` and included a ``log4j`` compatibility layer so calls to ``log4j`` go 
-through ``slf4j`` and on to logback (log4j-over-slf4j). If any of your dependencies 
-include ``log4j`` or ``slf4j-logj`` as dependencies please be sure to exclude these, too.
 
 DH Rainbow Spout Location
 #########################
@@ -314,8 +307,8 @@ is happening. If you fail to push new credentials, the topology will stop workin
 CMS (JMS) Spout
 ---------------
 
-No official generic spout yet, but you can look at this example 
-`CMSSpout.java <https://git.ouroath.com/slingstone/dataquality_metrics_pipeline/blob/master/src/main/java/com/yahoo/slingstone/dataquality/pipeline/storm/CMSSpout.java>`_. 
+For details on how to use CMS Spout, please refer to `Storm CMS Tutorial <https://git.ouroath.com/cloud-messaging/cloud-messaging-pkg/blob/master/cloud-messaging-storm-pkg/src/test/java/com/yahoo/cloud/messaging/storm/StormExample.java>`_.
+You can look  also at this example `Storm CMS Tutorial <https://yahoo.jiveon.com/docs/DOC-63341>`_.
 
 
 .. code-block:: java
@@ -530,6 +523,17 @@ The Trident state is a first class citizen, but the exact implementation of stat
 Trident has a high-level API (similar to cascading for Hadoop) and
 provides exactly once semantics like transactional topologies.
 
+For trident topology, it is important to set zookeeper configurations while submitting the 
+topology. So please specify following zookeeper properties from gateway box. Also, make sure 
+you maintain unique "storm.zookeeper.topology.auth.payload" value for trident to reuse saved state.
+
+.. code-block:: java
+
+   conf.put(backtype.storm.Config.TRANSACTIONAL_ZOOKEEPER_SERVERS, "zk-server1,zk-server2,zk-server3");
+   conf.put(backtype.storm.Config.TRANSACTIONAL_ZOOKEEPER_ROOT, "/transactional/ebonyblue-ni");
+   conf.put(backtype.storm.Config.TRANSACTIONAL_ZOOKEEPER_PORT, 50512);
+   conf.put(backtype.storm.Config.STORM_ZOOKEEPER_TOPOLOGY_AUTH_PAYLOAD, "myuserid:uniquepassphrase");
+
 Example
 -------
 
@@ -589,7 +593,8 @@ REST DRPC
 ---------
 
 HTTP requests to the DRPC (``servers.DRPC``) server will receive GET requests in 
-the following format: ``http://<DRPC_host>:<HTTP_port>/drpc/<FunctionName>/<Arguments>;``
+the following format: ``http://<DRPC_host>:<HTTP_port>/drpc/<FunctionName>/<Arguments>;`` or
+ ``https://<DRPC_host>:4443/drpc/<FunctionName>/<Arguments>;``
 
 .. note:: Not in Apache yet.
 
@@ -610,6 +615,7 @@ The earlier version of ``ystorm`` does not support REST style DRPC.
 
        yinst i ystorm_drpc -b test
        yinst set ystorm.drpc_http_port=4080
+       yinst set ystorm.drpc_https_port=4443
        yinst set ystorm.drpc_invocations_port=50571
        yinst set ystorm.drpc_port=50570
        yinst set ystorm.drpc_servers=<DRPC_SERVER_HOST1>,<DRPC_SERVER_HOST2>
@@ -618,6 +624,7 @@ The earlier version of ``ystorm`` does not support REST style DRPC.
 
        yinst i ystorm_drpc -b test
        yinst set ystorm.drpc_http_port=4080
+       yinst set ystorm.drpc_https_port=4443
        yinst set ystorm.drpc_invocations_port=50571
        yinst set ystorm.drpc_port=0
        yinst set ystorm.drpc_servers=<DRPC_SERVER_HOST1>,<DRPC_SERVER_HOST2>
@@ -634,6 +641,7 @@ Update your ``storm.yaml`` with appropriate DRPC configuration::
 
     yinst set ystorm.drpc_port=<DRPC_THRIFT_PORT> (0 or 50570, see above)
     yinst set ystorm.drpc_http_port=4080
+    yinst set ystorm.drpc_https_port=4443
     yinst set ystorm.drpc_servers=<DRPRC_SERVER_HOST1>,<DRPRC_SERVER_HOST2>
 
 Submit DRPC requests
@@ -645,11 +653,15 @@ a URLs similar to the following:
 
 - ``curl http://<DRPRC_SERVER_HOST1>:4080/drpc/exclamation/hello``
 - ``curl http://<DRPRC_SERVER_HOST2>:4080/drpc/exclamation/hello``
+- ``curl https://<DRPRC_SERVER_HOST1>:4443/drpc/exclamation/hello``
+- ``curl https://<DRPRC_SERVER_HOST2>:4443/drpc/exclamation/hello``
 
 You can also use your browser to make calls to the DRPC servers::
 
     http://<DRPRC_SERVER_HOST1>:4080/drpc/exclamation/hello
     http://<DRPRC_SERVER_HOST2>:4080/drpc/exclamation/hello
+    https://<DRPRC_SERVER_HOST1>:4443/drpc/exclamation/hello
+    https://<DRPRC_SERVER_HOST2>:4443/drpc/exclamation/hello
 
 
 
