@@ -156,13 +156,11 @@ public class SendIntegrationResultMail {
                 while (resultSet.next()) {
                 	java.sql.ResultSetMetaData rsmd = resultSet.getMetaData();
                 	int columnsNumber = rsmd.getColumnCount();
-                	System.out.println("\n\n GRIDCI-3039 : Start \n\n");
                 	System.out.println("Columns Number : " + columnsNumber);
                 	for (int i = 1; i <= columnsNumber; i++) {
                         if (i > 1) System.out.print(",  ");
                         System.out.print(rsmd.getColumnName(i) + "\t : \t" + resultSet.getString(i));
                     }
-                	System.out.println("\n\n GRIDCI-3039 : End \n\n");
                     tableBuilder.append("<tr>");
 
                     String dataSetName = resultSet.getString("dataSetName");

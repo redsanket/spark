@@ -38,6 +38,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
     private String currentJobName;
     org.apache.hadoop.conf.Configuration configuration;
     private CommonFunctions commonFunctions;
+    private final static String OOZIE_ENV_EXPORT_COMMAND = "export OOZIE_SSL_ENABLE=true;export OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks";
     private final static String HADOOPQA_KINIT_COMMAND = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
     private final static String DFSLOAD_KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
     private final static String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
@@ -159,7 +160,7 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         String currentHR = getCurrentHr();
         boolean oozieResult = false;
 
-        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.DFSLOAD_KINIT_COMMAND + ";"  +   OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "http://" + this.getHostName() + ":4080/oozie -auth kerberos"   + " \"";
+        String oozieCommand = "ssh " + this.getHostName() + "   \" " + this.OOZIE_ENV_EXPORT_COMMAND + ";" + this.DFSLOAD_KINIT_COMMAND + ";"  +  OOZIE_COMMAND + " job -run -config " +  "/tmp/integration-testing/oozie/" + currentHR + "/job.properties" + " -oozie " + "https://" + this.getHostName() + ":4443/oozie -auth kerberos"   + " \"";
         String tempOozieJobID = this.commonFunctions.executeCommand(oozieCommand);
         if (tempOozieJobID == null) {
             this.commonFunctions.updateDB(currentJobName, "oozieResult", "FAIL");
@@ -191,29 +192,34 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         return "" + oozieResult;
     }
     
+    public String getJSONResponse(String stringUrl) {
+    	String cmd = "curl --insecure -sb -H \"Accept: application/json\" --negotiate -u : --cacert /home/y/conf/ygrid_cacert/ca-cert.pem " + stringUrl;
+    	String output = this.commonFunctions.executeCommand(cmd);
+    	return output;
+    }
+    
     public String getResult() {
         String status =  null;
-        String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
+
+        String query = "https://" + this.getHostName() + ":4443/oozie/v1/job/" + this.getOozieJobID();
         TestSession.logger.info("oozie query = " + query);
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        if (response != null) {
-            JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
-            status = jsonPath.getString("status");
-            
+        JSONObject oozieJsonResult =  pollOozieJobResult(query);
+
+        if (oozieJsonResult != null) {
+            status = oozieJsonResult.getString("status");
+            TestSession.logger.info("oozie job status = " + status);
+
             while ( status.indexOf("RUNNING") > -1) {
-                jsonPath = pollOozieJobResult();
-                String result = jsonPath.prettyPrint();
-                TestSession.logger.info("result = " + result);
-                JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
+                oozieJsonResult =  pollOozieJobResult(query);
                 status = walkToOozieResponseAndUpdateResult(oozieJsonResult);
+
                 if (status != null) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    status = jsonPath.getString("status");
+                    status = oozieJsonResult.getString("status");
                     if (! (status.indexOf("RUNNING") > -1)   ) {
                         break;
                     }
@@ -261,12 +267,10 @@ public class TestIntOozie implements java.util.concurrent.Callable<String>{
         return status;
     }
 
-    private JsonPath pollOozieJobResult() {
-        String query = "http://" + this.getHostName() + ":4080/oozie/v1/job/" + this.getOozieJobID();
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.commonFunctions.getCookie()).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
-        return jsonPath;
+    private JSONObject pollOozieJobResult(String query) {
+        String responseString = this.getJSONResponse(query);
+        JSONObject response =  (JSONObject) JSONSerializer.toJSON(responseString);
+        return response;
     }
     
     /**

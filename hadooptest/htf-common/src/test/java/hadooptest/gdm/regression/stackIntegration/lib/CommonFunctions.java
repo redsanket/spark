@@ -437,7 +437,6 @@ public class CommonFunctions {
 				testList.add(testIntHive);
 			}
 		}
-
 		if (currentStackTestComponent.contains("hbase")) {
 			StackComponent hbaseStackComponent = stackComponentMap.get("hbase");
 			Callable<String> testHbaseComponent = null;
@@ -449,7 +448,6 @@ public class CommonFunctions {
 				testList.add(testHbaseComponent);
 			}
 		}
-
 		if (currentStackTestComponent.contains("oozie")) {
 			StackComponent oozieStackComponent = stackComponentMap.get("oozie");
 			Callable<String> testIntOozie = null;
@@ -465,7 +463,6 @@ public class CommonFunctions {
 				}
 			}
 		}
-
 		if (currentStackTestComponent.contains("starling")) {
 			StackComponent starlingStackComponent = stackComponentMap.get("starling");
 			Callable<String> testStarlingComponent = null;
