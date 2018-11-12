@@ -16,6 +16,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	private StackComponent stackComponent;
 	private CommonFunctions commonFunctionsObj;
 	private final String COMPONENT_NAME = "oozie";
+	private final String KINIT_COMMAND = "kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM";
 	private final static String OOZIE_ENV_EXPORT_COMMAND = "export OOZIE_SSL_ENABLE=true;export OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks";
 	private final static String QUERY = ":4443/oozie/v1/admin/build-version";
 
@@ -46,7 +47,7 @@ public class OozieHealthCheckUp implements Callable<StackComponent>{
 	
     public String getJSONResponse(String stringUrl) {
     	String curlCommand = "curl --insecure -sb -H \"Accept: application/json\" --negotiate -u : --cacert /home/y/conf/ygrid_cacert/ca-cert.pem " + stringUrl;
-    	String cmd = OOZIE_ENV_EXPORT_COMMAND + ";" + curlCommand;
+    	String cmd = OOZIE_ENV_EXPORT_COMMAND + ";" + KINIT_COMMAND + ";" + curlCommand;
     	String output = this.commonFunctionsObj.executeCommand(cmd);
     	return output;
     }
