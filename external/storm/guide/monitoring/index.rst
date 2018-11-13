@@ -2,9 +2,9 @@
 YAMAS Metrics/Monitoring
 ========================
 
-.. Status: Second draft on 09/22/14.
+.. Status: Updated on 11/12/18.
 
-As of ``ystorm_contrib-0.1.0.37``, the HTTP spout exports metrics through the Storm 
+The HTTP spout from ``ystorm_contrib`` exports metrics through the Storm 
 metrics system. The ``ystorm_contrib`` package also includes with it a metrics 
 collector that you can include with your topology to place these metrics 
 in YAMAS.
@@ -37,15 +37,15 @@ and understand what metrics are supported.
 Adding Dependencies
 -------------------
 
-Add the following XML to your ``pom.xml`` to include the ``yamas_metrics_consumer`` package::
+Add the following XML to your ``pom.xml`` to include the ``yamas_metrics_consumer`` package:
 
 .. code-block:: xml
 
-   <dependency>
+    <dependency>
        <groupId>yahoo.yinst.ystorm_contrib</groupId>
        <artifactId>yamas_metrics_consumer</artifactId>
-       <version>0.1.0.37</version>
-   </dependency>
+       <version>0.4.0.130</version>
+    </dependency>
 
 Configuring Storm to Use YAMAS
 ------------------------------
@@ -54,9 +54,9 @@ In your driver file,  add the following when submitting your topology:
 
 .. code-block:: java
 
-   import com.yahoo.storm.metrics.yamas.YamasMetricsConsumer; 
+   import com.yahoo.storm.metrics.yamas.HttpYamasMetricsConsumerV2; 
    ...
-   conf.registerMetricsConsumer(YamasMetricsConsumer.class, "yamas-app", 1);
+   conf.registerMetricsConsumer(HttpYamasMetricsConsumerV2.class, "yamas-app", 1);
 
 Supported Metrics
 -----------------
@@ -74,15 +74,23 @@ More complex objects are ignored.
 
    "``uptimeSecs``", "The uptime in seconds for the worker."
    "``startTimeSecs``", "The UNIX time when the worker came up."
-   "``GC/ParNew/ConcurrentMarkSweep_count``", The number of garbage collections that have happened."
-   "``GC/ParNew/ConcurrentMarkSweep_timeMs``", "The time spent doing those garbage collections."	
-   "``Memory/heap/nonHeap_unusedBytes``", "The unused bytes."	
-   "``Memory/heap/nonHeap_usedBytes``", "The bytes currently used."	
-   "``Memory/heap/nonHeap_maxBytes``", "The maximum bytes for this memory type."	
-   "``Memory/``heap/nonHeap_initBytes``", "The initial bytes for this memory type."
-   "``Memory/heap/nonHeap_virtualFreeBytes``", "The initial bytes for this memory type."
-   "``Memory/heap/nonHeap_virtualFreeBytes``", "The maximum of used bytes."
-   "``Memory/heap/nonHeap_committedBytes``", "The bytes committed to be used."
+   "``GC/[ConcurrentMarkSweep|ParNew|Copy|MarkSweepCompact|G1OldGeneration|G1YoungGeneration]_count``", The number of garbage collections that have happened."
+   "``GC/[ConcurrentMarkSweep|ParNew|Copy|MarkSweepCompact|G1OldGeneration|G1YoungGeneration]_timeMs``", "The time spent doing those garbage collections."	
+   "``memory/[heap|nonHeap]_initBytes``", "The initial bytes for this memory type."
+   "``memory/[heap|nonHeap]_committedBytes``", "The bytes committed to be used."
+   "``memory/[heap|nonHeap]_usedBytes``", "The bytes currently used."
+   "``memory/[heap|nonHeap]_maxBytes``", "The maximum bytes for this memory type."
+   "``memory/[heap|nonHeap]_unusedBytes``", "It equals to (committedBytes - usedBytes)."
+   "``memory/[heap|nonHeap]_virtualFreeBytes``", "It equals to (maxBytes - usedBytes)."
+   "``CPU_user-ms``", "cpu user time reported by Sigar."
+   "``CPU_sys-ms``", "cpu sys time reported by Sigar."
+   "``CGroupCpu_user-ms``", "cpu user time reported by cgroup."	
+   "``CGroupCpu_sys-ms``", "cpu sys time reported by cgroup."
+   "``[__sendqueue|__receive]_write_pos``", "How many writes have happened so far."
+   "``[__sendqueue|__receive]_read_pos``", "How many reads have happened so far."
+   "``[__sendqueue|__receive]_capacity``", "The capacity of the queue."
+   "``[__sendqueue|__receive]_population``", "The population in the queue."
+   "``[__sendqueue|__receive]_overflow``", "The population in the overflow location."
    "``__ack-count``", "The number of tuples acked on non-system streams."
    "``__ack-count_system``", "The number of tuples acked on system streams."
    "``__fail-count``", "The number of failed tuples on non-system streams."
@@ -97,9 +105,11 @@ Each of these metrics shown below also have several dimensions with them,
 so that you can get more details of what is happening.
 
 - ``worker-host``
+- ``host``
 - ``worker-port``
 - ``component-id`` (``__system`` for worker wide metrics)
 - ``task-id`` (``-1`` for worker wide metrics)
+- ``topology-submitter``
 
 
 Customizing Metrics
@@ -112,7 +122,7 @@ class, that when a metric returns this YAMAS will call ``set()`` instead of ``in
 
 For more complex metrics you can subclass the collector and override::
 
-    public boolean handleDataPoint(DataPoint dp, MonMetrics yamas) throws MonMetricsException;
+    public boolean handleDataPoint(DataPoint dp) throws StormMetricsException;
 
 If the data point is something that you have handled yourself, then return ``true``.
 If it is something you want default behavior for, then return ``false``. Do 
@@ -129,18 +139,34 @@ Worker-Level Metrics
    :header: "Purpose", "Metrics"
    :widths: 20, 45
 
-   "Time", "- ``uptimeSecs``
+   "Time", "
+            - ``uptimeSecs``
             - ``startTimeSecs``"
-   "Garbage Collection", "- ``GC/(ParNew|ConcurrentMarkSweep)_count``
-                          - ``GC/(ParNew|ConcurrentMarkSweeps)_timeMs``"
-   "Memory Usage", "- ``Memory/(heap|nonHeap)_unusedBytes``
-                    - ``Memory/(heap|nonHeap)_usedBytes``
-                    - ``Memory/(heap|nonHeap)_maxBytes``
-                    - ``Memory/(heap|nonHeap)_initBytes``
-                    - ``Memory/(heap|nonHeap)_virtualFreeBytes``
-                    - ``Memory/(heap|nonHeap)_committedBytes``"
-
-
+   "Garbage Collection", "
+                          - ``GC/[ConcurrentMarkSweep|ParNew|Copy|MarkSweepCompact|G1OldGeneration|G1YoungGeneration]_count``
+                          - ``GC/[ConcurrentMarkSweep|ParNew|Copy|MarkSweepCompact|G1OldGeneration|G1YoungGeneration]_timeMs``"
+   "Memory Usage", "
+                    - ``memory/[heap|nonHeap]_initBytes``
+                    - ``memory/[heap|nonHeap]_committedBytes``
+                    - ``memory/[heap|nonHeap]_usedBytes``
+                    - ``memory/[heap|nonHeap]_maxBytes``
+                    - ``memory/[heap|nonHeap]_unusedBytes``
+                    - ``memory/[heap|nonHeap]_virtualFreeBytes``"
+   "CPU Usage", "
+                - ``CPU_user-ms``
+                - ``CPU_sys-ms``
+                - ``CGroupCpu_user-ms``
+                - ``CGroupCpu_sys-ms``"
+                
+   "Queue", "
+            - ``[__sendqueue|__receive]_write_pos``
+            - ``[__sendqueue|__receive]_read_pos``
+            - ``[__sendqueue|__receive]_capacity``
+            - ``[__sendqueue|__receive]_population``
+            - ``[__sendqueue|__receive]_overflow``"
+  
+   
+                  
 Tuple-Level Metrics
 -------------------
 
@@ -148,26 +174,33 @@ Tuple-Level Metrics
    :header: "Purpose", "Metrics"
    :widths: 20, 45
 
-   "Acknowledge", "- ``__ack-count``
+   "Acknowledge", "
+                   - ``__ack-count``
                    - ``__ack-count_system``"
-   "Failure", "- ``__fail-count``
+   "Failure", "
+               - ``__fail-count``
                - ``__fail-count_system``"
-   "Emit Throughput", "- ``__emit-count``
+   "Emit Throughput", "
+                       - ``__emit-count``
                        - ``__emit-count_system``"
-   "Execute Throughput", "- ``__execute-count``
+   "Execute Throughput", "
+                          - ``__execute-count``
                           - ``__execute-count_system``"
-   "Generic", "- Any named metric that is an ``AbsoluteNumber`` will be set.
+   "Generic", "
+               - Any named metric that is an ``AbsoluteNumber`` will be set.
                - Any named metric that is any other Number will be incremented by the value."
 
 Dimensions
 ==========
 
-YAMAS metrics are collected with the following dimensions::
+YAMAS metrics are collected with the following dimensions:
 
-    worker-host
-    worker-port
-    component-id ("__system" for worker wide metrics)
-    task-id ("-1" for worker wide metrics)
+- ``worker-host``
+- ``host``
+- ``worker-port``
+- ``component-id`` (``__system`` for worker wide metrics)
+- ``task-id`` (``-1`` for worker wide metrics)
+- ``topology-submitter``
 
 Steps for Collecting Metrics
 ============================
@@ -223,7 +256,7 @@ Make sure to include ``yamas_metrics_consumer`` in your dependency tree.
    <dependency>
        <groupId>yahoo.yinst.ystorm_contrib</groupId>
        <artifactId>yamas_metrics_consumer</artifactId>
-       <version>0.1.0</version>
+       <version>0.4.0.130</version>
    </dependency>
 
 Please use YAMAS instead of Logging for metrics.
@@ -231,5 +264,5 @@ Please use YAMAS instead of Logging for metrics.
 .. code-block:: java
 
    import com.yahoo.storm.metrics.yamas.YamasMetricsConsumer; 
-   conf.registerMetricsConsumer(YamasMetricsConsumer.class, "yamas-app", 1);
+   conf.registerMetricsConsumer(HttpYamasMetricsConsumerV2.class, "yamas-app", 1);
    
