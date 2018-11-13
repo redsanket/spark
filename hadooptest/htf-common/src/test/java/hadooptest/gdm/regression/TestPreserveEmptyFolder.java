@@ -22,10 +22,6 @@ import hadooptest.cluster.gdm.Response;
 import hadooptest.cluster.gdm.WorkFlowHelper;
 
 public class TestPreserveEmptyFolder {
-    private static final String INSTANCE1 = "20180701";
-    private static final String INSTANCE2 = "20180702";
-    private static final String INSTANCE3 = "20180703";
-
     private ConsoleHandle consoleHandle = new ConsoleHandle();
     private String sourceGrid;
     private String targetGrid;
@@ -33,10 +29,7 @@ public class TestPreserveEmptyFolder {
     private String sourcePath;
     private static final String BASE_DATA_FOLDER = "/data/daqdev/";
     private static final String  INSTANCE_FILE_NAME = "instanceFile.txt";
-    private List<String> sourceInstanceValueList = new ArrayList<String>(Arrays.asList(INSTANCE1, INSTANCE2, INSTANCE3)) ;
-    private List<String> dataSetNameList = new ArrayList<String>();
-    private String dataSetNameWithPreverseTrue = "TestRetPresEmptyFldTrue_" + System.currentTimeMillis();
-    private String dataSetNameWithOutPreverse = "TestRetPresEmptyFldFalse_" + System.currentTimeMillis();
+    private String dataSetNameWithPreverseTrue = "TestRetPresEmptyFld_" + System.currentTimeMillis();
     private String dataSetNameDefaultPath = "TestRetUsualPath_" + System.currentTimeMillis();
     private HadoopFileSystemHelper hadoopFileSystemHelperSource;
     private HadoopFileSystemHelper hadoopFileSystemHelperTarget ;
@@ -57,7 +50,6 @@ public class TestPreserveEmptyFolder {
 	this.targetGrid = datastores.get(1);
 	
 	dataSetNameAndPath.put(dataSetNameWithPreverseTrue, BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "/generate=20180701");
-	dataSetNameAndPath.put(dataSetNameWithOutPreverse, BASE_DATA_FOLDER + dataSetNameWithOutPreverse + "/generate=20180701");
 	dataSetNameAndPath.put(dataSetNameDefaultPath, BASE_DATA_FOLDER + dataSetNameDefaultPath + "/20180701");
 
 	hadoopFileSystemHelperSource = new HadoopFileSystemHelper(this.sourceGrid);
@@ -78,45 +70,35 @@ public class TestPreserveEmptyFolder {
 	    checkInstanceCreated(hadoopFileSystemHelperSource, dataSetNameAndPath.get(dsName));
 	    
 	    // create dataset
-	    if ( dsName.startsWith("TestRetPresEmptyFldTrue_")) {
-		int index = dataSetNameAndPath.get(dsName).indexOf("=");
-		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
-		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "=%{date}", "true");
-		
-		workFlowHelper.workflowPassed(dsName, "replication", "20180701");
-		this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
-		workFlowHelper.workflowPassed(dsName, "retention", "20180701");
-		hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue);
-		
-		Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue));
-		tearDown(dsName);
-		
-	    } else if ( dsName.startsWith("TestRetPresEmptyFldFalse_")) {
-		int index = dataSetNameAndPath.get(dsName).indexOf("=");
-		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
-		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "=%{date}", "");
-		
-		workFlowHelper.workflowPassed(dsName, "replication", "20180701");
-		this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
-		workFlowHelper.workflowPassed(dsName, "retention", "20180701");
-		
-		Assert.assertFalse(BASE_DATA_FOLDER + dataSetNameWithOutPreverse + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithOutPreverse));
-		tearDown(dsName);
-		
+	    if ( dsName.startsWith("TestRetPresEmptyFld_")) {
+			int index = dataSetNameAndPath.get(dsName).indexOf("=");
+			String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
+			TestSession.logger.info("path - " + path);
+			this.createDataSetXml(dsName, path + "=%{date}");
+
+			workFlowHelper.workflowPassed(dsName, "replication", "20180701");
+			this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
+			workFlowHelper.workflowPassed(dsName, "retention", "20180701");
+			hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue);
+
+			Assert.assertFalse(path + "=%{date}" + " does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(path + "=%{date}"));
+
+			Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue + "exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameWithPreverseTrue));
+			tearDown(dsName);
 	    } else  if ( dsName.startsWith("TestRetUsualPath_")) {
-		int index = dataSetNameAndPath.get(dsName).lastIndexOf("/");
-		String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
-		TestSession.logger.info("path - " + path);
-		this.createDataSetXml(dsName, path + "/%{date}", "");
-		
-		workFlowHelper.workflowPassed(dsName, "replication", "20180701");
-		this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
-		workFlowHelper.workflowPassed(dsName, "retention", "20180701");
-		
-		Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameDefaultPath + "does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameDefaultPath));
-		tearDown(dsName);
+			int index = dataSetNameAndPath.get(dsName).lastIndexOf("/");
+			String path = dataSetNameAndPath.get(dsName).substring(0, index) ;
+			TestSession.logger.info("path - " + path);
+			this.createDataSetXml(dsName, path + "/%{date}");
+
+			workFlowHelper.workflowPassed(dsName, "replication", "20180701");
+			this.consoleHandle.setRetentionPolicyToAllDataSets(dsName , "0");
+			workFlowHelper.workflowPassed(dsName, "retention", "20180701");
+
+			Assert.assertFalse(path + "/%{date}" + " does not exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(path + "/%{date}"));
+
+			Assert.assertTrue(BASE_DATA_FOLDER + dataSetNameDefaultPath + "exits on " + this.targetGrid, hadoopFileSystemHelperTarget.exists(BASE_DATA_FOLDER + dataSetNameDefaultPath));
+			tearDown(dsName);
 	    }
 	}
     }
@@ -136,7 +118,7 @@ public class TestPreserveEmptyFolder {
 	Assert.assertTrue(" Failed to create " + fullPath , hadoopFileSystemHelper.exists(fullPath));
     }
 
-    private void createDataSetXml(String dataSetName , String dataPath , String preserveEmptyFolder) {
+    private void createDataSetXml(String dataSetName , String dataPath) {
 	DataSetXmlGenerator generator = new DataSetXmlGenerator();
 	generator.setName(dataSetName);
 	generator.setDescription(this.getClass().getSimpleName());
@@ -158,9 +140,6 @@ public class TestPreserveEmptyFolder {
 	target.setHCatType("DataOnly");
 	target.setNumInstances("10");
 	generator.setTarget(target);
-	if ( StringUtils.isNotBlank(preserveEmptyFolder)) {
-	    generator.addParameter("preserveEmptyFolder", preserveEmptyFolder);
-	}
 
 	String dataSetXml = generator.getXml();
 	Response response = this.consoleHandle.createDataSet(dataSetName, dataSetXml);

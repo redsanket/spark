@@ -175,7 +175,7 @@ public class IntegrateHBase   {
 	 */
 	public void createHBaseIntegrationTable() {
 		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
-		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getHbaseExecutePigScriptLocation() + "/createHBaseIntegrationTable.txt\"";
+		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";/home/y/libexec/hbase/bin/hbase shell " + this.getHbaseExecutePigScriptLocation() + "/createHBaseIntegrationTable.txt\"";
 		TestSession.logger.info("command = " + command);
 		String output = this.executeCommand(command , "hbaseCreateTable");
 		List<String> creatTableLogOuputList = Arrays.asList(output.split("\n"));
@@ -194,7 +194,7 @@ public class IntegrateHBase   {
 	 */
 	public void deleteHBaseIntegrationTable() {
 		String hbaseHostName = GdmUtils.getConfiguration("testconfig.TestWatchForDataDrop.hbaseMasterHostName").trim();
-		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";hbase shell " + this.getHbaseExecutePigScriptLocation() + "/deleteHBaseIntegrationTable.txt\"";
+		String command = "ssh " + hbaseHostName + "  \"" +  this.getPathCommand() + ";"  + this.getKinitCommand() + ";/home/y/libexec/hbase/bin/hbase shell " + this.getHbaseExecutePigScriptLocation() + "/deleteHBaseIntegrationTable.txt\"";
 		TestSession.logger.info("command = " + command);
 		String output = this.executeCommand(command , "hbaseDeleteTable");
 		List<String> deleteTableOuputList = Arrays.asList(output.split("\n"));
