@@ -36,7 +36,6 @@ public class TestSparkOozieIntegration extends TestSession {
     private static final String OOZIE_WORKFLOW_ROOT_HDFS = "oozie/apps";
     private static final String TMP_WORKSPACE = "/tmp/oozie/";
     private static final String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
-    private final static String OOZIE_ENV_EXPORT_COMMAND = "export OOZIE_SSL_ENABLE=true;export OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks";
     private static final String[] HADOOPQA_KINIT_COMMAND = {"kinit", "-k", "-t", "/homes/hadoopqa/hadoopqa.dev.headless.keytab", "hadoopqa@DEV.YGRID.YAHOO.COM"};
     private static String jobTrackerURL = null;
     private static String nameNodeURL = null;
@@ -237,7 +236,9 @@ public class TestSparkOozieIntegration extends TestSession {
         createAndSetupOozieAppDir(jobProps);
         // run the oozie job & get status
         String[] temp = TestSession.exec.runProcBuilder(
-            new String[]{OOZIE_ENV_EXPORT_COMMAND, ";", OOZIE_COMMAND, "job", "-run", "-config",
+            new String[]{"export", "OOZIE_SSL_ENABLE=true;",
+                "export", "OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks;",
+                OOZIE_COMMAND, "job", "-run", "-config",
                 TMP_WORKSPACE + jobProps.appName + "/job.properties",
                 "-oozie", oozieNodeURL + "/oozie/", "-auth", "kerberos"
             }
