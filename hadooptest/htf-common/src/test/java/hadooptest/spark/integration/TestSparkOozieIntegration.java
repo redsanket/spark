@@ -10,6 +10,7 @@ import com.jayway.restassured.path.json.config.JsonPathConfig;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
