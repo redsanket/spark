@@ -48,7 +48,7 @@ public class TestSparkOozieIntegration extends TestSession {
         TestSession.exec.runProcBuilder(HADOOPQA_KINIT_COMMAND);
         jobTrackerURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "jobtracker", "8032").replace("http://", "");
         nameNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "namenode", "8020").replace("http://", "hdfs://");
-        oozieNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "oozie", "4443").replace("http://", https://");
+        oozieNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "oozie", "4443").replace("http://", "https://");
 
         System.out.println("System.user = " + System.getProperty("user.name"));
         TestSparkUI sparkUI = new TestSparkUI();
