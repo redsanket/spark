@@ -9,6 +9,7 @@ import com.jayway.restassured.path.json.config.JsonPathConfig;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -235,14 +236,14 @@ public class TestSparkOozieIntegration extends TestSession {
         // copy workflow.xml & app.jar
         createAndSetupOozieAppDir(jobProps);
         // run the oozie job & get status
+        Map<String, String> newEnv = new HashMap<String, String>();
+        newEnv.put("OOZIE_SSL_ENABLE", "true");
+        newEnv.put("OOZIE_SSL_CLIENT_CERT", "/home/y/conf/ygrid_cacert/certstore.jks");
         String[] temp = TestSession.exec.runProcBuilder(
-            new String[]{"export", "OOZIE_SSL_ENABLE=true;",
-                "export", "OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks;",
-                OOZIE_COMMAND, "job", "-run", "-config",
+            new String[]{OOZIE_COMMAND, "job", "-run", "-config",
                 TMP_WORKSPACE + jobProps.appName + "/job.properties",
                 "-oozie", oozieNodeURL + "/oozie/", "-auth", "kerberos"
-            }
-        );
+            }, newEnv);
         // The first entry is the result status of the command. The following entry is the value.
         String tempOozieJobID = temp[1];
         System.out.println("Oozie Job ID: " + tempOozieJobID);
