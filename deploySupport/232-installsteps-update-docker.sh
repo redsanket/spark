@@ -22,7 +22,7 @@ if [[ $RHEL7_DOCKER_DISABLED == "false" ]]; then
 
   /grid/0/tmp/docker_fetch_image.py $cluster $DOCKER_IMAGE_TAG_TO_USE
 
-  setup_docker_hdfs()
+  setup_docker_hdfs
 
 else
  
