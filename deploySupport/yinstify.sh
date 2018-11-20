@@ -214,6 +214,7 @@ datanode*.sh \
 namenode*.sh \
 setup_nm_health_check_script.sh \
 setup_nm_dockerd_check_script.sh \
+setup_docker_hdfs.sh \
 ${CLUSTER}.rolelist.txt \
 "
 
