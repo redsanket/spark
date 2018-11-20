@@ -12,7 +12,7 @@ DOCKER_TAG_URI="docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/$DOCKER
 
 setup_docker_hdfs() {
   echo =========== Setting up Docker images on HDFS
-  scp setup_docker_hdfs.sh $jobtrackernode:/tmp/
+  scp /grid/0/tmp/setup_docker_hdfs.sh $jobtrackernode:/tmp/
   ssh $jobtrackernode sh /tmp/setup_docker_hdfs.sh /mapred/docker/ "$DOCKER_TAG_URI"
 }
 
