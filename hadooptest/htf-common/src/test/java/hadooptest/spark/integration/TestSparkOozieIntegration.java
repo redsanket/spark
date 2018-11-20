@@ -40,6 +40,7 @@ public class TestSparkOozieIntegration extends TestSession {
     private static final String OOZIE_WORKFLOW_ROOT_HDFS = "oozie/apps";
     private static final String TMP_WORKSPACE = "/tmp/oozie/";
     private static final String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
+    private static final String OOZIE_ENV_EXPORT_COMMAND = "export OOZIE_SSL_ENABLE=true;export OOZIE_SSL_CLIENT_CERT=/home/y/conf/ygrid_cacert/certstore.jks";
     private static final String[] HADOOPQA_KINIT_COMMAND = {"kinit", "-k", "-t", "/homes/hadoopqa/hadoopqa.dev.headless.keytab", "hadoopqa@DEV.YGRID.YAHOO.COM"};
     private static final String HADOOPQA_KINIT_COMMAND_STR = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
     private static String jobTrackerURL = null;
@@ -296,7 +297,7 @@ public class TestSparkOozieIntegration extends TestSession {
         return output;
     }
 
-    private JsonObject pollOozieJobResult(String oozieJobID) {
+    private JSONObject pollOozieJobResult(String oozieJobID) {
         String query = oozieNodeURL + "/oozie/v1/job/" + oozieJobID;
         String responseString = getJSONResponse(query);
         JSONObject jsonPath = (JSONObject) JSONSerializer.toJSON(responseString);
@@ -315,10 +316,7 @@ public class TestSparkOozieIntegration extends TestSession {
 
             while (status.indexOf("RUNNING") > -1) {
                 jsonPath = pollOozieJobResult(oozieJobID);
-                String result = jsonPath.prettyPrint();
-                TestSession.logger.info("result = " + result);
-                JSONObject oozieJsonResult =  (JSONObject) JSONSerializer.toJSON(result.toString().trim());
-                status = getResultStatus(oozieJsonResult);
+                status = getResultStatus(jsonPath);
                 if (status != null) {
                     status = jsonPath.getString("status");
                     if (! (status.indexOf("RUNNING") > -1)   ) {
