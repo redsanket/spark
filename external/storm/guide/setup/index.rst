@@ -114,7 +114,7 @@ For each node in your setup, provision an OpenStack instance using a "flavor" (c
 
 .. code-block:: bash
 
-nova boot --flavor $FLAVOR --image $IMAGE $DESCRIPTIVE_NAME
+   nova boot --flavor $FLAVOR --image $IMAGE $DESCRIPTIVE_NAME
 
 For example:
 
@@ -357,3 +357,72 @@ Now check the logs. Click the ID for one of the spouts or bolts. This will open 
 
 Clean Up (Prep. For Security)
 ===============================
+
+If you had started a non-security topology, perhaps by following the instructions for deploying a normal storm cluster, there are some important steps to prepare for enabling ystorm's security features.
+
+Kill Topologies
+----------------
+
+.. code-block:: bash
+
+   # For all topologies...
+   storm kill "$TOPO_NAME"
+
+
+Stop services
+----------------
+
+.. code-block:: bash
+
+   # HOST0 ... HOSTN are storm compute nodes
+   yinst stop ystorm_logviewer -h "$HOST0,$HOST1,$HOST2" # For all hosts
+   yinst stop ystorm_supervisor -h "$HOST0,$HOST1,$HOST2" # For all hosts
+   yinst stop ystorm_ui -h "$UI_HOST"
+   yinst stop ystorm_nimbus -h "$NIMBUS_HOST"
+   yinst stop zookeeper_server -h "$ZOOKEEPER_HOST"
+   yinst stop ystorm_drpc -h "$DRPC_HOST"
+   
+ 
+Clear Storm Daemons' States
+----------------------------
+ 
+On each node, clear any state for nimbus, supervisors, workers, etc. This prevents permission errors when running the various storm daemons as a different user later.
+ 
+.. code-block:: bash
+ 
+   rm -rf /home/y/var/storm/*
+   
+Also, from zookeeper nodes clear state using:
+   
+.. code-block:: bash
+
+   rm -rf /home/y/var/zookeeper/version-2
+   
+Note, on some grid installations, I have had to completely reset ZK on the node with the following procedure
+
+.. code-block:: bash
+
+   yinst set zookeeper_server.dataDir
+   yinst set zookeeper_server.dataLogDir
+   
+This gives you the locations of the data dir and data long dir, for example:
+
+.. code-block:: bash
+
+   yinst: zookeeper_server.dataDir: /grid/0/zookeeper/
+   yinst: zookeeper_server.dataLogDir: /grid/1/zookeeper_data_logs
+   
+And then do the following:
+
+.. code-block:: bash
+
+   yinst stop zookeeper_server
+   yinst deactivate zookeeper_server
+   sudo rm -rf /grid/0/zookeeper/*
+   sudo rm -rf /grid/1/zookeeper_data_logs/*
+   yinst activate zookeeper_server
+   yinst start zookeeper_server
+   
+   
+Authentication Setup
+====================
