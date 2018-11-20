@@ -17,13 +17,14 @@ if [[ ! -f "$DOCKER_SQUASH_SCRIPT" ]]; then
   exit 0
 fi
 
-if [[ -z $(command -v skopeo) ]];then
-  echo "Installing skopeo"
-  sudo yum -y install skopeo
-fi
-if [[ -z $(command -v mksquashfs) ]];then
-  echo "Installing mksquashfs"
-  sudo yum -y install squashfs-tools
+# Install missing tools if necessary
+NEED_PKGS=
+[[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
+[[ -z $(command -v mksquashfs) ]] && NEED_PKGS="$NEED_PKGS squashfs-tools"
+[[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
+if [[ -n "$NEED_PKGS" ]]; then
+  echo "Installing $NEED_PKGS"
+  sudo yum -y --enablerepo=epel install $NEED_PKGS
 fi
 
 echo "Installing $DOCKER_IMAGE_TAG to $DOCKER_HDFS_ROOT"
