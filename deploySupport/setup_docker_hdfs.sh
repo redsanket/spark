@@ -13,7 +13,7 @@ if [[ -z "$DOCKER_HDFS_ROOT" || -z "$DOCKER_IMAGE_TAG" ]]; then
   exit 1
 fi
 if [[ ! -f "$DOCKER_SQUASH_SCRIPT" ]]; then
-  echo Skipping Docker HDFS setup since $DOCKER_SQUASH_SCRIPT is missing!"
+  echo "Skipping Docker HDFS setup since $DOCKER_SQUASH_SCRIPT is missing!"
   exit 1
 fi
 
@@ -26,14 +26,14 @@ if [[ -z $(command -v mksquashfs) ]];then
   sudo yum -y install squashfs-tools
 fi
 
-echo Installing $DOCKER_IMAGE_TAG to $DOCKER_HDFS_ROOT
+echo "Installing $DOCKER_IMAGE_TAG to $DOCKER_HDFS_ROOT"
 sh $DOCKER_SQUASH_SCRIPT --hdfs-root="$DOCKER_HDFS_ROOT" "$DOCKER_IMAGE_TAG"
 
-echo Computing manifest hash for $DOCKER_IMAGE_TAG
+echo "Computing manifest hash for $DOCKER_IMAGE_TAG"
 MANIFEST_HASH=$(skopeo inspect --raw "docker://$DOCKER_IMAGE_TAG" | sha256sum | awk '{print $1}')
 
 TAG_TO_HASH_FILE="$DOCKER_HDFS_ROOT/image-tag-to-hash"
-echo Setting up tag to hash mapping file at $TAG_TO_HASH_FILE
+echo "Setting up tag to hash mapping file at $TAG_TO_HASH_FILE"
 kinit -kt /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 echo "${DOCKER_IMAGE_TAG}:${MANIFEST_HASH}" | $HADOOP_PREFIX/bin/hadoop fs -put -f - "$TAG_TO_HASH_FILE"
 $HADOOP_PREFIX/bin/hadoop fs -chmod 444 "$TAG_TO_HASH_FILE"
