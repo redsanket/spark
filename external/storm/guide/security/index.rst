@@ -170,6 +170,26 @@ plugins that automatically push them with a small amount of configuration.
 Credentials Push
 ################
 
+
+Uploading credentials to a topology happens at different times, and using slightly different tools::
+  
+  1. When a topology is submitted 
+  2. Periodically as the topology is running to keep the credentials up to date.
+  
+When your topology is submitted a set of plugins will run that look at the configs in your topology conf and then will fetch credentials on your behalf and submit them with your topology. o update credentials periodically you can run the command:
+
+.. code-block:: java
+  
+  storm upload-credentials
+ 
+It runs the exact same plugins as when your topology is submitted, and needs the same configs so the plugins know what to do.
+
+If you forget the proper configs when submitting your topology or when uploading new credentials some of your credentials may go missing, or may not be updated resulting in workers getting exceptions when they try to authorize. This can usually be fixed by uploading the credentials again with the proper configs.
+
+We recommend that upload-credentials be called from a cron job running on your launcher box at least once a day to ensure that your credentials do not expire.
+
+If you want to programatically add credentials in addition to the ones the plugins provide you can do so too with the following code.
+
 To submit a topology with the credential API you would run something like the following:
 
 .. code-block:: java
@@ -179,47 +199,49 @@ To submit a topology with the credential API you would run something like the fo
     import backtype.storm.generated.SubmitOptions;
     import backtype.storm.generated.TopologyInitialStatus;
     import backtype.storm.generated.Credentials;
-    
+
     //...
-    
+
     Map<String,String> creds = new HashMap<String, String>();
     //Fill creds as needed
-    
+
     TopologyBuilder builder = new TopologyBuilder();
     //Setup Topology
-    
+
     SubmitOptions opts = new SubmitOptions(TopologyInitialStatus.ACTIVE);
     opts.set_creds(new Credentials(_creds));
     StormSubmitter.submitTopology(topologyName, conf, builder.createTopology(), opts);
-
-To use the plugins to send credentials::
+    
+or if you just want to rely on the plugins to send credentials:
 
 .. code-block:: java
 
    import backtype.storm.StormSubmitter;
    import backtype.storm.topology.TopologyBuilder;
-   
+
    //...
-   
+
    Map<String,String> creds = new HashMap<String, String>();
    //Fill creds as needed
-   
+
    TopologyBuilder builder = new TopologyBuilder();
    //Setup Topology
-   
+
    StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
 
 To send updated credentials:
 
 .. code-block:: java
 
-   import backtype.storm.StormSubmitter;
-   //...
-   
-   Map<String,String> creds = new HashMap<String, String>();
-   //Fill creds as needed
-   
-   StormSubmitter.pushCredentials(topologyName, conf, creds);
+  import backtype.storm.StormSubmitter;
+  //...
+
+  Map<String,String> creds = new HashMap<String, String>();
+  //Fill creds as needed
+
+  StormSubmitter.pushCredentials(topologyName, conf, creds);
+
+If creds is empty then the plugins will populate it will some credentials automatically.
 
 Receiving Credentials
 #####################
@@ -236,13 +258,15 @@ This method will be called before the ``prepare`` method of the bolt or the ``op
 of the spout. It will also be called after new credentials are pushed, but may take up to a 
 few minutes from the time the client finishes.
 
+It is expected that the Bolt or Spout involved will pull out the needed credentials and update any necessary state to start using the new credentials. If you want to rely on the plugins to get your credentials you do not need to do anything. The plugins should put the credentials in the correct places in the current Subject in the Security context for the workers.
 
-YCA Authentication
+
+YCA Based Authentication
 ------------------
 
 YCA v1 is not available for hosted multi-tenant storm. YCAv2 **must** be used. You 
 can get a YCAv2 certificate using either Kerberos or by using a YCAv1 cert for a 
-role in the ``griduser`` namespace with the role name matching the user name. Although 
+role in the `griduser <https://roles.corp.yahoo.com/ui/namespace?action=view&id=902>`_ namespace with the role name matching the user name. Although 
 this is generally reserved for launcher boxes, anyone with access to the 
 box can get the corresponding certificate.
 
@@ -339,31 +363,37 @@ you.
     
 Because TGTs expire, you will need to push a new TGT at least once a day to
 your topology. You can do this by re-running ``kinit`` just like before, and then
-running the following::
+running the following:
+
+.. code-block:: java
     
     storm upload-credentials <name-of-topology>
     
- This will push the new TGT to your topology and AutoTGT will put it where it
- needs to go for HBase/Hadoop to access it.
 
-Include a file like the following ``hadoop-site.xml`` in your topology jar:
+This will push the new TGT to your topology and AutoTGT will put it where it needs to go for HBase/Hadoop to access it.
+
+Please include the following as a dependency of your topology jar:
 
 .. code-block:: xml
 
-   <configuration>
-       <property><name>hadoop.security.authentication</name><value>kerberos</value></property>
-       <property><name>hadoop.security.auth_to_local</name><value>RULE:[2:$1@$0](.*@DS.CORP.YAHOO.COM)s/@.*//
-           RULE:[1:$1@$0](.*@DS.CORP.YAHOO.COM)s/@.*//
-           RULE:[2:$1@$0](.*@Y.CORP.YAHOO.COM)s/@.*//
-           RULE:[1:$1@$0](.*@Y.CORP.YAHOO.COM)s/@.*//
-           RULE:[2:$1@$0]([jt]t@.*YGRID.YAHOO.COM)s/.*/mapred/
-           RULE:[2:$1@$0]([nd]n@.*YGRID.YAHOO.COM)s/.*/hdfs/
-           RULE:[2:$1@$0](mapred@.*YGRID.YAHOO.COM)s/.*/mapred/
-           RULE:[2:$1@$0](hdfs@.*YGRID.YAHOO.COM)s/.*/hdfs/
-           RULE:[2:$1@$0](mapred@.*YGRID.YAHOO.COM)s/.*/mapred/
-           RULE:[2:$1@$0](hdfs@.*YGRID.YAHOO.COM)s/.*/hdfs/
-           DEFAULT</value></property>
-   </configuration>
+   <dependency>
+        <groupId>yahoo.yinst.storm_hadoop_client_conf</groupId>
+        <artifactId>storm_hadoop_client_conf</artifactId>
+        <version>1.0.0.4</version>
+   </dependency>
+   
+
+Please examine the `dist page <http://dist.corp.yahoo.com/by-package/storm_hadoop_client_conf/>`_ for latest package version. This does not setup everything that HBase needs, but it sets up the minimal configs that your topology needs to access statically so that it knows that security is turned on.
+
+You may see in your logs an error message like:
+
+.. code-block:: bash
+
+   o.a.h.h.u.DynamicClassLoader THREAD [WARN] Failed to identify the fs of dir /home/y/var/storm/workers/.../hbase/lib, ignored java.io.IOException: No FileSystem for scheme: hdfs
+   
+   
+you can ignore this. HBase does not use this functionality on the client side. If you want to fix the error you can package your jar using the shade plugin like for HDFS.
+
 
 HDFS
 ----
@@ -414,12 +444,19 @@ Second make sure you create your uber jar using the shade plugin.
 
 This allows the hadoop client to be packaged properly.  It uses service loaders, and the assembly plugin does not combine the service loader config files properly.  If you make this mistake you will get an error about not knowing how to handle "hdfs://"
 
-Finally you need to use a fully qualified path to get the FileSystem, and ideally access it as well.
+Finally you need to use a fully qualified path to get the FileSystem, and ideally access it as well:
 
-.. code-block:: xml
+.. code-block:: java
+
    Path path = new Path("hdfs://mithrilred-nn1.red.ygrid.yahoo.com:8020/");
    Configuration conf = new Configuration();
    FileSystem fs = path.getFileSystem(conf);
+
+
+CMS
+-------
+
+See Athens support. When you configure your spouts or bolts be sure that you are using Athens Authentication and not YCA. Also the role has changed in the past so it is best to check with the Athens team about the exact role to use, but for now it is "cms".
 
 
 YkeyKey
@@ -491,6 +528,7 @@ Conceptually the tenant domain/service is who you are, the role and role-suffix 
 config to be a list of maps in the form:
 
 .. code-block:: java
+
    {“role”: <role>, “suffix”: <role-suffix>, “trust-domain”:<trust-domain>, “tenant-domain”: <tenant-domain>, “tenant-service”: <tenant-service>}
 
 Role is required and is the role that you are fetching the token for, aka who you want to talk to.
@@ -576,9 +614,11 @@ How to use it:
 
 A pointer to the actual code:
 
-https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyRefresher.java
-https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyManagerProxy.java
-https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/TrustManagerProxy.java
+`KeyRefresher <https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyRefresher.java>`_
+
+`KeyManagerProxy <https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/KeyManagerProxy.java>`_
+
+`TrustManagerProxy <https://github.com/yahoo/athenz/blob/739554711a2b0e0bc5c8afe5e666ba637b46c896/libs/java/cert_refresher/src/main/java/com/oath/auth/TrustManagerProxy.java>`_
 
 
 
