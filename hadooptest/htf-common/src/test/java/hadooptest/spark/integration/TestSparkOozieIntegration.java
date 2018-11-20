@@ -41,6 +41,7 @@ public class TestSparkOozieIntegration extends TestSession {
     private static final String TMP_WORKSPACE = "/tmp/oozie/";
     private static final String OOZIE_COMMAND = "/home/y/var/yoozieclient/bin/oozie";
     private static final String[] HADOOPQA_KINIT_COMMAND = {"kinit", "-k", "-t", "/homes/hadoopqa/hadoopqa.dev.headless.keytab", "hadoopqa@DEV.YGRID.YAHOO.COM"};
+    private static final String HADOOPQA_KINIT_COMMAND_STR = "kinit -k -t /homes/hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM";
     private static String jobTrackerURL = null;
     private static String nameNodeURL = null;
     private static String oozieNodeURL = null;
@@ -295,6 +296,13 @@ public class TestSparkOozieIntegration extends TestSession {
         return output;
     }
 
+    private JsonObject pollOozieJobResult(String oozieJobID) {
+        String query = oozieNodeURL + "/oozie/v1/job/" + oozieJobID;
+        String responseString = getJSONResponse(query);
+        JSONObject jsonPath = (JSONObject) JSONSerializer.toJSON(responseString);
+        return jsonPath;
+    }
+
     private String getResult(String oozieJobID) {
         String status =  null;
 
@@ -343,15 +351,8 @@ public class TestSparkOozieIntegration extends TestSession {
         }
         return status;
     }
-
-    private JsonObject pollOozieJobResult(String oozieJobID) {
-        String query = oozieNodeURL + "/oozie/v1/job/" + oozieJobID;
-        String responseString = this.getJSONResponse(query);
-        JSONObject jsonPath = (JSONObject) JSONSerializer.toJSON(responseString);
-        return jsonPath;
-    }
-
 }
+
 
 class OozieJobProperties {
     public final String jobTracker;
