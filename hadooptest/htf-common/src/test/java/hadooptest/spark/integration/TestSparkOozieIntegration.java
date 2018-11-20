@@ -17,6 +17,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
@@ -28,6 +29,7 @@ import hadooptest.SerialTests;
 import hadooptest.TestSession;
 import hadooptest.Util;
 import hadooptest.automation.utils.http.HTTPHandle;
+import hadooptest.gdm.regression.stackIntegration.lib.SystemCommand;
 import hadooptest.spark.regression.TestSparkUI;
 
 @Category(SerialTests.class)
@@ -252,7 +254,7 @@ public class TestSparkOozieIntegration extends TestSession {
         if (tempOozieJobID == null || tempOozieJobID.indexOf("Error") > -1) {
             oozieResult=false;
         } else {
-            String jobId = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1, tempOozieJobID.length());
+            String jobId = tempOozieJobID.substring(tempOozieJobID.indexOf(":") + 1, tempOozieJobID.length()).trim();
             String jobResult = getResult(jobId);
             if (jobResult.indexOf("KILLED") > -1) {
                 oozieResult=false;
@@ -265,18 +267,45 @@ public class TestSparkOozieIntegration extends TestSession {
         return oozieResult;
     }
 
+    private String executeCommand(String command ) {
+        String output = null;
+        TestSession.logger.info("command - " + command);
+        ImmutablePair<Integer, String> result = SystemCommand.runCommand(command);
+        if ((result == null) || (result.getLeft() != 0)) {
+            if (result != null) {
+                // save script output to log
+                TestSession.logger.info("Command exit value: " + result.getLeft());
+                TestSession.logger.info(result.getRight());
+            } else {
+                TestSession.logger.error("Failed to execute " + command);
+                //this.setErrorMessage(result.getLeft());
+                return null;
+            }
+        } else {
+            output = result.getRight();
+            TestSession.logger.debug("log = " + output);
+        }
+        return output;
+    }
+
+    private String getJSONResponse(String stringUrl) {
+        String curlCommand = "curl --insecure -sb -H \"Accept: application/json\" --negotiate -u : --cacert /home/y/conf/ygrid_cacert/ca-cert.pem " + stringUrl;
+        String cmd = OOZIE_ENV_EXPORT_COMMAND + ";" + HADOOPQA_KINIT_COMMAND_STR + ";" + curlCommand;
+        String output = executeCommand(cmd);
+        return output;
+    }
+
     private String getResult(String oozieJobID) {
         String status =  null;
 
         String query = oozieNodeURL + "/oozie/v1/job/" + oozieJobID;
         TestSession.logger.info("oozie query = " + query);
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.cookie).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        if (response != null) {
-            JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
+        String responseString = getJSONResponse(query);
+        JSONObject jsonPath = (JSONObject) JSONSerializer.toJSON(responseString);
+        if (jsonPath != null) {
             status = jsonPath.getString("status");
 
-            while ( status.indexOf("RUNNING") > -1) {
+            while (status.indexOf("RUNNING") > -1) {
                 jsonPath = pollOozieJobResult(oozieJobID);
                 String result = jsonPath.prettyPrint();
                 TestSession.logger.info("result = " + result);
@@ -315,11 +344,10 @@ public class TestSparkOozieIntegration extends TestSession {
         return status;
     }
 
-    private JsonPath pollOozieJobResult(String oozieJobID) {
+    private JsonObject pollOozieJobResult(String oozieJobID) {
         String query = oozieNodeURL + "/oozie/v1/job/" + oozieJobID;
-        com.jayway.restassured.response.Response response = given().contentType(ContentType.JSON).cookie(this.cookie).get(query);
-        TestSession.logger.info("response.getStatusCode() = " + response.getStatusCode());
-        JsonPath jsonPath = response.jsonPath().using(new JsonPathConfig("UTF-8"));
+        String responseString = this.getJSONResponse(query);
+        JSONObject jsonPath = (JSONObject) JSONSerializer.toJSON(responseString);
         return jsonPath;
     }
 
