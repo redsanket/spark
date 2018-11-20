@@ -14,7 +14,7 @@ if [[ -z "$DOCKER_HDFS_ROOT" || -z "$DOCKER_IMAGE_TAG" ]]; then
 fi
 if [[ ! -f "$DOCKER_SQUASH_SCRIPT" ]]; then
   echo "Skipping Docker HDFS setup since $DOCKER_SQUASH_SCRIPT is missing!"
-  exit 1
+  exit 0
 fi
 
 if [[ -z $(command -v skopeo) ]];then
