@@ -76,4 +76,5 @@ the type of clusters (Nimbus/Supervisor/ZooKeeper), number of nodes, and the har
    registry_service_api/index
    monitoring/index
    architecture/index
+   setup/index
    reference/index
