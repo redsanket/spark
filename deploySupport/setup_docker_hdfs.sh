@@ -28,7 +28,6 @@ if [[ -n "$NEED_PKGS" ]]; then
 fi
 
 echo "Installing $DOCKER_IMAGE_TAG to $DOCKER_HDFS_ROOT"
-kinit -kt /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 sh $DOCKER_SQUASH_SCRIPT --hdfs-root="$DOCKER_HDFS_ROOT" "$DOCKER_IMAGE_TAG"
 
 echo "Computing manifest hash for $DOCKER_IMAGE_TAG"
@@ -36,6 +35,7 @@ MANIFEST_HASH=$(skopeo inspect --raw "docker://$DOCKER_IMAGE_TAG" | sha256sum | 
 
 TAG_TO_HASH_FILE="$DOCKER_HDFS_ROOT/image-tag-to-hash"
 echo "Setting up tag to hash mapping file at $TAG_TO_HASH_FILE"
+kinit -kt /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 echo "${DOCKER_IMAGE_TAG}:${MANIFEST_HASH}" | $HADOOP_PREFIX/bin/hadoop fs -put -f - "$TAG_TO_HASH_FILE"
 $HADOOP_PREFIX/bin/hadoop fs -chmod 444 "$TAG_TO_HASH_FILE"
 

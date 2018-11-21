@@ -7,6 +7,7 @@ mkdir -p $t
 cp namenodes.$cluster.txt /grid/0/tmp/
 cp secondarynamenodes.$cluster.txt /grid/0/tmp/
 cp namenodehaalias.$cluster.txt /grid/0/tmp/
+cp ${base}/docker_fetch_image.py    /grid/0/tmp/
 cp ${base}/setup_docker_hdfs.sh /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
 (
