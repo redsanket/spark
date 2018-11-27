@@ -28,7 +28,7 @@ ssh  $jobtrackernode su - $MAPREDUSER
     slavefanout "sh -x /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
 
     # Install runc on all the nodemanagers
-    slavefanout "yum -y install runc"
+    slavefanout "yum -y --enablerepo=non-core install runc"
 
     # Setup cgroups on the worker nodes
     tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
