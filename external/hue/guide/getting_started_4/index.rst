@@ -241,7 +241,7 @@ you copied to your home directory.
       row format delimited
       fields terminated by '\t'
       lines terminated by '\n'
-      location '/user/rbernota/HueTalk/Flickr100cc/';
+      location '/user/{your_user_name}/HueTalk/Flickr100cc/';
 
 #. After the query has finished executing, confirm that the table 
    has been created in the left database **Assist** pane.
