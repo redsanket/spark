@@ -12,7 +12,8 @@ We'll be launching the topology from your VM instead of using the Yahoo Grid.
 Prerequisites
 =============
 
-- Linux RHEL box or OpenStack instance
+- Linux RHEL 6.x box or OpenStack instance
+  (`ystorm` packages 0.10.x will not be available for RHEL 7.x)
 
 
 Setting Up
@@ -21,7 +22,8 @@ Setting Up
 #. SSH into your OpenStack instance.
 #. Install the following packages for running Storm::
 
-        yinst i ystorm -br test
+        # Go to https://dist.corp.yahoo.com//by-package/ystorm/ and find the ystorm-0.10.* VERSION that is on the test branch for rhel-6.x.
+        yinst i ystorm-$VERSION
         yinst i zookeeper_server
 
 #. Setup Storm::
@@ -44,7 +46,7 @@ You should see Storm running with the Storm UI located at http://{hostname}:4443
 
         yinst i git
         yinst i yjava_maven
-        git clone git@git.ouroath.com:storm/storm.git
+        git clone -b master-security git@git.ouroath.com:storm/storm.git
         cd storm
         mvn '-P!include-shaded-deps' -Pexternals,examples install -DskipTests
 
