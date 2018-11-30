@@ -122,7 +122,7 @@ Then you need to export SPARK_HOME and SPARK_CONF_DIR to pick them up
     export SPARK_HOME=/home/y/share/spark
     export SPARK_CONF_DIR=/home/y/conf/spark
 
-If you are using hive then you should install the ``hive_conf_(your grid)`` package. For instance on axonite red its: ``hive_conf_axonitered``. Go to a gateway and see the version installed there and install the same on your launcher box.  Spark 2.2 also adds in a ``hbase-site.xml`` link in the $SPARK_CONF_DIR so if you need hbase you should install the hbase confs.
+If you are using hive then you should install the ``hive_conf_(your grid)`` package. For instance on axonite red its: ``hive_conf_axonitered``. Go to a gateway and see the version installed there and install the same on your launcher box.  Spark 2.2 also adds in a ``hbase-site.xml`` link in the $SPARK_CONF_DIR so if you need hbase you should install the hbase confs. Note that the ``hbase-site.xml`` link in the $SPARK_CONF_DIR expects that file to be in the launcher box location ``/home/gs/conf/hbase/hbase-site.xml``, if your launcher box install is a different location you will need to update that.
 
 .. _soy_gridgateway:
 
@@ -149,6 +149,7 @@ Then you need to export SPARK_HOME and SPARK_CONF_DIR to pick them up
     export SPARK_CONF _DIR=/home/gs/conf/spark/current
 
 If you are using hive then you should install the ``hive_conf_(your grid)`` package. For instance on axonite red its: ``hive_conf_axonitered``. Go to a gateway and see the version installed there and install the same on your launcher box.
+Spark 2.2 and greater adds in a ``hbase-site.xml`` link in the $SPARK_CONF_DIR so if you need hbase you should install the hbase confs. Note that the ``hbase-site.xml`` link in the $SPARK_CONF_DIR expects that file to be in the launcher box location ``/home/gs/conf/hbase/hbase-site.xml``, if your launcher box install is a different location you will need to update that.
 
 .. _soy_configs:
 
@@ -629,6 +630,9 @@ Spark-sql
 
 PySpark usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
 --------------------------------------------------------------------
+Please note that if you are using python with Spark, the python process uses off heap memory.  The way to configure
+off heap memory on Spark is with the overhead configurations ``spark.driver.memoryOverhead`` and ``spark.executor.memoryOverhead``.  Please see the configuration docs on specifics about those.
+
   - `PYspark, Pyspark + Anaconda,IPython,Hive` :ref:`swp`
 
 .. _soy_streaming:

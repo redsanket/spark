@@ -2,7 +2,10 @@
 
 Using PySpark with Python
 =========================
- This section details the information required to run PySpark with Python 2.7, Python 3.6, Anaconda, Ipython, Hive and Pypy.
+This section details the information required to run PySpark with Python 2.7, Python 3.6, Anaconda, Ipython, Hive and Pypy.
+
+Please note that if you are using python with Spark, the python process uses off heap memory.  The way to configure
+off heap memory on Spark is with the overhead configurations ``spark.driver.memoryOverhead`` and ``spark.executor.memoryOverhead``.  Please see the configuration docs on specifics about those.
 
 .. _swp_grid_python:
 
