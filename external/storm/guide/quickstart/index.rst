@@ -24,6 +24,10 @@ Setting Up
 
         # Go to https://dist.corp.yahoo.com//by-package/ystorm/ and find the ystorm-0.10.* VERSION that is on the test branch for rhel-6.x.
         yinst i ystorm-$VERSION
+        yinst i ystorm_nimbus-current
+        yinst i ystorm_supervisor-current
+        yinst i ystorm_ui-current
+        yinst i ystorm_logviewer-current
         yinst i zookeeper_server
 
 #. Setup Storm::
@@ -31,10 +35,10 @@ Setting Up
         yinst start zookeeper_server
         yinst set ystorm.ui_port=4443
         yinst set ystorm.logviewer_port=9999
-        /home/y/lib64/storm/current/bin/storm nimbus &
-        /home/y/lib64/storm/current/bin/storm ui &
-        /home/y/lib64/storm/current/bin/storm supervisor &
-        /home/y/lib64/storm/current/bin/storm logviewer &
+        yinst start ystorm_nimbus
+        yinst start ystorm_ui
+        yinst start ystorm_supervisor
+        yinst start ystorm_logviewer
 
 
 Launching Topology
