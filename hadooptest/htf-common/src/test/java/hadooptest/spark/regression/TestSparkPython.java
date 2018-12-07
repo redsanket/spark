@@ -296,9 +296,9 @@ public class TestSparkPython extends TestSession {
         appUserDefault.setArgs(argsArray);
         appUserDefault.setDistributedCacheArchives("hdfs:///sharelib/v1/python36/python36.tgz#python36");
         appUserDefault.setConf("spark.pyspark.python=./python36/bin/python3.6");
-        appUserDefault.setConf("spark.pyspark.driver.python=./python36/bin/python3.6");
+        appUserDefault.setConf("spark.pyspark.driver.python=/home/y/var/python36/bin/python3.6");
         appUserDefault.setConf("spark.executorEnv.LD_LIBRARY_PATH=./python36/lib");
-        appUserDefault.setConf("spark.yarn.appMasterEnv.LD_LIBRARY_PATH=./python36/lib");
+        appUserDefault.setDriverLibraryPath("/home/y/var/python36/lib");
 
         appUserDefault.start();
 
