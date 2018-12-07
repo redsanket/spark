@@ -20,6 +20,10 @@ import sys
 from random import random
 from operator import add
 
+# import these are they should be in our oath python version
+import numpy
+import pandas
+
 from pyspark import SparkContext
 
 if __name__ == "__main__":
