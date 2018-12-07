@@ -179,12 +179,6 @@ public class TestSparkPython extends TestSession {
         int waitTime = 30;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 
     /*
@@ -310,11 +304,5 @@ public class TestSparkPython extends TestSession {
         int waitTime = 30;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 }
