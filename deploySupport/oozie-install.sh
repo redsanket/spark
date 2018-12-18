@@ -410,15 +410,6 @@ else
   sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS
 fi
 
-
-# 
-# start oozie server
-#
-# this takes a while
-yinst restart ygrid_sharelib
-yinst restart yoozie
-
-
 # kinit as dfsload for hdfs /tmp/oozie setup
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
@@ -448,6 +439,15 @@ if [ $EC -ne 0 ]; then
   echo "ERROR: hdfs create or chmod paths failed!" 
   exit 1
 fi
+
+
+# 
+# start oozie server
+#
+# this takes a while
+yinst restart ygrid_sharelib
+yinst restart yoozie
+
 
 
 # GRIDCI-3269: add base path for IntegrationEmitterTest
