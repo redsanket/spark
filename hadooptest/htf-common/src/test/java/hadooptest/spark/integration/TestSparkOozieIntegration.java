@@ -165,6 +165,50 @@ public class TestSparkOozieIntegration extends TestSession {
         assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
     }
 
+    @Test
+    public void runOozieSparkPiPython27() throws Exception {
+        String appName = "oozieSparkPiPython27";
+        copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
+        OozieJobProperties jobProps = new OozieJobProperties(
+                jobTrackerURL
+                ,nameNodeURL
+                ,"spark_latest"
+                ,"yarn"
+                ,"cluster"
+                ,appName
+                ,"pi.py"
+                ,"pi.py"
+                ,"--queue default --conf spark.yarn.pythonZip=hdfs:///sharelib/v1/python27/python27.tgz"
+                ,"1"
+                ,false
+        );
+
+        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
+        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
+    }
+
+    @Test
+    public void runOozieSparkPiPythonApacheConfigs() throws Exception {
+        String appName = "oozieSparkPiPythonApacheConfigs";
+        copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
+        OozieJobProperties jobProps = new OozieJobProperties(
+                jobTrackerURL
+                ,nameNodeURL
+                ,"spark_latest"
+                ,"yarn"
+                ,"cluster"
+                ,appName
+                ,"pi.py"
+                ,"pi.py"
+                ,"--queue default --archives hdfs:///sharelib/v1/python36/python36.tgz#python36 --conf spark.pyspark.python=./python36/bin/python3.6 --conf spark.pyspark.driver.python=./python36/bin/python3.6 --conf spark.executorEnv.LD_LIBRARY_PATH=./python36/lib --conf spark.yarn.appMasterEnv.LD_LIBRARY_PATH=./python36/lib"
+                ,"1"
+                ,false
+        );
+
+        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
+        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
+    }
+
     // Note: Uncomment the test after hive deployment gets fixed - refer YSPARK-575.
 //    @Test
 //    public void runOozieSparkHiveScala() throws Exception {
