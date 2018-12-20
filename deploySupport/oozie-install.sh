@@ -410,15 +410,6 @@ else
   sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS
 fi
 
-
-# 
-# start oozie server
-#
-# this takes a while
-yinst restart ygrid_sharelib
-yinst restart yoozie
-
-
 # kinit as dfsload for hdfs /tmp/oozie setup
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
@@ -430,6 +421,9 @@ echo "Going to create and chmod hdfs /tmp/oozie to 777 so hadoopqa and oozie use
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/oozie
 EC=$?
 if [ $EC -ne 0 ]; then echo "Failed to mkdir /tmp/oozie!"; fi
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /tmp/oozie/systemlib
+EC=$?
+if [ $EC -ne 0 ]; then echo "Failed to mkdir /tmp/oozie/sytemlib!"; fi
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chown  hadoopqa /tmp/oozie
 RC=$?
 EC=$((EC+RC))
@@ -449,6 +443,13 @@ if [ $EC -ne 0 ]; then
   exit 1
 fi
 
+
+# 
+# start oozie server
+#
+# this takes a while
+yinst restart ygrid_sharelib
+yinst restart yoozie
 
 # GRIDCI-3269: add base path for IntegrationEmitterTest
 echo "add base path for IntegrationEmitterTest"
