@@ -98,12 +98,6 @@ public class TestSparkPython extends TestSession {
         // make sure it wrote out the text file, thus really succeeded.
         assertTrue("output doesn't exist in hdfs, must have failed", 
                    TestSession.cluster.getFS().exists(new Path(dir)));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 
     /*
@@ -138,12 +132,6 @@ public class TestSparkPython extends TestSession {
         int waitTime = 30;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 
     /*
@@ -214,12 +202,6 @@ public class TestSparkPython extends TestSession {
         int waitTime = 30;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 
     /*
@@ -259,12 +241,6 @@ public class TestSparkPython extends TestSession {
         int waitTime = 30;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
-
-        // wait a few seconds for yarn to aggregate logs
-        Util.sleep(10);
-
-        // confirm no Exceptions exist in the log
-        assertFalse("Exception found in log file", appUserDefault.grepLogsCLI("(.*)Exception(.*)"));
     }
 
     /*
