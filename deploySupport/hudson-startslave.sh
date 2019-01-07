@@ -392,6 +392,7 @@ done
 [ -z "$HIT_DEPLOYMENT_TAG" ] && export HIT_DEPLOYMENT_TAG=none
 [ -z "$RHEL7_DOCKER_DISABLED" ] && export RHEL7_DOCKER_DISABLED=true
 [ -z "$DOCKER_IMAGE_TAG_TO_USE" ] && export DOCKER_IMAGE_TAG_TO_USE=rhel6
+[ -z "$IS_INTEGRATION_CLUSTER" ] && export IS_INTEGRATION_CLUSTER=true
 # Additional packages maintained by Hadoop Core QA team
 # [ -z "$QA_PACKAGES" ] && export QA_PACKAGES=none
 [ -z "$QA_PACKAGES" ] && export QA_PACKAGES="\
