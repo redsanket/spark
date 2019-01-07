@@ -373,7 +373,7 @@ setGridParameters() {
        if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "false" ]]; then
            echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so adding oozie, hdfsproxy and hive nodes to nonslave_nodes in order to only allow rhel7 Core workers"
            nonslave_nodes+=" $oozienode $hcatservernode $hdfsproxynode"
-       elsif [[ "IS_INTEGRATION_CLUSTER" =~ "false" ]]; then
+       elif [[ "IS_INTEGRATION_CLUSTER" =~ "false" ]]; then
            echo "INFO: IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER, NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes so they can be hadoop workers"
        else
            echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes"
