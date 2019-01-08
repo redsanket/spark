@@ -331,8 +331,12 @@ sleep 30
 #
 # must use TLSv1.2, enforced by yjava_jetty 9.3 flavor it looks like
 #
+# BUG: recently we've seen a problem with groups not being completely set, one impact is ykeykey 
+# lookups aren't working as before, workaround for now is checking the return for an actaully
+# working KMS install despite the error report
+#
 CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
-if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]]; then
+if [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
   echo "Failed to get key info, KMS or ZK service may not be running!"
   exit 1
 fi
