@@ -370,11 +370,11 @@ setGridParameters() {
 
        OOZIE_HIVE_OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
 
-       if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "false" ]]; then
-           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so adding oozie, hdfsproxy and hive nodes to nonslave_nodes in order to only allow rhel7 Core workers"
+       if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "false" ]] && [[ "$IS_INTEGRATION_CLUSTER" =~ "true" ]]; then
+           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER so adding oozie, hdfsproxy and hive nodes to nonslave_nodes in order to only allow rhel7 Core workers"
            nonslave_nodes+=" $oozienode $hcatservernode $hdfsproxynode"
        else
-           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER and RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED so NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes"
+           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER so NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes"
        fi
 
        # Construct out pipe separated nodes to filter out from the host list from
