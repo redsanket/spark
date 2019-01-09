@@ -333,10 +333,11 @@ sleep 30
 #
 # BUG: recently we've seen a problem with groups not being completely set, one impact is ykeykey 
 # lookups aren't working as before, workaround for now is checking the return for an actaully
-# working KMS install despite the error report
+# working KMS install despite the error report, but need to look for both since some clusters
+# do not exhibit the 'incomplete groups' problem
 #
 CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
-if [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
+if [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
   echo "Failed to get key info, KMS or ZK service may not be running!"
   exit 1
 fi
