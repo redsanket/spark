@@ -242,7 +242,7 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
 
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
     # and only thing on branches is 3.4.13... something
-    cmd_zk="yinst i zookeeper_server zookeeper_core-3.4.10.y.2  -br test  -same -live -downgrade -set zookeeper_server.clientPort=50512 \
+    cmd_zk="yinst i zookeeper_server zookeeper_core-3.4.13.y.2 -br test  -same -live -downgrade -set zookeeper_server.clientPort=50512 \
      -set zookeeper_server.kerberos=true -set zookeeper_server.jvm_args=\" \\
      -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \\
      -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
