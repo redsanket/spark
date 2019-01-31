@@ -49,7 +49,7 @@ ADM=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 CFG_ADM=${CFG_ADM_HOST:="adm.ygrid.yahoo.com"}
 CFG_NFS_MOUNT=${CFG_NFS_MOUNT:="/net/adm.ygrid.yahoo.com/home/y/share/adm/pub/Releases"}
 CLUSTERS=${CLUSTERS:="all"}
-CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research"}
+CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod"}
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="none"}
 COMPONENTS=${COMPONENTS:='hadoop'}
 CLEANUP=${CLEANUP:="true"}
@@ -96,7 +96,7 @@ fi
 
 ################################################################################
 
-HADOOP_VERSION=`$DIST_TAG list $CERTIFIED_TAG -timeout 300|grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g'`
+HADOOP_VERSION=`$DIST_TAG list $CERTIFIED_TAG|grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g'`
 if [[ "$CERTIFIED_TAG" == "hadoop_2_8_latest_certified_release" ]]; then
   CERTIFIED_VERSION_TAG="hadoop_certified_$HADOOP_VERSION"
 elif [[ "$CERTIFIED_TAG" == "hadoop_latest_certified_release" ]]; then
@@ -122,7 +122,7 @@ echo "----> Clone generic release tag '$CERTIFIED_TAG' to version based certifie
 if [[ -e /tmp/dist_list_certified_tag ]]; then
    rm /tmp/dist_list_certified_tag
 fi
-$DIST_TAG list $CERTIFIED_VERSION_TAG -timeout 300 --retry 1 2>&1 > /tmp/dist_list_certified_tag
+$DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /tmp/dist_list_certified_tag
 RC=$?
 if [[ $RC -eq 0 ]]; then
     echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
