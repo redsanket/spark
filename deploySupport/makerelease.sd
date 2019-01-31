@@ -25,24 +25,22 @@ SCRIPT_DIR=`dirname $(readlink -f $0)`
 TIME=`date -u +\%y\%m\%d\%H\%M\%S`
 TMP_DIR="/tmp/makerelease.$TIME"
 DIST_TAG="/home/y/bin/dist_tag"
-mkdir $TMP_DIR
 
+mkdir $TMP_DIR
 set -x
 CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
-packages=${packages:="hadoop conf"}
+packages=${packages:="hadoop conf hadoop_mvn_tools"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod"}
 CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
 COMPONENTS=${COMPONENTS:='hadoop'}
-CLEANUP=${CLEANUP:="true"}
+CLEANUP=${CLEANUP:="false"}
 UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
 set +x
 
-GIT_REPO="git@git.ouroath.com:GridSE/gridPush.git"
-
 REL_GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
-UPDATE_RELEASE=${UPDATE_RELEASE:="false"}
+UPDATE_RELEASE=${UPDATE_RELEASE:="true"}
 
 release_dir="${SOURCE_DIR}/grid/0/releases"
 
@@ -51,8 +49,14 @@ release_dir="${SOURCE_DIR}/grid/0/releases"
 # set -x
 
 ################################################################################
-
-HADOOP_VERSION=`$DIST_TAG list $CERTIFIED_TAG|grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g'`
+echo "Executing $DIST_TAG list $CERTIFIED_TAG -timeout 900 -os rhel |grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g' ..."
+HADOOP_VERSION=`$DIST_TAG list $CERTIFIED_TAG -timeout 900 -os rhel |grep coretree|awk '{print $1}'|cut -d - -f2|sed 's/\./_/g'`
+RC=$?
+if [[ $RC -ne 0 ]]; then
+    echo "FATAL: Unable to get Hadoop version from $CERTIFIED_TAG!!!"
+    exit 1
+fi
+echo "Received HADOOP_VERSION: $HADOOP_VERSION"
 if [[ "$CERTIFIED_TAG" == "hadoop_2_8_latest_certified_release" ]]; then
   CERTIFIED_VERSION_TAG="hadoop_certified_$HADOOP_VERSION"
 elif [[ "$CERTIFIED_TAG" == "hadoop_latest_certified_release" ]]; then
@@ -60,14 +64,46 @@ elif [[ "$CERTIFIED_TAG" == "hadoop_latest_certified_release" ]]; then
 else
   CERTIFIED_VERSION_TAG=$CERTIFIED_TAG
 fi
+echo "CERTIFIED_VERSION_TAG: $CERTIFIED_VERSION_TAG"
 
-# set +x
+set +x
+if [[ -e /tmp/dist_list_certified_tag ]]; then
+   rm /tmp/dist_list_certified_tag
+fi  
 
 # Check if the version based certified tag already exists.
-$DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 2>&1 > /dev/null
+echo "Check if the version tag exist: $DIST_TAG list $CERTIFIED_VERSION_TAG --name-only -os rhel --retry 1 -timeout 600"
+$DIST_TAG list $CERTIFIED_VERSION_TAG --name-only -os rhel --retry 1 -timeout 600 2>&1 > /dev/null
+RC=$?
+if [[ $RC -eq 0 ]]; then
+    echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
+    #
+    # Commented out due to issue with dist_tag
+    # Error: move from /home/dist/tags/1/hadoop_2_8_0_latest to /home/dist/tags/1/hadoop_2_8_0_latest_171016143456 failed: Is a directory at /home/y/bin/dist_tag line 341.
+    #
+    # /home/y/bin/dist_tag
+    #     File::Copy::move($old_tagdir, $new_tagdir)
+    #
+    # echo "WARN: rename existing version based certified tag '$CERTIFIED_VERSION_TAG':"
+    # set -x
+    # $DIST_TAG rename $CERTIFIED_VERSION_TAG $CERTIFIED_VERSION_TAG"_"$TIME
+    # set +x
+else
+    set -x
+    $DIST_TAG clone $CERTIFIED_TAG $CERTIFIED_VERSION_TAG
+    RC=$?
+    set +x
+    if [[ $RC -ne 0 ]]; then
+        echo "ERROR: dist_tag clone failed!!!"
+        exit 1;
+    fi
+fi
+echo "Redirect dist tag output in a /tmp file to reduce dist calls: $DIST_TAG list $CERTIFIED_VERSION_TAG > /tmp/dist_list_certified_tag"
+$DIST_TAG list $CERTIFIED_VERSION_TAG --retry 1 -os rhel -timeout 900 2>&1 > /tmp/dist_list_certified_tag
 RC=$?
 if [[ $RC -ne 0 ]]; then
-    echo "WARN: version based certified tag '$CERTIFIED_VERSION_TAG' already exists!!!"
+    echo "FATAL: Error listing $CERTIFIED_VERSION_TAG dist tag. Please check!"
+    exit 1
 fi
 
 #################################################################################
@@ -75,16 +111,17 @@ fi
 #################################################################################
 set -x
 echo "Installing ygrid_makerelease -br current"
-sudo yinst install ygrid_makerelease -br current -yes
+yinst install ygrid_makerelease -br current -yes
 RC=$?
 if [[ $RC -ne 0 ]]; then
     echo "FATAL: Error in installing package ygrid_makerelease. Please check!"
+    exit 1
 fi
 set +x
 #################################################################################
 # Run makerelease on remote host
 #################################################################################
-#echo "--> Generate a a copy of the script that can runs makerelease"
+echo "--> Generate a a copy of the script that can runs makerelease"
 run_script_file="run_makerelease"
 run_script_file_path="$TMP_DIR/$run_script_file"
 
@@ -109,8 +146,7 @@ cat > $run_script_file_path << EOF
 set -x
 pwd
 hostname
-echo $PATH
-sudo mkdir -p $release_dir
+mkdir -p $release_dir
 EOF
 
 labels=""
@@ -120,42 +156,70 @@ for cluster in $CLUSTERS; do
   # TODO: check cluster has the format of <cluster>.<color>
   for package in $packages; do
     if [[ "$cluster_index" -eq 1 ]]; then
-      # TODO: replace with: dist_tag list $CLUSTER_CERTIFIED_TAG
-      set -x
-      if [[ "$package" == "hadoop" ]]; then
-          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep coretree|awk '{print $1}'|cut -d - -f2`
-      elif [[ "$package" == "conf" ]]; then
-          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
-      else
-          echo "ERROR: invalidate package type '$package' found!!!"
-          exit 1;
-      fi
-      set +x
+         # TODO: replace with: dist_tag list $CLUSTER_CERTIFIED_TAG
+         if [[ "$package" == "hadoop" ]]; then
+             set -x
+             version=`cat /tmp/dist_list_certified_tag|grep coretree|awk '{print $1}'|cut -d - -f2`
+             set +x
+         elif [[ "$package" == "conf" ]]; then
+             set -x
+             version=`cat /tmp/dist_list_certified_tag|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
+             set +x
+         elif [[ "$package" == "hadoop_mvn_tools" ]]; then
+             set -x
+             version=`cat /tmp/dist_list_certified_tag|grep hadoop_mvn_tools|awk '{print $1}'|cut -d - -f2`
+             set +x
+         else
+             echo "ERROR: invalidate package type '$package' found!!!"
+             exit 1;
+         fi
 
-      if [[ "$version" == "" ]]; then
-        echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
-        exit 1;
-      fi
+         # bad hack
+         # version="1.8.0_181.295"
+         if [[ "$version" == "" ]]; then
+           echo "ERROR!!! Unable to find package version for cluster $cluster '$package'. Exiting!!!"
+           exit 1;
+         fi
 
-      # Only update the bundle file once because the packages versions will be
-      # the same across clusters
-      set -x
-      if [[ -n "$labels" ]]; then
-          labels+=","
-      fi
-      labels+="$package,$version-$YINST_FREEZE_DTS"
-      set +x
-      echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+         # Only update the bundle file once because the packages versions will be
+         # the same across clusters
+         if [[ -n "$labels" ]]; then
+             labels+=","
+         fi
+         labels+="$package,$version-$YINST_FREEZE_DTS"
+         echo "labels='$labels'"
+         echo "Creating entry from if for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+    elif [[ "$package" == "conf" ]]; then
+         version=`cat /tmp/dist_list_certified_tag|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
+         if [[ "$version" == "" ]]; then
+             echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
+             # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
+             # exit 1;
+         fi
+         echo "Creating entry from elif1 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+    elif [[ "$package" == "hadoop_mvn_tools" ]]; then
+         version=`cat /tmp/dist_list_certified_tag|grep hadoop_mvn_tools|awk '{print $1}'|cut -d - -f2`
+         if [[ "$version" == "" ]]; then
+             echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
+             # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
+             # exit 1;
+         fi
+         # echo "No need to run makerelease for -p $package -v $version -c $cluster el6"
+         # echo "Creating entry from elif2 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
+         # echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
     else
-        if [[ "$package" == "conf" ]]; then
-          version=`$DIST_TAG list $CERTIFIED_VERSION_TAG|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
-          if [[ "$version" == "" ]]; then
-              echo "ERROR!!! Unable to find package version for '$package'. Exiting!!!"
-              # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
-              # exit 1;
-          fi
-          echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
-        fi
+         # echo "generate jdk tarball..."
+         # echo "/usr/local/bin/makerelease.sd -p yjava_jdk -v 1.8.0_181.295 -c $cluster el6" >> $run_script_file_path
+         version=`cat /tmp/dist_list_certified_tag|grep hadoop_mvn_tools | awk '{print $1}'|cut -d - -f2`
+         if [[ "$version" == "" ]]; then
+             echo "ERROR!!! Unable to find hadoop_mvn_tools version for '$package'. Exiting!!!"
+             exit 1;
+         fi
+         # echo "No need to run makerelease for -p $package -v $version -c $cluster el6"
+         echo "Creating entry from else for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
     fi
   done
   cluster_index=$(($cluster_index+1))
@@ -163,6 +227,7 @@ done
 
 set -x
 hostname
+sudo groupadd -g 10787 hadoop
 chmod a+x $run_script_file_path
 ls -l $run_script_file_path
 cat $run_script_file_path
@@ -191,12 +256,13 @@ if [[ "$UPDATE_RELEASE" == "true" ]]; then
   set -x
   BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
 
-  # insert_bundle_yaml and update_clusters_yaml is disabled for now
-  # Should be enabled once makerelease on re101 is obsolete
-  # Update the clusters yaml file
-  # $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
-
-  # $SCRIPT_DIR/update_clusters_yaml hadoop_core $BUNDLE_SERIAL $CLUSTERS_TO_PROMOTE
+  # Upload new bundle file to hadoop_releases repo and update clusters.yaml
+  # Update the clusters yaml file. Use update_clusters_ext to prevent single quotes in clusters.yaml
+  git config --global push.default matching
+  sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+  # Call to update clusters.yaml is from insert_bundle_yaml
+  # Update the clusters yaml file. Use update_clusters_yaml to prevent single quotes in clusters.yaml
+  # sh -x $SCRIPT_DIR/update_clusters_ext -cluster $CLUSTERS_TO_PROMOTE -bundle hadoop_core -serial $BUNDLE_SERIAL -w
   set +x
 else
   echo "UPDATE_RELEASE=false: Skipping updating hadoop_releases git repo"
@@ -206,7 +272,8 @@ fi
 echo "---> Cleanup tmp directory and files:"
 set -x
 if [[ "$CLEANUP" == "true" ]]; then
-  rm -rf $TMP_DIR
+  echo "Cleaing up $TMP_DIR"
+  # rm -rf $TMP_DIR
 fi
 set +x 
 
