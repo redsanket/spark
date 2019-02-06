@@ -609,9 +609,9 @@ Oozie supports retrieving ykeykey secrets for use in hadoop jobs launched throug
 
 Prerequisites:
 
-- An Athens domain needs to be associated with the ykeykey key group. Refer to https://yahoo.jiveon.com/docs/DOC-70338#jive_content_id_Add_Your_Athens_Domain_Using_the_ykeykey_UI for more details on that. This automatically creates a role in the `paranoids.ppse.ckms <https://athens.corp.yahoo.com/athens/domain/paranoids.ppse.ckms/role>`_ Athens domain in the form of ``ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access``
+- An Athens domain needs to be associated with the ykeykey key group. Refer to https://yahoo.jiveon.com/docs/DOC-70338#jive_content_id_Add_Your_Athens_Domain_Using_the_ykeykey_UI for more details on that. This automatically creates a role in the athenz domain in the form of ``paranoids.ppse.ckms.ykeykey_<ykeykey-env>.res_group.<ykeykey-keygroup-name>.access``
 
-- To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username used to run the Oozie workflow as members of the newly created paranoid role ``ykeykey_prod.tenant.<ykeykey-athens-domain>.res_group.<ykeykey-keygroup-name>.access`` under the `paranoids.ppse.ckms <https://athens.corp.yahoo.com/athens/domain/paranoids.ppse.ckms/role>`_ Athens domain. The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users.
+- To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username used to run the Oozie workflow as members of the role ``paranoids.ppse.ckms.ykeykey_<ykeykey-env>.res_group.<ykeykey-keygroup-name>.access`` in your domain. The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users.
 
 Similar to other credentials like hcat or YCA, you will have to add a ykeykey credential section to the workflow.
 
@@ -625,7 +625,7 @@ Optional properties
 
 - ``ykeykey.athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
 - ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
-- ``ykeykey.env``: By default it is ``prod``. Possible values ``alpha``, ``beta``, ``corp``, ``edge``, ``vault``.
+- ``ykeykey.env``: By default it is ``prod``. Possible values for ckms: ``aws``, ``aws_stage``.  For on-prem values: ``alpha``, ``beta``, ``corp``, ``prod``, ``edge``, ``vault``.
 
 
 Example Workflow XML
