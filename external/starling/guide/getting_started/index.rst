@@ -8,18 +8,18 @@ Introduction
 ============
 
 Starling runs on the Axonite Blue (AB) cluster and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
-server to  store the meta-data about its tables and the HDFS on this cluster to store all the 
-data. The tables used by Starling are stored in the ``starling`` database and have 
-the ``starling_`` prefix in their names. 
+server to  store the meta-data about its tables and the HDFS on this cluster to store all the
+data. The tables used by Starling are stored in the ``starling`` database and have
+the ``starling_`` prefix in their names.
 
 Accessing Starling
 ------------------
 
-Because Starling uses HCatalog, you can use Hive, Pig, or even the MapReduce Java API 
+Because Starling uses HCatalog, you can use Hive, Pig, or even the MapReduce Java API
 to access data.
 
-.. note:: The HCatalog server on CB is secured: it has the URI 
-          ``thrift://axoniteblue-hcat.ygrid.vip.gq1.yahoo.com:50513`` 
+.. note:: The HCatalog server on AB is secured: it has the URI
+          ``thrift://axoniteblue-hcat.ygrid.vip.gq1.yahoo.com:50513``
           and uses the Kerberos principal ``hcat/_HOST@YGRID.YAHOO.COM``.
 
 Prerequisites
@@ -36,26 +36,26 @@ Using Hive
 
 #. Request a Kerberos ticket: ``$ kinit {your_username}@Y.CORP.YAHOO.COM``
 #. Start Hive: ``$ hive``
-#. Set the queue that you're going to use. We'll use ``unfunded`` for this tutorial::
+#. Set the queue that you're going to use. We'll use ``default`` for this tutorial::
 
-       hive> SET mapred.job.queue.name=unfunded;
+       hive> SET mapred.job.queue.name=default;
 
-   .. note:: To avoid having to set the queue manually, you can set the queue in the 
+   .. note:: To avoid having to set the queue manually, you can set the queue in the
              Hive configuration file ``$HOME/.hiverc``.
-             Hive will use the queue set in the configuration file. You can use see a list 
+             Hive will use the queue set in the configuration file. You can use see a list
              of queues that you have
              access to by running the following: ``mapred queue -showacls``
 
 #. Use the ``starling`` database: ``hive> use starling;``
-#. Run a query against the ``starling_jobs`` table:: 
+#. Run a query against the ``starling_jobs`` table::
 
-       hive> SELECT * FROM starling_jobs WHERE grid='AB' and dt='2012_05_03' LIMIT 10;
+       hive> SELECT * FROM starling_jobs WHERE grid='AB' and dt='2018_05_03' LIMIT 10;
 
-   .. note:: Unless you know what you're doing, always use the partition keys in your 
-             query (e.g., ``grid`` and ``dt``). 
-             If you don't, your hive ``sessionA`` will say ``"Error in semantic analysis: 
-             org.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException: 
-             Read timed out"``, and you will need to restart your Hive client (all other Hive 
+   .. note:: Unless you know what you're doing, always use the partition keys in your
+             query (e.g., ``grid`` and ``dt``).
+             If you don't, your hive ``sessionA`` will say ``"Error in semantic analysis:
+             org.apache.thrift.transport.TTransportException: java.net.SocketTimeoutException:
+             Read timed out"``, and you will need to restart your Hive client (all other Hive
              queries issued in that session will fail.)
 
 #. Check out the other tables in the ``starling`` database: ``hive> show tables;``
@@ -65,10 +65,10 @@ Using Hive
 Using Pig
 ---------
 
-Pig can be used to work with tables on HCatalog. See the `HCatalog Getting Started <http://twiki.corp.yahoo.com/view/Grid/HCatalogGettingStarted#Pig>`_
-on how to invoke Pig to use HCatalog. You have to specify your MapReduce Job queue 
-using the command-line option ``-Dmapred.job.queue.name=unfunded`` (replace ``unfunded``
-with the queue you normally use to execute your MapReduce Jobs on CB). 
+Pig can be used to work with tables on HCatalog. See the `HCatalog Getting Started <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/HCatalogGettingStarted.html#Pig>`_
+on how to invoke Pig to use HCatalog. You have to specify your MapReduce Job queue
+using the command-line option ``-Dmapred.job.queue.name=default`` (replace ``default``
+with the queue you normally use to execute your MapReduce Jobs on AB).
 
 You can then query the Starling tables in the following way::
 
@@ -85,7 +85,7 @@ From Hive, you can run queries to get basic information:
 - Tables: ``show tables;``
 - Partitions: ``show partitions starling_jobs;``
 - Number of jobs run by a user: ``SELECT COUNT(job_id) FROM starling_jobs WHERE user='dfsload' and grid='MG' and dt='2011_12_03';``
-- Number of jobs run each day: ``SELECT COUNT(1), dt FROM starling_jobs WHERE grid='MB' and dt>='2011_07_11' and dt <= '2011_07_13' GROUP BY dt;``  
+- Number of jobs run each day: ``SELECT COUNT(1), dt FROM starling_jobs WHERE grid='MB' and dt>='2011_07_11' and dt <= '2011_07_13' GROUP BY dt;``
 
 
 Next Step

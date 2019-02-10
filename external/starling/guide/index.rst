@@ -1,5 +1,5 @@
 ===================
-Starling User Guide 
+Starling User Guide
 ===================
 
 .. toctree::
@@ -25,12 +25,7 @@ Our goal is to help Yahoos use Starling on the Yahoo grid, and thus, is not a co
 On-Boarding
 ===========
 
-Starling can only be accessed from the `Axonite Blue cluster <http://twiki.corp.yahoo.com/view/GridDocumentation/AxoniteBlueClusterInfo>`_. Thus, you will need to request access to 
-Axonite Blue through `Grid Support Shop <http://yo/supportshop>`_. 
-
-From `Grid Services Request Forms <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_, select
-the **User Account** tab and request access to Axonite Blue by checking the **axonite.blue** checkbox from
-the list of clusters under **Research Clusters**.
+Starling can only be accessed from the `Axonite Blue cluster <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop/cluster/AB>`_. You'll receive access to Axonite Blue by requesting grid access through `Doppler <http://yo/doppler>`_.
 
 Getting Help
 ============
@@ -38,37 +33,21 @@ Getting Help
 General Questions
 -----------------
 
-- starling-users@yahoo-inc.com 
+- #starling-users
 
 Request Support
 ---------------
 
-Product/Engineering 
--------------------
-
-Write to the Product Manager or Engineering Manager, whose emails you can find in 
-the **Contacts** section on the `Developer Central: Starling <http://developer.corp.yahoo.com/product/Starling>`_ page.
-
-
-Emergency Support
------------------
-
-Check on-call in the **Service Now** group "Dev-Spark" to get immediate support.
-
 Filing Tickets
 --------------
 
-Bugzilla Links
-##############
-
-- Dev: http://bug.corp.yahoo.com/enter_bug.cgi?product=Low%20Latency
-- Grid Ops: http://bug.corp.yahoo.com/enter_bug.cgi?product=kryptonite
+`Starling Jira <http://yo/starlingsupport>`
 
 Ticket Filing Process
 #####################
 
-If you have identified an issue with Starling withn your environment or 
-while testing, you may file a Bugzilla Ticket. When filing the ticket, 
+If you have identified an issue with Starling withn your environment or
+while testing, you may file a Jira. When filing the ticket,
 include the following if relevant:
 
 - Grid on which the issue was seen. For example, append [ebony-red] to the description of the ticket.
@@ -88,29 +67,29 @@ Starling is available on the Axonite Blue cluster.
 
 Typographic Conventions
 =======================
- 
+
 This document uses the following typographic conventions:
- 
- 
- 
+
+
+
 .. csv-table:: Typographic Conventions
    :header: "Convention", "Description"
    :widths: 15, 40
- 
- 
+
+
    "**Bold**", "User interface objects such as buttons and menus."
    "*Italic*", "Emphasis for new terms, book titles, and glossary terms."
    "``Code``", "User input, system output, file names, code examples, and URLs."
- 
- 
- 
+
+
+
 Iconographic Conventions
 ========================
- 
- 
+
+
 This document uses the following iconographic conventions:
 Indicates a user tip related to a procedural step or general information.
- 
+
 +---------------------------------------------------------------------------------+------------------------------------------------------------------------+
 | **Convention**                                                                  | **Description**                                                        |
 +=================================================================================+========================================================================+
