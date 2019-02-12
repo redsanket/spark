@@ -40,8 +40,7 @@ Request Support
 
 Filing Tickets
 --------------
-
-`Starling Jira <http://yo/starlingsupport>`
+`Starling Jira <http://yo/starlingsupport>`_
 
 Ticket Filing Process
 #####################
