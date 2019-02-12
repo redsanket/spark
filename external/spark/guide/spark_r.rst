@@ -25,6 +25,7 @@ Starting with spark 2.2 we automatically handle shipping R for you. You simply s
 Manual install
 --------------
 Assumes running from /homes/<user>
+
 - mkdir R_installation
 - wget http://cran.rstudio.com/src/base/R-3/R-3.2.1.tar.gz
 - tar xvf R-3.2.1.tar.gz
@@ -85,6 +86,7 @@ Spark R cluster mode
 --------------------
 
 This assumes you have already manually installed R.
+
 - Run specifying archives and path to R installation. Note the config spark.sparkr.r.command must be as specified (--conf spark.sparkr.r.command=./R_installation/bin/Rscript).
 - For accessing other R modules you installed in R_library.tgz change your R code to access them via library("astsa",lib.loc='./R_library/.
 
