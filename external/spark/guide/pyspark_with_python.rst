@@ -111,7 +111,7 @@ Using the python packages above you can create a tgz with addition python packag
 - copy to the grid gateway
 - copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
 - send the zip file along with your job ``--py-files hdfs://user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
-.. note:: Python doesn't allow importing .pyd and .so from zip files. So if your python module has dependencies on .pyd or .so files, you need to use the --archives option instead to pass the zip files so the contents are extracted and the files can be loaded.
+.. note:: Python doesn't allow importing dynamic modules - .pyd and .so from zip files. So if your python module has dependencies on .pyd or .so files, you need to use a workaround to accomplish this. You need to create a tarball (.tgz) file and pass it with the --archives and --py-files options simultaneously so the contents are extracted and added to the PYTHONPATH. Example: ``--py-files python36addon.tgz --archives python36addon.tgz``
 
 .. _swp_manuall_install:
 
