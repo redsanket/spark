@@ -72,3 +72,10 @@ Command Examples
   spark-sql> select count(*) from starling_spark_jobs where dt="2018_05_24";
   6199
   Time taken: 18.275 seconds, Fetched 1 row(s)
+
+.. _sql_migration_guide:
+
+SQL Migration Guide
+------------------
+- You can follow the sql upgrading guide here: https://spark.apache.org/docs/latest/sql-migration-guide-upgrade.html  which enlists the changes required to upgrade
+  from one version of spark to another(example: upgrading from Spark SQL 2.3 to 2.4).
