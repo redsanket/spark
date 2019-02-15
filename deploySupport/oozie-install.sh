@@ -349,7 +349,9 @@ yinst set ygrid_sharelib.oozie_tag_hbase_current=hdfs:///tmp/ygrid_sharelib_dir/
 function setOozieSparkTag() {
   SPARK_LABEL=$1
   SPARK_VERSION=$2
-  if [[ $SPARK_VERSION == "2.3"* ]]; then
+  if [[ $SPARK_VERSION == "2.4"* ]]; then
+    yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/lib,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/yspark-jars-$SPARK_VERSION.tgz,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.10.7-src.zip,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
+  elif [[ $SPARK_VERSION == "2.3"* ]]; then
     yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/lib,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/yspark-jars-$SPARK_VERSION.tgz,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.10.7-src.zip,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
   elif [[ $SPARK_VERSION == "2.2"* ]]; then
     yinst set ygrid_sharelib.oozie_tag_spark_$SPARK_LABEL=hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/lib,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/yspark-jars-$SPARK_VERSION.tgz,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/py4j-0.10.7-src.zip,hdfs:///sharelib/v1/yspark_yarn/yspark_yarn-$SPARK_VERSION/share/spark/python/lib/pyspark.zip,hdfs:///sharelib/v1/spark_conf/yspark_yarn_conf-$SPARK_VERSION/conf/spark/spark-defaults.conf,hdfs:///sharelib/v1/hive_conf/libexec/hive/conf/hive-site.xml
