@@ -24,7 +24,7 @@ NEED_PKGS=
 [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
 if [[ -n "$NEED_PKGS" ]]; then
   echo "Installing $NEED_PKGS"
-  sudo yum -y --enablerepo=epel --enablerepo=latest-rhel-7-server-extras-rpms install $NEED_PKGS
+  sudo yum -y --enablerepo=epel install $NEED_PKGS
 fi
 
 TAG_TO_HASH_FILE="$DOCKER_HDFS_ROOT/image-tag-to-hash"
