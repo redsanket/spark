@@ -211,6 +211,7 @@ yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
 yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
 yinst set hcat_server.JAVA_HOME=/home/gs/java/jdk
 # yinst set hcat_server.database_connect_url=jdbc:mysql://$HIVENODE:3306/hivemetastoredb?createDatabaseIfNotExist=true
+yinst set hcat_server.conf_hive_metastore_thrift_sasl_qop=authentication,integrity,privacy
 yinst set hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
 yinst set hcat_server.database_user=hive
 yinst set hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
