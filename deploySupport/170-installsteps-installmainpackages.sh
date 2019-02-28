@@ -154,8 +154,8 @@ HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
 # installgrid exceptions, using +/1e here still fails the build 
 echo "INFO: HTF uses default JDK on gateway so update it too" 
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
-fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
-fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
+fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $HTF_JDK_CACERTS" 
+fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $HTF_JDK_CACERTS" 
 
 
 # gridci-3318, we need to pass the kms truststore to docker tasks since docker image
