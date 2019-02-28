@@ -120,6 +120,10 @@ fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /h
 # Update: these certs are also needed by other services, at least Timeline service
 # on the RM, hence removing check for KMS node and installing these certs explicitly.
 #
+# Update2: YHADOOP-2546 core services enabled TLS for all rcp connection, need to add 
+# the yarn and hdfs tls certs to all truststores as well 
+# 
+#
 # The certs have to be installed after the jdk is deployed but before the using
 # service starts up (RM, NN, KMS), so placing these certs here instead of in the
 # KMS installer (256-installsteps-KmsAndZookeeper.sh)
@@ -127,8 +131,10 @@ fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /h
 # Using cert from devadm102:/grid/3/dev/ygrid_certs_flubber/hadoop_kms.cert
 #
 ##################################################################################
-echo "INFO: Installing ssl certs for KMS and TimeLine on all nodes. Note that even"
-echo "INFO: if KMS is not configured on cluster, certs are needed by TimeLine"
+echo "INFO: Installing ssl certs for KMS, TimeLine and Yarn/HDFS services on all nodes. Note that even"
+echo "INFO: if KMS is not configured on cluster, certs are needed by TimeLine and Core services"
+
+set -x
 
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 # the JDK_CACERTS are from the base community jdk, updated with internal cert
@@ -138,6 +144,8 @@ OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
 ALIAS="selfsigned"
 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
+fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
+fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
 
 # HTF uses a different jdk, the default install, so get it too
 HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
@@ -146,6 +154,8 @@ HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
 # installgrid exceptions, using +/1e here still fails the build 
 echo "INFO: HTF uses default JDK on gateway so update it too" 
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
+fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
+fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
 
 
 # gridci-3318, we need to pass the kms truststore to docker tasks since docker image
