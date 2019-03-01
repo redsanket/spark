@@ -162,6 +162,10 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # JDK will not have this and we can't add it on the fly (would need to add to base 
 # image) so instead we place our jks in a docker bind mount, which conf/hadoop is,
 # and then tell pig tasks to use it via pig script 'set' cmds 
+#
+# YHADOOP-2546, also need the tls certs in the docker/etal containers
 fanout "sudo cp $CERT_HOME/kms.jks /home/gs/conf/current/."
+fanout "sudo cp $CERT_HOME/mapredqa.jks /home/gs/conf/current/."
+fanout "sudo cp $CERT_HOME/hdfsqa.jks /home/gs/conf/current/."
 
 
