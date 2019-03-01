@@ -164,8 +164,11 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # and then tell pig tasks to use it via pig script 'set' cmds 
 #
 # YHADOOP-2546, also need the tls certs in the docker/etal containers
-fanout "sudo cp $CERT_HOME/kms.jks /home/gs/conf/current/."
-fanout "sudo cp $CERT_HOME/mapredqa.jks /home/gs/conf/current/."
-fanout "sudo cp $CERT_HOME/hdfsqa.jks /home/gs/conf/current/."
+# so the jks get all (kms, mapredqa, hdfsqa) certs added to it for the
+# tasks to use via "mapred.child.java.opts -Dssl.client.truststore.location
+# and  -Dssl.client.truststore.password=changeit  
+# CANNOT USE: -Djavax.net.ssl.trustStore, hadoop ignores this in its x509
+# handler to create the factory
+fanout "sudo cp $JDK_CACERTS/hadoop_flubber_tls.jks /home/gs/conf/current/."
 
 
