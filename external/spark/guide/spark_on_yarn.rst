@@ -909,7 +909,15 @@ FAQ
 ---
 
 - My application Final app status: SUCCEEDED, exitCode: 0 but application failed and retried
+
   - call spark.stop() at the end of your program
+- RDDs vs Datasets vs Dataframes:
+
+  - RDDs are lower level constructs. Users can apply general lambda functions to RDD methods like .filter, .flatMap, .reduce, but they don't have the support of Spark SQL's catalyst and other optimizations.
+  - Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine. A Dataset can be constructed from JVM objects and then manipulated using functional transformations (map, flatMap, filter, etc.). The Dataset API is available in Scala and Java. Python does not have the support for the Dataset API. But due to Python’s dynamic nature, many of the benefits of the Dataset API are already available (i.e. you can access the field of a row by name naturally row.columnName). The case for R is similar.
+  - A DataFrame is a Dataset organized into named columns. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. The DataFrame API is available in Scala, Java, Python, and R. In Scala and Java, a DataFrame is represented by a Dataset of Rows. In the Scala API, DataFrame is simply a type alias of Dataset[Row]. While, in Java API, users need to use Dataset<Row> to represent a DataFrame.
+  - See also: https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html, and https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes.
+
 
 .. _soy_local_mode:
 
