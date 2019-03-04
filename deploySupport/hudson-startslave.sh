@@ -307,10 +307,21 @@ export RUNSIMPLETEST=true
 
 rm -f *.tgz > /dev/null 2>&1
 
+# Make sure there is sufficient disk space before we install
+set -x
+PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test -yes hadoop_qa_utils && /home/y/bin/disk_usage'
+RC=$?
+set +x
+if [[ $RC -ne 0 ]]; then
+    echo "ERROR: Insufficient disk space on the cluster for install!!!"
+    exit 1
+fi
+
 # Make sure rocl is installed on all nodes
 set -x
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
-                    /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
 RC=$?
 set +x
 if [[ $RC -ne 0 ]]; then
