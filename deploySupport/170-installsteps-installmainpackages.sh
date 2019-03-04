@@ -49,7 +49,7 @@ then
         exit 1
     fi
 
-    
+    # TODO: 32 bit lib packages, i.e. lzo.i686 will cause issues for RHEL-7 in place upgrade
     # compat-readline should have come from Config job, removing compat-readline5.x86_64
     slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
     slownogwfanout "$cmd"
