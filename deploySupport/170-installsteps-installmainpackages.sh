@@ -169,6 +169,6 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # and  -Dssl.client.truststore.password=changeit  
 # CANNOT USE: -Djavax.net.ssl.trustStore, hadoop ignores this in its x509
 # handler to create the factory
-fanout "sudo cp $JDK_CACERTS/hadoop_flubber_tls.jks /home/gs/conf/current/."
+fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
 
 
