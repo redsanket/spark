@@ -517,6 +517,7 @@ echo "$BUILD_DESC"
 # RUN THE INSTALL SCRIPT ON THE ADM HOST
 # From above: "then copies that package to the destination machine and runs it..."
 #################################################################################
+banner "Create and setup Hadoop Grid Rollout package hadoopgridrollout"
 export DATESTRING=`date +%y%m%d%H%M`
 # GRIDCI-426: component name cannot exceed 10 characters.
 component=${CLUSTER:0:10}
@@ -528,6 +529,7 @@ set -x
 $SCP $filelist  $ADMIN_HOST:/tmp/
 set +x
 
+banner "Install and start the Hadoop Grid Rollout package hadoopgridrollout on the admin box to commence deployment as root"
 # Install and start the deployment package on the adm admin box to commence
 # deployment as root.
 #
@@ -535,7 +537,7 @@ set +x
 
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
-ssh $ADMIN_HOST "\
+$SSH $ADMIN_HOST "\
 cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
@@ -557,14 +559,6 @@ if [ "$CLEANUP_ON_EXIT" = "true" ]; then
         echo "cd /tmp && rm -rf $filelist"
     )| ssh $ADMIN_HOST
 fi
-
-# Use the same banner for logging stack component deploy as the other deploy steps
-banner() {
-    echo "*********************************************************************************"
-    echo "***" `TZ=PST8PDT date ; echo // ; TZ=  date `
-    echo "***" $*
-    echo "*********************************************************************************"
-}
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
