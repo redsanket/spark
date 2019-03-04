@@ -54,6 +54,9 @@ echo =========================================
 export DATESTRING=`date +%y%m%d%H%M`
 set -o pipefail
 
+SCRIPT_DIR=`dirname $(readlink -f $0)`
+source $SCRIPT_DIR/setenv.sh
+
 # Setup and cleanup artifacts directory
 artifacts_dir="${WORKSPACE}/artifacts"
 if [[ -d $artifacts_dir ]]; then
@@ -73,7 +76,7 @@ cd deploySupport
 
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tag '$HADOOP_RELEASE_TAG'."
+echo "`TZ=PDT8PDT date '+%H:%M:%S%p %Z'` Process dist tag '$HADOOP_RELEASE_TAG'."
 cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
@@ -108,7 +111,7 @@ HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
 yinst i hadoop_releases_utils
 RC=$?
-if [ "$RC" -ne 0 ]; then
+if [ $RC -ne 0 ]; then
   echo "Error: failed to install hadoop_releases_utils!"
   exit 1
 fi
@@ -254,7 +257,7 @@ else
     fi
 fi
 
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tags for any applicable components."
+echo "`TZ=PDT8PDT date '+%H:%M:%S%p %Z'` Process dist tags for any applicable components."
 if [ -n "$TEZ_DIST_TAG" ]; then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
@@ -305,8 +308,15 @@ export RUNSIMPLETEST=true
 rm -f *.tgz > /dev/null 2>&1
 
 # Make sure rocl is installed on all nodes
-PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+set -x
+PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
                     /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
+RC=$?
+set +x
+if [[ $RC -ne 0 ]]; then
+    echo "ERROR: rocl failed to installed on all the nodes"
+    exit 1
+fi
 
 #		default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=devadm102.blue.ygrid.yahoo.com
@@ -444,11 +454,11 @@ historyserver-test"
 function fetch_artifacts() {
     echo "FETCH ARTIFACTS"
     set -x
-    scp $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
+    $SCP $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
     cat $artifacts_dir/manifest.txt
-    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
-    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
-    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
+    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
+    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
+    $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -514,7 +524,9 @@ set -x
 sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
 set +x
 filelist=`ls  *.${component}.*.tgz`
-scp $filelist  $ADMIN_HOST:/tmp/
+set -x
+$SCP $filelist  $ADMIN_HOST:/tmp/
+set +x
 
 # Install and start the deployment package on the adm admin box to commence
 # deployment as root.
@@ -531,7 +543,7 @@ yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 st=$?
 set +x
 echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
-if [ "$st" -ne 0 ]
+if [ $st -ne 0 ]
 then
     echo "Exit on non-zero yinst exit status: $st"
     exit $st
@@ -679,7 +691,7 @@ if [ $RUN_HIT_TESTS = "true" ]; then
     set -x
     rm -rf ${WORKSPACE}/hit_results
     mkdir -p ${WORKSPACE}/hit_results
-    scp -r $ADMIN_HOST:/grid/0/tmp/${CLUSTER}.${DATESTRING} ${WORKSPACE}/hit_results/
+    $SCP -r $ADMIN_HOST:/grid/0/tmp/${CLUSTER}.${DATESTRING} ${WORKSPACE}/hit_results/
     case "$MAILTO" in
         none)
             echo "Skip HIT deployment notification email..."
