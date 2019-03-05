@@ -19,7 +19,7 @@ then
     (
     echo 'export PATH=/usr/kerberos/bin:$PATH'
 
-    echo echo ======= NEED TO RUN kinit to deal with keytab on ${n}
+    echo echo ======= NEED TO RUN kinit to deal with keytab on ${n} as ${HDFSUSER}
     echo "if [  -f $ktabfile ] "
     echo "then "
         echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${n}@DEV.YGRID.YAHOO.COM
