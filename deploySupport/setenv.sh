@@ -9,8 +9,8 @@ SCP="scp $SSH_OPT"
 # Use the same banner for logging stack component deploy as the other deploy steps
 banner() {
     echo "#################################################################################"
-    echo "# " `TZ=PST8PDT date ; echo // ; TZ=  date `
-    echo "# " $*
+    echo "# `date -u +'%a %b %d %Y'` `date -u +'%I:%M:%S %p %Z |'` `TZ=CST6CDT date +'%I:%M:%S %p %Z |'` `TZ=PST8PDT date +'%I:%M:%S %p %Z'`"
+    echo "# $*"
     echo "#################################################################################"
 }
 
