@@ -311,7 +311,7 @@ rm -f *.tgz > /dev/null 2>&1
 banner "Make sure there is sufficient disk space before installation"
 set -x
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
-/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yum install -y perl-Test-Simple && yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage'
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'sudo yum install -y perl-Test-Simple && yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage'
 RC=$?
 set +x
 if [[ $RC -ne 0 ]]; then
