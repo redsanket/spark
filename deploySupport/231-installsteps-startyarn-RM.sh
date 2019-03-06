@@ -22,11 +22,11 @@ ssh  $jobtrackernode su - $MAPREDUSER
 
     # GRIDCI-444 - nm health check for openstack
     fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
-    slavefanout "sh -x /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
+    slavefanout "sh /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
     # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
     fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
-    slavefanout "sh -x /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
+    slavefanout "sh /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
 
     # Install runc on all the nodemanagers that are not RHEL6
     slavefanout '[[ $(cut -d" " -f7 < /etc/redhat-release) =~ ^6. ]] || yum -y --enablerepo=latest-rhel-7-server-extras-rpms install runc'
@@ -37,19 +37,23 @@ ssh  $jobtrackernode su - $MAPREDUSER
     (
         echo "mkdir -p /cgroup/cpu"
         echo "if [[ \$(uname -r) =~ ^2\\. ]] && ! mountpoint -q /cgroup/cpu; then"
+        echo "  set -x"
         echo "  mount -t cgroup -o cpu none /cgroup/cpu"
         echo "  mkdir /cgroup/cpu/hadoop-yarn"
         echo "  chown $MAPREDUSER:hadoop /cgroup/cpu/hadoop-yarn"
+        echo "  set +x"
         echo "else"
         echo "  for i in \$(grep ^cgroup /proc/mounts | awk '{print \$2}'); do"
+        echo "    set -x"
         echo "    mkdir -p \$i/hadoop-yarn"
         echo "    chown $MAPREDUSER:hadoop \$i/hadoop-yarn"
+        echo "    set _x"
         echo "  done"
         echo "fi"
     ) > $tmpsetupfile
     set -x
     fanoutcmd "scp $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
-    slavefanout "sh -x /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+    slavefanout "sh /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 
     # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
     # echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode

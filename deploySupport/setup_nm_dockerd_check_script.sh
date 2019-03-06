@@ -30,7 +30,9 @@ function check_dockerd {
     echo "{ \"storage-driver\": \"overlay\" }" > /etc/docker/daemon.json
 
     echo "Restarting docker service"
+    set -x
     systemctl restart docker
+    set +x
   fi
 
   PS_CHECK=`ps -ef | egrep dockerd | egrep -v grep`
@@ -50,8 +52,11 @@ if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
   echo "INFO: OS is $OS_VER and Docker support is up to date and enabled, starting dockerd..."
 
   echo "Verify we have latest Docker package on node $HOSTNAME"
+  set -x
   yum install -y --enablerepo=latest* docker
-  if [ $? -ne 0 ]; then
+  RC=$?
+  set +x
+  if [ $RC -ne 0 ]; then
     echo "ERROR: docker package update failed!"
     exit 1
   fi
@@ -62,8 +67,10 @@ if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
 
   else
     echo "WARN: dockerd is not running, attempting to start it..."
+    set -x
     systemctl start docker
     sleep 5
+    set +x
    
     check_dockerd
     if [ $? -eq 0 ]; then
