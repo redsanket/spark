@@ -4,7 +4,7 @@ export JAVA_HOME=$GSHOME/java/jdk64/current
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs
 
-echo $0 -- HDFSUSER=$HDFSUSER
+echo "Running $0 -- HDFSUSER=$HDFSUSER"
 
 if [ `whoami` != $HDFSUSER ]
 then
@@ -31,25 +31,33 @@ esac
 
 # echo "Part 3: beginning."
 if [ $CMD == "start" ]; then
-secondarynamenode=`hostname`
-
+    secondarynamenode=`hostname`
     shortname=`expr  $secondarynamenode : '(' '\([^\.]*\)\..*$' ')'`
-    echo name=$secondarynamenode shortname=$shortname
-    ktabfile=/etc/grid-keytabs/${shortname}.dev.service.keytab
+    # echo name=$secondarynamenode shortname=$shortname
     # echo '***** NEED TO RUN' kinit to deal with keytab on ${secondarynamenode}
+    ktabfile1=/etc/grid-keytabs/${shortname}.dev.service.keytab
+    ktabfile2=/etc/grid-keytabs/hdfs.dev.service.keytab
+    if [ -f "$ktabfile1" ]; then
+        ktabfile=$ktabfile1
+        princ=hdfs/${secondarynamenode}@DEV.YGRID.YAHOO.COM
+    elif [ -f "$ktabfile2" ]; then
+        ktabfile=$ktabfile2
+        princ=hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+    else
+        echo "ERROR: no valid keytab file found!!!"
+        echo "$ktabfile1"
+        echo "$ktabfile2"
+        exit 1;
+    fi
     export PATH=/usr/kerberos/bin:$PATH
     case $HDFSUSER in
       hdfsqa|hadoop[0123456789]|hdfs)
-	    if [  -f "$ktabfile" ]
-	    then
-		kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${secondarynamenode}@DEV.YGRID.YAHOO.COM
-	    else
-		kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
-	    fi
+	    echo "kinit -kt $ktabfile $princ"
+	    kinit -kt $ktabfile $princ
             ;;
         *)
-	    echo "Do not recognize HDFSUSER -- probably kinit / Kerberos errors will follow."
-	    kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${namenode}@DEV.YGRID.YAHOO.COM
+	    echo "Do not recognize HDFSUSER $HDFSUSER -- cannot run kinit!!!"
+            exit 1;
 	;;
     esac
     klist

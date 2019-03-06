@@ -43,13 +43,8 @@ case "$CLUSTER" in
 esac
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 
-echo =========================================
-echo Beginning of Hudson-driven deployment job.
-echo "Date = `TZ=PDT8PDT date` (`TZ= date`)"
-echo "hostname = '`hostname`'"
-echo "CLUSTER = '$CLUSTER'"
+banner "Starting Hudson-driven deployment job for cluster '$CLUSTER' from `hostname`"
 echo "PATH = '$PATH'"
-echo =========================================
 
 export DATESTRING=`date +%y%m%d%H%M`
 set -o pipefail
@@ -76,8 +71,8 @@ cd deploySupport
 
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
-echo "`TZ=PDT8PDT date '+%H:%M:%S%p %Z'` Process dist tag '$HADOOP_RELEASE_TAG'."
 cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
+note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
@@ -257,7 +252,7 @@ else
     fi
 fi
 
-echo "`TZ=PDT8PDT date '+%H:%M:%S%p %Z'` Process dist tags for any applicable components."
+note "Process dist tags for any applicable components."
 if [ -n "$TEZ_DIST_TAG" ]; then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
@@ -281,7 +276,7 @@ if [ $AUTO_CREATE_RELEASE_TAG = 1 ]; then
     dist_tag clone $HADOOP_RELEASE_TAG $NEW_DIST_TAG
     dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
 fi
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Completed dist tag processing."
+note "Completed dist tag processing."
 
 echo ===
 echo ===
