@@ -353,13 +353,16 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
         set -e
     fi
 
-    echo "CURRENT COMPLETED EXECUTION STEPS:"
-    printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" \
+    banner "CURRENT COMPLETED EXECUTION STEPS:"
+    printf "%-2s %-48s : %.0f min (%.0f sec) : %s : %s : %s\n" \
 $index $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
     cat $timeline
+    echo
 
-    banner "END INSTALL STEP #$index: $script_basename: status=$st"
-    if [ "$st" -ne 0 ]; then
+    if [ "$st" -eq 0 ]; then
+        banner "END INSTALL STEP #$index: SUCCESS: $script_basename: status=$st"
+    else
+        banner "END INSTALL STEP #$index: FAILED: $script_basename: status=$st"
         echo "EXIT_ON_ERROR=$EXIT_ON_ERROR"
         if [ "$EXIT_ON_ERROR" = "true" ]; then
             echo ">>>>>>>> EXIT ON ERROR <<<<<<<<<<" && exit $st
