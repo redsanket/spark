@@ -7,7 +7,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/setenv.sh
-banner "WARNING: This script $0 has been deprecated as of 8/15/2016. Call hudson-startslave.sh directly instead."
+banner "WARNING: This script hudson-startslave-openstack.sh has been deprecated (8/15/2016). Call hudson-startslave.sh directly instead."
 
 command="$SCRIPT_DIR/hudson-startslave.sh"
 if [ $# -gt 0 ]; then
