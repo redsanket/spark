@@ -1,3 +1,4 @@
+filename="/grid/0/tmp/deploy.$cluster.processes.to.kill.sh"
 (
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
 #    echo  yinst self-update -branch yinst7current 
@@ -19,4 +20,8 @@
     echo 'sleep 5'
     echo 'echo `hostname`: killall -9 jsvc'
     echo 'killall -9 jsvc'
-)  > /grid/0/tmp/deploy.$cluster.processes.to.kill.sh
+)  > $filename
+echo "Generated file $filename"
+set -x
+ls -l $filename
+set +x

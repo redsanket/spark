@@ -1,7 +1,7 @@
-set -x
-
 t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 [ -e $t ] && rm -rf  $t
+
+set -x
 mkdir -p $t
 
 cp namenodes.$cluster.txt /grid/0/tmp/
@@ -10,6 +10,9 @@ cp namenodehaalias.$cluster.txt /grid/0/tmp/
 cp ${base}/docker_fetch_image.py    /grid/0/tmp/
 cp ${base}/setup_docker_hdfs.sh /grid/0/tmp/
 cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
+set +x
+
+filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
 (
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
@@ -205,4 +208,9 @@ cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
         echo "    $confpkg.TODO_MAPRED_SITE_SPARE_PROPERTIES=' <property> <name>mapred.task.tracker.report.address</name> <!-- cluster variant --> <value>0.0.0.0:50030</value> <description>RPC connection from Herriot tests to a tasktracker</description> <final>true</final> </property>' \\"
         echo "    $confpkg.TODO_HADOOP_CONFIG_CONFIGLINE='<configuration xmlns:xi=\"http://www.w3.org/2001/XInclude\">    <xi:include href=\"${yroothome}/conf/hadoop/hadoop-policy-system-test.xml\"/>' "
     fi
-) >  /grid/0/tmp/deploy.$cluster.confoptions.sh
+) >  $filename
+
+echo "Generated file $filename"
+set -x
+ls -l $filename
+set +x

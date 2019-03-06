@@ -1,3 +1,4 @@
+filename="/grid/0/tmp/deploy.$cluster.createrunAs.sh"
 (
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
     echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
@@ -7,4 +8,8 @@
     echo "cd ${yroothome}"
     echo "chown root:users  conf/hadoop/runAs"
     echo "chmod 4711  conf/hadoop/runAs"
-) >  /grid/0/tmp/deploy.$cluster.createrunAs.sh
+) >  $filename
+echo "Generated file $filename"
+set -x
+ls -l $filename
+set +x

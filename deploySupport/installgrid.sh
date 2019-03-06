@@ -259,7 +259,7 @@ echo "installgrid.sh: run create conf scripts to auto-generate scripts to be run
 echo "================================================================================="
 for script in ${base}/[0-9][0-9]*-create-conf-*.sh
 do
-    echo "eval . $script"
+    banner "Running eval . $script"
     eval ". $script"
 done
 
