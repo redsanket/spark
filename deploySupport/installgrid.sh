@@ -219,9 +219,7 @@ export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLSECONDARYNAMENODESLIST=`echo $ALLSECONDARYNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 
-echo =====================================================
-echo ===  installing grid: $cluster
-echo =====================================================
+banner "installing grid: $cluster"
 echo "===  gateway='$gateway'"
 echo "===  namenode='$NAMENODE_Primary'"
 echo "===  namenodes='$ALLNAMENODES'"
@@ -233,8 +231,7 @@ echo "===  jobtrackernode='$jobtrackernode'"
 echo "===  confpkg='$confpkg'"
 echo "===  HOSTLIST='$HOSTLIST' (all nodes)"
 echo "===  SLAVELIST='$SLAVELIST' (slave nodes)"
-echo =====================================================
-echo =====================================================
+
 scripttmp=/grid/0/tmp/scripts.deploy.$cluster
 scriptaddr=$ADMIN_HOST::tmp/scripts.deploy.$cluster
 grossworkaroundaddr=$ADMIN_HOST::tmp/gross-0.22-dev-workaround
@@ -254,11 +251,8 @@ base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
 export MANIFEST=${YINST_ROOT}/manifest.txt
 .  ${base}/000-shellfunctions.sh
 	
-echo "================================================================================="
-echo "installgrid.sh: run create conf scripts to auto-generate scripts to be run later:"
-echo "================================================================================="
-for script in ${base}/[0-9][0-9]*-create-conf-*.sh
-do
+banner "installgrid.sh: run create conf scripts to auto-generate scripts to be run later"
+for script in ${base}/[0-9][0-9]*-create-conf-*.sh; do
     banner "Running eval . $script"
     eval ". $script"
 done
@@ -272,8 +266,6 @@ echo ========== Copying namenode scripts to /grid/0/tmp
 
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.sh $scripttmp
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
-
-
 
 echo installing onto $1....
 echo HIT_DEPLOY: ${HIT_DEPLOY}
@@ -315,20 +307,17 @@ echo "==============================================="
 # $script because it will override the $script variable here.
 # for script in ${base}/[0-9][0-9]*-installsteps-*.sh
 # Skip over HIT tests. HIT tests are not being run anymore.
-for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh
-do
-  if [[  -e $script ]]
-  then
-
-    script_sn=`basename $script`
-    current_step=`echo $script_sn|cut -d'-' -f1|bc`
+for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
+  if [[  -e $script ]]; then
+    script_basename=`basename $script`
+    current_step=`echo $script_basename|cut -d'-' -f1|bc`
     if [[ $current_step -lt $START_STEP ]];then
-       echo "SKIP deploy script: ${script_sn}: less than starting step '$START_STEP'"
+       echo "SKIP deploy script: ${script_basename}: less than starting step '$START_STEP'"
        continue;
     fi
 
     # HIT tests are not being run anymore.
-    # if [[ $script_sn =~ "-HIT-" ]]; then
+    # if [[ $script_basename =~ "-HIT-" ]]; then
     #     if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
     #         echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
     #         continue
@@ -338,7 +327,7 @@ do
     #banner running $f
     set +x
     sleep 1
-    banner2 "START INSTALL STEP #$index: '$script'" "Called from $hostname:$pwd/installgrid.sh as $whoami"
+    banner2 "START INSTALL STEP #$index: $script_basename" "Called from $hostname:$pwd/installgrid.sh as $whoami"
 
     start=`date +%s`
     h_start=`date +%Y/%m/%d-%H:%M:%S`
@@ -365,10 +354,11 @@ do
     fi
 
     echo "CURRENT COMPLETED EXECUTION STEPS:"
-    printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" $index $script $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
+    printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" \
+$index $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
     cat $timeline
 
-    banner "END INSTALL STEP #$index: '$script': status='$st'"
+    banner "END INSTALL STEP #$index: $script_basename: status=$st"
     if [ "$st" -ne 0 ]; then
         echo "EXIT_ON_ERROR=$EXIT_ON_ERROR"
         if [ "$EXIT_ON_ERROR" = "true" ]; then

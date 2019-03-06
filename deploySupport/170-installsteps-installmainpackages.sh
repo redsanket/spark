@@ -1,54 +1,40 @@
-
-if [ "$INSTALLNEWPACKAGES" = true ]
-then
+set +x
+if [ "$INSTALLNEWPACKAGES" = true ]; then
     echo == installing YINST packages.
+
+    OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+    echo "INFO: OS is $OS_VER"
+    # based on OS version, use correct install cmd
+    # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
+    if [[ ! "$OS_VER" =~ ^7|^6 ]]; then
+        echo "WARN: Unknown OS $OS_VER!"
+        exit 1
+    fi
 
     # For spark integration tests we want to deploy packages from the quarantine branch.
     # We separate out spark shuffle jar to explicitly specify the branch is spark is selected.
     spark_shuffle_cmd=""
     if [ "$SPARK_SHUFFLE_VERSION" != "none" ]; then
         HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING | sed "s/yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION//g"`
-
-        # based on OS version, use correct install cmd
-        #
-        # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
-        OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
         if [[ "$OS_VER" =~ ^7. ]]; then
-            echo "INFO: OS is $OS_VER"
             spark_shuffle_cmd="$yinst install -br test  -yes  -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
-
-        elif [[ "$OS_VER" =~ ^6. ]]; then
-            echo "OS is $OS_VER"
+        else
+            # RHEL-6
             #phw  spark_shuffle_cmd="$yinst install -yes -os rhel-6.x -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
             spark_shuffle_cmd="$yinst install -br test -yes -root ${yroothome} yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION -br quarantine -same -live -downgrade"
-  
-        else
-            echo "WARN: Unknown OS $OS_VER!"
-            exit 1
         fi
     fi
 
-
-    # based on OS version, use correct cmd
-    #
-    #
-    # NOTE: don't quote the os compare substr, parsing inserts escape which breaks the compare
     # gridci-3342, need quarantine on rhel7 in order to install with Core 3.x
-    OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
     if [[ "$OS_VER" =~ ^7. ]]; then
-        echo "INFO: OS is $OS_VER"
         cmd="$yinst install  -br quarantine  -yes  -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade "
-
-    elif [[ "$OS_VER" =~ ^6. ]]; then
-        echo "OS is $OS_VER"
+    else
+        # RHEL-6
         #phw  cmd="$yinst install -br test -yes -os rhel-6.x -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
         cmd="$yinst install -br quarantine -yes -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
-
-    else
-        echo "WARN: Unknown OS $OS_VER!"
-        exit 1
     fi
 
+    set -x
     # TODO: 32 bit lib packages, i.e. lzo.i686 will cause issues for RHEL-7 in place upgrade
     # compat-readline should have come from Config job, removing compat-readline5.x86_64
     slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
@@ -65,36 +51,40 @@ then
     # fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
 
     # Because we create gateways from new virtual hosts
-#    fanoutGW "$yinst install yhudson_slave"
-#    fanoutGW "mkdir -p /home/y/var/builds"
+    # fanoutGW "$yinst install yhudson_slave"
+    # fanoutGW "mkdir -p /home/y/var/builds"
 
-#
-# At this point, the packages are installed - except the configs.
-#
-#    f=YahooDNSToSwitchMapping-0.2.1111040716.jar
-#    f=YahooDNSToSwitchMapping-0.22.0.1011272126.jar
+    #
+    # At this point, the packages are installed - except the configs.
+    #
+    #    f=YahooDNSToSwitchMapping-0.2.1111040716.jar
+    #    f=YahooDNSToSwitchMapping-0.22.0.1011272126.jar
 
     fanoutcmd "scp /grid/0/tmp/deploy.$cluster.confoptions.sh /grid/0/tmp/processNameNodeEntries.py /grid/0/tmp/namenodes.$cluster.txt /grid/0/tmp/secondarynamenodes.$cluster.txt /grid/0/tmp/processNameNodeEntries.py __HOSTNAME__:/tmp/" "$HOSTLIST"
     cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh && cp /tmp/deploy.$cluster.confoptions.sh  ${yroothome}/conf/hadoop/ "
 
-#    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
-#    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:/grid/0/tmp/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
+    #    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
+    #    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:/grid/0/tmp/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
     fanout "$cmd"
     fanoutGW "$cmd"
 
-   # install addtional QA packages if there is any
-   if [ "$QA_PACKAGES" != "none" ]
-   then
+    set +x
+    # install addtional QA packages if there is any
+    if [ "$QA_PACKAGES" != "none" ]; then
         echo "====Install additional QA packages: $QA_PACKAGES"
+        set -x
         #phw slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -same -live"
         slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
         #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
-   fi
-echo ......
-echo ...... to run an exact imitation of this hadoop-config-install,
-echo ...... run deploy.$cluster.confoptions.sh, which is in the config-dir.
-echo ......
-echo ......
+        set +x
+    fi
+    echo ......
+    echo ...... to run an exact imitation of this hadoop-config-install,
+    echo ...... run deploy.$cluster.confoptions.sh, which is in the config-dir.
+    echo ......
+    echo ......
+else
+    echo "INSTALL NEW PACKAGES not enabled. Nothing to do"
 fi
 
 
@@ -106,7 +96,8 @@ fi
 # For details on the pdsh bug see:
 #  http://sourceforge.net/p/pdsh/mailman/message/290409/
 #
-fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi "
+fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; \
+if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi "
 
 
 ##################################################################################
