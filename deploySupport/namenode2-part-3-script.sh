@@ -5,11 +5,9 @@ export JAVA_HOME=$GSHOME/java/jdk64/current
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs
 
 echo "Running $0 -- HDFSUSER=$HDFSUSER"
-
-if [ `whoami` != $HDFSUSER ]
-then
-	echo "failure: need to run $0 as $HDFSUSER." 1>&2
-	exit 2
+if [ `whoami` != $HDFSUSER ]; then
+    echo "failure: need to run $0 as $HDFSUSER." 1>&2
+    exit 2
 fi
 
 # secondary namenode doesnt require erasing nor janitorial services.
@@ -33,8 +31,8 @@ esac
 if [ $CMD == "start" ]; then
     secondarynamenode=`hostname`
     shortname=`expr  $secondarynamenode : '(' '\([^\.]*\)\..*$' ')'`
-    # echo name=$secondarynamenode shortname=$shortname
     # echo '***** NEED TO RUN' kinit to deal with keytab on ${secondarynamenode}
+    # echo name=$secondarynamenode shortname=$shortname
     ktabfile1=/etc/grid-keytabs/${shortname}.dev.service.keytab
     ktabfile2=/etc/grid-keytabs/hdfs.dev.service.keytab
     if [ -f "$ktabfile1" ]; then
@@ -51,14 +49,14 @@ if [ $CMD == "start" ]; then
     fi
     export PATH=/usr/kerberos/bin:$PATH
     case $HDFSUSER in
-      hdfsqa|hadoop[0123456789]|hdfs)
+        hdfsqa|hadoop[0123456789]|hdfs)
 	    echo "kinit -kt $ktabfile $princ"
 	    kinit -kt $ktabfile $princ
             ;;
         *)
 	    echo "Do not recognize HDFSUSER $HDFSUSER -- cannot run kinit!!!"
             exit 1;
-	;;
+	    ;;
     esac
     klist
 elif [ $CMD == "stop" ]; then 

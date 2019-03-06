@@ -41,16 +41,16 @@ case "$CLUSTER" in
       export localconfpkg=hadooplocalconfigs
       ;;
 esac
+
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
-
-banner "Starting Hudson-driven deployment job for cluster '$CLUSTER' from `hostname`"
-echo "PATH = '$PATH'"
-
 export DATESTRING=`date +%y%m%d%H%M`
 set -o pipefail
 
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 source $SCRIPT_DIR/setenv.sh
+
+banner "Starting Hudson-driven deployment job for cluster '$CLUSTER' from `hostname`"
+echo "PATH = '$PATH'"
 
 # Setup and cleanup artifacts directory
 artifacts_dir="${WORKSPACE}/artifacts"
