@@ -1,7 +1,7 @@
 set +x
 
 if [ "$KILLALLPROCESSES" != true ]; then
-    echo "KILLALLPROCESSES not enabled. Nothing to do."
+    echo "KILLALLPROCESSES is not enabled. Nothing to do."
     return 0
 fi
 

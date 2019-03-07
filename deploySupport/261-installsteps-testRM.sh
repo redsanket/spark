@@ -17,8 +17,8 @@
 set +x
 
 if [ "$STARTYARN" != true ]; then
-    echo "STARTYARN not enabled. Nothing to do."
-   return 0
+    echo "STARTYARN is not enabled. Nothing to do."
+    return 0
 fi
 
 banner "Running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn."

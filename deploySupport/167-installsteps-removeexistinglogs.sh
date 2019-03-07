@@ -1,7 +1,7 @@
 set +x
 
-if [ "$REMOVE_EXISTING_LOGS" != false ]; then
-    echo "REMOVE_EXISTING_LOGS not enabled. Nothing to do."
+if [ "$REMOVE_EXISTING_LOGS" != true ]; then
+    echo "REMOVE_EXISTING_LOGS is not enabled. Nothing to do."
     return 0
 fi
 

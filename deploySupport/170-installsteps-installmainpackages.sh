@@ -1,7 +1,7 @@
 set +x
 
 if [ "$INSTALLNEWPACKAGES" != true ]; then
-    echo "INSTALLNEWPACKAGES not enabled. Nothing to do."
+    echo "INSTALLNEWPACKAGES is not enabled. Nothing to do."
     return 0
 fi
 
@@ -125,14 +125,14 @@ if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/g
 echo "INFO: Installing ssl certs for KMS, TimeLine and Yarn/HDFS services on all nodes. Note that even"
 echo "INFO: if KMS is not configured on cluster, certs are needed by TimeLine and Core services"
 
-set -x
-
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 # the JDK_CACERTS are from the base community jdk, updated with internal cert
 # changes, this is the truststore that is updated with our ssl certs
 JDK_CACERTS="/home/gs/java/jdk/jre/lib/security/cacerts"
 OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
 ALIAS="selfsigned"
+
+set -x
 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
@@ -155,4 +155,4 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # and then tell pig tasks to use it via pig script 'set' cmds 
 fanout "sudo cp $CERT_HOME/kms.jks /home/gs/conf/current/."
 
-
+set +x

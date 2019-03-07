@@ -1,7 +1,7 @@
 set +x
 
 if [ "$RUNSIMPLETEST" = false -o -z "$RUNSIMPLETEST" ]; then
-    echo "RUNSIMPLETEST not enabled. Nothing to do."
+    echo "RUNSIMPLETEST is not enabled. Nothing to do."
     return 0
 fi
 

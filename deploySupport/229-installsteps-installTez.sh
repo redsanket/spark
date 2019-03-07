@@ -7,7 +7,7 @@ export TEZ_UI=$TEZ_HOME/tez-ui.war
 export PATH=$PATH:/home/gs/current/bin
 
 if [ $TEZVERSION == "none" ] || [ $INSTALL_TEZ == "false" ]; then
-    echo "Tez install not enabled"
+    echo "Tez install is not enabled. Nothing to do."
     return 0
 fi
 

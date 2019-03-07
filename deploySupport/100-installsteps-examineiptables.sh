@@ -2,7 +2,7 @@ set +x
 StopIPtables=true
 
 if [ "$StopIPtables" != true ]; then
-    echo "StopIPtables not enabled. Nothing to do"
+    echo "StopIPtables is not enabled. Nothing to do"
     return 0
 fi
 
