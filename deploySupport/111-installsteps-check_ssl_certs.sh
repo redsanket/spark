@@ -11,7 +11,6 @@ SSH="ssh $SSH_OPT"
 SCP="scp $SSH_OPT"
 ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 
-
 #
 # TODO in future we could deliver these certificates using ykeykey/chef
 # reference doc at;
@@ -20,11 +19,11 @@ ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 CERT_REFERENCE_PATH="/grid/3/dev/ygrid_certs_flubber/*"
 CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 
-echo == verify Core SSL certs are in place
+echo "== verify Core SSL certs are in place"
 
 set -x
 fanout "if [ ! -d ${CERT_HOME} ] ; then 
-           echo "Going to create ${CERT_HOME}";
+           echo \"Going to create ${CERT_HOME}\";
            mkdir -p ${CERT_HOME};
            chmod 755 ${CERT_HOME};
         fi"

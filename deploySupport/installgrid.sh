@@ -359,6 +359,7 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
         status='FAILED'
     fi
 
+    echo
     banner "END INSTALL STEP #$index: $status: $script_basename: status=$st"
     echo "# COMPLETED STEPS:"
 
