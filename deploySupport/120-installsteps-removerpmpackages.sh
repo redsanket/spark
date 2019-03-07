@@ -2,7 +2,7 @@ set +x
 
 if [ "$REMOVERPMPACKAGES" != true ]; then
     echo "REMOVERPMPACKAGES is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo "REMOVERPMPACKAGES is enabled: removing RPM packages, if appropriate."

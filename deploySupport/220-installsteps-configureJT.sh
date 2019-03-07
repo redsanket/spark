@@ -12,34 +12,37 @@
 # Inputs: cfgscriptnames (relick from old install mechanisms.)
 #
 set +x
-if [ "$CONFIGUREJOBTRACKER" = true ]; then
-    echo == running jobtracker-configure script on `hostname`
 
-    echo "*****"  "change of cluster:"
-    echo "*****"  "we are adding users to group 'hadoop'"
-    echo "*****"  "we are changing /etc/grid-keytabs so that $MAPREDUSER to read it."
-    set -x
-    fanoutnogw "/usr/sbin/lgroupdel hadoop; \
+if [ "$CONFIGUREJOBTRACKER" != true ]; then
+    echo "CONFIGUREJOBTRACKER is not enabled. Nothing to do."
+    return 0
+fi
+
+echo == running jobtracker-configure script on `hostname`
+
+echo "*****"  "change of cluster:"
+echo "*****"  "we are adding users to group 'hadoop'"
+echo "*****"  "we are changing /etc/grid-keytabs so that $MAPREDUSER to read it."
+
+set -x
+fanoutnogw "/usr/sbin/lgroupdel hadoop; \
 /usr/sbin/lgroupadd -g 10787 hadoop; \
 /usr/sbin/lgroupmod -M $HDFSUSER,$MAPREDUSER,hadoopqa hadoop; \
 cd /etc/grid-keytabs; \
 [ -e tt.* ] && chmod +r tt.* ; [ -e dn.* ] && chmod +r dn.* ; chmod  +r *.keytab"
-    RC=$?
-    set +x
+RC=$?
+set +x
 
-    echo == "note short-term workaround for capacity scheduler (expires Sept 30)"
-    set -x
-    fanout "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
+echo == "note short-term workaround for capacity scheduler (expires Sept 30)"
+set -x
+fanout "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop && \
 export YARN_HOME=${yroothome}/share/hadoop"
-    RC=$?
+RC=$?
 
-    # fanout "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
-    # fanout "usermod -G hadoop $MAPREDUSER "
-    ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-jtnode.sh "
-    RC=$?
-    set +x
-else
-    echo "CONFIGURE JOBTRACKER not enabled. Nothing to do."
-fi
+# fanout "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
+# fanout "usermod -G hadoop $MAPREDUSER "
+ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-jtnode.sh "
+RC=$?
+set +x

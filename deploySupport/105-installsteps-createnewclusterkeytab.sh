@@ -1,7 +1,7 @@
 set +x
 if [ "$CREATE_NEW_CLUSTER_KEYTAB" != true ]; then
     echo "CREATE_NEW_CLUSTER_KEYTAB is not enabled. Nothing to do."
-    exit 0
+    return  0
 fi
 
 echo "CREATE_NEW_CLUSTER_KEYTAB is enabled"

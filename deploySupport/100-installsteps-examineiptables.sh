@@ -3,7 +3,7 @@ StopIPtables=true
 
 if [ "$StopIPtables" != true ]; then
     echo "StopIPtables not enabled. Nothing to do"
-    exit 0
+    return 0
 fi
 
 set -x

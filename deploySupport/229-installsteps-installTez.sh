@@ -1,4 +1,5 @@
 set +x
+
 export TEZ_CONF_DIR=/home/gs/conf/tez/current
 export TEZ_HOME=/home/gs/tez/current
 export TEZ_UI=$TEZ_HOME/tez-ui.war
@@ -7,11 +8,10 @@ export PATH=$PATH:/home/gs/current/bin
 
 if [ $TEZVERSION == "none" ] || [ $INSTALL_TEZ == "false" ]; then
     echo "Tez install not enabled"
-    exit 0
+    return 0
 fi
 
 echo ================= Install Tez on /sharelib/v1/tez hdfs directory =================
-
 
 set -x
 JAVA_HOME="$GSHOME/java/jdk64/current"

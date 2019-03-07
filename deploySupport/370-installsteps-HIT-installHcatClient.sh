@@ -1,5 +1,7 @@
 # $Id$
 
+set +x
+
 echo ================= evaluating whether to install Hcatlog client
 echo ================= HCATIGORTAG = $HCATIGORTAG
 echo ================= hcatnode = $hcatservernode
@@ -29,11 +31,11 @@ if [[ $HCATIGORTAG != none ]]; then
     -set hcat_miners_test.CLUSTER=$cluster \
     -set hive.metastore_kerberos_principal=hcat/_HOST@DEV.YGRID.YAHOO.COM
 
-#    echo "echo ==== Testing hcat server/client installation now"
-#    echo "SUDO_USER=hadoopqa  kinit -kt ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM"
-#    echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'show databases' "
-#    echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'create database hit_test_deploy' "
-#    echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'drop database hit_test_deploy' "
+    # echo "echo ==== Testing hcat server/client installation now"
+    # echo "SUDO_USER=hadoopqa  kinit -kt ~hadoopqa/hadoopqa.dev.headless.keytab hadoopqa@DEV.YGRID.YAHOO.COM"
+    # echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'show databases' "
+    # echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'create database hit_test_deploy' "
+    # echo "SUDO_USER=hadoopqa $yroothome/bin/hcat hcat -e 'drop database hit_test_deploy' "
     echo 'st=$?'
     echo 'if [ "$st" -ne 0 ];then'
     echo '  echo $st'

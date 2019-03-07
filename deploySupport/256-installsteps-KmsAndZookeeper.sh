@@ -38,6 +38,8 @@
 # inputs: cluster being installed
 # outputs: 0 on success
 
+set +x
+
 echo "================= Install KeyManagementService (KMS) and ZooKeeper ================="
 
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -50,14 +52,12 @@ kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 CONF_KMS="/home/y/conf/kms"
 CONF_ZK="/home/y/conf/zookeeper"
 
-
 # gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
 # ref jiras JAVAPLATF-2893, JAVAPLATF-2894
 function cp_files {
-  SRC_FILE=$1
-  DEST_FILE=$2
-
-  $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
+    SRC_FILE=$1
+    DEST_FILE=$2
+    $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
 }
 
 
@@ -65,41 +65,50 @@ function cp_files {
 # most existing clusters that weren't built with kms support roles,
 # just continue deployment 
 if [ -z "$kmsnode" ]; then
-  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  echo "+                                                          +"
-  echo "+     No KMS role or node defined!!                        +"
-  echo "+                                                          +"
-  echo "+     Not installing KMS, please be sure KMS role exists   +"
-  echo "+     and add node if KMS support is required!!            +"
-  echo "+                                                          +"
-  echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-  return
+    echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo "+                                                          +"
+    echo "+     No KMS role or node defined!!                        +"
+    echo "+                                                          +"
+    echo "+     Not installing KMS, please be sure KMS role exists   +"
+    echo "+     and add node if KMS support is required!!            +"
+    echo "+                                                          +"
+    echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    return
 else
-  echo "INFO: KMS node is: $kmsnodeshort"
+    echo "INFO: KMS node is: $kmsnodeshort"
 fi
 
 
 # need the kgp from hadoopqa_headless_keys to find the KMS test key, hitusr_4
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
+set -x
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
-if [ $? -ne 0 ]; then 
-  echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
-  exit 1
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
+    exit 1
 fi
 
 # create and make accessible conf dir for kms
+set -x
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"mkdir -p $CONF_KMS; chown hadoop8:users $CONF_KMS; chmod 777 $CONF_KMS\""
-if [ $? -ne 0 ]; then 
-  echo "Error: node $kmsnode failed to create $CONF_KMS!"
-  exit 1
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Error: node $kmsnode failed to create $CONF_KMS!"
+    exit 1
 fi
 
 # need to create the zk path for jaas.conf in order to have zk start in kerb mode
+set -x
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"mkdir -p $CONF_ZK; chown hadoopqa:users $CONF_ZK; chmod 755 $CONF_ZK\""
-if [ $? -ne 0 ]; then 
-  echo "Error: node $kmsnode failed to create $CONF_ZK!"
-  exit 1
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Error: node $kmsnode failed to create $CONF_ZK!"
+    exit 1
 fi
 
 
@@ -109,11 +118,14 @@ fi
 cmd_nnconfig="yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_PATH=\"kms://https@$kmsnode:4443/kms\" ; \
   export JAVA_HOME=/home/gs/java/jdk; yinst restart namenode -root ${yroothome}"
 
+set -x
 fanoutNN $cmd_nnconfig
+RC=$?
+set +x
 if [ $? -ne 0 ]; then
-  echo "Failed to setup NN key provider!" 
+    echo "Failed to setup NN key provider!"
 else
-  echo "INFO: setup NN key provider and restarted" 
+    echo "INFO: setup NN key provider and restarted"
 fi
 
 
@@ -152,11 +164,14 @@ echo \"  useTicketCache=false\" >> $JAASFILE; \
 echo \"  principal=\\\"zookeeper/$kmsnode@DEV.YGRID.YAHOO.COM\\\";\" >> $JAASFILE; \
 echo \"};\" >> $JAASFILE"
 
+set -x
 $SSH $kmsnode $cmd_zk_jaas
+RC=$?
+set +x
 if [ $? -ne 0 ]; then
-  echo "Failed to setup JAAS file for ZooKeeper!"
+    echo "Failed to setup JAAS file for ZooKeeper!"
 else
-  echo "INFO: setup JAAS file for ZooKeeper"
+    echo "INFO: setup JAAS file for ZooKeeper"
 fi
 
 #
@@ -219,11 +234,14 @@ else
     exit 1
 fi
 
+set -x
 $SSH $kmsnode $cmd_jetty
-if [ $? -ne 0 ]; then
-  echo "Failed to install yjava_jetty support!"
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to install yjava_jetty support!"
 else
-  echo "INFO: installed yjava_jetty support"
+    echo "INFO: installed yjava_jetty support"
 fi
 
 #
@@ -251,18 +269,24 @@ else
     exit 1
 fi
 
+set -x
 $SSH $kmsnode $cmd_zk
-if [ $? -ne 0 ]; then
-  echo "Failed to install ZK support!"
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to install ZK support!"
 else
-  echo "INFO: installed ZK support"
+    echo "INFO: installed ZK support"
 fi
 
 echo "Resending yinst set zookeeper_server.jvm_args since the earlier set attempt using pdsh does not work!"
-$SSH $kmsnode "yinst set zookeeper_server.jvm_args=\"  -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
-if [ $? -ne 0 ]; then
-  echo "Failed to set ZK jvm_args!"
-  exit 1
+set -x
+$SSH $kmsnode "yinst set zookeeper_server.jvm_args=\"  -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \-Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to set ZK jvm_args!"
+    exit 1
 fi
 
 
@@ -284,36 +308,44 @@ yinst install  yahoo_kms -same -live -downgrade -br test \
  -set yahoo_kms.TODO_HOSTNAME=$kmsnode -set yahoo_kms.TODO_KMS_USER=hadoop8 -set yahoo_kms.autostart=off \
  -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM" 
 
-
+set -x
 $SSH $kmsnode $cmd_kms
-if [ $? -ne 0 ]; then
-  echo "Failed to install KMS package support!" 
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to install KMS package support!"
 else
-  echo "INFO: installed KMS package support" 
+    echo "INFO: installed KMS package support"
 fi
 
+set -x
 # set the correct kms keytab
 $SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
 # gridci-2904, fix the oozie user we run as in kms-site 
 $SSH $kmsnode "sudo sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml"
-
+set +x
 
 #
 # smoke test to verify KMS service is running
 #
 
 # need to have ykeykey/keydb in hybrid mode
+set -x
 $SSH $kmsnode "yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE"
-if [ $? -ne 0 ]; then
-  echo "Failed to set ykeykey HYBRID mode!"
-  exit 1
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to set ykeykey HYBRID mode!"
+    exit 1
 fi
 
-
+set -x
 $SSH $kmsnode "yinst restart zookeeper_server yahoo_kms"
-if [ $? -ne 0 ]; then
-  echo "Failed to restart KMS and ZK services!"
-  exit 1
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to restart KMS and ZK services!"
+    exit 1
 fi
 
 # give kms and zk services a little time to startup
@@ -336,12 +368,13 @@ sleep 30
 # working KMS install despite the error report, but need to look for both since some clusters
 # do not exhibit the 'incomplete groups' problem
 #
-CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
+CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
+curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
 if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
-  echo "Failed to get key info, KMS or ZK service may not be running!"
-  exit 1
+    echo "Failed to get key info, KMS or ZK service may not be running!"
+    exit 1
 fi
 echo "Got KMS key info successfully!"
-echo $CURL_KEY
+echo "$CURL_KEY"
 
 echo "KMS and ZK service install completed"

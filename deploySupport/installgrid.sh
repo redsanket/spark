@@ -341,10 +341,9 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
         set +e
     fi
 
-    set -x
+    echo "Running $script"
     time . "$script"
     st=$?
-    set +x
     end=`date +%s`
     h_end=`date +%Y/%m/%d-%H:%M:%S`
     runtime=$((end-start))
@@ -361,9 +360,9 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 
     echo
     banner "END INSTALL STEP #$index: $status: $script_basename: status=$st"
-    echo "# COMPLETED STEPS:"
+    echo
 
-    # banner "CURRENT COMPLETED EXECUTION STEPS:"
+    banner "CURRENT COMPLETED EXECUTION STEPS:"
     printf "# %-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
 $index $status $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
     cat $timeline

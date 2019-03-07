@@ -1,3 +1,4 @@
+set +x
 
 if [ "$RUN_HIT_TESTS" = "true" ]; then
     dest=$cluster.$TIMESTAMP
@@ -19,5 +20,5 @@ if [ "$RUN_HIT_TESTS" = "true" ]; then
     chown -R hadoopqa:users /grid/0/tmp/$dest/HIT
     cat /grid/0/tmp/$dest/HIT/HIT_installed_pkgs.txt
 else
-  	echo ========= not install hit at all, skip results copy
+    echo ========= not install hit at all, skip results copy
 fi

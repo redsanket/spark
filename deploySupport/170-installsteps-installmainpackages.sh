@@ -2,7 +2,7 @@ set +x
 
 if [ "$INSTALLNEWPACKAGES" != true ]; then
     echo "INSTALLNEWPACKAGES not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo == installing YINST packages.

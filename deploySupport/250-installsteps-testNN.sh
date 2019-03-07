@@ -14,7 +14,7 @@
 # Inputs: $namenode	(set by cluster-list.sh)
 # Inputs: $NAMENODE_Primary	(set by installgrid.sh)
 
-
+set +x
 
 debug=
 JAVA_HOME="$GSHOME/java/jdk64/current"
@@ -55,8 +55,11 @@ do
 done
 echo \$cnt namenodes up.
 zz
+
 fanoutcmd "scp $scripttmp/$cluster.testNNdeploy.sh __HOSTNAME__:/tmp/" "$gateway"
+set -x
 fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
+set +x
 
 # TODO: The following is failing with the error message:
 # scp: /home/gs/gridre/yroot.openqe2blue/share/hadoopcommon/handoff.txt: No such file or directory

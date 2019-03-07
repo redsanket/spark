@@ -9,16 +9,19 @@
 # Inputs: $namenode	(set in cluster-list.sh)
 # Inputs: $HDFSUSER
 #
-if [ "$RUNKINIT" = true ]
-then
-  for n in $namenode
-  do
+set +x
+if [ "$RUNKINIT" != true ]; then
+    echo "RUNKINIT is not enabled. Nothing to do."
+    return 0
+fi
+
+for n in $namenode; do
     shortname=`expr  $n : '(' '\([^\.]*\)\..*$' ')'`
     echo name=$n shortname=$shortname
     ktabfile=/etc/grid-keytabs/${shortname}.dev.service.keytab
+    set -x
     (
     echo 'export PATH=/usr/kerberos/bin:$PATH'
-
     echo echo ======= NEED TO RUN kinit to deal with keytab on ${n} as ${HDFSUSER}
     echo "if [  -f $ktabfile ] "
     echo "then "
@@ -28,5 +31,6 @@ then
     echo fi 
     #echo klist
     )| ssh $n su - $HDFSUSER
-  done
-fi
+    set +x
+done
+

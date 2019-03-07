@@ -2,7 +2,7 @@ set +x
 
 if [ "$REMOVE_EXISTING_LOGS" != false ]; then
     echo "REMOVE_EXISTING_LOGS not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo "== Remove old logs."

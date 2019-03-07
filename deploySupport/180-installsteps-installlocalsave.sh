@@ -1,7 +1,7 @@
 set +x
 if [ "$INSTALLLOCALSAVE" != true ]; then
     echo "INSTALLLOCALSAVE is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 set -x

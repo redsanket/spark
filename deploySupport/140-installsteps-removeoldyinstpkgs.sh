@@ -2,7 +2,7 @@ set +x
 
 if [ "$REMOVEOLDYINSTPKGS" != true ]; then
     echo "REMOVEOLDYINSTPKGS is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo "=== Removing old yinst packages."

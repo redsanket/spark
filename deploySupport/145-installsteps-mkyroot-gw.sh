@@ -9,7 +9,7 @@ set +x
 
 if [ -z "$gateways" ]; then
     echo "Yroot gateway is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 for g in $gateways; do

@@ -2,7 +2,7 @@ set +x
 
 if [ "$YINSTSELFUPDATE" = false ]; then
     echo "YINSTSELFUPDATE is not enabled. Not doing yinst self-update"
-    exit 0
+    return 0
 fi
 
 echo "Run yinst self-update"

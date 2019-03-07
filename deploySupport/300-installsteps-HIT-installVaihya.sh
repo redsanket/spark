@@ -1,15 +1,17 @@
+set +x
+
 echo ================= evaluating whether to install Vaidya
 echo ================= VAIDYAVERSION = $VAIDYAVERSION
 echo ================= gateway = $gateway
 
 case "$VAIDYAVERSION" in
-  none)
+    none)
         echo === not installing vaidya at all.
 	;;
-  *vaidya*)
+    *vaidya*)
         echo === installing vaidya version=\"$VAIDYAVERSION\"
-echo cluster=$cluster
-echo gateway=$gateway
+        echo cluster=$cluster
+        echo gateway=$gateway
 
 (
     echo cd ${yroothome}
@@ -20,15 +22,17 @@ echo gateway=$gateway
 
 ) > $scripttmp/$cluster.installvaidya.sh
 
-fanoutYRoots "rsync -a $scriptaddr/$cluster.installvaidya.sh  /tmp/ && sh /tmp/$cluster.installvaidya.sh"
-st=$?
-if [ "$st" -eq 0 ] ; then
-    recordManifest "$VAIDYAVERSION"
-else
-    exit $st
-fi
+        set -x
+        fanoutYRoots "rsync -a $scriptaddr/$cluster.installvaidya.sh  /tmp/ && sh /tmp/$cluster.installvaidya.sh"
+        st=$?
+        set +x
+        if [ "$st" -eq 0 ] ; then
+            recordManifest "$VAIDYAVERSION"
+        else
+            exit $st
+        fi
 	;;
-  *)
+    *)
         echo === "********** ignoring vaidyaversion=$VAIDYAVERSION"
 	;;
 esac

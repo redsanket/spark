@@ -1,5 +1,6 @@
 # $Id$
 
+set +x
 
 ## ## for debugging only
 ## export cluster=ankh
@@ -25,10 +26,10 @@ echo ================= VERSION = $VERSION
 # and
 # -ygrid_hadoop_distcp_sys 
 case "$DISTCPVERSION" in
-  none)
+    none)
         echo === not installing distcp at all.
-	;;
-  *distcp*)
+        ;;
+    *distcp*)
         echo === installing distcp version=\"$DISTCPVERSION\"
         echo cluster=$cluster
         echo gateway=$gateway
@@ -50,15 +51,15 @@ case "$DISTCPVERSION" in
     echo "fi"
 ) > $scripttmp/$cluster.distcp.install.sh
 
-  fanoutYRoots "rsync $scriptaddr/$cluster.distcp.install.sh /tmp/ && sh /tmp/$cluster.distcp.install.sh"
-  st=$?
-  if [ "$st" -eq 0 ] ; then
-    recordManifest "$DISTCPVERSION"
-  else
-    exit $st
-  fi
-	;;
-  *)
+        fanoutYRoots "rsync $scriptaddr/$cluster.distcp.install.sh /tmp/ && sh /tmp/$cluster.distcp.install.sh"
+        st=$?
+        if [ "$st" -eq 0 ] ; then
+            recordManifest "$DISTCPVERSION"
+        else
+            exit $st
+        fi
+        ;;
+    *)
         echo === "********** ignoring distcpversion=$DISTCPVERSION"
-	;;
+        ;;
 esac

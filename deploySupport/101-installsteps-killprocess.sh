@@ -2,7 +2,7 @@ set +x
 
 if [ "$KILLALLPROCESSES" != true ]; then
     echo "KILLALLPROCESSES not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 ##----------- option #1: ALWAYS kill processes before starting.

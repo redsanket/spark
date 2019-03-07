@@ -1,7 +1,7 @@
 set +x
 if [ "$CREATEGSHOME" = false ]; then
     echo "CREATEGSHOME is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo "== create ${GSHOME} dirs."

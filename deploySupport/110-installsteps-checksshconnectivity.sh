@@ -1,7 +1,7 @@
 set +x
 if [ "$CHECKSSHCONNECTIVITY" != true ]; then
     echo "CHECKSSHCONNECTIVITY is not enabled. Nothing to do."
-    exit 0
+    return 0
 fi
 
 echo "CHECKSSHCONNECTIVITY is enabled"
