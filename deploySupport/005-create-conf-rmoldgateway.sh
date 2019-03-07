@@ -10,6 +10,4 @@ filename="/grid/0/tmp/deploy.$cluster.remove.gateway.old.packages.sh"
     echo "rm -rf /grid/0/gs/gridre/yroot.$cluster"
 )  > $filename
 echo "Generated file $filename"
-set -x
 ls -l $filename
-set +x

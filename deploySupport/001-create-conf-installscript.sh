@@ -211,6 +211,4 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
 ) >  $filename
 
 echo "Generated file $filename"
-set -x
 ls -l $filename
-set +x

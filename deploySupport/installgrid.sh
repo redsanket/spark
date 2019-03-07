@@ -38,6 +38,8 @@ export SCP="scp $SSH_OPT"
 export SSH="ssh $SSH_OPT"
 export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
 
+# $1 is ${CLUSTER}. See yinstify.sh.
+
 # confpkg=HadoopConfigopenstacklargedisk
 [ -z "$confpkg" ] && export confpkg=$hadoopgridrollout__confpkg
 [ -z "$STARTYARN" ] && export STARTYARN=$hadoopgridrollout__STARTYARN
@@ -219,7 +221,7 @@ export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLSECONDARYNAMENODESLIST=`echo $ALLSECONDARYNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 
-banner "installing grid: $cluster"
+banner "Installing grid cluster $cluster"
 echo "===  gateway='$gateway'"
 echo "===  namenode='$NAMENODE_Primary'"
 echo "===  namenodes='$ALLNAMENODES'"
@@ -262,16 +264,24 @@ done
 # unless someone updates one of the scripts at just the 'right' moment before a second job starts. Still,
 # it could be a slight exposure for concurrency.
 #
-echo ========== Copying namenode scripts to /grid/0/tmp
-
+echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scripttmp"
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.sh $scripttmp
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
 
-echo installing onto $1....
-echo HIT_DEPLOY: ${HIT_DEPLOY}
-
+echo "HIT_DEPLOY: ${HIT_DEPLOY}"
 export EXIT_ON_ERROR=true
 
+timeline="$scripttmp/timeline.log"
+cat /dev/null > $timeline
+pwd=`pwd`
+hostname=`hostname`
+whoami=`whoami`
+index=1
+START_STEP=${START_STEP:="0"}
+
+banner "installgrid.sh: run install steps scripts"
+
+# Install Tez if enabled
 if [[ "${INSTALL_TEZ}" == only ]]; then
     f=${base}/229-installsteps-installTez.sh
     banner running $f
@@ -293,16 +303,6 @@ if [[ "${INSTALL_TEZ}" == only ]]; then
     exit $st
 fi
 
-timeline="$scripttmp/timeline.log"
-cat /dev/null > $timeline
-pwd=`pwd`
-hostname=`hostname`
-whoami=`whoami`
-index=1
-START_STEP=${START_STEP:="0"}
-echo "==============================================="
-echo "installgrid.sh: run install steps scripts:"
-echo "==============================================="
 # Be careful not to name any variable in any downstream scripts with the name
 # $script because it will override the $script variable here.
 # for script in ${base}/[0-9][0-9]*-installsteps-*.sh
@@ -360,10 +360,10 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
     fi
 
     banner "END INSTALL STEP #$index: $status: $script_basename: status=$st"
-    echo
+    echo "# COMPLETED STEPS:"
 
-    banner "CURRENT COMPLETED EXECUTION STEPS:"
-    printf "%-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
+    # banner "CURRENT COMPLETED EXECUTION STEPS:"
+    printf "# %-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
 $index $status $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
     cat $timeline
     echo

@@ -278,8 +278,7 @@ if [ $AUTO_CREATE_RELEASE_TAG = 1 ]; then
 fi
 note "Completed dist tag processing."
 
-echo ===
-echo ===
+echo "==="
 echo "===  Dist Tag='$HADOOP_RELEASE_TAG'"
 echo "===  Hadoop Version (full)='$FULLHADOOPVERSION'"
 echo "===  Hadoop Version (short)='$HADOOPVERSION'"
@@ -290,8 +289,7 @@ echo "===  HADOOP_27='$HADOOP_27'"
 echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
 echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
 echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
-echo ===
-echo ===
+echo "==="
 export RUNSIMPLETEST=true
 
 #		side note: this removes any leftover cruft from a previous run. Hudson does not start 'clean'.

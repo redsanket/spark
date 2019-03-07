@@ -10,6 +10,4 @@ filename="/grid/0/tmp/deploy.$cluster.createrunAs.sh"
     echo "chmod 4711  conf/hadoop/runAs"
 ) >  $filename
 echo "Generated file $filename"
-set -x
 ls -l $filename
-set +x

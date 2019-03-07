@@ -15,5 +15,5 @@ banner() {
 }
 
 note() {
-    echo "# `TZ=PDT8PDT date '+%H:%M:%S %p %Z'` $*"
+    echo "# `TZ=PDT8PDT date '+%H:%M:%S %p %Z'` - $*"
 }

@@ -1,7 +1,7 @@
 filename="/grid/0/tmp/deploy.$cluster.processes.to.kill.sh"
 (
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
-#    echo  yinst self-update -branch yinst7current 
+    # echo  yinst self-update -branch yinst7current
     echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
     echo 'echo Step 1: kill any running processes.  "(without malice.)"'
     echo 'echo user=`whoami` '
@@ -22,6 +22,4 @@ filename="/grid/0/tmp/deploy.$cluster.processes.to.kill.sh"
     echo 'killall -9 jsvc'
 )  > $filename
 echo "Generated file $filename"
-set -x
 ls -l $filename
-set +x
