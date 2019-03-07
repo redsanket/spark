@@ -363,7 +363,7 @@ for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
     echo
 
     banner "CURRENT COMPLETED EXECUTION STEPS:"
-    printf "%-2s %-8s %-48s : %.0f min (%.0f sec) : %s : %s : %s\n" \
+    printf "%-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
 $index $status $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
     cat $timeline
     echo

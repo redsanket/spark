@@ -14,14 +14,14 @@
 # Inputs: $namenode    (set by cluster-list.sh)
 # Inputs: $jobtrackernode    (set by cluster-list.sh)
 
+set +x
 
 if [ "$STARTYARN" = true ]
 then
-    banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
-
+    banner "Running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn."
     JAVA_HOME="$GSHOME/java/jdk64/current"
+    debug=
 
-debug=
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
 set -e
 cd ${yroothome}
@@ -93,19 +93,22 @@ do
 done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
-# gridci-2393, use new nfs server, which has updated mapred keytab
-fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-fanoutGW "su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " 
-# [ $? -eq 0 ] && (
-#    rm -fr /tmp/$cluster.*.handoff.txt
-#    for c in mapred yarn
-#    do
-#       scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
-#       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
-#       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
-#    done
-# )
+
+    set -x
+    # gridci-2393, use new nfs server, which has updated mapred keytab
+    fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
+    fanoutGW "su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' "
+    # [ $? -eq 0 ] && (
+    #    rm -fr /tmp/$cluster.*.handoff.txt
+    #    for c in mapred yarn
+    #    do
+    #       scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
+    #       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
+    #       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
+    #    done
+    # )
+    set +x
 else
-   banner  not running Yarn tests: \$STARTYARN set to $STARTYARN.
+   banner "Not running Yarn tests: \$STARTYARN set to $STARTYARN."
    return 0
 fi
