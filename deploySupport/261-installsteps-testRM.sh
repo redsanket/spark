@@ -52,7 +52,7 @@ cd ${yroothome}
 # At least one namenode must be able to work with the JT.
 #
 set -x
-kinit -k -t $HOMEDIR/mapredqa/mapredqa.dev.headless.keytab mapredqa
+kinit -kt $HOMEDIR/mapredqa/mapredqa.dev.headless.keytab mapredqa
 set +x
 export written=0
 export read=0
@@ -97,7 +97,7 @@ zz
     set -x
     # gridci-2393, use new nfs server, which has updated mapred keytab
     fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-    fanoutGW "su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' "
+    fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
     # [ $? -eq 0 ] && (
     #    rm -fr /tmp/$cluster.*.handoff.txt
     #    for c in mapred yarn
