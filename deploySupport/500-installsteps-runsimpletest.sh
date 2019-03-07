@@ -39,7 +39,7 @@ export HADOOP_27=$HADOOP_27 && \
 export HOMEDIR=$HOMEDIR && \
 sh /tmp/${cluster}-${testname} \
 -c $cluster -N $namenode ${writeenabledflag} -P ${yarnProcessor} -u ${MAPREDUSER} \
-> /tmp/$logfile 2>&1 \
+2>&1 | tee /tmp/$logfile \
 '"
     RC=$?
     set +x
