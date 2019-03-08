@@ -14,14 +14,17 @@
 # Inputs: $namenode    (set by cluster-list.sh)
 # Inputs: $jobtrackernode    (set by cluster-list.sh)
 
+set +x
 
-if [ "$STARTYARN" = true ]
-then
-    banner  running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn.
+if [ "$STARTYARN" != true ]; then
+    echo "STARTYARN is not enabled. Nothing to do."
+    return 0
+fi
 
-    JAVA_HOME="$GSHOME/java/jdk64/current"
-
+banner "Running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn."
+JAVA_HOME="$GSHOME/java/jdk64/current"
 debug=
+
 cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
 set -e
 cd ${yroothome}
@@ -52,7 +55,7 @@ cd ${yroothome}
 # At least one namenode must be able to work with the JT.
 #
 set -x
-kinit -k -t $HOMEDIR/mapredqa/mapredqa.dev.headless.keytab mapredqa
+kinit -kt $HOMEDIR/mapredqa/mapredqa.dev.headless.keytab mapredqa
 set +x
 export written=0
 export read=0
@@ -93,19 +96,18 @@ do
 done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
+
+set -x
 # gridci-2393, use new nfs server, which has updated mapred keytab
 fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
-fanoutGW "su mapred -c 'sh /tmp/$cluster.testYarndeploy.sh' " 
+fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
+set +x
+
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
-#    for c in mapred yarn
-#    do
+#    for c in mapred yarn; do
 #       scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
 #       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
 #       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
 #    done
 # )
-else
-   banner  not running Yarn tests: \$STARTYARN set to $STARTYARN.
-   return 0
-fi

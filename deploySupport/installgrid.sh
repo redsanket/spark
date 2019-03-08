@@ -38,6 +38,8 @@ export SCP="scp $SSH_OPT"
 export SSH="ssh $SSH_OPT"
 export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
 
+# $1 is ${CLUSTER}. See yinstify.sh.
+
 # confpkg=HadoopConfigopenstacklargedisk
 [ -z "$confpkg" ] && export confpkg=$hadoopgridrollout__confpkg
 [ -z "$STARTYARN" ] && export STARTYARN=$hadoopgridrollout__STARTYARN
@@ -219,9 +221,7 @@ export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLSECONDARYNAMENODESLIST=`echo $ALLSECONDARYNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 
-echo =====================================================
-echo ===  installing grid: $cluster
-echo =====================================================
+banner "Installing grid cluster $cluster"
 echo "===  gateway='$gateway'"
 echo "===  namenode='$NAMENODE_Primary'"
 echo "===  namenodes='$ALLNAMENODES'"
@@ -233,8 +233,7 @@ echo "===  jobtrackernode='$jobtrackernode'"
 echo "===  confpkg='$confpkg'"
 echo "===  HOSTLIST='$HOSTLIST' (all nodes)"
 echo "===  SLAVELIST='$SLAVELIST' (slave nodes)"
-echo =====================================================
-echo =====================================================
+
 scripttmp=/grid/0/tmp/scripts.deploy.$cluster
 scriptaddr=$ADMIN_HOST::tmp/scripts.deploy.$cluster
 grossworkaroundaddr=$ADMIN_HOST::tmp/gross-0.22-dev-workaround
@@ -254,12 +253,9 @@ base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
 export MANIFEST=${YINST_ROOT}/manifest.txt
 .  ${base}/000-shellfunctions.sh
 	
-echo "================================================================================="
-echo "installgrid.sh: run create conf scripts to auto-generate scripts to be run later:"
-echo "================================================================================="
-for script in ${base}/[0-9][0-9]*-create-conf-*.sh
-do
-    echo "eval . $script"
+banner "installgrid.sh: run create conf scripts to auto-generate scripts to be run later"
+for script in ${base}/[0-9][0-9]*-create-conf-*.sh; do
+    banner "Running eval . $script"
     eval ". $script"
 done
 
@@ -268,18 +264,24 @@ done
 # unless someone updates one of the scripts at just the 'right' moment before a second job starts. Still,
 # it could be a slight exposure for concurrency.
 #
-echo ========== Copying namenode scripts to /grid/0/tmp
-
+echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scripttmp"
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.sh $scripttmp
 cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
 
-
-
-echo installing onto $1....
-echo HIT_DEPLOY: ${HIT_DEPLOY}
-
+echo "HIT_DEPLOY: ${HIT_DEPLOY}"
 export EXIT_ON_ERROR=true
 
+timeline="$scripttmp/timeline.log"
+cat /dev/null > $timeline
+pwd=`pwd`
+hostname=`hostname`
+whoami=`whoami`
+index=1
+START_STEP=${START_STEP:="0"}
+
+banner "installgrid.sh: run install steps scripts"
+
+# Install Tez if enabled
 if [[ "${INSTALL_TEZ}" == only ]]; then
     f=${base}/229-installsteps-installTez.sh
     banner running $f
@@ -301,34 +303,21 @@ if [[ "${INSTALL_TEZ}" == only ]]; then
     exit $st
 fi
 
-timeline="$scripttmp/timeline.log"
-cat /dev/null > $timeline
-pwd=`pwd`
-hostname=`hostname`
-whoami=`whoami`
-index=1
-START_STEP=${START_STEP:="0"}
-echo "==============================================="
-echo "installgrid.sh: run install steps scripts:"
-echo "==============================================="
 # Be careful not to name any variable in any downstream scripts with the name
 # $script because it will override the $script variable here.
 # for script in ${base}/[0-9][0-9]*-installsteps-*.sh
 # Skip over HIT tests. HIT tests are not being run anymore.
-for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh
-do
-  if [[  -e $script ]]
-  then
-
-    script_sn=`basename $script`
-    current_step=`echo $script_sn|cut -d'-' -f1|bc`
+for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
+  if [[  -e $script ]]; then
+    script_basename=`basename $script`
+    current_step=`echo $script_basename|cut -d'-' -f1|bc`
     if [[ $current_step -lt $START_STEP ]];then
-       echo "SKIP deploy script: ${script_sn}: less than starting step '$START_STEP'"
+       echo "SKIP deploy script: ${script_basename}: less than starting step '$START_STEP'"
        continue;
     fi
 
     # HIT tests are not being run anymore.
-    # if [[ $script_sn =~ "-HIT-" ]]; then
+    # if [[ $script_basename =~ "-HIT-" ]]; then
     #     if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
     #         echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
     #         continue
@@ -338,7 +327,7 @@ do
     #banner running $f
     set +x
     sleep 1
-    banner2 "START INSTALL STEP #$index: '$script'" "Called from $hostname:$pwd/installgrid.sh as $whoami"
+    banner2 "START INSTALL STEP #$index: $script_basename" "Called from $hostname:$pwd/installgrid.sh as $whoami"
 
     start=`date +%s`
     h_start=`date +%Y/%m/%d-%H:%M:%S`
@@ -352,10 +341,9 @@ do
         set +e
     fi
 
-    set -x
+    echo "Running $script"
     time . "$script"
     st=$?
-    set +x
     end=`date +%s`
     h_end=`date +%Y/%m/%d-%H:%M:%S`
     runtime=$((end-start))
@@ -364,11 +352,22 @@ do
         set -e
     fi
 
-    echo "CURRENT COMPLETED EXECUTION STEPS:"
-    printf "%-2s %-124s : %.0f min (%.0f sec) : %s : %s : %s\n" $index $script $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
-    cat $timeline
+    if [ "$st" -eq 0 ]; then
+        status='PASSED'
+    else
+        status='FAILED'
+    fi
 
-    banner "END INSTALL STEP #$index: '$script': status='$st'"
+    echo
+    banner "END INSTALL STEP #$index: $status: $script_basename: status=$st"
+    echo
+
+    banner "CURRENT COMPLETED EXECUTION STEPS:"
+    printf "# %-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
+$index $status $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
+    cat $timeline
+    echo
+
     if [ "$st" -ne 0 ]; then
         echo "EXIT_ON_ERROR=$EXIT_ON_ERROR"
         if [ "$EXIT_ON_ERROR" = "true" ]; then

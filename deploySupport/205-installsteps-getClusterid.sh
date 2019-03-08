@@ -1,3 +1,4 @@
+set +x
 
 #
 # "get the cluster ID before starting any namenodes."
@@ -17,30 +18,33 @@
 #
 #
 
-
-if [ "$STARTNAMENODE" = true  -a  "$REMOVEEXISTINGDATA" = true ]
-then
-
-    if [ -z "$NAMENODE_Primary" ]
-    then
-        echo "$0: Internal error: cannot decide what primary namenode is."
-        exit 1
-    fi
-    nn=$NAMENODE_Primary
-    JAVA_HOME="$GSHOME/java/jdk64/current"
-    (
-        set -x
-        echo "cd ${yroothome}"
-        echo "JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
-    ) | ssh $nn su - $HDFSUSER
-    st=$?
-    echo Exit status of ssh for getclusterid was $st
-    [ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
-    if [ $st -eq 0 ]
-    then
-        scp ${nn}:/tmp/$cluster.clusterid.txt   /tmp/
-        export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-    fi
-    ssh $nn  rm  -f  /tmp/$cluster.clusterid.txt
-    [ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
+if [ "$STARTNAMENODE" != true  -o  "$REMOVEEXISTINGDATA" != true ]; then
+    echo "STARTNAMENODE='$STARTNAMENODE' REMOVEEXISTINGDATA='$REMOVEEXISTINGDATA': Nothing to do."
+    return 0
 fi
+
+if [ -z "$NAMENODE_Primary" ]; then
+    echo "$0: Internal error: cannot decide what primary namenode is."
+    exit 1
+fi
+
+nn=$NAMENODE_Primary
+JAVA_HOME="$GSHOME/java/jdk64/current"
+(
+    set -x
+    echo "cd ${yroothome}"
+    echo "JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
+) | ssh $nn su - $HDFSUSER
+st=$?
+echo "Exit status of ssh for getclusterid was $st"
+
+[ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
+if [ $st -eq 0 ]; then
+    set -x
+    scp ${nn}:/tmp/$cluster.clusterid.txt   /tmp/
+    export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
+    set +x
+fi
+
+ssh $nn  rm  -f  /tmp/$cluster.clusterid.txt
+[ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt

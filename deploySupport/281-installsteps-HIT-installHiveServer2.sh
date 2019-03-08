@@ -1,5 +1,7 @@
 # $Id$
 
+set +x
+
 echo ================= evaluating whether to install Hive/HiveServer2
 echo ================= HIVEIGORTAG = $HIVEIGORTAG
 echo ================= hs2_nodes = $hs2_nodes
@@ -14,24 +16,22 @@ echo ================= cluster = $cluster
 
 export HIVE_HOME=/home/y/libexec/hive
 
-if [[ -n "$hs2_nodes" && -n "$hive_client" && -n "$jdbc_client" ]]
-then
-        if [[ $HIVEIGORTAG != none ]]; then
+if [[ -n "$hs2_nodes" && -n "$hive_client" && -n "$jdbc_client" ]]; then
+    if [[ $HIVEIGORTAG != none ]]; then
         echo === Create hdfs directory 
         cmd="export HADOOP_HOME=$GSHOME/hadoop/current ; \
             export JAVA_HOME=$GSHOME/java/jdk ; \
             export HADOOP_CONF_DIR=$GSHOME/conf/current ; \
             kinit -k -t /etc/grid-keytabs/\$(hostname |cut -d. -f1).dev.service.keytab hdfs/\`hostname\`@DEV.YGRID.YAHOO.COM ; \
             $GSHOME/hadoop/current/bin/hadoop fs -mkdir -p /user/hive ; \
-	        $GSHOME/hadoop/current/bin/hadoop fs -chown -R hitusr_1:users /user/hive ; \
-	        $GSHOME/hadoop/current/bin/hadoop fs -chmod -R 777 /user/hive"
+            $GSHOME/hadoop/current/bin/hadoop fs -chown -R hitusr_1:users /user/hive ; \
+            $GSHOME/hadoop/current/bin/hadoop fs -chmod -R 777 /user/hive"
         fanoutNN "$cmd"
 
-
-#        echo === installing HCAT server version=\"$HIVE_VERSION\"
-#        cmd="yinst restore -igor -igor_tag hcatalog.$HIVE_VERSION -live -yes -quarantine && \
-#            yinst restart hcat_server "
-#        fanoutHcatServer "$cmd"
+        # echo === installing HCAT server version=\"$HIVE_VERSION\"
+        # cmd="yinst restore -igor -igor_tag hcatalog.$HIVE_VERSION -live -yes -quarantine && \
+        # yinst restart hcat_server "
+        # fanoutHcatServer "$cmd"
 
         echo === installing Hive/HS2 version=\"$HIVEIGORTAG\"
         cmd="yinst restore -igor -igor_tag hcatalog.$HIVEIGORTAG -live -yes -quarantine && \
@@ -57,10 +57,8 @@ then
         HIVE_PKG_VERSION=`ssh $hive_client "/usr/local/bin/yinst ls hive | cut -f 2 -d ' '"`    
         export HIVEVERSION=$HIVE_PKG_VERSION
         cmd="/usr/local/bin/yinst install -root $yroothome  $HIVEVERSION  -br quarantine -live -br test -same -yes -downgrade"
-	    fanoutYRoots "$cmd"
-
+            fanoutYRoots "$cmd"
         st=$?
-	
         if [ "$st" -ne 0 ];then
             echo $st
             echo "*****" HIVE NOT INSTALLED properly "*****"
@@ -69,13 +67,13 @@ then
             echo "*****" HIVE is up and running properly now  "*****"
             recordManifest "$HIVEVERSION"
         fi
-       else
-            if [[ $HCATIGORTAG != none ]]; then
-                echo === not define HIVEIGORTAG
-                exit 1
-            fi
-       fi
+    else
+        if [[ $HCATIGORTAG != none ]]; then
+            echo === not define HIVEIGORTAG
+            exit 1
+        fi
+    fi
 else
-	echo ===  cannot find hiveserver2 nodes defined in igor, skip hive/hs2 installation now.
+    echo ===  cannot find hiveserver2 nodes defined in igor, skip hive/hs2 installation now.
 fi
 

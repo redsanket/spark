@@ -41,18 +41,16 @@ case "$CLUSTER" in
       export localconfpkg=hadooplocalconfigs
       ;;
 esac
+
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
-
-echo =========================================
-echo Beginning of Hudson-driven deployment job.
-echo "Date = `TZ=PDT8PDT date` (`TZ= date`)"
-echo "hostname = '`hostname`'"
-echo "CLUSTER = '$CLUSTER'"
-echo "PATH = '$PATH'"
-echo =========================================
-
 export DATESTRING=`date +%y%m%d%H%M`
 set -o pipefail
+
+SCRIPT_DIR=`dirname $(readlink -f $0)`
+source $SCRIPT_DIR/setenv.sh
+
+banner "Starting Hudson-driven deployment job for cluster '$CLUSTER' from `hostname`"
+echo "PATH = '$PATH'"
 
 # Setup and cleanup artifacts directory
 artifacts_dir="${WORKSPACE}/artifacts"
@@ -73,8 +71,8 @@ cd deploySupport
 
 # Check if dist_tag is valid. If not, exit.
 # dist could be slow, so echo it so the user is aware of it.
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tag '$HADOOP_RELEASE_TAG'."
 cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
+note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]];then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
@@ -108,7 +106,7 @@ HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
 yinst i hadoop_releases_utils
 RC=$?
-if [ "$RC" -ne 0 ]; then
+if [ $RC -ne 0 ]; then
   echo "Error: failed to install hadoop_releases_utils!"
   exit 1
 fi
@@ -254,7 +252,7 @@ else
     fi
 fi
 
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Process dist tags for any applicable components."
+note "Process dist tags for any applicable components..."
 if [ -n "$TEZ_DIST_TAG" ]; then
     export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
 fi
@@ -278,12 +276,9 @@ if [ $AUTO_CREATE_RELEASE_TAG = 1 ]; then
     dist_tag clone $HADOOP_RELEASE_TAG $NEW_DIST_TAG
     dist_tag add $NEW_DIST_TAG $HADOOP_INSTALL_STRING $HADOOP_CONFIG_INSTALL_STRING $LOCAL_CONFIG_INSTALL_STRING
 fi
-echo "`TZ=PDT8PDT date "+%H:%M:%S%p %Z"` Completed dist tag processing."
+note "Completed dist tag processing."
 
-echo ===
-echo ===
-echo ===
-echo ===
+echo "==="
 echo "===  Dist Tag='$HADOOP_RELEASE_TAG'"
 echo "===  Hadoop Version (full)='$FULLHADOOPVERSION'"
 echo "===  Hadoop Version (short)='$HADOOPVERSION'"
@@ -294,19 +289,36 @@ echo "===  HADOOP_27='$HADOOP_27'"
 echo "===  Requested packages='$HADOOP_INSTALL_STRING'"
 echo "===  Requested configs='$HADOOP_CONFIG_INSTALL_STRING'"
 echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
-echo ===
-echo ===
-echo ===
-echo ===
+echo "==="
 export RUNSIMPLETEST=true
 
 #		side note: this removes any leftover cruft from a previous run. Hudson does not start 'clean'.
 
 rm -f *.tgz > /dev/null 2>&1
 
+# Make sure there is sufficient disk space before we install
+banner "Make sure there is sufficient disk space before installation"
+set -x
+PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'sudo yum install -y perl-Test-Simple && yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage -c'
+RC=$?
+set +x
+if [[ $RC -ne 0 ]]; then
+    echo "ERROR: Insufficient disk space on the cluster for install!!!"
+    exit 1
+fi
+
 # Make sure rocl is installed on all nodes
-PDSH_SSH_ARGS_APPEND="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                    /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
+banner "Make sure rocl is installed on all the nodes"
+set -x
+PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -br test  -yes rocl'
+RC=$?
+set +x
+if [[ $RC -ne 0 ]]; then
+    echo "ERROR: rocl failed to installed on all the nodes"
+    exit 1
+fi
 
 #		default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=devadm102.blue.ygrid.yahoo.com
@@ -444,11 +456,11 @@ historyserver-test"
 function fetch_artifacts() {
     echo "FETCH ARTIFACTS"
     set -x
-    scp $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
+    $SCP $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
     cat $artifacts_dir/manifest.txt
-    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
-    # scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
-    scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
+    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
+    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
+    $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -507,6 +519,7 @@ echo "$BUILD_DESC"
 # RUN THE INSTALL SCRIPT ON THE ADM HOST
 # From above: "then copies that package to the destination machine and runs it..."
 #################################################################################
+banner "Create and setup Hadoop Grid Rollout package hadoopgridrollout"
 export DATESTRING=`date +%y%m%d%H%M`
 # GRIDCI-426: component name cannot exceed 10 characters.
 component=${CLUSTER:0:10}
@@ -514,8 +527,11 @@ set -x
 sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
 set +x
 filelist=`ls  *.${component}.*.tgz`
-scp $filelist  $ADMIN_HOST:/tmp/
+set -x
+$SCP $filelist  $ADMIN_HOST:/tmp/
+set +x
 
+banner "Install and start the Hadoop Grid Rollout package hadoopgridrollout on the admin box to commence deployment as root"
 # Install and start the deployment package on the adm admin box to commence
 # deployment as root.
 #
@@ -523,7 +539,7 @@ scp $filelist  $ADMIN_HOST:/tmp/
 
 ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
 set -x
-ssh $ADMIN_HOST "\
+$SSH $ADMIN_HOST "\
 cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
 yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
@@ -531,7 +547,7 @@ yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
 st=$?
 set +x
 echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
-if [ "$st" -ne 0 ]
+if [ $st -ne 0 ]
 then
     echo "Exit on non-zero yinst exit status: $st"
     exit $st
@@ -545,14 +561,6 @@ if [ "$CLEANUP_ON_EXIT" = "true" ]; then
         echo "cd /tmp && rm -rf $filelist"
     )| ssh $ADMIN_HOST
 fi
-
-# Use the same banner for logging stack component deploy as the other deploy steps
-banner() {
-    echo "*********************************************************************************"
-    echo "***" `TZ=PST8PDT date ; echo // ; TZ=  date `
-    echo "***" $*
-    echo "*********************************************************************************"
-}
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
@@ -679,7 +687,7 @@ if [ $RUN_HIT_TESTS = "true" ]; then
     set -x
     rm -rf ${WORKSPACE}/hit_results
     mkdir -p ${WORKSPACE}/hit_results
-    scp -r $ADMIN_HOST:/grid/0/tmp/${CLUSTER}.${DATESTRING} ${WORKSPACE}/hit_results/
+    $SCP -r $ADMIN_HOST:/grid/0/tmp/${CLUSTER}.${DATESTRING} ${WORKSPACE}/hit_results/
     case "$MAILTO" in
         none)
             echo "Skip HIT deployment notification email..."

@@ -1,4 +1,5 @@
-echo ================= Set sticky bit on /tmp hdfs directory
+set +
+echo "================= Set sticky bit on /tmp hdfs directory"
 
 if [[ "$HADOOP_27" == "true" ]]; then
     JAVA_HOME="$GSHOME/java/jdk64/current"
@@ -14,4 +15,7 @@ cmd="export HADOOP_HOME=$GSHOME/hadoop/current ; \
      $GSHOME/hadoop/current/bin/hadoop fs -ls / ; \
      $GSHOME/hadoop/current/bin/hadoop fs -chmod +t /tmp ; \
      $GSHOME/hadoop/current/bin/hadoop fs -ls / "
+
+set -x
 fanout "$cmd"
+set +x

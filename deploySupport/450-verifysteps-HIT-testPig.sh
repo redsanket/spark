@@ -1,23 +1,23 @@
+set +x
 case "$PIGVERSION" in
-  none)
+    none)
         echo === not installing pig at all.
 	;;
   *pig*)
         echo === short-test of pig version=\"$PIGVERSION\"
-echo cluster=$cluster
-echo gateway=$gateway
- 
+        echo cluster=$cluster
+        echo gateway=$gateway
 
-cp $base/test-piginstall.sh  $scripttmp/$cluster.test-piginstall.sh
-fanoutYRoots "
+        cp $base/test-piginstall.sh  $scripttmp/$cluster.test-piginstall.sh
+        fanoutYRoots "
     rsync -a $scriptaddr/$cluster.test-piginstall.sh /tmp/ && 
     GSHOME=$GSHOME yroothome=$yroothome sh -x /tmp/$cluster.test-piginstall.sh  -c $cluster -w -n $namenode 
     "
-st=$?
-if [ "$st" -ne 0 ] ; then
-    echo "*****" Failed to run HIT pig test "*****"
-    exit $st
-fi
+        st=$?
+        if [ "$st" -ne 0 ] ; then
+            echo "*****" Failed to run HIT pig test "*****"
+            exit $st
+        fi
 	;;
   *)
         echo === "********** ignoring pigversion=$PIGVERSION"

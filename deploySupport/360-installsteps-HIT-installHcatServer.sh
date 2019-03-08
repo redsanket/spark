@@ -1,5 +1,7 @@
 # $Id$
 
+set +x
+
 echo ================= evaluating whether to install hcat server pkg
 echo ================= hcatnode = $hcatservernode
 echo ================= cluster = $cluster
@@ -7,8 +9,7 @@ echo ================= HCATIGORTAG = $HCATIGORTAG
 echo ================= gateway = $gateway
 echo ================= evaluating whether to install hcat
 
-  if [ -n "$hcatservernode" ]
-  then
+if [ -n "$hcatservernode" ]; then
 
     # Generate keytab file for HCAT server
     repo_base="/etc/grid-keytabs"
@@ -43,7 +44,7 @@ echo ================= evaluating whether to install hcat
 	# sleep 5 minutes for propogation
 	echo "sleep 5 minutes for propogation....."
         sleep 300
-    else   	
+    else
         # keytab file already exist, skip creation
         echo "$service_keytab already exists on $hdfsproxynode, skip combined keytab creation..."
     fi
@@ -58,22 +59,22 @@ echo ================= evaluating whether to install hcat
   fi
 
 if [[ $HCATIGORTAG != none ]]; then
-  cmd="yinst restore -igor -igor_tag hcatalog.$HCATIGORTAG -live -yes -quarantine && \
+    cmd="yinst restore -igor -igor_tag hcatalog.$HCATIGORTAG -live -yes -quarantine && \
   yinst restart hcat_server "
 #  yinst install mysql_client-current mysql_server-current hcat_database_access_dev-test -br current -br test -br quarantine -downgrade -same -live -yes && \
 #  yinst set hcat_server.database_connect_url=jdbc:mysql://\`hostname\`:3306/hivemetastoredb?createDatabaseIfNotExist=true mysql_config.read_only=off mysql_config.binlog_format=ROW && \
 #  /home/y/bin/mysql -u hive -p\`/home/y/bin/keydbgetkey hive\` -e 'drop database if exists hivemetastoredb;' && \
 #  yinst restart hcat_server "
-  fanoutHcatServer "$cmd"
-  hcat_server_pkg_version=`ssh $hcatservernode "/usr/local/bin/yinst ls hcat_server | cut -f 2 -d ' '"`
-  if [ "$st" -eq 0 ] ; then
-      recordManifest "$HCATIGORTAG"
-      recordManifest "$hcat_server_pkg_version"
-      echo "*****" Successful to restart HCAT SERVER "*****"
-  else 
-      echo "*****" Failed to restart HCAT SERVER "*****"
-      exit $st
-  fi
+    fanoutHcatServer "$cmd"
+    hcat_server_pkg_version=`ssh $hcatservernode "/usr/local/bin/yinst ls hcat_server | cut -f 2 -d ' '"`
+    if [ "$st" -eq 0 ] ; then
+        recordManifest "$HCATIGORTAG"
+        recordManifest "$hcat_server_pkg_version"
+        echo "*****" Successful to restart HCAT SERVER "*****"
+    else
+        echo "*****" Failed to restart HCAT SERVER "*****"
+        exit $st
+    fi
 
 else
     echo ========== Ignore hcat_server installation now....

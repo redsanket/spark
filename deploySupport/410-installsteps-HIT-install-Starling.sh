@@ -1,16 +1,18 @@
+set +x
+
 echo ================= evaluating whether to install starling
 echo ================= STARLINGVERSION = $STARLINGVERSION
 echo ================= gateway = $gateway
 
 case "$STARLINGVERSION" in
-  none)
+    none)
         echo === not installing starling at all.
 	;;
   *starling*)
         echo === installing starling version=\"$STARLINGVERSION\"
-echo cluster=$cluster
-echo gateway=$gateway
-echo yroothome=$yroothome
+        echo cluster=$cluster
+        echo gateway=$gateway
+        echo yroothome=$yroothome
 
 (
     echo cd $yroothome
@@ -24,12 +26,12 @@ echo yroothome=$yroothome
 
 ) > $scripttmp/$cluster.installstarling.sh
 
-fanoutYRoots "rsync -a $scriptaddr/$cluster.installstarling.sh  /tmp/ && sh /tmp/$cluster.installstarling.sh"
-if [ $? -eq 0 ] ; then
-    recordManifest "$STARLINGVERSION "
-fi
+        fanoutYRoots "rsync -a $scriptaddr/$cluster.installstarling.sh  /tmp/ && sh /tmp/$cluster.installstarling.sh"
+        if [ $? -eq 0 ] ; then
+            recordManifest "$STARLINGVERSION "
+        fi
 	;;
-  *)
+    *)
         echo === "********** ignoring starlingversion=$STARLINGVERSION"
 	;;
 esac

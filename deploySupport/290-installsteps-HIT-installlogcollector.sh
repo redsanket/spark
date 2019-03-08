@@ -1,12 +1,12 @@
-if [ -n "$LOG_COLLECTORVERSION" -a  "$LOG_COLLECTORVERSION" != none ]
-then
+set +x
+
+if [ -n "$LOG_COLLECTORVERSION" -a  "$LOG_COLLECTORVERSION" != none ]; then
     echo ================================================
     echo ===== cluster=$cluster
     echo ===== gateway=$gateway
     echo ===== LOG_COLLECTORVERSION=$LOG_COLLECTORVERSION
     echo ================================================
     [ -z "$yinst" ] && yinst=/usr/local/bin/yinst
-    
     
     (
         echo $yinst install -root ${yroothome} $LOG_COLLECTORVERSION

@@ -1,12 +1,14 @@
+set +x
+
 echo ================= evaluating whether to install NOVA
 echo ================= NOVAVERSION = $NOVAVERSION
 echo ================= gateway = $gateway
 
 case "$NOVAVERSION" in
-  none)
+    none)
         echo === not installing nova at all.
 	;;
-  *nova*)
+    *nova*)
         echo === installing nova version=\"$NOVAVERSION\"
 
         (
@@ -22,17 +24,18 @@ case "$NOVAVERSION" in
             echo "/usr/local/bin/yinst stop yjava_tomcat yapache"
             echo "exit 0"
 ) > $scripttmp/$cluster.installnova.sh
-
-fanoutYRoots "rsync -a $scriptaddr/$cluster.installnova.sh  /tmp/ && sh /tmp/$cluster.installnova.sh"
-st=$?
-if [ "$st" -eq 0 ] ; then
-    recordManifest "$NOVAVERSION"
-else
-    echo "NOVA not installed properly, exiting ...." 
-    exit $st
-fi
+        set -x
+        fanoutYRoots "rsync -a $scriptaddr/$cluster.installnova.sh  /tmp/ && sh /tmp/$cluster.installnova.sh"
+        st=$?
+        set +x
+        if [ "$st" -eq 0 ] ; then
+            recordManifest "$NOVAVERSION"
+        else
+            echo "NOVA not installed properly, exiting ...."
+            exit $st
+        fi
 	;;
-  *)
+    *)
         echo === "********** ignoring novaversion=$NOVAVERSION"
 	;;
 esac
