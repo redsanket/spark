@@ -70,11 +70,19 @@ cd deploySupport
 [ -z "$LOCAL_CONFIG_PKG_NAME" ] && export LOCAL_CONFIG_PKG_NAME=$localconfpkg
 
 # Check if dist_tag is valid. If not, exit.
-# dist could be slow, so echo it so the user is aware of it.
-cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
+# dist_tag list take on average about 3 minutes to run
+# /home/y/bin/dist_tag basically fetch the content from
+# http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=HADOOP_2_8_0_LATEST&os=rhel&q=1&ls=1
+# The '&ls=1' is the part that takes a very long time.
+# So we will curl the content directly ourselves.
+
+#cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
+#note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
+#DIST_TAG_LIST=`eval "$cmd"`
+cmd="curl 'http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=HADOOP_2_8_0_LATEST&os=rhel&q=1'|cut -d' ' -f2- | sed 's/ /-/'"
 note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
-if [[ $? != "0" ]];then
+if [[ $? != "0" ]] || [[ -z $DIST_TAG_LIST ]]; then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
     exit 1;
 fi

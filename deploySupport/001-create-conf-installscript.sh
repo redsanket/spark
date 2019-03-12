@@ -43,6 +43,7 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
     # # # # # secondary NN will not start.
     # added empty fallback to include because this causes AM container launch failures on rhel7, since
     # this execs in docker container where this path does not exist
+    echo 'OS_VER=`cat /etc/redhat-release | cut -d" " -f7` '
     if [ "$ENABLE_HA" = true ]; then
         echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
     else
@@ -52,8 +53,6 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
         # based on docker containers being used, use correct include directive 
         # rhel6 and rhel7 without docker (verizon) don't need the nn xml conf with fallback
         #
-
-        echo 'OS_VER=`cat /etc/redhat-release | cut -d" " -f7` '
         echo 'if [[ "$OS_VER" =~ ^7. ]]; then '
             echo 'echo INFO: NN include OS is $OS_VER '
             echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/${cluster}.namenodeconfigs.xml\"><xi:fallback></xi:fallback></xi:include>'"
@@ -173,8 +172,7 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
     # if docker use is disabled by checking this flag (enabled by default), change core conf to not use 
     # docker (Verizon rhel7 native). Requires Jenkins deploy job to have RHEL7_DOCKER_DISABLED setting!
     # This setting has no effect on rhel6 nodes/deploys.
-    if [ "$RHEL7_DOCKER_DISABLED" = true ]
-    then
+    if [ "$RHEL7_DOCKER_DISABLED" = true ] || [[ "$OS_VER" =~ ^6. ]]; then
         echo "echo ======= running yinst-set to disable Docker use and run tasks native, this has no effect on rhel6 nodes"
         echo "$yinst set -root ${yroothome} \\"
         echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES=default"
@@ -200,8 +198,7 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
     echo "[ -f ${cfgscriptbase}-datanode.sh ] && YROOT=${yroothome} ${cfgscriptbase}-datanode.sh"
     echo "[ -f ${cfgscriptbase}-nodemanager.sh ] && YROOT=${yroothome} ${cfgscriptbase}-nodemanager.sh"
 
-    if [ "$HERRIOT_CONF_ENABLED" = true ]
-    then
+    if [ "$HERRIOT_CONF_ENABLED" = true ]; then
         echo "echo ======= running yinst-set to set Herriot config properties."
         echo "$yinst set -root ${yroothome} \\"
         echo "    $confpkg.TODO_ADMINPERMISSIONSGROUP=gridadmin,users \\"
