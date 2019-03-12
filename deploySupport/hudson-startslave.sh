@@ -297,15 +297,21 @@ export RUNSIMPLETEST=true
 rm -f *.tgz > /dev/null 2>&1
 
 # Make sure there is sufficient disk space before we install
-banner "Make sure there is sufficient disk space before installation"
-set -x
-PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
-/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'sudo yum install -y perl-Test-Simple && yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage -c'
-RC=$?
-set +x
-if [[ $RC -ne 0 ]]; then
-    echo "ERROR: Insufficient disk space on the cluster for install!!!"
-    exit 1
+DU_THRESHOLD=${DU_THRESHOLD:=80}
+# Proceed only if DU_THRESHOLD is a number between 0 and 100
+if [[ "$DU_THRESHOLD" =~ ^[0-9]+$ ]] && [[ $DU_THRESHOLD -lt 100 ]] && [[ $DU_THRESHOLD -gt 0 ]] ; then
+    banner "Make sure there is sufficient disk space before installation: Use% should be less than threshold of ${DU_THRESHOLD}% "
+    set -x
+    PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
+        /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway "\
+[[ `cat /etc/redhat-release | cut -d' ' -f7` =~ ^7 ]] && sudo yum install -y perl-Test-Simple; \
+yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage -c -t $DU_THRESHOLD"
+    RC=$?
+    set +x
+    if [[ $RC -ne 0 ]]; then
+        echo "ERROR: Insufficient disk space on the cluster for install!!!"
+        exit 1
+    fi
 fi
 
 # Make sure rocl is installed on all nodes
@@ -367,6 +373,7 @@ done
 [ -z "$INSTALL_GW_IN_YROOT" ] && export INSTALL_GW_IN_YROOT=false
 [ -z "$USE_DEFAULT_QUEUE_CONFIG" ] && export USE_DEFAULT_QUEUE_CONFIG=true
 [ -z "$ENABLE_HA" ] && export ENABLE_HA=false
+[ -z "$ENABLE_KMS" ] && export ENABLE_KMS=true
 
 [ -z "$STARTNAMENODE" ] && export STARTNAMENODE=true
 [ -z "$INSTALLLOCALSAVE" ] && export INSTALLLOCALSAVE=true
@@ -454,13 +461,14 @@ historyserver-test"
 
 # Fetch build artifacts from the admin box
 function fetch_artifacts() {
-    echo "FETCH ARTIFACTS"
+    banner "FETCH ARTIFACTS"
     set -x
     $SCP $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
     cat $artifacts_dir/manifest.txt
     # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
     # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
     $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
+    set +x
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -492,10 +500,7 @@ function fetch_artifacts() {
       echo "WEBUI: $cluster Oozie $URL"
       printf "%-12s %s %s %s\n" "$CLUSTER" "Oozie" "-" "<a href=$URL>$URL</a>" >> $webui_file;
     fi
-
     echo "</Pre>" >> $webui_file;
-
-    set +x
 }
 
 #################################################################################
@@ -592,6 +597,7 @@ function deploy_stack() {
     echo "INFO: Install stack component ${STACK_COMP} on $h_start"
     if [ "$STACK_COMP_VERSION" == "none" ]; then
         echo "INFO: Nothing to do since STACK_COMP_VERSION is set to 'none'"
+        return 0
     else
         # check we got a valid reference cluster
         REFERENCE_CLUSTER=$STACK_COMP_VERSION
@@ -671,7 +677,7 @@ function deploy_spark () {
   fi
 }
 
-echo "CHECK IF WE NEED TO INSTALL STACK COMPONENTS:"
+banner "CHECK IF WE NEED TO INSTALL STACK COMPONENTS: pig, hive, spark, oozie"
 deploy_stack pig $STACK_COMP_VERSION_PIG pig-install-check.sh
 deploy_stack hive $STACK_COMP_VERSION_HIVE hive-install-check.sh
 deploy_spark

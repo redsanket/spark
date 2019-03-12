@@ -40,6 +40,11 @@
 
 set +x
 
+if [ "$ENABLE_KMS" != true ];then
+    echo "ENABLE_KMS is not set to enabled. Nothing to do."
+    return 0
+fi
+
 echo "================= Install KeyManagementService (KMS) and ZooKeeper ================="
 
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -51,15 +56,6 @@ kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 
 CONF_KMS="/home/y/conf/kms"
 CONF_ZK="/home/y/conf/zookeeper"
-
-# gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
-# ref jiras JAVAPLATF-2893, JAVAPLATF-2894
-function cp_files {
-    SRC_FILE=$1
-    DEST_FILE=$2
-    $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
-}
-
 
 # if kms role is not populated, warn but don't fail to allow for
 # most existing clusters that weren't built with kms support roles,
@@ -193,41 +189,69 @@ fi
 # need to know OS version for jetty install later on
 #
 OS_VER=`$SSH $kmsnode "cat /etc/redhat-release | cut -d' ' -f7"`
+
+cmd_jetty_common_settings="\
+-set yjava_jetty.enable_https=true \
+-set yjava_jetty.https_port=4443 \
+-set yjava_jetty.http_port=-1 \
+-set yjava_jetty.options='-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760' \
+-set yjava_jetty.key_store='/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks'  \
+-set yjava_jetty.key_store_password_key_var=password \
+-set yjava_jetty.key_store_type=JKS \
+-set yjava_jetty.trust_store='/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks' \
+-set yjava_jetty.trust_store_password_key_var=password  \
+-set yjava_jetty.trust_store_type=JKS \
+-set yjava_jetty.user_name=hadoop8 \
+-set yjava_jetty.autostart=off \
+-set yjava_jetty.garbage_collection='-verbose:gc \
+-XX:+PrintGCDetails \
+-XX:+PrintGCTimeStamps \
+-XX:+PrintGCDateStamps \
+-XX:+PrintGCApplicationStoppedTime \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof \
+-Xloggc:/home/y/logs/yjava_jetty/gc.log \
+-XX:+UseGCLogFileRotation \
+-XX:NumberOfGCLogFiles=10 \
+-XX:GCLogFileSize=100M \
+-Xmx8g'"
+
 # OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 if [[ "$OS_VER" =~ ^6. ]]; then
     echo "INFO: OS is $OS_VER"
 
-    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_806 yjava_ysecure yjava_vmwrapper-2.3.10 yhdrs-1.27.6 -br current  -same -live -downgrade -set yjava_jetty.enable_https=true -set yjava_jetty.https_port=4443 -set yjava_jetty.http_port=-1 -set yjava_jetty.requestLog_asyncWrite=false -set yjava_jetty.remote_ip_global_url_pattern=/ -set yjava_jetty.dnt_filter_url_pattern=/ -set  yjava_jetty.cookie_data_global_url_pattern=/ -set yjava_jetty.yhdrs_global_url_pattern=/ \
-  -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
-  -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
-  -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
-  -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
-  -set yjava_jetty.garbage_collection=\"-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
+    cmd_jetty="yinst i \
+-br current -same -live -downgrade \
+yjava_jetty-9.3.24.v20180605_806 \
+yjava_ysecure \
+yjava_vmwrapper-2.3.10 \
+yhdrs-1.27.6 \
+${cmd_jetty_common_settings} \
+-set yjava_jetty.requestLog_asyncWrite=false \
+-set yjava_jetty.remote_ip_global_url_pattern=/ \
+-set yjava_jetty.dnt_filter_url_pattern=/ \
+-set yjava_jetty.cookie_data_global_url_pattern=/ \
+-set yjava_jetty.yhdrs_global_url_pattern=/ \
+"
 
 elif [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER"
 
-    # gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
-    # ref jiras JAVAPLATF-2893, JAVAPLATF-2894
-    SRC_FILE='/home/y/bin/yjava_daemon'
-    DEST_FILE='/home/y/bin64/yjava_daemon'
-    cp_files $SRC_FILE $DEST_FILE
-
-    SRC_FILE='/home/y/bin/yjava_xml_config'
-    DEST_FILE='/home/y/bin64/yjava_xml_config'
-    cp_files $SRC_FILE $DEST_FILE
-    # gridci-3618, end of workaround 
-
     # all of the yjava_jetty dep pkgs listed here need explicit versions becuase they are too old, built pre-rhel7 support in yinst so yinst
     # reports not found even though they are really there
-    cmd_jetty="yinst i yjava_jetty-9.3.24.v20180605_806 yjava_jmx_singleton_server-1.0.0 yjava_resource_handler-1.0.21  yjava_ysecure_agent-1.0.10  \
-      yjava_resource_handler-1.0.21 ysysctl-2.2.3  jports_org_json__json-1.20090211_1 -br test  -same -live -downgrade \
-      -set yjava_jetty.enable_https=true  -set yjava_jetty.https_port=4443  -set yjava_jetty.http_port=-1 \
-      -set yjava_jetty.options=\"-Djavax.net.ssl.sessionCacheSize=1000 -Djavax.net.ssl.sessionCacheTimeout=60 -Djute.maxbuffer=10485760\" \
-      -set yjava_jetty.key_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.key_store_password_key_var=password  -set yjava_jetty.key_store_type=JKS \
-      -set yjava_jetty.trust_store=\"/etc/ssl/certs/prod/_open_ygrid_yahoo_com-dev.jks\"  -set yjava_jetty.trust_store_password_key_var=password  \
-      -set yjava_jetty.trust_store_type=JKS  -set yjava_jetty.user_name=hadoop8  -set yjava_jetty.autostart=off \
-      -set yjava_jetty.garbage_collection=\"-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/y/var/run/kms/kms.hprof -Xloggc:/home/y/logs/yjava_jetty/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Xmx8g\""
+
+    cmd_jetty="yinst i \
+-br test -same -live -downgrade \
+yjava_jetty-9.3.24.v20180605_806 \
+yjava_daemon-2.51.39 \
+yjava_jmx_singleton_server-1.0.0 \
+yjava_resource_handler-1.0.21 \
+yjava_ysecure_agent-1.0.10 \
+yjava_resource_handler-1.0.21 \
+ysysctl-2.2.3 \
+jports_org_json__json-1.20090211_1 \
+${cmd_jetty_common_settings} \
+"
 
 else
     echo "WARN: Unknown OS $OS_VER!"
@@ -281,7 +305,7 @@ fi
 
 echo "Resending yinst set zookeeper_server.jvm_args since the earlier set attempt using pdsh does not work!"
 set -x
-$SSH $kmsnode "yinst set zookeeper_server.jvm_args=\"  -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \-Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+$SSH $kmsnode "yinst set zookeeper_server.jvm_args=\"  -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -368,8 +392,10 @@ sleep 30
 # working KMS install despite the error report, but need to look for both since some clusters
 # do not exhibit the 'incomplete groups' problem
 #
+set -x
 CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
 curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
+set +x
 if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
     echo "Failed to get key info, KMS or ZK service may not be running!"
     exit 1
