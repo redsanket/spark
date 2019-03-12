@@ -304,7 +304,7 @@ if [[ "$DU_THRESHOLD" =~ ^[0-9]+$ ]] && [[ $DU_THRESHOLD -lt 100 ]] && [[ $DU_TH
     set -x
     PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
         /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway "\
-[[ `cat /etc/redhat-release | cut -d' ' -f7` =~ ^7 ]] && sudo yum install -y perl-Test-Simple; \
+[[ \$(cat /etc/redhat-release | cut -d' ' -f7) =~ ^7 ]] && sudo yum install -y perl-Test-Simple; \
 yinst install -br test -yes hadoop_qa_utils && sudo /home/y/bin/disk_usage -c -t $DU_THRESHOLD"
     RC=$?
     set +x
