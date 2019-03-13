@@ -562,7 +562,7 @@ being rejected, and you need to push a new one before it only has 2 hours left o
 uses is not compatible please reach out to the Storm team and we can make that configurable as well.
 
 
-Athenz TSL Certs using AutoSSL
+Athenz TLS Certs using AutoSSL
 ==============================
 
 Storm has an AutoSSL plugin similar to AutoAthens that you can use to send both private and public key files to your topology. AutoAthens is specific to role tokens. 
