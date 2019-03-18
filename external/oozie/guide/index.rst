@@ -54,16 +54,10 @@ Getting Help
 General Questions
 -----------------
 
-- oozie-users@yahoo-inc.com 
+- oozie-users@verizonmedia.com 
 
 Support
 -------
 
-- oozie-request@yahoo-inc.com
+If you need help with debugging production issues, go to http://yo/ooziesupport, fill out the JIRA issue and click on Create.
 
-Filing Jira Tickets
--------------------
-
-#. Go to the `Jira Oozie Summary Panel <https://jira.corp.yahoo.com/browse/YOOZIE/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel>`_.
-#. From the top navigation bar, click **Create**.
-#. Fill out the **Create Issue** form and click **Create**.
