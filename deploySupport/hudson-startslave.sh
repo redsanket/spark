@@ -79,7 +79,7 @@ cd deploySupport
 #cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
 #note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 #DIST_TAG_LIST=`eval "$cmd"`
-cmd="curl 'http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=HADOOP_2_8_0_LATEST&os=rhel&q=1'|cut -d' ' -f2- | sed 's/ /-/'"
+cmd="curl \"http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=${HADOOP_RELEASE_TAG}&os=rhel&q=1\"|cut -d' ' -f2- | sed 's/ /-/'"
 note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
 if [[ $? != "0" ]] || [[ -z $DIST_TAG_LIST ]]; then
