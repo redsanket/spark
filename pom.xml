@@ -132,7 +132,7 @@
                             <artifactId>shc-core</artifactId>
                             <version>1.0</version>
                             <packaging>jar</packaging>
-                            <file>${basedir}/lib/shc-core-1.1.2-2.2-s_2.11-SNAPSHOT.jar</file>
+                            <file>${basedir}/lib/shc-core-1.1.1-2.0-s_2.11-SNAPSHOT.jar</file>
                         </configuration>
                     </execution>
                 </executions>
