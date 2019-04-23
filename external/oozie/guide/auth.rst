@@ -220,7 +220,7 @@ There is only one parameter required for the credential ``type``.
 
 There are three optional parameters for the credential type ``yca``:
 
-- ``yca-webserver-url``: the YCA server URL. The default URL is http://ca.yca.platform.yahoo.com:4080.
+- ``yca-webserver-url``: the YCA server URL. The default URL is https://ca.yca.platform.yahoo.com:4443.
 - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400). This is available from Oozie 3.3.1.
 - ``yca-http-proxy-role``: The role name in the Roles DB that contains the hostnames of 
   the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 
