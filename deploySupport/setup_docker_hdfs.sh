@@ -4,12 +4,13 @@ set -o errexit
 
 HADOOP_PREFIX=${HADOOP_PREFIX:-/home/gs/hadoop/current}
 HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/home/gs/conf/current}
-DOCKER_SQUASH_SCRIPT="$HADOOP_PREFIX/sbin/docker-to-squash.sh"
+DOCKER_SQUASH_SCRIPT="$HADOOP_PREFIX/sbin/docker-to-squash.py"
 DOCKER_HDFS_ROOT=$1
-DOCKER_IMAGE_TAG=$2
+DOCKER_IMAGE=$2
+DOCKER_IMAGE_TAG=$(basename $DOCKER_IMAGE)
 
 if [[ -z "$DOCKER_HDFS_ROOT" || -z "$DOCKER_IMAGE_TAG" ]]; then
-  echo "Usage: setup_docker_hdfs.sh docker_hdfs_root docker_image_uri"
+  echo "Usage: setup_docker_hdfs.py docker_hdfs_root docker_image_uri,docker_image_tag"
   exit 1
 fi
 if [[ ! -f "$DOCKER_SQUASH_SCRIPT" ]]; then
@@ -29,9 +30,9 @@ if [[ -n "$NEED_PKGS" ]]; then
   set +x
 fi
 
-TAG_TO_HASH_FILE="$DOCKER_HDFS_ROOT/image-tag-to-hash"
-echo "Installing $DOCKER_IMAGE_TAG to $DOCKER_HDFS_ROOT"
+TAG_TO_HASH_FILE="image-tag-to-hash"
+echo "Installing $DOCKER_IMAGE to $DOCKER_HDFS_ROOT as $DOCKER_IMAGE_TAG"
 kinit -kt /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
-sh $DOCKER_SQUASH_SCRIPT --hdfs-root="$DOCKER_HDFS_ROOT" --image-tag-to-manifest-file="$TAG_TO_HASH_FILE" "$DOCKER_IMAGE_TAG"
+python $DOCKER_SQUASH_SCRIPT pull-build-push-update --log=DEBUG --hdfs-root="$DOCKER_HDFS_ROOT" --image-tag-to-hash="$TAG_TO_HASH_FILE" "$DOCKER_IMAGE,$DOCKER_IMAGE_TAG"
 
 exit 0
