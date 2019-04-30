@@ -7,7 +7,7 @@ HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/home/gs/conf/current}
 DOCKER_SQUASH_SCRIPT="$HADOOP_PREFIX/sbin/docker-to-squash.py"
 DOCKER_HDFS_ROOT=$1
 DOCKER_IMAGE=$2
-DOCKER_IMAGE_TAG=$(basename $DOCKER_IMAGE)
+DOCKER_IMAGE_TAG=$DOCKER_IMAGE
 
 if [[ -z "$DOCKER_HDFS_ROOT" || -z "$DOCKER_IMAGE_TAG" ]]; then
   echo "Usage: setup_docker_hdfs.py docker_hdfs_root docker_image_uri,docker_image_tag"
