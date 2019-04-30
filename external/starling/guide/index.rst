@@ -25,7 +25,7 @@ Our goal is to help Yahoos use Starling on the Yahoo grid, and thus, is not a co
 On-Boarding
 ===========
 
-Starling can only be accessed from the `Axonite Blue cluster <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop/cluster/AB>`_. You'll receive access to Axonite Blue by requesting grid access through `Doppler <http://yo/doppler>`_.
+Starling can only be accessed from the `Axonite Blue cluster <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop/cluster/AB>`_ for ygrid and  `Kessel cluster <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop/cluster/KGQ>`_ for VCG. You'll receive access to Axonite Blue by requesting ygrid or vcg access through `Doppler <http://yo/doppler>`_.
 
 Getting Help
 ============

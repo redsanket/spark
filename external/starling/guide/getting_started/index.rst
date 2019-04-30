@@ -7,10 +7,12 @@ Getting Started
 Introduction
 ============
 
-Starling runs on the Axonite Blue (AB) cluster and uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
+Starling runs on the Axonite Blue (AB) cluster for ygrid and Kessel for VCG. It uses the `HCatalog <https://cwiki.apache.org/confluence/display/Hive/HCatalog>`_
 server to  store the meta-data about its tables and the HDFS on this cluster to store all the
 data. The tables used by Starling are stored in the ``starling`` database and have
 the ``starling_`` prefix in their names.
+This tutorial walks through the process of accessing Starling on AB. The steps should be
+the same for Kessel.
 
 Accessing Starling
 ------------------
@@ -26,7 +28,7 @@ Prerequisites
 =============
 
 - `On-Board to Axonite Blue <http://yo/grid-onboarding-howto>`_
-- Log onto Axonite Blue.
+- Log onto Axonite Blue
 
 Querying Data
 =============

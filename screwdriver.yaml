@@ -1,53 +1,17 @@
-platform: python
-shared:
-  notifications:
-    email: jcatera@yahoo-inc.com
-  plugins:
-    test_results:
-      enabled: false
-    coverage:
-      enabled: false
-  steps:
-    doc_build:
-      description: Calls 'sphinx-build'
-      command: make -f ./Makefile build
-    publish:
-      description: Calls 'sphinx-build' and uploads the content to 'gh-pages' branch.
-      command: make -f ./Makefile publish
-profiles:
-  pull-request:
-    description: |
-      Runs when a Pull Request is opened or updated
-    build_containers:
-      - python
-    publish_containers:
-      - python
-    steps:
-      - init
-      - doc_build
-  default:
-    description: |
-      Runs after a commit is made to your primary branch
-    steps:
-      - init
-      - doc_build
-      - publish
-
----
 version: 4
 shared:
   settings:
     email: jcatera@yahoo-inc.com
-  annotations:
-    # You might need to do some additional steps in order for yaml anchors to
-    # work properly. See http://yo/v4-yaml-anchors for details.
-    doc_build: &doc_build make -f ./Makefile build
-    publish: &publish make -f ./Makefile publish
 
 jobs:
   component:
     template: v3-platform/python-component@stable
+    steps:
+      - doc_build: make -f ./Makefile build
+      - package_publish: echo 'skip'
+      - tag_release: echo 'skip'      
+      - test: echo 'skip'            
+      - doc_publish: make -f ./Makefile publish
     requires:
       - ~commit
       - ~pr
-    
