@@ -364,7 +364,19 @@ if [ $RC -ne 0 ]; then
     exit 1
 fi
 
+#
+# gridci-4245 ykeykey introduced changes late March, early April 2019 that caused a lot
+# of instability, workaround is to clear ykeykeyd cache and restart in order to allow
+# key fetch to work
 set -x
+$SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
+sleep 2
+$SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
+sleep 2
+$SSH $kmsnode "yinst restart daemontools_y ; yinst restart ykeykeyd ; sudo ykeykey-refresh-keys"
+sleep 2
+
+
 $SSH $kmsnode "yinst restart zookeeper_server yahoo_kms"
 RC=$?
 set +x
