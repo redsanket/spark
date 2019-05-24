@@ -33,6 +33,6 @@ fi
 TAG_TO_HASH_FILE="image-tag-to-hash"
 echo "Installing $DOCKER_IMAGE to $DOCKER_HDFS_ROOT as $DOCKER_IMAGE_TAG"
 kinit -kt /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
-python $DOCKER_SQUASH_SCRIPT pull-build-push-update --log=DEBUG --hdfs-root="$DOCKER_HDFS_ROOT" --image-tag-to-hash="$TAG_TO_HASH_FILE" "$DOCKER_IMAGE,$DOCKER_IMAGE_TAG"
+python $DOCKER_SQUASH_SCRIPT pull-build-push-update --log=DEBUG --check-magic-file --magic-file='etc/hadoop-dockerfile-version' --hdfs-root="$DOCKER_HDFS_ROOT" --image-tag-to-hash="$TAG_TO_HASH_FILE" "$DOCKER_IMAGE,$DOCKER_IMAGE_TAG"
 
 exit 0
