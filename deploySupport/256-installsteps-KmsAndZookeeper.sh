@@ -373,8 +373,13 @@ $SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
 sleep 2
 $SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
 sleep 2
+#
+# this has been really flaky as of April 2019, ykeykey needs cache cleared and a restart,
+# it still reports error sometimes but really appears to work
 $SSH $kmsnode "yinst restart daemontools_y ; yinst restart ykeykeyd ; sudo ykeykey-refresh-keys"
-sleep 2
+if [ $RC -ne 0 ]; then
+    echo "WARN: restart of daemontools_y or ykeykeyd reports faillure!"
+fi
 
 
 $SSH $kmsnode "yinst restart zookeeper_server yahoo_kms"
