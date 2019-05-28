@@ -282,6 +282,11 @@ if [[ "$OS_VER" =~ ^6. ]]; then
 elif [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER"
 
+    # gridci-4245 ykeykey got real flaky around April 2019, clear the cache before the daemontools and
+    # yekyekyd restart
+    echo "INFO: clear ykeykeyd cache for ykeykeyd restart stability"
+    $SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
+
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
     # and only thing on branches is 3.4.13... something
     # gridci-4245 use current vers of ykeykeyd to fix ykeykey wedging
@@ -364,22 +369,22 @@ if [ $RC -ne 0 ]; then
     exit 1
 fi
 
-#
-# gridci-4245 ykeykey introduced changes late March, early April 2019 that caused a lot
-# of instability, workaround is to clear ykeykeyd cache and restart in order to allow
-# key fetch to work
-set -x
-$SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
-sleep 2
-$SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
-sleep 2
-#
-# this has been really flaky as of April 2019, ykeykey needs cache cleared and a restart,
-# it still reports error sometimes but really appears to work
-$SSH $kmsnode "yinst restart daemontools_y ; yinst restart ykeykeyd ; sudo ykeykey-refresh-keys"
-if [ $RC -ne 0 ]; then
-    echo "WARN: restart of daemontools_y or ykeykeyd reports faillure!"
-fi
+##
+## gridci-4245 ykeykey introduced changes late March, early April 2019 that caused a lot
+## of instability, workaround is to clear ykeykeyd cache and restart in order to allow
+## key fetch to work
+#set -x
+#$SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
+#sleep 2
+#$SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
+#sleep 2
+##
+## this has been really flaky as of April 2019, ykeykey needs cache cleared and a restart,
+## it still reports error sometimes but really appears to work
+#$SSH $kmsnode "yinst restart daemontools_y ; yinst restart ykeykeyd ; sudo ykeykey-refresh-keys"
+#if [ $RC -ne 0 ]; then
+    #echo "WARN: restart of daemontools_y or ykeykeyd reports failure!"
+#fi
 
 
 $SSH $kmsnode "yinst restart zookeeper_server yahoo_kms"
