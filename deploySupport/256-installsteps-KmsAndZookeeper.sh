@@ -282,10 +282,11 @@ if [[ "$OS_VER" =~ ^6. ]]; then
 elif [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER"
 
-    # gridci-4245 ykeykey got real flaky around April 2019, clear the cache before the daemontools and
-    # yekyekyd restart
-    echo "INFO: clear ykeykeyd cache for ykeykeyd restart stability"
+    # gridci-4245 ykeykey got real flaky around April 2019, clear the cache and refresh certs 
+    # before the daemontools and yekyekyd restart
+    echo "INFO: clear ykeykeyd cache and refresh certs, for ykeykeyd restart stability"
     $SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
+    $SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
 
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
     # and only thing on branches is 3.4.13... something
@@ -387,11 +388,24 @@ fi
 #fi
 
 
-$SSH $kmsnode "yinst restart zookeeper_server yahoo_kms"
+# gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
+# flakyness consistently now
+$SSH $kmsnode "yinst restart zookeeper_server "
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
-    echo "Failed to restart KMS and ZK services!"
+    echo "Failed to restart ZK service!"
+    exit 1
+fi
+
+# gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
+# flakyness consistently now
+sleep 15
+$SSH $kmsnode "yinst restart yahoo_kms"
+RC=$?
+set +x
+if [ $RC -ne 0 ]; then
+    echo "Failed to restart KMS service!"
     exit 1
 fi
 
@@ -401,8 +415,8 @@ fi
 # zk server with port bind error
 # TODO: make this a poll and metric any increase in delay needed, used to
 # 10 secs was good enough now need 30 secs
-echo "Waiting 30 seconds for KMS and ZK services to startup...."
-sleep 30 
+echo "Waiting 15 seconds for KMS and ZK services to startup...."
+sleep 15
 
 #
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
