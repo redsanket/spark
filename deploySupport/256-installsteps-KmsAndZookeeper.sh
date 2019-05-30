@@ -285,7 +285,7 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
     # gridci-4245 ykeykey got real flaky around April 2019, clear the cache and refresh certs 
     # before the daemontools and yekyekyd restart
     echo "INFO: clear ykeykeyd cache and refresh certs, for ykeykeyd restart stability"
-    $SSH $kmsnode "rm  /home/y/var/db/ykeykeyd/*"
+    $SSH $kmsnode "rm -rf  /home/y/var/db/ykeykeyd/*"
     $SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
 
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
