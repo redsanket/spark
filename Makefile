@@ -40,6 +40,7 @@ gh-pages:
 	rm -rf starling/_images/ starling/_sources/ starling/_static/ starling/*.html starling/*.js starling/objects.inv
 	rm -rf hbase/_images/ hbase/_sources/ hbase/_static/ hbase/*.html hbase/*.js hbase/objects.inv
 	rm -rf spark/_images/ spark/_sources/ spark/_static/ spark/*.html spark/*.js spark/objects.inv
+	mkdir -p presto
 	rm -rf presto/_images/ presto/_sources/ presto/_static/ presto/*.html presto/*.js presto/objects.inv
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
