@@ -27,6 +27,8 @@ Hue Instances
    "Dilithium", "Red (BF1)", "https://dilithiumred-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.dr" 
    "Mithril", "Red (BF1)", "https://mithrilred-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.mr" 
    "Kryptonite", "Red (BF1)", "https://kryptonitered-hue.red.ygrid.yahoo.com:9999", "http://yo/hue.kr" 
+   "Kessel", "VCG (GQ2)", "https://kesselgq-hue.gq.vcg.yahoo.com:9999", "http://yo/hue.kessel"
+   "Polaris", "VCG (GQ2)", "https://polarisgq-hue.gq.vcg.yahoo.com:9999", "http://yo/hue.polaris"
 
 
 
