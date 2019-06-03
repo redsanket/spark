@@ -12,6 +12,7 @@ STORM = external/storm/guide
 STARLING = external/starling/guide
 HBASE = external/hbase/guide
 SPARK = external/spark/guide
+PRESTO = external/presto/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
@@ -25,7 +26,7 @@ build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark
+	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
 	echo 'Removing temp dir $(TMP_ENV)'
 	rm -rf $(TMP_ENV) 
 
@@ -39,6 +40,7 @@ gh-pages:
 	rm -rf starling/_images/ starling/_sources/ starling/_static/ starling/*.html starling/*.js starling/objects.inv
 	rm -rf hbase/_images/ hbase/_sources/ hbase/_static/ hbase/*.html hbase/*.js hbase/objects.inv
 	rm -rf spark/_images/ spark/_sources/ spark/_static/ spark/*.html spark/*.js spark/objects.inv
+	rm -rf presto/_images/ presto/_sources/ presto/_static/ presto/*.html presto/*.js presto/objects.inv
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
@@ -52,6 +54,7 @@ publish: gh-pages build
 	cp -R docs/starling/* starling
 	cp -R docs/hbase/* hbase
 	cp -R docs/spark/* spark
+	cp -R docs/presto/* presto
 	@echo "Removing build files."
 	rm -rf docs setup.cfg tox.ini MANIFEST.ini external
 	@echo "Adding and saving new docs."
