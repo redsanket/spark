@@ -4,6 +4,7 @@ Prerequisites
 .. _prerequisities:
 
 .. _acl:
+
 ACL
 ***
 If you are going to run Presto queries from Gateway or Hue, you can skip this step.

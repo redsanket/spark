@@ -38,8 +38,8 @@ To run queries:
 
 VCG
 ===
-The presto_client package is installed on Kessel and Polaris gateways and the
-defaut catalog is set to ``kessel`` and ``polaris`` respectively.
+The presto_client package is installed on Kessel and Polaris gateways, and the
+default catalog is set to ``kessel`` and ``polaris`` respectively.
 
 To run queries:
 

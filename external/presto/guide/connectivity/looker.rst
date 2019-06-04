@@ -45,12 +45,12 @@ JDBC Connection
 
 Steps to configure a new Presto connection:
 
-1) Copy /etc/krb5.conf from a Grid Gateway node to your Looker host.
+1) Copy ``/etc/krb5.conf`` from a Grid Gateway node to your Looker host.
 2) Copy the keytab of the headless user to the looker host. Ensure the permission is set to 400 and the file is only readable by the headless user.
-3) Go to https://<looker server host name>:4443/admin/connections/new
+3) Go to ``https://<looker server host name>:4443/admin/connections/new``
 4) Fill up the details as per below example.
 
-The example connects to xandarblue Presto cluster and accesses the dilithiumblue hive catalog.
+The example connects to ``xandarblue`` Presto cluster and accesses the ``dilithiumblue`` hive catalog.
 Assuming the following in example:
 
   - headless user name = p_search

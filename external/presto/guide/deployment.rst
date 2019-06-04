@@ -1,16 +1,16 @@
 Presto Clusters
 ###############
 
-Currently there is one Presto cluster in gq1 and ne1. By end of Q3, we will have one staging
+Currently, there is one Presto cluster each in gq1 and ne1. By end of Q3 2019, we will have one staging
 and production cluster per colo.
 
 **Note:**
-  Presto production clusters are only for production BI analytics and
-  not for general use. The default queue is currently available for users to
+  Presto production clusters are only for production BI analytics, and
+  not for general use. The ``default`` queue is currently available for users to
   benchmark and request capacity if Presto suits their use case. If you came to
-  know of Presto through someone and is using it as the performance is better than
-  `Hive <https://git.ouroath.com/pages/hadoop/docs/hive/index.html>`_, expect the
-  access to be revoked soon. Only customers who paid for capacity will allowed to be run.
+  know of Presto through someone and is using it as a better performing alternative to
+  `Hive <https://git.ouroath.com/pages/hadoop/docs/hive/index.html>`_, please expect the
+  access to be revoked soon. Only customers who paid for capacity will allowed to use Presto.
   `Hive <https://git.ouroath.com/pages/hadoop/docs/hive/index.html>`_ should be used
   by everyone else.
 

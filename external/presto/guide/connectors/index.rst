@@ -11,7 +11,7 @@ Connectors
    druid
    
 Presto is built around the notion of connectors. Connectors allow Presto to
-consume data from a variety of data sources. Though Presto suppots a number
+consume data from a variety of data sources. Though Presto supports a number
 of `connectors <https://prestodb.github.io/docs/0.204/connector.html>`_, our
 installation at Verizon Media only supports the following:
 
