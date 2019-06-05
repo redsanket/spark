@@ -13,6 +13,7 @@ STARLING = external/starling/guide
 HBASE = external/hbase/guide
 SPARK = external/spark/guide
 PRESTO = external/presto/guide
+HADOOP = internal/guide
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
@@ -26,9 +27,9 @@ build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
+	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP) docs/hadoop && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
 	echo 'Removing temp dir $(TMP_ENV)'
-	rm -rf $(TMP_ENV) 
+	rm -rf $(TMP_ENV)
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
 gh-pages:
@@ -40,13 +41,15 @@ gh-pages:
 	rm -rf starling/_images/ starling/_sources/ starling/_static/ starling/*.html starling/*.js starling/objects.inv
 	rm -rf hbase/_images/ hbase/_sources/ hbase/_static/ hbase/*.html hbase/*.js hbase/objects.inv
 	rm -rf spark/_images/ spark/_sources/ spark/_static/ spark/*.html spark/*.js spark/objects.inv
+	mkdir -p hadoop
+	rm -rf hadoop/_images/ hadoop/_sources/ hadoop/_static/ hadoop/*.html hadoop/*.js hadoop/objects.inv
 	mkdir -p presto
 	rm -rf presto/_images/ presto/_sources/ presto/_static/ presto/*.html presto/*.js presto/objects.inv
 	git checkout ${GIT_BRANCH} external
 	git reset HEAD
 
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
-publish: gh-pages build 
+publish: gh-pages build
 	@echo "Copying new files."
 	cp -R docs/oozie/* oozie
 	cp -R docs/hive/* hive
@@ -55,12 +58,13 @@ publish: gh-pages build
 	cp -R docs/starling/* starling
 	cp -R docs/hbase/* hbase
 	cp -R docs/spark/* spark
+	cp -R docs/hadoop/* hadoop
 	cp -R docs/presto/* presto
 	@echo "Removing build files."
 	rm -rf docs setup.cfg tox.ini MANIFEST.ini external
 	@echo "Adding and saving new docs."
-	git add -A 
+	git add -A
 	git commit -m "Generated gh-pages." && git push origin gh-pages
 
-clean: 
+clean:
 	rm -rf docs
