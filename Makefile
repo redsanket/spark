@@ -13,7 +13,8 @@ STARLING = external/starling/guide
 HBASE = external/hbase/guide
 SPARK = external/spark/guide
 PRESTO = external/presto/guide
-HADOOP = internal/guide
+HADOOP_DEV = internal/hadoop/guide
+HADOOP_DOC_PATH = internal/hadoop
 
 export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
@@ -27,7 +28,7 @@ build:
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP) docs/hadoop && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
+	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP_DEV) docs/$(HADOOP_DOC_PATH) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
 	echo 'Removing temp dir $(TMP_ENV)'
 	rm -rf $(TMP_ENV)
 
@@ -41,8 +42,8 @@ gh-pages:
 	rm -rf starling/_images/ starling/_sources/ starling/_static/ starling/*.html starling/*.js starling/objects.inv
 	rm -rf hbase/_images/ hbase/_sources/ hbase/_static/ hbase/*.html hbase/*.js hbase/objects.inv
 	rm -rf spark/_images/ spark/_sources/ spark/_static/ spark/*.html spark/*.js spark/objects.inv
-	mkdir -p hadoop
-	rm -rf hadoop/_images/ hadoop/_sources/ hadoop/_static/ hadoop/*.html hadoop/*.js hadoop/objects.inv
+	mkdir -p $(HADOOP_DOC_PATH)
+	rm -rf $(HADOOP_DOC_PATH)/_images/ $(HADOOP_DOC_PATH)/_sources/ $(HADOOP_DOC_PATH)/_static/ $(HADOOP_DOC_PATH)/*.html $(HADOOP_DOC_PATH)/*.js $(HADOOP_DOC_PATH)/objects.inv
 	mkdir -p presto
 	rm -rf presto/_images/ presto/_sources/ presto/_static/ presto/*.html presto/*.js presto/objects.inv
 	git checkout ${GIT_BRANCH} external
@@ -58,7 +59,7 @@ publish: gh-pages build
 	cp -R docs/starling/* starling
 	cp -R docs/hbase/* hbase
 	cp -R docs/spark/* spark
-	cp -R docs/hadoop/* hadoop
+	cp -R docs/$(HADOOP_DOC_PATH)/* $(HADOOP_DOC_PATH)
 	cp -R docs/presto/* presto
 	@echo "Removing build files."
 	rm -rf docs setup.cfg tox.ini MANIFEST.ini external

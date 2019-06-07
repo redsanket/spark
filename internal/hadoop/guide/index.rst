@@ -10,6 +10,7 @@ This document is **Oath Proprietary/Confidential**. Do not release the contents 
 
   new_members
   on_boarding
+  documentation/index
 
 About
 =====
