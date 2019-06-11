@@ -418,6 +418,30 @@ fi
 echo "Waiting 15 seconds for KMS and ZK services to startup...."
 sleep 15
 
+# gridci-4245, yet another problem recently, kms seems to fail consistently versus the
+# more intermittent failures seen elsewhere, daemontools_y appears to be the culprit,
+# ykeykey(d) restarts, even with cache clearing, have no effect until daemontools_y is
+# restarted, and then ykeykeygetkey starts working even without restarting ykeykey again
+set -x
+echo "Restarting daemontools_y and checking if getkey works..."
+CHECK_RESTART=1
+RETRY_COUNT=0
+while [ $CHECK_RESTART -eq 1 ] && [ $RETRY_COUNT -le 5 ]; do
+  $SSH $kmsnode "yinst restart daemontools_y; echo $?"
+  RC=$?
+  if [ $RC -eq 0 ]; then
+    CHECK_RESTART=0
+  else
+    echo "WARN: daemontools_y restart failed $RETRY_COUNT times..."
+  fi
+
+  RETRY_COUNT=$(( $RETRY_COUNT + 1 ))
+  if [ $RETRY_COUNT -gt 5 ]; then
+    echo "ERROR: daemontools_y failed to restart $RETRY_COUNT times!"
+    exit 1
+  fi
+done
+
 #
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
 # and talking ok
