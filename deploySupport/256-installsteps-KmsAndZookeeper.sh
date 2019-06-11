@@ -423,7 +423,7 @@ sleep 15
 # ykeykey(d) restarts, even with cache clearing, have no effect until daemontools_y is
 # restarted, and then ykeykeygetkey starts working even without restarting ykeykey again
 set -x
-echo "Restarting daemontools_y and checking if getkey works..."
+echo "Restarting daemontools_y..."
 CHECK_RESTART=1
 RETRY_COUNT=0
 while [ $CHECK_RESTART -eq 1 ] && [ $RETRY_COUNT -le 5 ]; do
