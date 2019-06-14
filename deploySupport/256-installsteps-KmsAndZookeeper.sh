@@ -403,7 +403,7 @@ sleep 60
 
 # gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
 # flakyness consistently now
-echo "INFO" restarting yahoo_kms..."
+echo "INFO: restarting yahoo_kms..."
 $SSH $kmsnode "yinst restart yahoo_kms"
 RC=$?
 set +x
