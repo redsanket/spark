@@ -398,9 +398,12 @@ if [ $RC -ne 0 ]; then
     exit 1
 fi
 
+echo "INFO: waiting 60 seconds for ZK start to stabilize..."
+sleep 60
+
 # gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
 # flakyness consistently now
-sleep 15
+echo "INFO" restarting yahoo_kms..."
 $SSH $kmsnode "yinst restart yahoo_kms"
 RC=$?
 set +x
@@ -415,32 +418,32 @@ fi
 # zk server with port bind error
 # TODO: make this a poll and metric any increase in delay needed, used to
 # 10 secs was good enough now need 30 secs
-echo "Waiting 15 seconds for KMS and ZK services to startup...."
-sleep 15
+echo "Waiting 60 seconds for KMS and ZK services to startup...."
+sleep 60
 
 # gridci-4245, yet another problem recently, kms seems to fail consistently versus the
 # more intermittent failures seen elsewhere, daemontools_y appears to be the culprit,
 # ykeykey(d) restarts, even with cache clearing, have no effect until daemontools_y is
 # restarted, and then ykeykeygetkey starts working even without restarting ykeykey again
 set -x
-echo "Restarting daemontools_y..."
+echo "INFO: turning off... Restarting daemontools_y..."
 CHECK_RESTART=1
 RETRY_COUNT=0
-while [ $CHECK_RESTART -eq 1 ] && [ $RETRY_COUNT -le 5 ]; do
-  $SSH $kmsnode "yinst restart daemontools_y; echo $?"
-  RC=$?
-  if [ $RC -eq 0 ]; then
-    CHECK_RESTART=0
-  else
-    echo "WARN: daemontools_y restart failed $RETRY_COUNT times..."
-  fi
-
-  RETRY_COUNT=$(( $RETRY_COUNT + 1 ))
-  if [ $RETRY_COUNT -gt 5 ]; then
-    echo "ERROR: daemontools_y failed to restart $RETRY_COUNT times!"
-    exit 1
-  fi
-done
+#while [ $CHECK_RESTART -eq 1 ] && [ $RETRY_COUNT -le 5 ]; do
+  #$SSH $kmsnode "yinst restart daemontools_y; echo $?"
+  #RC=$?
+  #if [ $RC -eq 0 ]; then
+    #CHECK_RESTART=0
+  #else
+    #echo "WARN: daemontools_y restart failed $RETRY_COUNT times..."
+  #fi
+#
+  #RETRY_COUNT=$(( $RETRY_COUNT + 1 ))
+  #if [ $RETRY_COUNT -gt 5 ]; then
+    #echo "ERROR: daemontools_y failed to restart $RETRY_COUNT times!"
+    #exit 1
+  #fi
+#done
 
 #
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
@@ -457,7 +460,8 @@ set -x
 CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
 curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
 set +x
-if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
+#if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
+if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]]; then
     echo "Failed to get key info, KMS or ZK service may not be running!"
     exit 1
 fi
