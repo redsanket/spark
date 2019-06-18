@@ -1,5 +1,5 @@
 ===============
-Getting Started (Hue 4)
+Getting Started
 ===============
 
 **Time Required:** 30-40 minutes
@@ -14,11 +14,10 @@ interface and learn how to use Hue to use Hadoop
 technology such as HDFS, Hive, Pig, Oozie, Spark, and Job Browser.
 
 
-We'll be using Flickr data to do the following in this tutorial:
+We'll be doing the following in this tutorial:
 
 - View data and work with files/directories with the **File Browser**. 
-- Create a database and table with the **Hive Query Editor**.
-- View data with the **Table Browser**.
+- Create a database and table, and view data with the **Table Browser**.
 - Run Hive queries on data with the **Hive Query Editor**.
 - Process data with Pig through the **Pig Editor**.
 - Create a simple Oozie Workflow through the **Scheduler** to 
@@ -57,26 +56,12 @@ creating an Oozie Workflow to automate several
 jobs. For each section, we also offer additional 
 tips for using Hue.
 
-
-.. _about-conventions:
-
-Conventions
-~~~~~~~~~~~
-
-You'll notice throughout the tutorial that we are 
-asking you to use your user name as part of database 
-and table names as well as file names. For example,
-the database you'll be creating will have the naming syntax 
-``flickr_{your_user_name}_db``. This is to avoid name 
-collisions and for the convenience of referencing later.
-
-
 .. _about-queues:
 
 Hadoop Queues
 ~~~~~~~~~~~~~
 
-Also, we'll be using the ``default`` queue for running jobs, but we suggest
+We'll be using the ``default`` queue for running jobs, but we suggest
 that you use your team's queue because for faster job processing. We'll
 show you how to set the queue in the tutorial.
 
@@ -117,16 +102,7 @@ appears, under "Browsers", choose "Files".
       :alt: Hue Rick Bernotas Directory
       :align: left 
 
-#. From the **File Browser**, navigate to the directory ``/user/rbernota/HueTalk/Flickr100cc``.
-
-   .. image:: images/hue_talk_dataset.jpg
-      :height: 205px
-      :width: 950 px
-      :scale: 90%
-      :alt: Hue Talk Dataset 
-      :align: left 
-
-   The file ``flickr100m_dataset.bz2`` contains the data we'll be using throughout this tutorial.  
+#. From the **File Browser**, navigate to the directory ``/user/rbernota/HueTalk/``.
 
    .. tip:: You can view the contents of files by double-clicking the
             file name. Hue doesn't allow you to view ``bz2`` compressed
@@ -156,155 +132,63 @@ appears, under "Browsers", choose "Files".
          - delete and create 
          - upload 
 
+#. From the **File Browser**, navigate back to the directory ``/user/rbernota/HueTalk/``.
+#. Select the checkbox to the left of the directory ``superbowl2014``.
+#. From the **Actions** dropdown menu, select **Copy**.
+#. Navigate to, and select the **hue_tutorial** directory that you previously created.
+#. Click the **Copy** button and ensure that the data was copied to your directory.
+
 
 .. _hue_getting_started-create_db_tables:
 
 2. Creating Database/Tables
 ===========================
 
-We're going to use the **Hive Editor** to write a query that creates a table with the data
-you copied to your home directory.
+Creating a Database and Table With the Table Browser                                                                 
+-------------------------------------------------------------------
 
-#. Click **Query->Hive** to open the **Hive Query Editor**.
+Creating the Database
+~~~~~~~~~~~~~~~~~~~~~
 
-   .. image:: images/start_hive_editor.jpg
-      :height: 445 px
-      :width: 912 px
-      :scale: 90%
-      :alt: Starting Hive Editor
-      :align: left 
-   
-#. To create a database, in the **Query Editor** 
-   text area, enter the query below, replace
-   ``{your_user_name}`` with your own, and
-   click the **Play/Execute** icon::
+#. Click the top-left menu nav icon and navigate to **Browsers->Tables** in the top navigation bar.
+#. Click the **Databases** link.
+#. On the right side, click the **Create a new database** icon, which looks like a plus sign.
+#. Enter **superbowl_{your_user_name}_database** in the **Database Name** text field.
+#. Uncheck the **Default location** checkbox, specify a location **/user/{your_user_name}/superbowl_database** for the database in HDFS
+under your user directory, and click **Submit**.
+#. Your task history will show that the database was successfully created.
+#. To verify, return to the **Table Browser** and click **Databases**, and scroll down to see your database.
 
-       create database flickr_{your_user_name}_db comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
-       
+Creating the Table
+~~~~~~~~~~~~~~~~~~
 
-   .. image:: images/hive_editor.jpg
-      :height: 162 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Creating a Database With the Hive Editor
-      :align: left 
+#. From the **Databases** panel, find and then click the database you just created. Hint: It's
+   easier to find through the search text field.
+#. On the right side, click the **Create a new table** icon, which looks like a plus sign.
+#. For **Source->Type**, choose **File**.
+#. For **Path**, use the HDFS file chooser to locate the data file for the table, like **/user/{your_user_name}/hue_tutorial/superbowl2014/superbowl2014_tweets/20140202_041903_f34a1395-862a-410a-b663-c8be258349a9.csv.gz**
+#. Under **Format->Field Separator**, choose **Pipe**.  For **Record Separator**, choose **New line**.
+#. Uncheck the **Has Header** checkbox.
+#. At this point, you should see a preview of the dataset.  Click **Next**.
+#. Specify the name of the table, including the database name, like **superbowl_{your_user_name}_database.superbowl_tweets**.
+#. Under **Properties->Format**, specify **Text**. Make sure the **Store in default location** checkbox is checked.
+#. Specify **Fields** like:
 
-   The **Log** pane will show you progress, and when 
-   the query has been executed, the **Query History**
-   pane will show if the query has finished, and
-   if it was successful.
+   - ``username`` type string
+   - ``tweettime`` type timestamp
+   - ``tweet`` type string
+   - ``retweetcount`` type bigint
+   - ``ondbl`` type double
+   - ``atdbl`` type double
+   - ``country`` type string
+   - ``name`` type string
+   - ``address`` type string
+   - ``type`` type string
+   - ``placeURL`` type string
 
-#. Confirm that your database was created by opening the 
-   left assist pane, and choosing the **Database** icon. Scroll down 
-   or enter the name in the text field.
-   (You may need to click the **Refresh** icon in the left assist pane 
-   to see your new database.)
-   
-   .. image:: images/refresh_database.jpg
-      :height: 316 px
-      :width: 202 px
-      :scale: 100%
-      :alt: Refresh Databases
-      :align: left 
-
-#. With your database selected, run the following query to create an external 
-   table with the data you copied earlier to your home directory.
-   (Be sure to replace the string ``{your_user_name}`` with your user name.)
-
-   .. code-block:: sql
-
-      create external table flickr_{your_user_name}_db.flickr_{your_user_name}_table (
-         photoid bigint, 
-         usernsid string, 
-         userhandle string, 
-         date_taken string, 
-         date_imported bigint,
-         camera string, 
-         name string, 
-         description string, 
-         tags string, 
-         machinetags string,
-         longitude double, 
-         latitude double, 
-         accuracy int,
-         photopage string, 
-         photopixels string, 
-         licensename string, 
-         licenseurl string, 
-         server int, 
-         farm int, 
-         secret string, 
-         secreto string, 
-         extension string,
-         isvideo int
-      )
-      row format delimited
-      fields terminated by '\t'
-      lines terminated by '\n'
-      location '/user/{your_user_name}/HueTalk/Flickr100cc/';
-
-#. After the query has finished executing, confirm that the table 
-   has been created in the left database **Assist** pane.
-   You should see your table displayed.
-#. Confirm that your table has data by entering the following query (replacing ``{your_user_name}`` again) and clicking **Execute** again.
-
-   .. code-block:: sql
-
-      select count(1) as count, licensename from flickr_{your_user_name}_table group by licensename sort by count;
-
-
-#. After the Hadoop job has completed, you should see results similar to the following:
-
-   .. image:: images/flickr_query_results.jpg
-      :height: 199 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Flickr Query Results
-      :align: left 
-
-#. Click the **Export Query Results** icon shown below, and then **Save** to save the results to HDFS.
-
-   .. image:: images/save_results_button.jpg
-      :height: 207 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Save Results Button
-      :align: left 
-
-#. In the **Save Query Results** dialog box, select the **File** type, and enter the 
-   path **/user/{your_user_name}/hue_tutorial/flickr_licenses.csv**,
-   and click **Save**.
-
-   .. image:: images/flickr_licenses_csv.jpg
-      :height: 185 px
-      :width: 478 px
-      :scale: 90%
-      :alt: Save Results as a CSV File
-      :align: left 
-
-
-#. Once the file has been saved, you will be shown the contents in the **File Browser**.
-   Notice on the left-hand side, you can modify the file by clicking **Edit file**.
-
-   .. image:: images/file_browser_view_file.jpg
-      :height: 404 px
-      :width: 709 px
-      :scale: 90%
-      :alt: Viewing File in File Browser
-      :align: left 
-
-.. tip::  The **Query Editor** provides a couple of ways to help you.
-          
-          - Mousing over the **Question Mark** icon on the 
-            top-right corner of the editing field tells you 
-            how to use autocomplete, run multiple statements,
-            or run a partial statement.
-          - You can also save a query by clicking **Save as...**, 
-            entering a name, and clicking **Save**. 
-          - Click **Explanation** to see the dependencies, the edges and
-            vertices of the Tez directed acyclic graph (DAG) as well as 
-            the operations for the maps and reducers.
-            
+#. Click **Submit**.
+#. Your task history will show that the table was successfully created. As the table is displayed to you in the table browser,
+you should see the columns definition, as well as sample data from the table.
 
 
 .. _hue_getting_started-view_metadata:
@@ -325,115 +209,19 @@ and click the **Tables** option under **Browsers** to open the **Table Browser**
 #. From the **Table Browser**, click the **Databases** link at the top.
 #. Scroll down and click the link for your database.
 #. Check the checkbox next to the table 
-   **flickr_{your_user_name}_table** and click **View**.
-
-   .. image:: images/metastore_view_data.jpg
-      :height: 229 px
-      :width: 840 px
-      :scale: 92%
-      :alt: Viewing Data in the Table Browser
-      :align: left 
-
+   **superbowl_tweets** and click **View**.
 #. You'll see the **Columns** tab showing  column names with the type. 
-
-   .. image:: images/metastore_cols.jpg
-      :height: 663 px
-      :width: 643 px
-      :scale: 92%
-      :alt: Table Browser Columns
-      :align: left 
- 
 #. Click the **Sample** tab to see example data from your table.
-
-   .. image:: images/sample_data.jpg
-      :height: 553 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Sample Data
-      :align: left 
-   
 #. To see properties of the table, such as the owner, when it was created, table type, etc., click **Details**.
-
-   .. image:: images/table_properties.jpg
-      :height: 738 px
-      :width: 830 px
-      :scale: 90%
-      :alt: Table Properties
-      :align: left 
-
 #. You can also view the file location for the database by clicking **Location** on the **Overview** tab.
 
 .. tip:: If you're not familiar with HiveQL, you can use
          the **Table Browser** to create or drop tables.
-         See the next optional section to learn how to 
-         create a table.
          
-
-(Optional) Creating a Database and Table With the Table Browser
--------------------------------------------------------------------
-
-We created our Hive database and table earlier through the 
-**Hive Query Editor**, but you can do the same thing through 
-the **Table Browser**. This is useful
-for those not as familiar with HQL or who want to import data 
-into Hive.
-
-Creating the Database
-~~~~~~~~~~~~~~~~~~~~~
-
-#. Click **Table Browser** in the top navigation bar.
-#. Click the **Databases** link.
-#. On the right side, click the **Create a new database** icon, which looks like a plus sign.
-#. Enter **sb2014_{your_user_name}** in the **Database Name** text field.
-#. Uncheck the **Default location** checkbox, specify a location for the database in HDFS 
-under your user directory, and click **Submit**.
-#. Your task history will show that the database was successfully created.
-#. To verify, return to the **Table Browser** and click **Databases**, and scroll down to see your database.
-
-Creating the Table
-~~~~~~~~~~~~~~~~~~
-
-#. From the **Databases** panel, find and then click the database you just created. Hint: It's
-   easier to find through the search text field.
-#. From the **ACTIONS** menu on the left-hand panel, click **Click a new table from a file**.
-#. In the **Name Your Table and Choose A File** panel, enter the table name **sb2014_{your_user_name}_tb**
-   in the **Table Name** text field and for the **Input File**, navigate to 
-   **/user/rbernota/HueTalk/superbowl2014/superbowl2014_tweets/20140202_045947_e97baf5d-42b8-4d91-8b61-017afdbd4b89.csv.gz**.
-#. With **Import data from file** checked, click **Next**.
-#. From the **Choose a Delimiter** panel, use the **Delimiter** drop-down menu to choose **Other**, enter
-   the vertical bar character **|**, and click **Preview**.
-
-   Your data in the **Table preview** should look more normalized, but the column names are obviously 
-   just autogenerated. We'll fix this soon.
-#. Click **Next**.
-#. In another tab, use the **File Browser** to navigate to ``/user/rbernota/HueTalk/superbowl2014/header.csv``.
-#. You should see the column names for our table:
-
-   - ``username``
-   - ``timestamp``
-   - ``tweet``
-   - ``retweetcount``
-   - ``on``
-   - ``at``
-   - ``country``
-   - ``name`` 
-   - ``address`` 
-   - ``type``
-   - ``placeURL``
-
-#. Going back to the **Table Browser**, in the 
-   **Define your columns**, enter the column names
-   listed in the previous step to replace the column 
-   names from **col_0** to **col_10**. 
-#. Click **Create Table**.
-#. You'll see the **Log** file until the results are available, at which time, you'll be taken
-   to the **Databases > sb2014_{your_user_name} > sb2014_{your_user_name}_tb** panel, where you
-   can view the columns (names and types), sample data, and table properties.
-
 
 .. _hue_getting_started-query_data:
 
-4. Querying Data With Hive and Pig
+4. Querying Data With Hive
 ==================================
 
 .. _query_data-hive:
@@ -441,171 +229,27 @@ Creating the Table
 Using Hive
 ----------
 
-We have our Flickr database and table, and if you used the **Table Browser**, you also
-have a database and table for tweets for Superbowl 2014. In this section,
-we're going to use the **Hive Query Editor** to execute queries on the
-Flickr table. We recommend that you try your own queries for the Superbowl table if
-you created one.
+In this section, we're going to use the **Hive Query Editor** to execute queries on the
+table you created.
 
 #. Go to the **Hive Query Editor**. (Click **Query->Editor->Hive**.)
-#. From the SQL **Assist** panel on the left-hand side, find your Flickr database.
+#. From the SQL **Assist** panel on the left-hand side, find your database.
    You should see the one table we created on the **Assist** panel.
-#. Click the **flickr_{your_user_name}_table** to see the available fields.
+#. Click the **superbowl_tweets** to see the available fields.
+#. Enter the following query to **Query Editor** window to see the tweet data:
 
-   .. image:: images/assist_panel.jpg
-      :height: 533 px
-      :width: 213 px
-      :scale: 90%
-      :alt: Table Fields
-      :align: left 
+   ``select username, tweettime, tweet from superbowl_{your_user_name}_database.superbowl_tweets;``
 
-#. Enter the following query to **Query Editor** window to see the location of different cameras:
-
-   ``select camera, longitude, latitude from flickr_{your_user_name}_table;``
-#. Click **Execute**. From the **Results** tab, you'll see the 
-   list of cameras and their location.
-#. Click the **Chart** to see a graphic representation of the results.
-
-   .. image:: images/basic_chart.jpg
-      :height: 245 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Basic Chart
-      :align: left 
-
-   The default **Chart type** is **Bars** with the **X-Axis** containing the
-   cameras, and the **Y-Axis** containing the longitude.
-#. Click the **Map** icon and select **latitude** from the **Latitude** drop-down menu,
-   **longitude** from the **Longitude** drop-down menu, and **camera** for the **Label**
-   drop-down menu.
-
-   .. image:: images/map_chart.jpg
-      :height: 358 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Map Chart
-      :align: left 
-
-   You should see a map with map markers. If you click on the map markers, you'll
-   see the camera used at the marked location.
-
-#. In the top-right corner of the bottom pane, you'll see four icons. Click the
-   the **disk** icon to save the results to HDFS. 
-
-   .. image:: images/save_csv.jpg
-      :height: 358 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Save CSV files.
-      :align: left 
-
-
-#. In the **Save Query Results** dialog, enter the path **/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv**
-   in the **File** text field and click **Save**. (We're going to use this file later
-   when we look at the **Pig Editor**.)
-#. Use the **File Browser** to verify the file has been saved.
-
-.. _using_pig:
-
-Using Pig
----------
-
-#. From the top-navigation bar, click  **Query-->Editor** and 
-   select **Pig**.
-
-   .. image:: images/start_pig.jpg
-      :height: 252 px
-      :width: 724 px
-      :scale: 92%
-      :alt: Starting Pig Editor
-      :align: left 
-
-
-#. In the **Pig Editor** window, enter the following code, replacing ``{your_user_name}`` with
-   your own user name.
-   
-   .. code-block:: pig
-  
-      -- Load the CSV you downloaded from the Query Editor.
-      
-      raw = LOAD '/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv' USING PigStorage(',') AS (camera:chararray, longitude:long, latitude:long);
-      data = FOREACH raw GENERATE camera, longitude, latitude;
-      has_camera = FILTER data  BY camera is not null;
-      has_long = FILTER has_camera BY longitude is not null;
-      has_lat = FILTER has_long BY latitude is not null;
-      
-      STORE has_lat into '/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');
-      
-#. Click **Save** in the top right-hand Pig Editor titlebar.
-
-   .. image:: images/editor_save.jpg
-      :height: 297 px
-      :width: 207 px
-      :scale: 100%
-      :alt: Pig Editor: Save
-      :align: left 
-
-#. In the **Save query** dialog, enter 
-   the text **Flickr Camera Location Script**
-   in the text field and click **Save**.
-
-   .. image:: images/save_pig_script.jpg
-      :height: 204 px
-      :width: 478 px
-      :scale: 95%
-      :alt: Saving Pig Script 
-      :align: left 
-
-#. To run a Pig script, you'll need to add some configuration. 
-   Click the **Settings and Properties** icon, just under the **Save** button.
-
-   .. image:: images/pig_properties.jpg
-      :height: 407 px
-      :width: 671 px
-      :scale: 92%
-      :alt: Pig Properties
-      :align: left 
-
-#. From **Hadoop properties**, click **+ Add**.
-#. Enter **oozie.action.sharelib.for.pig=pig_current**.
-
-   .. image:: images/pig_hadoop_properties.jpg
-      :height: 349 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Hadoop Properties for Pig 
-      :align: left 
-
-#. Click **Save**.
-#. Run your script by clicking the **Execute** icon on the left side. 
-   (It may take a few minutes to complete.)  The job log will appear
-   and an indicator of job progress will appear over the log.
-
-   .. image:: images/run_pig_button.jpg
-      :height: 199 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Run Pig Button
-      :align: left 
-
-
-   The script should save only rows that have a camera name, longitude, and latitude, 
-   and write results to the directory ``flickr_camera_location``. 
-#. After your script has finished running, use **File Browser** to view the results
-   in the HDFS path ``/user/{your_user_name}/hue_tutorial/flickr_camera_location_sanitized/``.
-
-
-.. tip:: The **Assist** sidebar on the right helps you write Pig scripts. You 
-         can click functions to add them to the editing field.
-
-         The **Saved Queries** tab lists your past scripts for your reference.
-
+#. Click **Execute**. From the **Results** tab, you'll see the tweet data.
+#. Click the **Chart** to see the options you have for graphic representation of the results.
+#. Click the **Export Results** icon to see the options you have for exporting the data to XLS, CSV, Clipboard, or HDFS.
+#. Try exporting your result data in the various formats.
 
 5. Saving Scripts to Files
 ==========================
 
 In this section, we're going to be creating a directory 
-and saving the HQL and Pig scripts to files, so that we
+and saving Hive scripts to files, so that we
 can automate everything we've done through actions
 and Oozie Workflows later.
 
@@ -630,120 +274,49 @@ and Oozie Workflows later.
       :alt: Creating the Hue Scripts Directory
       :align: left 	
 
-   We're creating a new directory to include scripts because our Oozie Workflow will be removing and recreating 
-   the directory **hue_tutorial**.
 #. Navigate to the new directory **hue_scripts** and click **New->File**.
-#. In the **Create File** dialog box, enter **del_db_tables.hql**.
-
-   .. image:: images/del_db_tables_file.jpg
-      :height: 180 px
-      :width: 480 px
-      :scale: 100%
-      :alt: Creating the Script to Delete Database Tables
-      :align: left 	
-
-   We're creating a script that deletes the Flickr database 
-   and tables. 
-#. Click **del_db_tables.hql**.
-#. Click **Edit file** to open an editing pane.
-
-   .. image:: images/edit_file.jpg
-      :height: 372 px
-      :width: 950 px
-      :scale: 90%
-      :alt: Edit the File
-      :align: left 	
-   
-#. Enter the following text in the editing field and click **Save**. (Be sure to replace ``{your_user_name}`` with your user name.)
-
-   .. code-block:: sql
-
-      drop table if exists flickr_{your_user_name}_db.flickr_{your_user_name}_table;
-      drop table if exists flickr_{your_user_name}_db.flickr_camera_location;
-      drop database flickr_{your_user_name}_db;
- 
-
-#. In the same directory, create the file **create_db_tables.hql** 
-   to create the database and tables for the Flickr data with 
+#. Create the file **create_db_tables.hql** 
    the following code:
 
    .. code-block:: sql
 
-       create database flickr_{your_user_name}_db  comment 'Flickr Creative Commons 100M data dump' location '/user/{your_user_name}/hue_tutorial/';
-       use flickr_{your_user_name}_db; 
+      create database superbowl_{your_user_name}_script_db location '/user/{your_user_name}/superbowl_scripts_database';
+      use superbowl_{your_user_name}_script_db;
 
-       create external table flickr_{your_user_name}_table (
-         photoid bigint, 
-         usernsid string, 
-         userhandle string, 
-         date_taken string, 
-         date_imported bigint,
-         camera string, 
-         name string, 
-         description string, 
-         tags string, 
-         machinetags string,
-         longitude double, 
-         latitude double, 
-         accuracy int,
-         photopage string, 
-         photopixels string, 
-         licensename string, 
-         licenseurl string, 
-         server int, 
-         farm int, 
-         secret string, 
-         secreto string, 
-         extension string,
-         isvideo int
-       )
-       row format delimited
-       fields terminated by '\t'
-       lines terminated by '\n'
-       location '/user/{your_user_name}/hue_tutorial/';
+      create external table superbowl_tweets (
+        username string,
+        tweettime timestamp,
+        tweet string,
+        retweetcount bigint,
+        ondbl double,
+        atdbl double,
+        country string,
+        name string,
+        address string,
+        type string,
+        placeURL string
+      )
+      row format delimited
+      fields terminated by '|'
+      lines terminated by '\n';
+
+      load data inpath 'hdfs:/user/{your_user_name}/hue_tutorial/superbowl2014/superbowl2014_tweets/20140202_063803_f34a1395-862a-410a-b663-c8be258349a9.csv.gz' into table superbowl_tweets;
  
    Once again, be sure to replace ``{your_user_name}`` with your
    user name.
 
-#. Create another file **camera_location_query.hql** with the following: 
+#. Create another file **tweets_query.hql** with the following: 
    
    .. code-block:: sql
 
-      use flickr_{your_user_name}_db;
+      use superbowl_{your_user_name}_script_db;
       SET hive.exec.compress.output=false;
 
-      CREATE TABLE flickr_camera_location row format delimited fields terminated by ','  
-      STORED AS TEXTFILE AS select camera, longitude, latitude from flickr_{your_user_name}_table;
+      CREATE TABLE superbowl_script_tweets row format delimited fields terminated by ","
+      STORED AS TEXTFILE AS select username, tweet from superbowl_tweets;
 
-   This will create a smaller table with only three columns from 
-   our original Flickr table.
-
-#. To merge all of the CSV data into one file, in the same directory, create the file
-   **create_camera_location_csv.sh** with the following:
-
-   .. code-block:: bash
-
-      #!/bin/bash
-
-      hdfs dfs -cat /user/{your_user_name}/hue_tutorial/flickr_camera_location/\* | hdfs dfs -put - /user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv
-
-#. Finally, we want to create the Pig script **remove_null_locations.pig** in the **hue_scripts** directory with the
-   code below:
-
-   .. code-block:: pig
-
-      -- Load the CSV you downloaded from the Query Editor.
-      
-      raw = LOAD '/user/{your_user_name}/hue_tutorial/flickr_camera_locations.csv' USING PigStorage(',') AS (camera:chararray, longitude:long, latitude:long);
-      data = FOREACH raw GENERATE camera, longitude, latitude;
-      has_camera = FILTER data  BY camera is not null;
-      has_long = FILTER has_camera BY longitude is not null;
-      has_lat = FILTER has_long BY latitude is not null;
-      
-      STORE has_lat into '/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized' USING PigStorage(',');
-      
-   This is the Pig script we used before: it removes rows that 
-   do not have a value for the camera, longitude, or latitude.  
+   This will create a smaller table stored as text, with fewer columns from 
+   our original tweets table.
 
 #. Great, we have our scripts. We're still going to need to 
    do a few more things for our Oozie Workflow,
@@ -785,61 +358,17 @@ what we've done thus far.
       :alt: Name the Workflow for the Hue Tutorial
       :align: left
 
-#. From the **ACTIONS** panel, drag the **HDFS Fs** icon to the **Drop your action here** section. (We're
-   going to use an HDFS command to do some setting up.)
-
-   .. image:: images/drop_hdfs_fs_action.jpg
-      :height: 428 px
-      :width: 583 px
-      :scale: 100%
-      :alt: Create Fs Action 
-      :align: left 	
-
-#. In the dialog box that opens, click **Add**.
-#. Specify the paths to delete and create by doing the following:
-  
-   #. Click the dialog title **HDFS Fs** to open a text box. Enter the string **hue_tutorial_refresh** and click the **√** symbol.
-   #. Click **DELETE PATH** and enter the path **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
-   #. To recreate the directory for the latest results, click **CREATE DIRECTORY** and enter the directory 
-      **/user/{your_user_name}/hue_tutorial/** in the adjacent text field.
-
-      .. image:: images/hdfs_fs_action-add_dirs.jpg
-         :height: 586 px
-         :width: 950 px
-         :scale: 90%
-         :alt: Specifying Delete and Create Directories.
-         :align: left 	
-
-   We're deleting and recreating the path for our results. 
-
-#. In the **Move File Or Directory** field: 
- 
-   #. In the **Source** text field, enter **/user/rbernota/HueTalk/Flickr100cc/flickr100m_dataset.bz2**.
-   #. In the **Destination** text field, enter **/user/{your_user_name}/hue_tutorial/**.
-
-      .. image:: images/copy_flickr_data.jpg
-         :height: 179px
-         :width: 451 px
-         :scale: 100%
-         :alt: Create DistCp action.
-         :align: left 	
-
-   For the rest of the steps in this section, we'll be omitting screenshots unless the interface changes for a step.
-   We feel you have figured out the basic mechanics of creating actions.
-
-#. Drag the **Hive Script** object to the gray dotted box below **copy_flickr_data**.
+#. Drag the **Hive Script** object to the gray dotted box.
 #. In the dialog, do the following: 
 
-   #. Click the dialog title **Hive Script** to open a text box. Enter the text **del_db_tables** and click the **√** symbol.
-   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/del_db_tables.hql**.
+   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/create_db_tables.hql**.
    #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
    #. Click **Add**.
 
    .. note:: To run Hive queries in Oozie, you need to provide a ``hive-site.xml``. 
-             If you're not working on the Tiberium Tan Hue instance, you'll have to copy the file from 
-             https://tiberiumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/view/user/rbernota/HueTalk/hive-site.xml
-             to your home directory and enter the path **/user/{your_user_name}/hive-site.xml**.
+             If you're not working on the Tiberium Tan Hue instance, you'll have to copy the file from a cluster gateway node to your home directory, and reference it there.
 
+#. Click the gear icon in the dialog to open the Hive Script settings.
 #. Click **PROPERTIES** to open two text fields.
 #. In the two text fields, enter the value **hive.querylog.location** in the left-hand text field (name) and
    the value **hivelogs** in the right-hand text field (value).
@@ -851,98 +380,18 @@ what we've done thus far.
       :alt: Hive Logs Property
       :align: left 
 
+#. Open another **PROPERTIES** key-value pair by clicking the plus sign again, and add the property **oozie.action.sharelib.for.hive** and the value **hcat_current,hive_current**.
+
 #. Create another **Hive** action for your Oozie Workflow:
 
-   #. Use the name **create_db_tables** for the Hive action.
-   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/create_db_tables.hql**. 
+   #. In the **Script** text box, enter the path **/user/{your_user_name}/hue_scripts/tweets_query.hql**. 
    #. In the **Hive XML** text box, enter the path **/user/rbernota/HueTalk/hive-site.xml**.
    #. Click the **Properties** icon and then **PROPERTIES**. In the two text boxes, 
       enter **hive.querylog.location** for and **hivelogs** for the name and value.
+   #. Open another **PROPERTIES** key-value pair by clicking the plus sign again, and add the property **oozie.action.sharelib.for.hive** and the value **hcat_current,hive_current**.
 
-#. We still need to create the Hive table with just the camera 
-   and location data, so create the last Hive action with the 
-   script **/user/{your_user_name}/hue_scripts/camera_location_query.hql**. 
-   Use the name **camera_location_query** for the Hive action.
-
-   .. important:: Remember to add **hive.querylog.location** and **hivelogs** as job properties as well as
-                  to enter **/user/rbernota/HueTalk/hive-site.xml** in the **Hive XML** field.
-
-
-#. To create a **Shell** task that creates a CSV file from the Hive table the last
-   task creates, from the **ACTIONS** panel, drag the **Shell** icon to the next empty dotted box under the **camera_location_query** action. 
-
-#. In the dialog, do the following:
-
-   #. Click the **Shell** link and enter the title **create_camera_location_csv**.
-   #. For the **Shell command** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
-   #. Click **Add**.
- 
-      .. image:: images/create_shell_action.jpg
-         :height: 139 px
-         :width: 449 px
-         :scale: 98%
-         :alt: Creating a Shell Script Action
-         :align: left   
-#. From the **Shell** action you just created, click |files| to open a text field. 
-#. In the **FILES +** text field, enter **/user/{your_user_name}/hue_scripts/create_camera_location_csv.sh**.
-#. From the **hue_tutorial_workflow** pane, drag the **Pig** object to the next gray empty dotted box.
-#. Create the Pig action by doing the following:
-
-   #. In the dialog box, click the link **Pig Script** and enter **remove_null_camera_locations** as the 
-      name of the Pig action.
-   #. Enter the path **/user/{your_user_name}/hue_scripts/remove_null_locations.pig** 
-      in the **Script** text field.
-   #. Click **Add**.
-
-      .. image:: images/create_pig_action.jpg
-         :height: 138 px
-         :width: 449 px
-         :scale: 98%
-         :alt: Creating a Pig Action
-
-#. From the **remove_null_camera_locations** Pig action, click the **Properties** icon to
-   open the **Properties** tab.
-
-#. In the **Properties** tab, click **PROPERTIES** and enter 
-   **oozie.action.sharelib.for.pig** in the name text field and 
-   **pig_current** in the value text field.
-
-   .. image:: images/set_pig_properties.jpg
-      :height: 379 px
-      :width: 567 px
-      :scale: 96%
-      :alt: Setting Properties for Pig Action
-
-
-   .. note:: Notice that we don't specify **hcat_current** because Pig
-             is accessing a CSV file, not a Hive table, which would
-             require access to HCatalog. The Job XML
-             ``hive-site.xml`` file is as you might have guessed: 
-             only needed for Hive.
-
-#. Click **Save**.
-#. Finally, we want the job to notify us when we're done. So, go ahead and create an **Email** action
-   by dragging the **Email** icon to the gray empty dotted box under the **remove_null_camera_locations** action. 
-#. In the dialog box, do the following:
-
-   #. Click the **Email** link and enter the text **hue_tutorial_notification** in the text field, and click **√**. 
-   #. In the **To addresses** text field, enter your email address.
-   #. In the **Subject** text field, enter **Hue Tutorial's Oozie Workflow Has Completed**.
-   #. In the **Body** text area, enter the following::
-
-          See the sanitized CSV file with the Flickr camera locations at the
-          following URL (replace {your_user_name} with your own):
-          https://tiberiumtan-hue.tan.ygrid.yahoo.com:9999/filebrowser/#/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized
-
-   #. Click **Add**.
-
-      .. image:: images/email_action.jpg
-         :height: 225 px
-         :width: 450 px
-         :scale: 100%
-         :alt: Creating an Email Action
-
-#. Click **Save**.
+#. At this point, you may add any of the other Oozie workflow actions to your Oozie workflow.
+#. Save the Oozie workflow.
 #. From the right-hand side of the **Scheduler** navigation bar, click |arrowhead| to submit your Oozie job.
 #. While your Oozie Workflow is running, let's move to the next section to learn about the
    **Job Browser**. 
@@ -1073,11 +522,6 @@ by a user or key term, also look at the cluster and ResourceManager logs.
       :align: left 
 
 #. Congratulations if your Oozie Workflow successfully completed. 
-   Use the **File Browser** to navigate to 
-   ``/user/{your_user_name}/hue_tutorial/flickr_camera_locations_sanitized``
-   to see your sanitized Flickr data in CSV.  If one of your jobs failed, see 
-   :ref:`Troubleshooting <gs-troubleshooting>`. 
-
 
 .. note:: Once you are done with the tutorial and 
           experimenting with the data,
