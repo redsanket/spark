@@ -86,6 +86,6 @@ library(SparkR)
 
 How to use Sparkmagics R kernel on Jupyter
 ------------------------------------------
-Jupyter has a R kernel available which enables users to have a shell based interaction framework similar to pyspark kernels. The following demo gives us an introduction to the libraries available with R-3.4.3 and interact with R on spark via Jupyter.
+Jupyter has a R kernel available which enables users to have a shell based interaction framework similar to pyspark kernels. The demo_ gives us an introduction to the libraries available with R-3.4.3 and interact with R on spark via Jupyter.
 
-https://kesselgq-jupyter.gq.vcg.yahoo.com:9999/nb/notebooks/projects/jupyter/demo/samples/sparkmagic/Jupyter_Demo_3.1_SparkR.ipynb
+.. _demo: https://kesselgq-jupyter.gq.vcg.yahoo.com:9999/nb/notebooks/projects/jupyter/demo/samples/sparkmagic/Jupyter_Demo_3.1_SparkR.ipynb
