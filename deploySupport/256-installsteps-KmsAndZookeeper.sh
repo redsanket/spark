@@ -291,7 +291,7 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
     # and only thing on branches is 3.4.13... something
     # gridci-4245 use current vers of ykeykeyd to fix ykeykey wedging
-    cmd_zk="yinst i zookeeper_server-3.5.4.y.2 zookeeper_core-3.4.13.y.2  ykeykeyd-2.22.12 -br test  -same -live -downgrade -set zookeeper_server.clientPort=50512 \
+    cmd_zk="yinst i zookeeper_server-3.5.4.y.2 zookeeper_core-3.4.13.y.2  -br test  -same -live -downgrade -set zookeeper_server.clientPort=50512 \
      -set zookeeper_server.kerberos=true -set zookeeper_server.jvm_args=\" \\
      -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf \\
      -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
@@ -398,10 +398,13 @@ if [ $RC -ne 0 ]; then
     exit 1
 fi
 
+echo "INFO: waiting 60 seconds for ZK start to stabilize..."
+sleep 60
+
 # gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
 # flakyness consistently now
-sleep 15
-$SSH $kmsnode "yinst restart yahoo_kms"
+echo "INFO: restarting yahoo_kms..."
+$SSH $kmsnode "yinst restart daemontools_y; yinst restart yahoo_kms"
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -415,10 +418,9 @@ fi
 # zk server with port bind error
 # TODO: make this a poll and metric any increase in delay needed, used to
 # 10 secs was good enough now need 30 secs
-echo "Waiting 15 seconds for KMS and ZK services to startup...."
-sleep 15
+echo "Waiting 60 seconds for KMS and ZK services to startup...."
+sleep 60
 
-#
 # see if we can get info on the 'hitusr_4' key, if so it means KMS and ZK are both up
 # and talking ok
 #
@@ -433,7 +435,7 @@ set -x
 CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
 curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
 set +x
-if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]] && [[ ! "$CURL_KEY" =~ "hitusr_4 in ykeykey store" ]]; then
+if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]]; then
     echo "Failed to get key info, KMS or ZK service may not be running!"
     exit 1
 fi
