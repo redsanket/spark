@@ -11,17 +11,16 @@ Oath/VCG Grid Install
 ---------------------
 
 For Oath/VCG we automatically handle shipping R for you for both current (yspark_yarn-2.3.x) and latest (yspark_yarn-2.4.x).
-Current R version supported is R-3.4.3 for rhel7 docker container and the way to set the docker container is by specifying --conf spark.oath.dockerImage=hadoop/rhel7:current during launch on your respective gateways.
+Current R version supported is R-3.4.3 for rhel7 docker container and the way to set the docker container is by specifying `--conf spark.oath.dockerImage=hadoop/rhel7:current` during launch on your respective gateways.
 
-.. code-block:: console
+Getting started on ygrid/VCG and available gateways: https://git.ouroath.com/pages/developer/Bdml-guide/
 
-  Getting started on VCG and available gateways:
-  https://git.ouroath.com/pages/developer/Bdml-guide/
-  Research/Sandbox: kessel-gw.gq.vcg.yahoo.com
-  Production: polaris-gw.gq.vcg.yahoo.com
+VCG gateways:
+  * Research/Sandbox: kessel-gw.gq.vcg.yahoo.com
+  * Production: polaris-gw.gq.vcg.yahoo.com
 
-  Getting started on Oath Grid and know more about available clusters and gateways:
-  https://yahoo.jiveon.com/community/science-technology/hadoop-and-big-data-platform
+Getting started on Oath Grid and know more about available clusters and gateways: https://yahoo.jiveon.com/community/science-technology/hadoop-and-big-data-platform
+
 
 .. _r_examples:
 
@@ -36,12 +35,10 @@ Spark R cluster mode
 --------------------
 The following script enables you to launch R on Spark in cluster mode and enables you to work with R-3.4.3.
 
+R script is available here: https://github.com/apache/spark/blob/master/examples/src/main/r/data-manipulation.R
+  
+For example:  
 .. code-block:: console
-
-  R script is available here
-  https://github.com/apache/spark/blob/master/examples/src/main/r/data-manipulation.R
-
-  For example:
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/datamanipulation.R flights.csv
 
 
@@ -51,20 +48,18 @@ Spark R client mode
 -------------------
 The R on spark client mode is an interative repl framework. On VCG/Oath gateway we use the following script to launch to work with R version R-3.4.3.
 
+Interactive/Client Mode:
 .. code-block:: console
-
-  Interactive/Client Mode:
   $SPARK_HOME/bin/sparkR  --master yarn --deploy-mode client  --conf spark.oath.dockerImage=hadoop/rhel7:current
 
 .. _r_hive:
 
 Spark R with Hive
 -----------------
-R on spark can talk to hive and by default hive support is enabled. Make sure to initialize your spark session with hive enabled: sparkR.session(appName = "test", enableHiveSupport = TRUE)
+R on spark can talk to hive and by default hive support is enabled. Make sure to initialize your spark session with hive enabled: `sparkR.session(appName = "test", enableHiveSupport = TRUE)`.
 
+Examples:
 .. code-block:: console
-
-  Examples:
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/test.R
 
 .. _r_parquet:
