@@ -37,8 +37,10 @@ The following script enables you to launch R on Spark in cluster mode and enable
 
 R script is available here: https://github.com/apache/spark/blob/master/examples/src/main/r/data-manipulation.R
   
-For example:  
+For example:
+
 .. code-block:: console
+
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/datamanipulation.R flights.csv
 
 
@@ -49,7 +51,9 @@ Spark R client mode
 The R on spark client mode is an interative repl framework. On VCG/Oath gateway we use the following script to launch to work with R version R-3.4.3.
 
 Interactive/Client Mode:
+
 .. code-block:: console
+
   $SPARK_HOME/bin/sparkR  --master yarn --deploy-mode client  --conf spark.oath.dockerImage=hadoop/rhel7:current
 
 .. _r_hive:
@@ -59,7 +63,9 @@ Spark R with Hive
 R on spark can talk to hive and by default hive support is enabled. Make sure to initialize your spark session with hive enabled: `sparkR.session(appName = "test", enableHiveSupport = TRUE)`.
 
 Examples:
+
 .. code-block:: console
+
   $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/test.R
 
 .. _r_parquet:
