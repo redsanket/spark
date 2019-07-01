@@ -12,7 +12,7 @@ Releases
 
 Release Information:
 
-Note that spark 2.3 is latest and spark 2.2 is the current version.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
+Note that Spark 2.3 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
 
 .. _soy_start:
 
@@ -136,8 +136,8 @@ You should find the latest versions for your grid and then install it like
 ::
 
     yinst i yspark_yarn_install -br current \
-    -set yspark_yarn_install.CURRENT=yspark_yarn-2.2.1.45 \
-    -set yspark_yarn_install.LATEST=yspark_yarn-2.3.0.60
+    -set yspark_yarn_install.CURRENT=yspark_yarn-2.3.2.28 \
+    -set yspark_yarn_install.LATEST=yspark_yarn-2.4.1.15
 
 This will create ``/home/gs/spark`` and ``/home/gs/conf/spark`` symlinks.
 
@@ -161,7 +161,7 @@ Note the normal spark configs should work on YARN. Please see the Spark document
 
 .. _soy_configs_hadoop:
 
-Specify hadoop configs in spark job
+Specify Hadoop Configs in Spark Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can specify hadoop configs via spark confs by prefixing it with ``spark.hadoop.``
@@ -173,10 +173,10 @@ For example to turn on success file for the mapred file output committer, specif
 
 .. _soy_remotegridaccess:
 
-Access data on remote grids
+Access Data on Remote Grids
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are accessing data note on the grid you are running on you have to specify the remote grids in ``spark.yarn.access.namenodes`` for Spark 2.1, for Spark 2.2 and 2.3 use ``spark.yarn.access.hadoopFileSystems``. This includes accessing both through hdfs and webhdfs.
+If you are accessing data note on the grid you are running on you have to specify the remote grids in ``spark.yarn.access.hadoopFileSystems``. This includes accessing both through hdfs and webhdfs.
 
 For example if I'm running on AR and want to access data on KR
 
@@ -184,13 +184,13 @@ For example if I'm running on AR and want to access data on KR
 
     $SPARK_HOME/bin/spark-shell  --executor-cores 1  --master yarn --deploy-mode client 
     --executor-memory 2g --queue default --num-executors 6  
-    --conf spark.yarn.access.namenodes=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
+    --conf spark.yarn.access.hadoopFileSystems=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
 
 Conf for accessing webhdfs on JB
 
 ::
 
-    --conf spark.yarn.access.namenodes=webhdfs://jetblue-nn1.blue.ygrid.yahoo.com:50070
+    --conf spark.yarn.access.hadoopFileSystems=webhdfs://jetblue-nn1.blue.ygrid.yahoo.com:50070
 
 For full usage information see the spark docs for your version of Spark, the latest are here: https://spark.apache.org/docs/latest/running-on-yarn.html
 
@@ -201,7 +201,7 @@ Spark Run Modes
 
 .. _soy_modes_yarn_cluster:
 
-YARN cluster mode
+YARN Cluster Mode
 ~~~~~~~~~~~~~~~~~
 The yarn cluster mode is a batch mode where the entire application runs on the grid. The SparkContext runs in the ApplicationMaster. The client is just a thin client that polls the RM for status on the application. The client can go away and the application still runs.
 
@@ -214,7 +214,7 @@ Please run ``spark-submit --help`` to see the command line options.
 
 .. _soy_modes_yarn_client:
 
-YARN client mode (spark-shell, pyspark, sparkR and spark-sql support)
+YARN Client Mode (spark-shell, pyspark, sparkR and spark-sql support)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the yarn client mode the client is a fat client. Instead of the SparkContext running on the grid in the application master, the SparkContext runs on your gateway or launcher box. Note that this can cause more load on your gateway and if you gateway goes down your application dies. This mode allows you to run the spark-shell, and other repls.
 
@@ -257,7 +257,7 @@ Accessing Services (Hive/HBASE/etc)
 
 .. _soy_addon_svc_hive:
 
-Spark Sql accessing Hive (spark 1.3.1 and greater)
+Spark Sql Accessing Hive (Spark 1.3.1 and Greater)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Spark Sql can now access our Hive installations in either client or cluster mode. You can use most regular hive command for both reading and creating tables. See the Apache Spark docs for specifics on what might not be supported: http://spark.apache.org/docs/latest/sql-programming-guide.html#supported-hive-features
 
@@ -269,7 +269,7 @@ Note if you are using subdirectories in your hive partitions then you will have 
 
 .. _soy_addon_svc_hive_client_mode:
 
-For client mode
+For Client Mode
 ++++++++++++++++
 
 For example to run via spark shell:
@@ -283,7 +283,7 @@ For example to run via spark shell:
 
 .. _soy_addon_svc_hive_cluster_mode:
 
-For cluster mode
+For Cluster Mode
 ++++++++++++++++
 
 Spark 2.x
@@ -342,30 +342,32 @@ Example python sql script accessing hive:
 
 .. _soy_addon_svc_known_issues:
 
-Known Issues with Spark Sql accessing hive
+Known Issues with Spark Sql Accessing Hive
 ++++++++++++++++++++++++++++++++++++++++++
 
-- Before spark 2.2 dataframe creates of tables can be a problem.  Meaning there are sometimes issues reading it from hive.  If you are planning on reading/writing from both Spark and Hive you should use the sql interface to create and alter tables.  Spark 2.2 supports integration with the dataframe api.  See https://issues.apache.org/jira/browse/SPARK-19150.
+Note that Spark 2.3 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
 
-- Alter table only supported starting in spark 2.2, see: https://issues.apache.org/jira/browse/SPARK-19261
+- Before Spark 2.2 dataframe creates of tables can be a problem, meaning there are sometimes issues reading it from hive.  If you are planning on reading/writing from both Spark and Hive, you should use the sql interface to create and alter tables.  Spark 2.2+ supports integration with the dataframe api.  See https://issues.apache.org/jira/browse/SPARK-19150.
 
-- cache the metadata ``sqlContext.table("tableName").registerTempTable(...)`` which caches the list of partitions in memory on the driver. The initial pull is expensive but it is much faster after that.
+- Alter table only supported starting in Spark 2.2, see: https://issues.apache.org/jira/browse/SPARK-19261
+
+- Cache the metadata ``sqlContext.table("tableName").registerTempTable(...)`` which caches the list of partitions in memory on the driver. The initial pull is expensive but it is much faster after that.
 
 .. _soy_addon_svc_hive_hcatalog:
 
-Accessing hive through HCatalog
+Accessing Hive Through HCatalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _soy_addon_svc_hive_hcatalog_2.2+:
 
-From spark 2.2.x and greater
+From Spark 2.2 and Greater
 ++++++++++++++++++++++++++++
 
 Here we give an example to access hive from spark-shell using hcatalog for yspark_yarn version 2.2.x and greater
 
 .. code-block:: console
 
-    /homes/%USERNAME%/testroot/share/spark/bin/spark-shell --master yarn --deploy-mode client --conf spark.ui.port=4044--conf spark.driver.extraClassPath="/home/y/libexec/hive/lib/hcatalog-support.jar:/home/y/libexec/hive/lib/hive-hcatalog-core.jar:$(ls /home/y/libexec/hive/lib/guava-*.jar):$(ls ${HADOOP_PREFIX}/share/hadoop/common/hadoop-gpl-compression.jar):$(ls ${HADOOP_PREFIX}/share/hadoop/hdfs/lib/YahooDNSToSwitchMapping-*.jar)" --jars /home/y/libexec/hive/lib/hcatalog-support.jar,/home/y/libexec/hive/lib/hive-hcatalog-core.jar,$(ls /home/y/libexec/hive/lib/guava-*.jar)
+    $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client
 
 .. _soy_addon_svc_hive_example:
 
@@ -389,43 +391,14 @@ Example
 .. _soy_addon_svc_hbase:
 
 
-Spark accessing HBase table
+Spark Accessing HBase Table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Firstly, make sure you have permissions to certain HBase clusters. If not, you can go to https://supportshop.cloud.corp.yahoo.com:4443/doppler/hbase/ to request for the permission. For example, now you have permission to the "spark_test" namespace of the HBase on relux-red cluster. 
-
-.. _soy_addon_svc_hbase_spark_2.1:
-
-HBase access from Spark 1.4 to 2.1
-++++++++++++++++++++++++++++++++++
-
-In order to access hbase you currently have to setup the classpath on the gateway to pick up the jars and hbase-site.xml and then you also need to ship those with your application.
-
-Then, prepare the package and classpath (make sure that your hbase-core and guava have correct version number). Use the hbase client that matches the hbase cluster you are accessing. You are going to add the classpath to sparks class path below
-
-.. code-block:: console
-
-    $SPARK_CONF_DIR:/home/gs/hbase/current/lib/hbase-protocol.jar:/home/gs/hbase/current/lib/hbase-common.jar:/home/gs/hbase/current/lib/hbase-client.jar:/home/gs/hbase/current/lib/htrace-core-2.04.jar:/home/gs/hbase/current/lib/hbase-server.jar:/home/gs/hbase/current/lib/guava-12.0.1.jar:/home/gs/conf/hbase/
-
-Make a copy of the Spark confs and add classpath. Make sure to have a log4j.properties file in the spark conf dir otherwise the hbase one will be loaded and errors will happen:
-
-.. code-block:: console
-
-    mkdir ~/sparkconf
-    cp $SPARK_CONF_DIR/* ~/sparkconf/
-    # Edit ~sparkconf/spark-env.sh and add the above path to the end of the SPARK_CLASSPATH
-    export SPARK_CONF_DIR=~/sparkconf
-
-Launch the spark shell, update the namenode to be the Hbase cluster namenode you are accessing
-
-.. code-block:: console
-
-    $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client --conf spark.ui.port=4044 \
-    --jars /home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-2.04.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar,/home/gs/conf/hbase/hbase-site.xml
+Firstly, make sure you have permissions to the desired HBase clusters. If not, you can go to http://yo/doppler-hbase to request permission. For example, now you have permission to the "spark_test" namespace of the HBase on relux-red cluster. 
 
 .. _soy_addon_svc_hbase_spark_2.2+:
 
-HBase access from Spark 2.2 and greater
+HBase Access From Spark 2.2 and Greater
 +++++++++++++++++++++++++++++++++++++++
 
 The gateways generally have hbase installed on them.  See ``/home/gs/conf/hbase/`` and ``/home/gs/hbase/current``
@@ -449,7 +422,7 @@ For cluster mode you also have to send the $SPARK_CONF_DIR/hbase-site.xml file
 
 .. _soy_addon_svc_hbase_example:
 
-Spark examples accessing HBase
+Spark Examples Accessing HBase
 ++++++++++++++++++++++++++++++
 
 After that, you can try to access your HBase table from Spark shell.
@@ -520,19 +493,19 @@ More examples and information on this in the hbase documentation at: http://hbas
 
 .. _soy_readdata:
 
-Reading data (ORC files, avro, etc)
+Reading Data (ORC files, avro, etc)
 -----------------------------------
 
 .. _soy_avro:
 
-Reading Avro data from Spark
+Reading Avro Data from Spark
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Databricks has created a spark-avro library for easily reading avro data in Spark.
 
 .. _soy_avro_till2.2:
 
-Spark version >= 2.2
+Spark Version >= 2.2
 ++++++++++++++++++++
 
 Starting with Spark 2.2 we are including the spark-avro jar with the yspark distribution.  So all you have to do is reference it from the code.
@@ -557,7 +530,7 @@ Example
 
 .. soy_hive_orc:
 
-Spark Sql accessing Hive ORC file (spark 1.4+)
+Spark Sql Accessing Hive ORC Files (Spark 1.4+)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here we show a simple example on how to save/load Hive ORC files in Spark. You can also see more information by refering to (https://hortonworks.com/blog/bringing-orc-support-into-apache-spark/)
@@ -628,7 +601,7 @@ Spark-sql
 
 .. _soy_pyspark:
 
-PySpark usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
+PySpark Usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
 --------------------------------------------------------------------
 Please note that if you are using python with Spark, the python process uses off heap memory.  The way to configure
 off heap memory on Spark is with the overhead configurations ``spark.driver.memoryOverhead`` and ``spark.executor.memoryOverhead``.  Please see the configuration docs on specifics about those.
@@ -648,19 +621,19 @@ Spark streaming can be run on Yarn but there are a few things to keep in mind si
 
 .. _soy_jupyter:
 
-Spark on Jupyter hosted
+Spark on Hosted Jupyter
 -----------------------
 Start at: yo/jupyter
 
 .. _soy_python_jupyter:
 
-Python packages with HUE/Jupyter
+Python Packages With HUE/Jupyter
 --------------------------------
   - `Hue - add python packages` :ref:`swp_packages`
 
 .. _soy_hue:
 
-Spark access from Hue
+Spark Access From Hue
 ---------------------
 
 Yahoo production grids currently are on spark 2.2.
@@ -682,21 +655,21 @@ If you are using pyspark you by default get python 2.7 with numpy and pandas. If
 
 .. _soy_sparkconfs_hue:
 
-Setting Spark configs in Hue
+Setting Spark Configs in Hue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can click on the "Context" button on the upper right corner and select any standard property that you want to set out of the default ones. If you want to set a specific spark config, select "Spark Conf" from the drop down and then add the name of the config in Key and its corresponding value. You can add multiple of these.  once you are done hit the "Recreate" button to start a new session with the configs applied.
 
 .. _soy_hue_files:
 
-Sending files through Hue
+Sending Files Through Hue
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can pass files to be stored in the working directory of each executor. These files have to be stored in hdfs. Click on the "Context" button and select the type of file you want to send - i.e. Files/PyFiles/Jars/Archives and click on the file browser(...) to point to your file on hdfs. Once you are done hit the "Recreate" button to start a new session.
 
 .. _soy_hue_hive:
 
-Accessing hive through Hue
+Accessing Hive Through Hue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For hue with Spark 2.x, everything should just work.
@@ -736,7 +709,7 @@ For hue with Spark 1.6 the following steps are required:
 
 .. _soy_hue_avro:
 
-Accessing avro through Hue
+Accessing Avro Through Hue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Spark version < 2.2:
@@ -764,7 +737,7 @@ See more information:
 
 .. _soy_sparkstarter:
 
-Creating your own application jar/Spark starter repo
+Creating Your Own Application jar/Spark Starter Repo
 ----------------------------------------------------
 
 If you are starting out writing a spark application and don't yet have a build environment setup, there is an example starter repo here: https://git.corp.yahoo.com/hadoop/spark-starter/tree/branch-2.0
@@ -828,7 +801,7 @@ SparkHdfsLR Example using HDFS
 
 .. _soy_examples_wordcount:
 
-JavaWordCount example
+JavaWordCount Example
 ~~~~~~~~~~~~~~~~~~~~~
 
 - kinit on the cluster: ``kinit %USERNAME%@Y.CORP.YAHOO.COM``
@@ -854,7 +827,7 @@ JavaWordCount example
 
 .. _soy_conf:
 
-Custom configs
+Custom Configs
 --------------
 
 .. _soy_conf_setup:
@@ -899,7 +872,7 @@ See `YahooZip user guide <http://twiki.corp.yahoo.com/view/SDSMain/YahooZipUserG
 
 .. _soy_debugging:
 
-Debugging information
+Debugging Information
 ---------------------
 - `SparkDebugging` :ref:`dbg`
 
@@ -917,7 +890,6 @@ FAQ
   - Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine. A Dataset can be constructed from JVM objects and then manipulated using functional transformations (map, flatMap, filter, etc.). The Dataset API is available in Scala and Java. Python does not have the support for the Dataset API. But due to Python’s dynamic nature, many of the benefits of the Dataset API are already available (i.e. you can access the field of a row by name naturally row.columnName). The case for R is similar.
   - A DataFrame is a Dataset organized into named columns. It is conceptually equivalent to a table in a relational database or a data frame in R/Python, but with richer optimizations under the hood. DataFrames can be constructed from a wide array of sources such as: structured data files, tables in Hive, external databases, or existing RDDs. The DataFrame API is available in Scala, Java, Python, and R. In Scala and Java, a DataFrame is represented by a Dataset of Rows. In the Scala API, DataFrame is simply a type alias of Dataset[Row]. While, in Java API, users need to use Dataset<Row> to represent a DataFrame.
   - See also: https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html, and https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes.
-
 
 .. _soy_local_mode:
 
@@ -940,14 +912,14 @@ Spark Jira
 
 .. _soy_mailing_list:
 
-Spark Users mailing list
+Spark Users Mailing List
 ------------------------
-``yspark-users@oath.com``
+``yspark-users@verizonmedia.com``
 
-Spark Dev mailing list
+Spark Dev Mailing List
 ----------------------
-``spark-devel@oath.com``
+``spark-devel@verizonmedia.com``
 
-Spark Users slack channel
+Spark Users Slack Channel
 -------------------------
 ``#spark-users``

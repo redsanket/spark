@@ -129,7 +129,7 @@ Spark 2.2 automatically picks up python 3.6 for you so as long as you are using 
 
 .. _sfo_pyspark_default_python:
 
-PySpark & default grid Python installation 
+PySpark & Default Grid Python Installation 
 ------------------------------------------
 
 This section describes how to run Spark on Yarn through Oozie using PySpark with default grid installed version of Python.
@@ -184,7 +184,7 @@ job.properties
 
 .. _sfo_pyspark_grid_python-2.7:
 
-PySpark & grid installed Python 2.7 Example (Spark 2.x)
+PySpark & Grid Installed Python 2.7 Example (Spark 2.x)
 -------------------------------------------------------
 
 You can use the python 2.7 or 3.6 installed on the grid :ref:`swp` with oozie.
@@ -238,7 +238,7 @@ job.properties:
 
 .. _sfo_pyspark_custom_python-2.7:
 
-PySpark & own version of Python 2.7 Example (Spark 2.x)
+PySpark & Own Version of Python 2.7 Example (Spark 2.x)
 -------------------------------------------------------
 
 To run Python 2.7 you need to first follow the instructions to get Python 2.7 here: :ref:`swp` Those instructions put Python2.7 into HDFS in a directory like /user/tgraves. Once you have that you just need to specify the configs mentioned on that page as well.
@@ -301,7 +301,7 @@ With spark 2.2 we automatically include R so there should be no extra steps to u
 
 .. _sfo_custom_version:
 
-Running a different Spark version
+Running a Different Spark Version
 ---------------------------------
 To use a different or an older version of spark from oozie you need to do the following apart from following the instructions listed above:
 - Remove spark sharelib from workflow.xml, i.e. remove the property below:

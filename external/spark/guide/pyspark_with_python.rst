@@ -11,7 +11,7 @@ off heap memory on Spark is with the overhead configurations ``spark.driver.memo
 
 PySpark + Grid Python 2.7/3.6
 -----------------------------
-Python 2.7 and 3.6 are being installed on the grid gateways and in HDFS. They contain a few extra packages including: "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
+Python 2.7 and 3.6 are installed on the grid gateways and in HDFS. They contain a few extra packages including: "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
 
 .. _swp_grid_python_spark2.2+:
 
@@ -27,108 +27,119 @@ For example:
 
   $SPARK_HOME/bin/pyspark  --master yarn --deploy-mode client  --conf spark.yarn.pythonZip=hdfs:///sharelib/v1/python27/python27.tgz
 
-.. _swp_grid_python_spark2.1:
-
-Spark 2.1
-~~~~~~~~~
-
-You can use either python 2.7 or python 3.6.
-
-PySpark Client mode 3.6:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/pyspark --master yarn --deploy-mode client --archives hdfs:///sharelib/v1/python36/python36.tgz#python36 --conf spark.pyspark.python=./python36/bin/python3.6 --conf spark.executorEnv.LD_LIBRARY_PATH=./python36/lib --driver-library-path /home/y/var/python36/lib --conf spark.pyspark.driver.python=/home/y/var/python36/bin/python3.6
-
-PySpark Client mode 2.7:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/pyspark --master yarn --deploy-mode client --archives hdfs:///sharelib/v1/python27/python27.tgz#python27 --conf spark.pyspark.python=./python27/bin/python2.7 --conf spark.executorEnv.LD_LIBRARY_PATH=./python27/lib --driver-library-path /home/y/var/python27/lib --conf spark.pyspark.driver.python=/home/y/var/python27/bin/python2.7 
-
-Pyspark Client mode batch 3.6:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode client --archives hdfs:///sharelib/v1/python36/python36.tgz#python36 --conf spark.pyspark.python=./python36/bin/python3.6 --conf spark.executorEnv.LD_LIBRARY_PATH=./python36/lib --driver-library-path /home/y/var/python36/lib --conf spark.pyspark.driver.python=/home/y/var/python36/bin/python3.6  ~/piexecutors.py
-
-Pyspark Client mode batch 2.7:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode client --archives hdfs:///sharelib/v1/python27/python27.tgz#python27 --conf spark.pyspark.python=./python27/bin/python2.7 --conf spark.executorEnv.LD_LIBRARY_PATH=./python27/lib --driver-library-path /home/y/var/python27/lib --conf spark.pyspark.driver.python=/home/y/var/python27/bin/python2.7  ~/piexecutors.py
-
-PySpark cluster mode 3.6:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --archives hdfs:///sharelib/v1/python36/python36.tgz#python36 --conf spark.pyspark.python=./python36/bin/python3.6 --conf spark.pyspark.driver.python=./python36/bin/python3.6 --conf spark.executorEnv.LD_LIBRARY_PATH=./python36/lib --conf spark.yarn.appMasterEnv.LD_LIBRARY_PATH=./python36/lib ~/piexecutors.py
-
-PySpark cluster mode 2.7:
-
-.. code-block:: console
-
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --archives hdfs:///sharelib/v1/python27/python27.tgz#python27 --conf spark.pyspark.python=./python27/bin/python2.7 --conf spark.pyspark.driver.python=./python27/bin/python2.7 --conf spark.executorEnv.LD_LIBRARY_PATH=./python27/lib --conf spark.yarn.appMasterEnv.LD_LIBRARY_PATH=./python27/lib ~/piexecutors.py
-
-
 .. _swp_grid_python_jupyter:
 
-Overriding python with Jupyter
+Overriding Python with Jupyter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Spark with Jupyter currently automatically ships with Python 3.6, if you want to change it to 2.7 or another version self installed you can:
+PySpark kernels in Jupyter can be started by default with Python 2.7 (PySpark 2 kernel), and Python 3.6 (PySpark 3 kernel).
+
+Sparkmagic kernels in Jupyter currently ships with Python 3.6 by default, if you want to change the Python version you can change the configuration:
 
 .. code-block:: console
 
   %%configure -f
   {
-     “archives”: [“hdfs:///sharelib/v1/python27/python27.tgz#python27”],
-     “conf”:
+     "archives": ["hdfs:///sharelib/v1/python27/python27.tgz#python27"],
+     "conf":
      {
-         “spark.pyspark.python” : “./python27/bin/python2.7",
-         “spark.executorEnv.LD_LIBRARY_PATH” : “./python27/lib”,
-         “spark.yarn.appMasterEnv.LD_LIBRARY_PATH” : “./python27/lib”,
-         “spark.yarn.appMasterEnv.PYSPARK_PYTHON” : “./python27/bin/python2.7",
-         “spark.pyspark.driver.python” : “./python27/bin/python2.7"
+         "spark.pyspark.python" : "./python27/bin/python2.7",
+         "spark.executorEnv.LD_LIBRARY_PATH" : "./python27/lib",
+         "spark.yarn.appMasterEnv.LD_LIBRARY_PATH" : "./python27/lib",
+         "spark.yarn.appMasterEnv.PYSPARK_PYTHON" : "./python27/bin/python2.7",
+         "spark.pyspark.driver.python" : "./python27/bin/python2.7"
      }
   }
 
 .. _swp_addon_packages:
 
-Adding additional python packages
+Adding Additional Python Packages
 ---------------------------------
-Using the python packages above you can create a tgz with addition python packages you want to use. Use a VM to create the tgz. Instructions below are with python36, if you are using python 27 just change the paths from /home/y/var/python36 to /home/y/var/python27 and use python27_grid package.
+Using the python packages above you can create a tgz with additional python packages you want to use. 
 
-- in Linux rhel6 vm
-- ``yinst i python36_grid -br current``
+RHEL6
+~~~~~
+
+- In Linux rhel6 vm: ``yinst i python36_grid -br current``
 - See what is installed already: ``/home/y/var/python36/bin/pip3.6 list``
 - Install any additional packages or packages that you want to fix in a custom directory under your home directory.
-- ``/home/y/var/python36/bin/pip3.6 install --target=~/addons/site-packages/ [your_package]``
-- You can also use the ``--ignore-installed`` option with pip to avoid overriding any existing installed packages
-- install any other packages
-- ``cd ~/addons/site-packages``
-- ``zip -r python36addon.zip [your package list]``. Note: You can also use a tarball instead. Do not include any packages already in the python zip provided like "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib"
-- copy to the grid gateway
-- copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
-- send the zip file along with your job ``--py-files hdfs://user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
-.. note:: Python doesn't allow importing dynamic modules - .pyd and .so from zip files. So if your python module has dependencies on .pyd or .so files, you need to use a workaround to accomplish this. You need to create a tarball (.tgz) file and pass it with the --archives and --py-files options simultaneously so the contents are extracted and added to the PYTHONPATH. Example: ``--py-files python36addon.tgz --archives python36addon.tgz``
+  ``/home/y/var/python36/bin/pip3.6 install --ignore-installed --target=$HOME/addons/site-packages/ [your_package]``
+  Note: The ``--ignore-installed`` option in pip avoids overriding any existing installed packages
+- Create an archive:
+  ``cd $HOME/addons/site-packages``
+  ``zip -r python36addon.zip [your package list]``. 
+  Note 1: You can also use a tarball instead. Do this if your packages include .so's (see Shared Libries section below).
+  Note 2: Do not include any packages already in the python zip provided like "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib".
+- Copy to the grid gateway
+- Copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
+- Send the zip file along with your job ``--py-files hdfs:///user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
+
+RHEL7
+~~~~~
+
+(from the Dockerfile steps: https://git.ouroath.com/hadoop/docker_configs/blob/2e5b51dfd7983399027f4c6443a68bf531febce6/rhel7/Dockerfile#L15)
+
+- In Linux rhel7 vm: ``yum-config-manager --add-repo https://edge.artifactory.yahoo.com:4443/artifactory/python_rpms/python_rpms.repo``
+- Then install the python36 distribution: ``sudo yum install -y yahoo_python36``
+- And install default packages present in the grid: ``sudo /opt/python/bin/pip3.6 install numpy scipy pandas requests setuptools scikit-learn matplotlib``
+- Python 3.6 is now installed under ``/opt/python``
+- See what is installed already: ``/opt/python/bin/pip3.6 list``
+- Install any additional packages or packages that you want to fix in a custom directory under your home directory.
+  ``/opt/python/bin/pip3.6 install --ignore-installed --target=$HOME/addons/site-packages/ [your_package]``
+  Note: The ``--ignore-installed`` option in pip avoids overriding any existing installed packages
+- Create an archive:
+  ``cd $HOME/addons/site-packages``
+  ``zip -r python36addon.zip [your package list]``. 
+  Note 1: You can also use a tarball instead. Do this if your packages include .so's (see Shared Libries section below).
+  Note 2: Do not include any packages already in the python zip provided like "setuptools", "requests", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib".
+- Copy to the grid gateway
+- Copy to hdfs for cluster mode ``hadoop fs -put python36addon.zip``
+- Send the zip file along with your job ``--py-files hdfs:///user/youruserid/python36addon.zip``, if client mode it has to be on local disk ``--py-files python36addon.zip``
+
+Does Your Python Module Have Shared Libraries?
+----------------------------------------------
+- In the ``$HOME/addons/site-packages`` directory created in the prior section, you can inspect the files in each of your modules to find .so's. For example, this is the PIL module, which happens to have many such dynamic libraries:
+
+.. code-block:: console
+
+  find . |grep ".so"
+  ./PIL/.libs/libfreetype-3e240bcb.so.6.16.1
+  ./PIL/.libs/libjpeg-3fe7dfc0.so.9.3.0
+  ./PIL/.libs/liblzma-6cd627ed.so.5.2.4
+  ./PIL/.libs/libwebp-baad113c.so.7.0.4
+  ./PIL/.libs/liblcms2-a6801db4.so.2.0.8
+  ./PIL/.libs/libpng16-9e58a7b0.so.16.36.0
+  ./PIL/.libs/libwebpmux-75695800.so.3.0.4
+  ./PIL/.libs/libwebpdemux-60cc0b6d.so.2.0.6
+  ./PIL/.libs/libtiff-8267adfe.so.5.4.0
+  ./PIL/.libs/libz-a147dcb0.so.1.2.3
+  ./PIL/.libs/libopenjp2-e366d6b0.so.2.1.0
+  ./PIL/_imagingmorph.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_imagingmath.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_webp.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_imagingtk.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_imagingcms.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_imagingft.cpython-36m-x86_64-linux-gnu.so
+  ./PIL/_imaging.cpython-36m-x86_64-linux-gnu.so
+
+
+Any .so could cause issues when loading your Python module from Spark. For example:
+
+ 1. Python doesn't allow importing dynamic modules (.so) from zip files. So if your python module depends on .so files, you need to use a workaround to import. You need to create a tarball (Example: ``tar -czvf python36addon.tgz PIL``) file, and have Spark extract it in the target containers by passing the ``--archives``, ``--py-files``, and ``--conf spark.yarn.includeArchivesPythonPath=true`` options simultaneously so the contents are extracted and added to the PYTHONPATH. Example: ``--py-files python36addon.tgz --archives python36addon.tgz --conf spark.yarn.includeArchivesPythonPath=true``.
+    
+    .. note:: In client mode, the driver will not extract the tarball (as opposed to cluster mode where the driver and the executors extract), so if you are looking to run an interactive session with a custom module, you will have to aadd the module to the PYTHONPATH in other ways, or run pyspark from the directory where your modules are (in the example above, inside the ``$HOME/addons/site-packages`` directory)
+ 2. Dynamic libraries depend on other native dynamic libraries to run. If the versions of these dependencies don't match with what is installed in the Yarn containers, you may get a runtime error in your job. When you see errors like this, the library may need to be compiled for the specific Linux and Python version that is being executed in the container.
 
 .. _swp_manuall_install:
 
 Manual Python Installation
 --------------------------
 
-This is required by some of the ML python libraries.
+This is required by some of the ML python libraries. 
 
-.. _swp_manual_python2.7:
-
-Python 2.7
-~~~~~~~~~~
-
-You can grab a working Python 2.7 zip file that has python2.7, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
+In this example, we grab a working Python 2.7 zip file that has python2.7, numpy, pandas, sklearn, scipy, and matplotlib from here: http://dist.corp.yahoo.com/by-package/yspark_yarn_python/. Make sure to put the Python.zip file into hdfs so it gets reused on the nodes, otherwise it will cause issues with running out of inodes.
 
 If you need Python with more modules than just numpy, pandas, sklearn, scipy, and matplotlib you should create your own Python.zip file following the instructions at: :ref:`swp_addon_packages`
-
 
 - Get Python2.zip
 
@@ -144,9 +155,9 @@ Running:
 
 .. note:: Spark > 2.1 has added new configuration parameters "spark.pyspark.driver.python" and "spark.pyspark.python" to be used instead of the environment variables "PYSPARK_DRIVER_PYTHON" and "PYSPARK_PYTHON" respectively.
 
-**Spark > 2.1**
+.. note:: Please ensure that the interpreter referenced in ``spark.pyspark.driver.python`` and ``spark.pyspark.python`` actually exists inside of your custom python distribution. For example, the ``python36_grid`` dist package does not contain ``bin/python`` instead it has ``bin/python3.6``, and you should set ``spark.pyspark.driver.python`` and ``spark.pyspark.python`` to ``your_python_archive/bin/python3.6``
 
-- Cluster Mode
+**Spark > 2.1**
 
   - Add the spark.pyspark.python and spark.driver.pyspark.python config parameters
 
@@ -157,7 +168,39 @@ Running:
 
     - --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10
 
-For Example:
+  - You may also need to specify the LD_LIBRARY_PATH to match the lib directory inside of the archive. 
+    
+    - --conf spark.executor.extraLibraryPath=./Python2.7.10/lib
+    - --conf spark.driver.extraLibraryPath=./Python2.7.10/lib
+
+   .. note:: The reason why you may need to set the library path is that python has native code it needs to load, and if not specified it will attempt to look in ``/home/y/var/python[version]/lib`` and other system directories, where the python version in /home/y may not match the custom version you are shipping. 
+      
+      If you see errors like: *./python36/bin/python3.6: error while loading shared libraries: libpython3.6m.so.1.0: cannot open shared object file: No such file or directory*, you know you need to specify ``spark.[executor|driver].extraLibraryPath``. You can detect potential issues by running ``ldd`` against the python executable, or any native library you are trying to use from python, to inspect what native code it needs to load.
+
+      For example, this is the result of ``ldd`` for the python 3.6 that is shipped in the ``python36_grid``:
+
+      .. code-block:: console
+
+         linux-vdso.so.1 =>  (0x00007ffc50c96000)
+         libpython3.6m.so.1.0 => /home/y/var/python36/lib/libpython3.6m.so.1.0 (0x00002b67e9c08000)
+         libpthread.so.0 => /lib64/libpthread.so.0 (0x00002b67ea142000)
+         libdl.so.2 => /lib64/libdl.so.2 (0x00002b67ea35f000)
+         libutil.so.1 => /lib64/libutil.so.1 (0x00002b67ea563000)
+         librt.so.1 => /lib64/librt.so.1 (0x00002b67ea767000)
+         libm.so.6 => /lib64/libm.so.6 (0x00002b67ea96f000)
+         libc.so.6 => /lib64/libc.so.6 (0x00002b67eabf3000)
+         /lib64/ld-linux-x86-64.so.2 (0x00002b67e99e5000)
+
+  - **Client Mode:** You need Python locally as well so you have to unzip Python.zip and point to it (assuming you are in /homes/YOURUSER)
+  
+    - mkdir Python2.7.10; cd Python2.7.10
+  
+      - hadoop fs -get Python2.zip
+      - unzip Python2.zip
+  
+    - cd /homes/YOURUSERID (or wherever ./Python2.7.10 would be)
+  
+Cluster Mode Example:
 
 .. code-block:: console
 
@@ -169,28 +212,12 @@ For Example:
     --driver-memory 2G \
     --conf spark.pyspark.driver.python=./Python2.7.10/bin/python \
     --conf spark.pyspark.python=./Python2.7.10/bin/python \
+    --conf spark.executor.extraLibraryPath=./Python2.7.10/lib \
+    --conf spark.driver.extraLibraryPath=./Python2.7.10/lib \
     --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10 \
   sample_spark.py
 
-Client Mode:
-
-- You need Python locally as well so you have to unzip Python.zip and point to it (assuming you are in /homes/YOURUSER)
-
-  - mkdir Python2.7.10; cd Python2.7.10
-
-    - hadoop fs -get Python2.zip
-    - unzip Python2.zip
-
-  - cd /homes/YOURUSERID (or wherever ./Python2.7.10 would be)
-
-- Add the spark.pyspark.python and spark.driver.pyspark.python config parameters
-
-  - --conf spark.pyspark.driver.python=/homes/YOURUSERID/Python2.7.10/bin/python
-  - --conf spark.pyspark.python=./Python2.7.10/bin/python
-
-- Add the --archives option to specify the Python2.zip be distributed with your application and put into a directory path named Python2.7.10
-
-  - --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10
+Client Mode Example:
 
 .. code-block:: console
 
@@ -200,8 +227,10 @@ Client Mode:
     --queue default \
     --num-executors 10 \
     --driver-memory 2G \
-    --conf spark.pyspark.driver.python=/homes/YOURUSERID/Python2.7.10/bin/python \
+    --conf spark.pyspark.driver.python=./Python2.7.10/bin/python \
     --conf spark.pyspark.python=./Python2.7.10/bin/python \
+    --conf spark.executor.extraLibraryPath=./Python2.7.10/lib \
+    --conf spark.driver.extraLibraryPath=./Python2.7.10/lib \
     --archives hdfs:///user/YOURUSERID/Python2.zip#Python2.7.10 \
   sample_spark.py
 
@@ -210,22 +239,21 @@ Client Mode:
 PySpark + Anaconda 
 ------------------
 
-These are instructions for you to package and and use anaconda with pyspark. This in general is not recommend as anaconda is huge, you are better off to use python and just the packages you require.
-
+These are instructions for you to package and and use anaconda with pyspark. This in general is not recommended as anaconda is huge, and you are better off to use the provided python and just add the packages you require.
 
 .. _swp_anaconda_install:
 
-Install Anaconda-2.2.0
-~~~~~~~~~~~~~~~~~~~~~~
+Install Anaconda
+~~~~~~~~~~~~~~~~
 
-Download Anaconda-2.2.0-Linux-x86_64.sh from https://repo.continuum.io/archive/index.html
+Download Anaconda-[latest]-Linux-x86_64.sh from https://repo.continuum.io/archive/index.html (For example: ``wget https://repo.continuum.io/archive/Anaconda2-5.3.1-Linux-x86_64.sh``)
 
 .. code-block:: console
 
   bash Anaconda-2.2.0-Linux-x86_64.sh (point the installation to ~/anaconda)
   export PATH=~/anaconda/bin:$PATH
 
-`Additional Update and Installation Details <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fdocs.continuum.io%2Fanaconda%2Finstall.html%23updating-from-older-anaconda-versions&SIG=11ihk2gqf>`_
+`Additional Update and Installation Details <https://docs.anaconda.com/anaconda/install/update-version/>`_
 
 .. _swp_anaconda_install_zip:
 

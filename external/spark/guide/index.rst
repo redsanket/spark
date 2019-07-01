@@ -34,7 +34,7 @@ steps:
 #. `Request a grid account <http://yo/supportshop>`_ with HDFS and JobTracker queue access.
 #. Select the authentication mechanism for your Workflows: Kerberos (common for 
    headless users) or YCA.
-#. Complete one of the quick starts in the :ref:`Getting Started <getting_started>` chapter.
+#. Complete one of the quick starts in the :ref:`Getting Started <getting-started>` chapter.
 
 
 Getting Help
