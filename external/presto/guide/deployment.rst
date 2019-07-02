@@ -10,7 +10,7 @@ and production cluster per colo.
   benchmark and request capacity if Presto suits their use case. If you came to
   know of Presto through someone and is using it as a better performing alternative to
   `Hive <https://git.ouroath.com/pages/hadoop/docs/hive/index.html>`_, please expect the
-  access to be revoked soon. Only customers who paid for capacity will allowed to use Presto.
+  access to be revoked soon. Only customers who paid for capacity are allowed to use Presto.
   `Hive <https://git.ouroath.com/pages/hadoop/docs/hive/index.html>`_ should be used
   by everyone else.
 
