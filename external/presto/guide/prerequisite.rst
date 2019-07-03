@@ -8,14 +8,15 @@ Prerequisites
 ACL
 ***
 If you are going to run Presto queries from Gateway or Hue, you can skip this step.
+
 If you are going to run from a Launcher or setting up a Looker
 or Tableau server, ACLs need to be open from that host to port 4443 of the
 Presto cluster nodes.
 
 You can check if the ports are open by running
-`nc -z prestocoordinator_hostname 4443` on the client host.
+``nc -z prestocoordinator_hostname 4443`` on the client host.
 
-For eg:
+For example:
 
 .. code-block:: text
 
@@ -61,7 +62,7 @@ If your data is in an encryption zone, you need to grant Presto access to the da
 Steps:
   1. Go to your encryption zone in `Support Shop <https://supportshop.cloud.corp.yahoo.com:4443/doppler/ez>`_.
   2. If the ``Encryption Key Readers`` section does not already list ``Presto`` as a service, click on ``Edit Key Readers`` and select ``Presto`` from the drop down.
-  3. Click on add ``Add Service`` and then click on ``Update EZ Key Readers``.
+  3. Click ``Add Service`` and then click ``Update EZ Key Readers``.
 
   .. image:: images/ez_add_presto_service.png
      :height: 516px
@@ -71,5 +72,5 @@ Steps:
      :align: left
 
   4. After submission, wait for the admin of your encryption zone to approve the request.
-  5. Once approved, support shop will create a jira for the Grid SE to modify to the ACL.
+  5. Once approved, Support Shop will create a Jira for the Grid SE to modify to the ACL.
 
