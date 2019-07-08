@@ -27,7 +27,7 @@ will be set to that of the hadoop cluster.
 To run queries:
 
 1. Login to JB or TT gateway and run ``kinit`` as yourself or as a headless user you have sudo access to.
-2. Invoke ``presto`` with options. For eg:
+2. Invoke ``presto`` with options. For example:
 
 .. code-block:: text
 
@@ -46,13 +46,15 @@ To run queries:
 1. Login to Kessel or Polaris gateway and run ``kinit`` as yourself or as a headless user you have sudo access to.
 2. Invoke ``presto --schema databasename`` or just run ``presto`` and then do ``use databasename``
 
-   For eg:
+   For example:
 
 .. code-block:: text
 
   ssh -A kessel-gw.gq.vcg.yahoo.com
   kinit rohinip@Y.CORP.YAHOO.COM
+  
   (or)
+  
   sudo -iu p_vcgheadlessuser
   kinit -kt /homes/p_vcgheadlessuser/p_vcgheadlessuser.prod.headless.keytab p_vcgheadlessuser
   presto --schema myvcgdb
@@ -73,7 +75,7 @@ Follow the below steps to install presto_client in your Launcher and execute que
   yinst set presto_client.catalog=jetblue
   yinst set presto_client.schema=benzene
 
-4. Run ``kinit`` and invoke ``presto``. For eg:
+4. Run ``kinit`` and invoke ``presto``. For example:
 
 .. code-block:: text
 
