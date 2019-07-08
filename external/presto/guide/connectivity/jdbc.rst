@@ -3,7 +3,7 @@ JDBC
 
 Presto can be accessed from Java using the JDBC driver.
 
-The driver is available from ymaven:
+The driver is available from ``ymaven``:
 
 .. code-block:: text
 
@@ -78,6 +78,7 @@ Below is a code sample for connecting using Kerberos authentication.
   // URL parameters
   String url = "jdbc:presto://xandarblue-presto.blue.ygrid.yahoo.com:4443/dilithiumblue/benzene?user=p_search&SSL=true&KerberosRemoteServiceName=HTTP&KerberosUseCanonicalHostname=false&KerberosConfigPath=/etc/krb5.conf&KerberosPrincipal=p_search&KerberosKeytabPath=/homes/p_search/p_search.prod.headless.keytab";
   For VCG
+  
   //String url = "jdbc:presto://hothgq-presto.gq.vcg.yahoo.com:4443/kessel/vcghivedb?user=p_search&SSL=true&KerberosRemoteServiceName=HTTP&KerberosUseCanonicalHostname=false&KerberosConfigPath=/etc/krb5.conf&KerberosPrincipal=p_search&KerberosKeytabPath=/homes/p_search/p_search.prod.headless.keytab";
   Connection connection = DriverManager.getConnection(url);
 
@@ -120,7 +121,7 @@ for fetching other role certificates. Role certificates are currently valid for
 location of ``.pem`` or ``.jks`` file containing the X.509 role cert and private
 key for mutual TLS.
 
-Example :
+For example:
 
 .. code-block:: text
 
