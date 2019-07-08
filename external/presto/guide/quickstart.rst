@@ -2,9 +2,10 @@ Quickstart
 ##########
 
 1. Check if the :ref:`prerequisities <prerequisities>` are met.
-2. Choose the Presto cluster to use for querying from the list of :ref:`Presto clusters <ygrid_presto_clusters>`.
-3. If you want to execute queries using CLI from gateway or launcher, follow these :doc:`steps <connectivity/cli>`.
-4. If you want to execute queries using Hue, follow these :doc:`steps <connectivity/hue>`.
-5. If you want to write and run your own jdbc code, follow these :doc:`steps <connectivity/jdbc>`.
-6. If you want to setup a connection in Looker, follow these :doc:`steps <connectivity/looker>`.
-7. If you want to setup a connection in Tableau, follow these :doc:`steps <connectivity/tableau>`.
+2. Choose the :ref:`Presto cluster to use for querying <ygrid_presto_clusters>` from that list.
+3. Choose one of the following:
+    * :doc:`Execute queries using CLI from gateway or launcher <connectivity/cli>`.
+    * :doc:`Execute queries using Hue <connectivity/hue>`.
+    * :doc:`Write and run your own JDBC code <connectivity/jdbc>`.
+    * :doc:`Setup a connection in Looker <connectivity/looker>`.
+    * :doc:`setup a connection in Tableau <connectivity/tableau>`.
