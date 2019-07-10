@@ -5,6 +5,7 @@ cluster=$2
 
 # we use 64-bit for datanode
 export JAVA_HOME=$GSHOME/java/jdk64/current
+export HADOOP_CLASSPATH=$HADOOP_COMMON_HOME/share/hadoop/server/*:$HADOOP_COMMON_HOME/share/hadoop/server/lib/*
 
 [ -z "$HADOOP_CONF_DIR" ] && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
 [ -z "$HDFSUSER" ] && export HDFSUSER=hdfs
