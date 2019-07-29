@@ -4,14 +4,20 @@ shared:
     email: jcatera@yahoo-inc.com
 
 jobs:
-  component:
+  main:
     template: v3-platform/python-component@stable
     steps:
       - doc_build: make -f ./Makefile build
       - package_publish: echo 'skip'
-      - tag_release: echo 'skip'      
-      - test: echo 'skip'            
-      - doc_publish: make -f ./Makefile publish
+      - tag_release: echo 'skip'
+      - test: echo 'skip'
     requires:
       - ~commit
       - ~pr
+  publish: #only run publish for a commit, not a pr
+    template: v3-platform/python-component@stable
+    steps:
+      - doc_publish: make -f ./Makefile publish
+    requires:
+      - main
+      - ~commit
