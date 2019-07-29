@@ -918,7 +918,7 @@ Spark Users Mailing List
 
 Spark Dev Mailing List
 ----------------------
-``spark-devel@verizonmedia.com``
+``yspark-devel@verizonmedia.com``
 
 Spark Users Slack Channel
 -------------------------
