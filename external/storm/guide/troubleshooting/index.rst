@@ -162,7 +162,17 @@ You can take a heapdump of a worker from the topology component page and downloa
 profiling (Flight Recorder)
 #################
 
-You can take a flight recording (by setting a timeout) of a worker from the topology component page and download it.
+You can take a flight recording of a worker from the topology component page and download it:
+
+#. Determine the desired worker to profile.
+#. Toggle Components to show all the components the worker has.
+#. Pick a component the worker has and click on it to go to the corresponding component page.
+#. Under Executors, find the matching worker port.
+#. Next to the port, select the files checkbox in the Debug column.
+#. Under the Profiling and Debugging section above, click the Start button.
+#. Wait a period of time.
+#. Press the Stop button under Profiling.
+#. Click the My Dump Files link and download the .jfr file to examine the profiling session.
 
 
 gdb (For Memory leaks/Direct Byte Buffers)
