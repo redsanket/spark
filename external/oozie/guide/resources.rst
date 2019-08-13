@@ -9,7 +9,7 @@ Other Documentation
 Internal
 ~~~~~~~~
 
-- `Yahoo Documentation for Oozie, Workflow Engine for Apache Hadoop (Maven-Built) <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/index.html>`_
+- `Yahoo Documentation for Oozie, Workflow Engine for Apache Hadoop (Maven-Built) <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/index.html>`_
 - `Developer Central: Oozie <http://developer.corp.yahoo.com/product/Oozie>`_ 
 - `Jive: Oozie Community <https://yahoo.jiveon.com/community/science-technology/hadoop-and-big-data-platform/oozie/oozie-community>`_
 

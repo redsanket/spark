@@ -59,7 +59,7 @@ General
 
 We have listed the more widely used Oozie commands and those that are
 specific to Yahoos. For a complete reference, see
-the `Command-Line Interface Utilities documentation <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html>`_.
+the `Command-Line Interface Utilities documentation <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CommandLineTool.html>`_.
 
 
 .. _general-keydb:
@@ -419,7 +419,7 @@ To filter jobs based on parameters, use the ``-filter`` option followed by the p
 
     $ oozie jobs -len 5 -filter "status=KILLED;user=start_ci -auth kerberos"
 
-See also `Checking the Status of multiple Workflow Jobs <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Checking_the_Status_of_multiple_Workflow_Jobs>`_.
+See also `Checking the Status of multiple Workflow Jobs <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CommandLineTool.html#Checking_the_Status_of_multiple_Workflow_Jobs>`_.
 
 .. _job-coord_status:
 
@@ -437,8 +437,8 @@ To list five Coordinator jobs with ``KILLED`` status and the application name ``
 
     $ oozie jobs -len 5 -filter "status=KILLED;name=coord-test" -jobtype coord -auth kerberos
 
-See also `Coordinator Job <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.2._Coordinator_Job>`_
-and `Coordinator Action Status <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.3.2._Coordinator_Action_Status>`_.
+See also `Coordinator Job <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.2._Coordinator_Job>`_
+and `Coordinator Action Status <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/CoordinatorFunctionalSpec.html#a6.1.3.2._Coordinator_Action_Status>`_.
 
 .. _client-admin:
 
@@ -496,7 +496,7 @@ Validate Operations
 -------------------
 
 The ``validate`` command allows you to validate your Workflow XML. See `Validating a Workflow 
-XML <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Validating_a_Workflow_XML>`_.
+XML <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CommandLineTool.html#Validating_a_Workflow_XML>`_.
 
 .. note:: The ``validate`` command currently only supports validating ``workflow.xml``.
 
@@ -511,7 +511,7 @@ For example, to list two SLA records with the sequence ID 101 and sequence ID 10
 
     $ oozie sla -offset 100 -len 2 -auth kerberos
 
-See `SLA Operations <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#SLA_Operations>`_ 
+See `SLA Operations <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CommandLineTool.html#SLA_Operations>`_
 for more examples.
 
 .. _client-pig:
@@ -539,6 +539,6 @@ following::
     mapred.job.tracker=gsbl91029.blue.ygrid.yahoo.com:50300
     oozie.libpath=hdfs://gsbl91027.blue.ygrid.yahoo.com:8020/tmp/user/workflows/lib
 
-See `Submitting a pig job through HTTP <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_CommandLineTool.html#Submitting_a_pig_job_through_HTTP>`_
+See `Submitting a pig job through HTTP <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_CommandLineTool.html#Submitting_a_pig_job_through_HTTP>`_
 for another example.
 

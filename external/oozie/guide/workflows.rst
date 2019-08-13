@@ -322,7 +322,7 @@ Here's the sample Java ``main`` class:
 Hive Action
 ~~~~~~~~~~~
 
-See the `Hive Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_HiveActionExtension.html>`_
+See the `Hive Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_HiveActionExtension.html>`_
 documentation on the Kryptonite Red cluster, which also includes the Hive schema for v0.2 to v0.5.
  
 .. _action-pig:
@@ -567,7 +567,7 @@ of a directory:
    </workflow-app>
 
 
-See `Fs HDFS Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action>`_
+See `Fs HDFS Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/WorkflowFunctionalSpec.html#a3.2.4_Fs_HDFS_action>`_
 for more detailed information and an additional examples.
 
 .. note:: You can also recursively change permissions in a Pig script. For example,
@@ -631,7 +631,7 @@ body, and the sender's address.
      <error to="kill"/>
    </action>
 
-See `Oozie Email Action Extension <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_EmailActionExtension.html>`_ 
+See `Oozie Email Action Extension <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_EmailActionExtension.html>`_
 for the syntax, an example, and the schema for the Email action.
 
 .. note:: To send email to an iList, the iList setting needs to allow posts 
@@ -643,7 +643,7 @@ for the syntax, an example, and the schema for the Email action.
 Sub-workflow Action
 ~~~~~~~~~~~~~~~~~~~
 
-See `Oozie Sub-Workflow Action Extension <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#a3.2.6_Sub-workflow_Action>`_
+See `Oozie Sub-Workflow Action Extension <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/WorkflowFunctionalSpec.html#a3.2.6_Sub-workflow_Action>`_
 for the syntax, an example, and the schema for the Sub-workflow action.
 
 .. _action-distcp:
@@ -735,7 +735,7 @@ For cross colo distcp, webhdfs URI should be specified for source name node. For
 Spark Action
 ~~~~~~~~~~~~
 
-- See the `Spark Action <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SparkActionExtension.html>`_ in the Apache documentation. 
+- See the `Spark Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SparkActionExtension.html>`_ in the Apache documentation.
 - To pick up spark-assembly.jar along with some standard jars/files, use: 
 
 .. code-block:: xml

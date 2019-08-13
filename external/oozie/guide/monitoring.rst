@@ -21,7 +21,7 @@ define SLA limits for Oozie Workflows in the application ``definition.xml``.
 Oozie can now actively monitor the state of these 
 SLA-sensitive jobs and send out notifications for SLA meets and misses.
 
-To learn how to use SLA monitoring, see `Oozie SLA monitoring <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_SLAMonitoring.html>`_.
+To learn how to use SLA monitoring, see `Oozie SLA monitoring <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SLAMonitoring.html>`_.
 
 
 CMS Notifications for Job and SLA
@@ -33,7 +33,7 @@ to fetch job status messages from the Yahoo Cloud Messaging Service (CMS).
 Apache Oozie has only support for JMS which is the Java Messaging Service and supports systems like ActiveMQ which implement JMS.
 At Yahoo, Oozie worked with CMS v1 which was JMS compliant before EOL for it was announced on Feb 2018. Now only CMS v2 is
 supported which has its own set of APIs and is not JMS compliant. So the section
-`JMS Notifications <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/DG_JMSNotifications.html>`_ in Apache
+`JMS Notifications <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_JMSNotifications.html>`_ in Apache
 documentation is not relevant for Yahoo Oozie.
 
 

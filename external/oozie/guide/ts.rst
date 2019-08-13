@@ -43,7 +43,7 @@ Debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use the Web Console to check your Oozie. For example, for Kryptonite Red,
-go to http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie.
+go to https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie.
 
 The syntax for the Web Console is ``http://{cluster}{color}-oozie.{color}.ygrid.yahoo.com:4080/oozie``.
 
@@ -141,7 +141,7 @@ Correct Example
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -config kr-wf.properties -run -auth kerberos
 
 **kr-wf.properties**
 
@@ -156,7 +156,7 @@ Incorrect Example
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config db-wf.properties -run
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -config db-wf.properties -run
     -auth kerberos
 
 **db-wf.properties**
@@ -180,7 +180,7 @@ Possible Solution
 *****************
 
 If you encounter above error, you should check that your XML elements are in the correct 
-sequence as specified in the `Workflow XSD <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. (The order of the tags matters here.)
+sequence as specified in the `Workflow XSD <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/WorkflowFunctionalSpec.html#Appendix_A_Oozie_XML-Schema>`_. (The order of the tags matters here.)
 
 
 .. _errors-auth: 
@@ -216,7 +216,7 @@ Correct Example
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config kr-wf.properties -run -auth kerberos
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -config kr-wf.properties -run -auth kerberos
 
 
 **kr-wf.properties**
@@ -232,7 +232,7 @@ Incorrect Example
 
 ::
 
-    $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -config db-wf.properties -run -auth kerberos
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -config db-wf.properties -run -auth kerberos
 
 **db-wf.properties**
 

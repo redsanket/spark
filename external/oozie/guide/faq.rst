@@ -723,7 +723,7 @@ Answers
 
 .. topic:: **How do you reprocess Coordinator actions?**
 
-   See `Rerunning a Coordinator Action or Multiple Actions <http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions>`_ and :ref:`Rerun Coordinator Action[s] (Oozie 2.1+) <rerun_coords>`.
+   See `Rerunning a Coordinator Action or Multiple Actions <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/CoordinatorFunctionalSpec.html#Rerunning_a_Coordinator_Action_or_Multiple_Actions>`_ and :ref:`Rerun Coordinator Action[s] (Oozie 2.1+) <rerun_coords>`.
 
 .. _update_coord:
 

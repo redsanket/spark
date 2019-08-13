@@ -39,7 +39,7 @@ Setting Up
 
 #. Set the global variables to the values below::
 
-       export HADOOP_HOME=/home/gs/hadoop/current PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH OOZIE_URL=http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie OOZIE_AUTH=kerberos
+       export HADOOP_HOME=/home/gs/hadoop/current PATH=/home/y/var/yoozieclient/bin:$HADOOP_HOME/bin/:$PATH OOZIE_URL=https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie OOZIE_AUTH=kerberos
 
 
    We recommend adding the above export statements to the configuration file ``.bashrc``. 

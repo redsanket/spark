@@ -6,15 +6,25 @@ Authentication/Authorization
 .. 04/15/15: Rewrite
 .. 05/11/15: Second edit.
 
-Oozie provides two different ways of authentication: Kerberos and YCA.
-You need to do some setting up for Kerberos and YCA.
-
+This documentation covers
+  - Authentication to Oozie server
+  - Using Oozie to fetch credentials like ycav2 certs, Athenz role token and access tokens, CKMS secrets, s3 credentials, etc and use them in the job to authenticate to external services.
 
 .. _oozie_client:
 
 Oozie Client
 ------------
 
+There are four different ways to authenticate to the Oozie Server:
+Kerberos, YCA, Athenz X.509 role certs and Okta.
+Okta authentication is only for regular users and is used for authentication in browser while viewing the Oozie UI.
+Kerberos, YCA and Athenz X.509 role certs can be used to authenticate as regular user or headless
+user to the Oozie server.
+
+Users can use one of the following options to make calls to the Oozie server
+  - `Oozie CLI <https://dist.corp.yahoo.com/by-package/yoozie_client/>`_ where -auth option takes the following values: KERBEROS, YCA and ATHENZ.
+  - Java program using `YOozieClient <https://git.ouroath.com/hadoop/yahoo-oozie/blob/855d45122106f8ee35836c7d09fe7deb30e5c47e/yclient/src/main/java/com/yahoo/oozie/cli/YOozieCLI.java#L197>`_
+  - REST API calls via curl, perl, python, etc
 
 .. _auth-kerberos:
 
@@ -22,39 +32,37 @@ Oozie Client
 Kerberos Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-
-Yahoo Oozie is bundled with a custom Oozie command-line tool that adds Kerberos 
-authentication. The ``-auth`` option can take the argument ``kerberos`` to authenticate 
-by Kerberos. When submitting a job or any other tasks, the user can only specify 
-Kerberos as authentication type if the Oozie server is configured to accept this 
-authentication.
-
-#. Before invoking Oozie, obtain and cache the Kerberos ticket-granting ticket::
+Before invoking Oozie, obtain and cache the Kerberos ticket-granting ticket::
 
        $ kinit $USER@Y.CORP.YAHOO.COM
 
-   You can also use the following if you have a keytab file::
+You can also use the following if you have a keytab file::
 
        $ kinit -kt ~/`whoami`.dev.headless.keytab `whoami`@DEV.YGRID.YAHOO.COM
 
-#. To invoke Oozie using Kerberos authentication::
 
-       $ oozie job -oozie http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie -run -config job.properties -auth KERBEROS
+Oozie CLI
++++++++++
+
+Yahoo `Oozie CLI <https://dist.corp.yahoo.com/by-package/yoozie_client/>`_ has Kerberos
+authentication as the default. i.e  the ``-auth`` option defaults to the argument ``kerberos``.
+
+To invoke Oozie using Kerberos authentication::
+
+       $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties
 
 
-#. To test Kerberos using cURL:
+cURL
++++++++++
+To test Kerberos using cURL:
 
-   - Create a cookie file::
+   - Authenticate using Kerberos negotiate and store the received auth cookie in a file::
 
-         $ curl -v -c cookie.txt --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
+         $ curl -v -c cookie.txt --negotiate -u $USER -k https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
 
-   - Reuse the existing cookie::
+   - Reuse the existing cookie for further calls to avoid hitting KDC for every request::
 
-         $ curl -b cookie.txt --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
-
-#. Use the default Kerberos ticket::
-
-       $ curl --negotiate -u $USER -k http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie/v1/admin/build-version
+         $ curl -b cookie.txt --negotiate -u $USER -k https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
 
 
 .. note:: The examples above use the Oozie server on Kryptonite Red. To use Oozie servers on other clusters,
@@ -79,11 +87,11 @@ Client API Example of Kerberos Authentication
       import java.net.URL;
       import java.util.HashMap;
       import java.util.Map;
-      
+
       public class KerbAPIExample {
-      
+
           public static void main(String args[]) {
-              String oozieurl="http://kryptonitered-oozie.red.ygrid.yahoo.com:4080/oozie";
+              String oozieurl="https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie";
               String jobId = args[0];
               KerbOozieClient koc = new KerbOozieClient(oozieurl);
               try {
@@ -93,19 +101,19 @@ Client API Example of Kerberos Authentication
               }
           }
           static class KerbOozieClient extends AuthOozieClient {
-      
+
               String kerbAuth = "KERBEROS";
               public KerbOozieClient(String oozieUrl) {
                   super(oozieUrl, "KERBEROS");
               }
-      
+
               @Override
               protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
                   Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
                   authClasses.put(kerbAuth, KerberosAuthenticator.class);
                   return authClasses;
               }
-      
+
           }
       }
 
@@ -119,11 +127,9 @@ YCA Authentication
 ~~~~~~~~~~~~~~~~~~
 
 
-Yahoo Oozie is also bundled with a custom command-line tool that adds YCA 
-authentication. The ``-auth`` option can take the argument ``yca`` to 
-authenticate by YCA. When using Oozie to submit job or any other tasks, you 
-can only specify YCA as the authentication type if Oozie server is configured to accept 
-this authentication. Also, the allowed YCA namespaces have to be configured in the Oozie server.
+Oozie server is configured to accept yca role certs from the `griduser <https://roles.corp.yahoo.com/ui/role?action=list&role=griduser>`_ YCA namespace.
+The name of the user is extracted from the rolename. Since YCA is to be EOL by 2019, please
+switch to Athenz X.509 authentication instead.
 
 .. _yca_auth-creating_role:
 
@@ -132,17 +138,16 @@ Creating an Oozie Role
 
 To create a role in Oozie for a YCA allowed namespace:
 
-#. If Oozie server accepts namespace ``"griduser"``, the user should create a 
-   role under it. Refer to `Support YCAProtected Grid Service <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_ 
+#. The user should create a role under `griduser <https://roles.corp.yahoo.com/ui/role?action=list&role=griduser>`_ namespace with name of the role as the headless user name. Refer to `Support YCAProtected Grid Service <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_
    for details.
-         
+
    #. File a `Jira issue with OpsDB <https://jira.corp.yahoo.com/servicedesk/customer/portal/89/create/554>`_
-      to create a role. Your role name should use the syntax ``<namespace>.<username>``.
+      to create a role. Your role name should use the syntax ``griduser.<username>``.
    #. Register the list of hosts as members in this role.
-   #. Install the ``yca`` and ``yca_client_certs`` packages. 
+   #. Install the ``yca`` and ``yca_client_certs`` packages.
       The ``yca_client_certs`` package will only install successfully when
       that host is already present in the ``rolesdb``.
-   #. Run the command ``/home/y/bin/yca-cert-util --show``. It will list 
+   #. Run the command ``/home/y/bin/yca-cert-util --show``. It will list
       the ``yca`` certificates of the machine.
 
 
@@ -151,9 +156,9 @@ To create a role in Oozie for a YCA allowed namespace:
 Invoking Oozie With YCA Authentication
 ++++++++++++++++++++++++++++++++++++++
 
-To invoke Oozie by YCA authentication as the ``<username>`` at one of the registered hosts::
+To invoke Oozie by YCA authentication as the current user ``<username>`` with the host having the ``griduser.<username>`` yca cert::
 
-    $ oozie job -oozie http://localhost:8080/oozie -run -config job.properties -auth YCA
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties -auth YCA
 
 
 
@@ -180,10 +185,38 @@ To verify the certificate::
 YCA Authentication With YCA Proxy Server
 ++++++++++++++++++++++++++++++++++++++++
 
-To use the YCA proxy server for YCA authentication::
+If you are in the corp network, you will have to use the YCA proxy server::
 
-    $ oozie -Dhttp.proxyHost=yca-proxy.corp.yahoo.com -Dhttp.proxyPort=3128 jobs -oozie http://{oozieurl} -auth YCA
+    $ oozie -Dhttp.proxyHost=yca-proxy.corp.yahoo.com -Dhttp.proxyPort=3128 jobs -oozie https://{oozieurl} -auth YCA
 
+
+.. _athenz_client_auth:
+
+Athenz Authentication
+~~~~~~~~~~~~~~~~~~~~~
+
+Authentication to Oozie can be done using mutual TLS with
+`Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 role certificates.
+Authentication from following principals or roles are supported.
+
+  - ``user.<regular_user_name>`` principal
+  - `griduser.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>`_ role (YGRID only)
+  - `griduser.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>`_ role (YGRID only)
+  - `vcg.user.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ role (VCG only)
+  - `vcg.user.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ role (VCG only)
+
+Refer `Athenz User X.509 Certificates <https://git.ouroath.com/pages/athens/athenz-guide/user_x509_credentials>`_
+for fetching ``user.<regular_user_name>`` user certificate. User certificates are valid for only one hour.
+
+Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_
+to create the Athenz role for headless user. After that you can add user principals or Athenz services to the newly created role. Refer `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_
+for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for
+30 days, but will be reduced to 7 days in future.
+
+
+To invoke Oozie by Athenz authentication ::
+
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties -auth ATHENZ -cert /path/to/role-cert.pem -key /path/to/service.key
 
 .. _yca_auth-yca_workflow:
 
@@ -195,9 +228,9 @@ Workflow with YCAV2
 Creating a Namespace and a Role
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The role ``oozie.httpproxy`` is created for this purpose. You can create your 
-namespace in the roles ``db`` and add a role under the namespace. In our case, the namespace 
-is ``oozie``, and the role name is ``httpproxy``. Under the role, you can add the user who 
+The role ``oozie.httpproxy`` is created for this purpose. You can create your
+namespace in the roles ``db`` and add a role under the namespace. In our case, the namespace
+is ``oozie``, and the role name is ``httpproxy``. Under the role, you can add the user who
 wants to submit the job with gYCA credential. For example, the user ``strat_ci``
 can submit the Workflow with gYCA credential, so we add ``strat_ci.wsca.user.yahoo.com``
 to the role ``oozie.httpproxy``. See the example http://roles.corp.yahoo.com:9999/ui/role?action=view&id=217516.
@@ -222,16 +255,16 @@ There are three optional parameters for the credential type ``yca``:
 
 - ``yca-webserver-url``: the YCA server URL. The default URL is https://ca.yca.platform.yahoo.com:4443.
 - ``yca-cert-expiry``: The expiry time of the YCA certificate in seconds. The default is one day (86400). This is available from Oozie 3.3.1.
-- ``yca-http-proxy-role``: The role name in the Roles DB that contains the hostnames of 
-  the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains 
-  all HTTP proxy hosts. This parameter depends on the HTTP proxy VIP you will be using to send 
-  the obtained YCA v2 certificate to the Web service outside the grid. You can limit 
-  the corresponding role name that contains the hosts of the HTTP proxy VIP. The 
-  role names containing members of production HTTP proxy VIPs are ``grid.blue.prod.httpproxy``, 
-  ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``. 
+- ``yca-http-proxy-role``: The role name in the Roles DB that contains the hostnames of
+  the machines in the HTTP proxy VIP. The default value is ``grid.httpproxy`` which contains
+  all HTTP proxy hosts. This parameter depends on the HTTP proxy VIP you will be using to send
+  the obtained YCA v2 certificate to the Web service outside the grid. You can limit
+  the corresponding role name that contains the hosts of the HTTP proxy VIP. The
+  role names containing members of production HTTP proxy VIPs are ``grid.blue.prod.httpproxy``,
+  ``grid.red.prod.httpproxy``, and ``grid.tan.prod.httpproxy``.
 .. _yca-cert_add_to_jobconf:
 
-- ``yca-cert-add-to-jobconf``: This can be *true* or *false*, default being *true* for backward compatibility reasons. If it is set to true, YCA certificate will be added to 
+- ``yca-cert-add-to-jobconf``: This can be *true* or *false*, default being *true* for backward compatibility reasons. If it is set to true, YCA certificate will be added to
   action configuration. Adding YCA certificate to action configuration is less secure because the certificate is visible in the Configuration page of the Job UI
   and has to be secured by additionally setting ``mapreduce.job.acl-view-job`` to only users or groups with access instead of * (all).
   Instead, YCA certificate is now added as secret key to action credentials. :ref:`This example explains more <yca_cert_secretkey_example>`.
@@ -239,7 +272,7 @@ There are three optional parameters for the credential type ``yca``:
 
   For example, the following contains the hosts of the production ``httpproxy``: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy``
   This role is the parent role containing the staging, research, and production ``httpproxy`` hosts: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
-  See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for 
+  See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for
   the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 
@@ -259,7 +292,7 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
                <name>yca-role</name>
                <value>griduser.actualuser</value>
             </property>
-         </credential> 
+         </credential>
       </credentials>
       <action cred='myyca'>
          <map-reduce>
@@ -277,16 +310,16 @@ Example with Map-Reduce Action
 YCA Certificate inside Action Configuration
 +++++++++++++++++++++++++++++++++++++++++++
 
-We have deprecated the way of adding YCA Certificate to action configuration as 
-it was less secure. We advice to disable this as mentioned :ref:`here <yca-cert_add_to_jobconf>` and 
+We have deprecated the way of adding YCA Certificate to action configuration as
+it was less secure. We advice to disable this as mentioned :ref:`here <yca-cert_add_to_jobconf>` and
 make changes in your code by referring to :ref:`this example <yca_cert_secretkey_example>`
 
-In the :ref:`above example <yca_workflow-submit_ycav2_example>` , Oozie gets the certificate of gYCA and passes it to the action configuration. 
-Mapper can then use this certificate by getting it from the action configuration, adding it to 
-the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``. 
+In the :ref:`above example <yca_workflow-submit_ycav2_example>` , Oozie gets the certificate of gYCA and passes it to the action configuration.
+Mapper can then use this certificate by getting it from the action configuration, adding it to
+the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``.
 
 A certificate or token retrieved in the credential class would set an action configuration
-as the name of credential defined in ``workflow.xml``. The following example shows 
+as the name of credential defined in ``workflow.xml``. The following example shows
 how to communicate with the YCAV2-protected Web service from the grid.
 
 .. code-block:: java
@@ -313,13 +346,13 @@ how to communicate with the YCAV2-protected Web service from the grid.
 YCA Certificate as a secret key inside Credentials
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
-In the :ref:`above example <yca_workflow-submit_ycav2_example>`, Oozie gets the certificate of gYCA 
+In the :ref:`above example <yca_workflow-submit_ycav2_example>`, Oozie gets the certificate of gYCA
 and passes it to the Credentials as a secret key.
-Mapper can then use this certificate by getting it from the action configuration, adding it to 
-the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``. 
+Mapper can then use this certificate by getting it from the action configuration, adding it to
+the HTTP request header when connecting to the YCA-protected Web service through ``HTTPProxy``.
 
 A certificate or token retrieved in the credential class would set a secret key in action configuration
-as the name of credential defined in ``workflow.xml``. The following example shows 
+as the name of credential defined in ``workflow.xml``. The following example shows
 how to communicate with the YCAV2-protected Web service from the grid.
 
 .. code-block:: java
@@ -338,7 +371,7 @@ how to communicate with the YCAV2-protected Web service from the grid.
    //Get the secret key by passing the name of credential
    byte[] bytes = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text("myyca"));
    //Create certificate string using bytes with UTF-8
-   String ycaCertificate = new String(bytes, "UTF-8"); 
+   String ycaCertificate = new String(bytes, "UTF-8");
    HttpURLConnection con = (HttpURLConnection) server.openConnection(proxy);
    con.setRequestMethod("GET");
    con.addRequestProperty("Yahoo-App-Auth", ycaCertificate);
@@ -444,7 +477,7 @@ Example with Shell Action
                <name>yca-role</name>
                   <value>griduser.actualuser</value>
             </property>
-         </credential> 
+         </credential>
       </credentials>
       <action cred='myyca'>
          <shell>
@@ -454,10 +487,10 @@ Example with Shell Action
    <workflow-app>
 
 
-In the above example, Oozie gets the certificate of gYCA and passes it to the action configuration. 
-A certificate or token retrieved in the credential class would set an action configuration 
-as the name of credential defined in ``workflow.xml``. In the Shell Action, it is accessible 
-through environment variable - ``OOZIE_ACTION_CONF_XML``. 
+In the above example, Oozie gets the certificate of gYCA and passes it to the action configuration.
+A certificate or token retrieved in the credential class would set an action configuration
+as the name of credential defined in ``workflow.xml``. In the Shell Action, it is accessible
+through environment variable - ``OOZIE_ACTION_CONF_XML``.
 
 
 .. code-block:: bash
@@ -472,18 +505,18 @@ Workflow with on-prem Athens role token
 
 
 `Athens <https://git.ouroath.com/pages/athens/athenz-guide/>`_ is a hosted service at Yahoo supporting role-based authorization.
-Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user. 
+Oozie is a special proxy user of the Athens which supports fetching role tokens for a particular role on behalf of a user.
 To enable that, users will have to add ``hadoop.oozie`` in case of YGRID clusters and ``vcg.prod.oozie`` in case of VCG clusters
 as member to the role that they want to give access to in addition to the username under which
 the Oozie workflow will be run as. The user can either be user.<Oath user> or ygrid.<headless user>.
 `Refer this link <https://supportshop.cloud.corp.yahoo.com:4443/doppler/hadoop>`_ to determine type of cluster.
 
 For eg: If the workflow will be run as user filo on a YGRID cluster, then ``hadoop.oozie`` and ``user.filo`` will have to be added as members
-of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will 
-have to be added as members of that role. 
+of that role. If the workflow will be run as grid headless user mog_prod, then ``hadoop.oozie`` and ``ygrid.mog_prod`` will
+have to be added as members of that role.
 
-Similar to other credentials like hcat or YCA, you will have to add a Athens credential section to the workflow with the 
-domain and role details. This credential definition can then be referred in individual actions which need it. 
+Similar to other credentials like hcat or YCA, you will have to add a Athens credential section to the workflow with the
+domain and role details. This credential definition can then be referred in individual actions which need it.
 
 Required properties for an Athens credential
 
@@ -493,12 +526,12 @@ Required properties for an Athens credential
 
 Optional properties
 
-- ``athens.user.domain`` : The domain in which user resides. The default value is ``ygrid``. If you are running as yourself 
+- ``athens.user.domain`` : The domain in which user resides. The default value is ``ygrid``. If you are running as yourself
   and not a headless user, set value for this to ``user``.
 - ``athens.trust.domain`` : Athens will only look for trusted roles in this domain.
-- ``athens.min.expiry`` : It specifies that the returned role token must be at least valid (min/lower bound) 
+- ``athens.min.expiry`` : It specifies that the returned role token must be at least valid (min/lower bound)
   for specified number of seconds.
-- ``athens.max.expiry`` : It specifies that the returned role token must be at most valid (max/upper bound) 
+- ``athens.max.expiry`` : It specifies that the returned role token must be at most valid (max/upper bound)
   for specified number of seconds.
 
   By default Athens will issue a token that is valid for 2 hours. Set the ``athens.min.expiry`` and
@@ -535,7 +568,7 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
                <name>athens.min.expiry</name>
                <value>10800</value>
            </property>
-       </credential> 
+       </credential>
     </credentials>
     <action cred='athensauth'>
        <java>
@@ -546,11 +579,11 @@ The following ``workflow.xml`` snippet shows how to configure your Workflow to u
 
 
 
-Oozie retrieves the role token based on the provided credential properties and sends it to the job running the java action. 
-The ZTS local client cache is populated with the role token, so that the user can get the role token in their java code using 
-the Athens ZTSClient.getRoleToken API. This requires having the ``zts_java_client.jar`` from 
-http://dist.corp.yahoo.com/by-package/zts_java_client/ in the workflow lib directory. The following example shows how to get 
-the role token in the hadoop job and how to authenticate to a Athens protected web service by passing 
+Oozie retrieves the role token based on the provided credential properties and sends it to the job running the java action.
+The ZTS local client cache is populated with the role token, so that the user can get the role token in their java code using
+the Athens ZTSClient.getRoleToken API. This requires having the ``zts_java_client.jar`` from
+http://dist.corp.yahoo.com/by-package/zts_java_client/ in the workflow lib directory. The following example shows how to get
+the role token in the hadoop job and how to authenticate to a Athens protected web service by passing
 the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following dependency should be added.
 
 .. code-block:: xml
@@ -578,8 +611,8 @@ the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following d
    RoleToken roleToken = ztsClient.getRoleToken("sherpa", "table1.write.access");
    roleTokenStr = roleToken.getToken();
    ztsClient.close();
-   
-   // Web service call to the external web service via proxy. 
+
+   // Web service call to the external web service via proxy.
    // This example assumes a production cluster in gq1 and uses corresponding proxy.
    // Refer http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList for the different proxy urls.
    InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.blue.ygrid.yahoo.com", 4080);
@@ -599,7 +632,178 @@ As an alternate method to the ZTSClient API, tokens can be retrieved from the UG
    // athensauth is the name of Athens credential provided in workflow.xml
    token = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
 
-.. _workflow_with_ykeykey
+
+.. _workflow_with_Athens_oauth2_token:
+
+Workflow with on-prem Athenz oAuth2 tokens
+------------------------------------------------
+
+Fetching Athenz oAuth2 Access Token
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For fetching Athenz oAuth2 Access Token, you need to follow same steps and configuration
+as the :ref:`Workflow with on-prem Athenz role token <workflow_with_Athens>` section
+with just one additional parameter
+
+- ``athens.token.type`` : Value should be set to `oauth2` for fetching access token.
+
+
+Example Workflow XML
+++++++++++++++++++++
+
+.. code-block:: xml
+
+   <workflow-app>
+    <credentials>
+       <credential name='athensauth' type='athens'>
+           <property>
+               <name>athens.domain</name>
+               <value>sherpa</value>
+           </property>
+           <property>
+               <name>athens.role</name>
+               <value>table1.write.access</value>
+           </property>
+           <!-- athens.user.domain is not required when running as headless user as the default value is ygrid -->
+            <property>
+               <name>athens.user.domain</name>
+               <value>user</value>
+           </property>
+           <property>
+               <name>athens.min.expiry</name>
+               <value>10800</value>
+           </property>
+           <property>
+               <name>athens.token.type</name>
+               <value>oauth2</value>
+           </property>
+       </credential>
+    </credentials>
+    <action cred='athensauth'>
+       <java>
+          ...
+       </java>
+    </action>
+   <workflow-app>
+
+
+Fetching Athenz oAuth2 Access token and ID Token
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Oozie can fetch access tokens on your behalf. But if you need a id token as well,
+you need to provide your service cert credentials, so that Oozie can fetch the access
+token and id token for that service. In addition to the regular athens settings, you
+will need to additionally specify the below settings so that Oozie can fetch the service private key
+from on-prem CKMS.
+You can refer to the :ref:`Workflow with on-prem CKMS secret <workflow_with_ykeykey>` section
+for the setup and configuration required for that.
+
+Required Properties for Service Credentials:
+
+- ``ykeykey.group``: Name of the ykeykey key group.
+- ``ykeykey.key``: Name of the ykeykey key. This should contain PEM encoded private key.
+- ``ykeykey.athens.domain``: Name of the athens domain associated with ykeykey key group specified in ``ykeykey.group`` setting.
+- ``athens.service``: The Athens service which contains the PEM encoded public key corresponding to the private key.
+- ``athens.service.domain``: The domain in which service resides.
+- ``athens.service.public.key.id``: The public key id for the athens service specified in ``athens.service``.
+
+Optional properties
+
+- ``ykeykey.athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
+- ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
+
+Example Workflow XML
+++++++++++++++++++++
+
+.. code-block:: xml
+
+   <workflow-app>
+     <credentials>
+        <credential name='athensauth' type='athens'>
+            <property>
+               <name>athens.domain</name>
+               <value>sherpa</value>
+            </property>
+            <property>
+               <name>athens.role</name>
+               <value>table1.write.access</value>
+            </property>
+            <property>
+               <name>athens.min.expiry</name>
+               <value>10800</value>
+            </property>
+            <property>
+               <name>athens.token.type</name>
+               <value>oauth2</value>
+            </property>
+            <!-- Properties for fetching Service private key from on-prem CKMS -->
+            <property>
+                <name>ykeykey.group</name>
+                <value>test.saley.v1.keygroup</value>
+            </property>
+            <property>
+                <name>ykeykey.key</name>
+                <value>test.saley.v1.key</value>
+            </property>
+            <property>
+                <name>ykeykey.version</name>
+                <value>0</value>
+            </property>
+            <property>
+                <name>ykeykey.athens.domain</name>
+                <value>yby.saley.subdomain</value>
+            </property>
+
+            <!-- Name and domain of the athens service and id of the public key corresponding to the private key specified in
+            ykeykey.key -->
+            <property>
+                <name>ykeykey.athens.service</name>
+                <value>testservice</value>
+            </property>
+
+            <property>
+                <name>ykeykey.athens.service.domain</name>
+                <value>yby.saley</value>
+            </property>
+
+            <property>
+                <name>ykeykey.athens.service.public.key.id</name>
+                <value>0</value>
+            </property>
+        </credential>
+     </credentials>
+     <action cred='athensauth'>
+        <java>
+          ...
+        </java>
+     </action>
+   <workflow-app>
+
+The tokens are passed as json in the secret. Example:
+
+.. code-block:: json
+
+    {
+      "access_token": "eyJGVizIl0gTRH.....p1XemyJA",
+      "token_type": "Bearer",
+      "expires_in": 10800,
+      "scope": null,
+      "refresh_token": null,
+      "id_token": "eyJraWQiXQi....WuKTD8HjwYw"
+    }
+
+You can access them in your job by fetching the secret from the ``Credentials`` object.
+
+.. code-block:: java
+
+   Credentials creds = UserGroupInformation.getCurrentUser().getCredentials();
+   // athensauth is the name of Athens credential provided in workflow.xml
+   String token = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
+   Map<String, String> tokenMap = new com.fasterxml.jackson.databind.ObjectMapper().readValue(token, Map.class);
+   String accessToken = tokenMap.get("access_token");
+   String idToken = tokenMap.get("id_token");
+
+
+.. _workflow_with_ykeykey:
 
 Workflow with on-prem CKMS secret
 ---------------------------------
