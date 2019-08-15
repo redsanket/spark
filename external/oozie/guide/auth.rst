@@ -211,12 +211,17 @@ for fetching ``user.<regular_user_name>`` user certificate. User certificates ar
 Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_
 to create the Athenz role for headless user. After that you can add user principals or Athenz services to the newly created role. Refer `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_
 for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for
-30 days, but will be reduced to 7 days in future.
+30 days and will have to be refreshed once they expire. The validity will be reduced to 7 days in future by the Athenz team.
+If you want to automatically fetch and rotate the role certificates, Athenz provides support for it with `Calypso <https://git.ouroath.com/pages/athens/calypso-guide/role_certs/>`_.
 
 
-To invoke Oozie by Athenz authentication ::
+To invoke Oozie client with Athenz authentication ::
 
     $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties -auth ATHENZ -cert /path/to/role-cert.pem -key /path/to/service.key
+
+To invoke cURL with Athenz authentication ::
+
+$ curl -v -cert /path/to/role-cert.pem -key /path/to/service.key https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
 
 .. _yca_auth-yca_workflow:
 
