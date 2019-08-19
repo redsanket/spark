@@ -337,7 +337,8 @@ ln -f -s /etc/grid-keytabs/kms.$kmsnodeshort.dev.service.keytab /home/y/conf/kms
 yinst install  yahoo_kms -same -live -downgrade -br test \
  -set yahoo_kms.TODO_KEYTAB_FILE=kms.dev.service.keytab \
  -set yahoo_kms.TODO_HOSTNAME=$kmsnode -set yahoo_kms.TODO_KMS_USER=hadoop8 -set yahoo_kms.autostart=off \
- -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM" 
+ -set yahoo_kms.TODO_ZK_CONN_STRING=$kmsnode:50512 -set yahoo_kms.TODO_DOMAIN=DEV.YGRID.YAHOO.COM \
+ -set yahoo_kms.TODO_RPC_PORT=9999"
 
 set -x
 $SSH $kmsnode $cmd_kms
