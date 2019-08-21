@@ -221,7 +221,11 @@ To invoke Oozie client with Athenz authentication ::
 
 To invoke cURL with Athenz authentication ::
 
-$ curl -v -cert /path/to/role-cert.pem -key /path/to/service.key https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
+$ curl -v --cert /path/to/role-cert.pem --key /path/to/service.key https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
+
+Note: It is --cert and --key with cURL, and -cert and -key in Oozie CLI. If the --cert argument is not right,
+you will see ``* NSS: client certificate not found (nickname not specified)`` warning in cURL verbose output.
+
 
 .. _yca_auth-yca_workflow:
 
