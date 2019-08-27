@@ -96,7 +96,7 @@ fi
 
 # Parse the hadoop short version: e.g 2.6
 export HADOOPVERSION=`echo $FULLHADOOPVERSION|cut -d. -f1,2`
-if [[ "$HADOOPVERSION" > "2.6" ]]; then
+if [ $HADOOPVERSION > 2.6 ]; then
     HADOOP_27="true"
 else
     HADOOP_27="false"
