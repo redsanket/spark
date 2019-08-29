@@ -60,7 +60,7 @@ Then include the service token as follows in your request
 
     curl -v --cookie "okta_at={token}" "<storm_api_endpoint>" --cert <generated_service_cert>  --key <service_private_key>
 
-NOTE: Till ystorm version 153 is released we do not support Athenz auth via the OktaProxy so please follow both parts above from within grid to authenticate headlessly.    
+NOTE: Till ystorm-2.0.1.y.153 is released we do not support Athenz auth via the OktaProxy so please follow both parts above from within grid to authenticate headlessly.    
 
 Kerberos Authentication
 -----------------------
