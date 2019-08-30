@@ -101,14 +101,25 @@ if ($use_screwdriver) {
     $screwdriver_scp_opts = "hadoopqa\@";
 }
 
+my $command;
 # gridci-1898 replace igor
 # Retrieve the cluster gateway with rocl if not specified by remote_host.
 if (!$remote_host) {
     my $rolename="grid_re.clusters.$cluster.gateway";
     note("fetch unspecified gateway host role: '$rolename'");
-    $remote_host = `/home/y/bin/rocl -r $rolename -m`;
+    # setup hitusr_cert
+    execute("ykeykeygetkey hitusr_1.key > hitusr_1.pem");
+    execute("chmod 700 hitusr_1.pem");
+    execute("zts-svccert -domain hadoop.grid-re -service hitusr-1 -private-key hitusr_1.pem -key-version 1 -zts https://zts.athens.yahoo.com:4443/zts/v1 -dns-domain zts.yahoo.cloud -hdr Yahoo-Principal-Auth -cert-file hitusr_1.cert"); 
+    execute("chmod 700 hitusr_1.cert");
+    $remote_host = `/home/y/bin/rocl -P ./hitusr_1.pem -C ./hitusr_1.cert -r $rolename -m`;
     chomp($remote_host);
 }
+
+#cleanup hitusr cert
+$command = "rm hitusr_1.pem hitusr_1.cert";
+execute($command);
+
 note("remote gateway host = '$remote_host'");
 unless ($remote_host) {
     warn("ERROR: Missing required remote gateway host!!!");
@@ -122,7 +133,6 @@ $remote_ws = "$tmp/hadooptest-$remote_username-$cluster"
 $remote_ws_ht = "$remote_ws/hadooptest";
 
 # CLEAN UP EXISTING WORKSPACE DIRECTORY
-my $command;
 if (($remote_username eq "hadoopqa") && ($username ne "hadoopqa")) {
     $command = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $screwdriver_ssh_opts -t $remote_host \"if [ -d $remote_ws ]; then sudo /bin/rm -rf $remote_ws; fi\"";
 } else {
