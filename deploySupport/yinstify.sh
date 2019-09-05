@@ -29,6 +29,21 @@ fi
 export HOMEDIR=$HOMEDIR
 echo "export HOMEDIR=$HOMEDIR"
 
+setup_hitusr_cert() {
+    export HITUSR_CERTDIR=`mktemp -d`
+    pushd ${HITUSR_CERTDIR}
+    ykeykeygetkey hitusr_1.key > hitusr_1.pem
+    chmod 700 hitusr_1.pem
+    zts-svccert -domain hadoop.grid-re -service hitusr-1 -private-key hitusr_1.pem -key-version 1 -zts https://zts.athens.yahoo.com:4443/zts/v1 -dns-domain zts.yahoo.cloud -hdr Yahoo-Principal-Auth -cert-file hitusr_1.cert
+    popd
+
+    export ROCL_CMD_WITH_CERT="/home/y/bin/rocl -P ${HITUSR_CERTDIR}/hitusr_1.pem -C ${HITUSR_CERTDIR}/hitusr_1.cert "
+}
+
+cleanup_hitusr_cert() {
+    rm -rf $HITUSR_CERTDIR
+}
+
 mkyicf() {
 	local pkgname=$1
 	local outfile=$2
@@ -197,7 +212,12 @@ install_script=installgrid.sh
 if [[ ! -x /home/y/bin/rocl ]]; then
     yinst i rocl
 fi
-/home/y/bin/rocl -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
+
+setup_hitusr_cert
+
+$ROCL_CMD_WITH_CERT -r %grid_re.clusters.${CLUSTER}% > ${CLUSTER}.rolelist.txt
+
+cleanup_hitusr_cert
 
 cmd="conf/hadoop/hadoopAutomation/$install_script \"${CLUSTER}\""
 mkyicf  "$pkg"  "$pkg.yicf"  "YINST start 200  $cmd"
