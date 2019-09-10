@@ -207,7 +207,7 @@ The yarn cluster mode is a batch mode where the entire application runs on the g
 
 ::
 
-    spark-submit --master yarn --deploy-mode cluster --class <your_main_class_to_run> \
+    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --class <your_main_class_to_run> \
     --queue <queue_name> <name and path to your application jar> <arguments your program takes>
 
 Please run ``spark-submit --help`` to see the command line options.
@@ -224,13 +224,13 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
 ::
 
-    spark-shell --master yarn --deploy-mode client
+    $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client
 
 - PYSpark for interactive queries in python
 
 ::
 
-    pyspark --master yarn --deploy-mode client
+    $SPARK_HOME/bin/pyspark --master yarn --deploy-mode client
 
 - sparkR for interactive queries in R: :ref:`soy_sparkr`
 
@@ -240,7 +240,7 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
 ::
 
-    spark-submit --master yarn --deploy-mode client --class <your_main_class_to_run> \
+    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode client --class <your_main_class_to_run> \
     --queue <queue_name> <name and path to your application jar> <arguments your program takes>
 
 
