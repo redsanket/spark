@@ -79,3 +79,20 @@ SQL Migration Guide
 ------------------
 - You can follow the sql upgrading guide here: https://spark.apache.org/docs/latest/sql-migration-guide-upgrade.html  which enlists the changes required to upgrade
   from one version of spark to another(example: upgrading from Spark SQL 2.3 to 2.4).
+
+Handling spark.sql.files.maxPartitionBytes in Spark SQL
+------------------------------------------------------
+- Spark SQL takes into account a bunch of factors while computing the maximum number of bytes to pack within a single partition.
+
+Currently, it computes the maximum number of bytes per partition in Spark SQL with the following equation:
+
+val maxSplitBytes = Math.min(defaultMaxSplitBytes, Math.max(openCostInBytes, bytesPerCore))
+
+Where,
+val bytesPerCore = totalBytes / defaultParallelism,
+openCostInBytes is set by conf spark.sql.files.openCostInBytes(default is 4 MB),
+defaultMaxSplitBytes is set by conf spark.sql.files.maxPartitionBytes(default is 128 MB),
+totalBytes is total number of bytes to be read as input,
+defaultParallelism is a configuration that depends on the number of cores allocated at runtime.
+
+So, ultimately, the value computed in maxSplitBytes will represent the number of bytes to be packed in a single partition.
