@@ -47,15 +47,53 @@ Solutions
 
    Logs to look at:
 
-   - **Error on Hive CLI** - See if that matches any of the problems reported in 
+   - **Error on Hive CLI** - See if that matches any of the problems reported in
      this troubleshooting chapter.
-   - **Hive CLI log** - '$HOME/hivelogs'. There will be a ``hive.log.<pattern>``i, which 
+
+   - **Hive CLI log** - '$HOME/hivelogs'. There will be a ``hive.log.<pattern>``, which
      will contain the Hive CLI's log. There will be one file log file per session.
-   - **Job and Task pages** - if the job fails. The Job page in JobTracker will be 
-     displayed for all jobs that are launched.
-   - Errors should be covered in all the logs above. If no exception/error is present 
+
+      .. image:: images/hive-client-log-location.png
+         :height: 516px
+         :width: 883px
+         :scale: 80%
+         :alt:
+         :align: center
+
+      .. image:: images/hive-client-log.png
+         :height: 516px
+         :width: 883px
+         :scale: 80%
+         :alt:
+         :align: center
+
+   - **Job and Task pages** - if the job fails. The Job page in JobTracker will be
+     displayed for all jobs that are launched. The job may be found on the cluster's Tez homepage,
+     as follows:
+
+      + On the Tez homepage for the cluster, search for the application-id, or the submitter:
+
+         .. image:: images/tez-job-search.png
+            :height: 516px
+            :width: 883px
+            :scale: 80%
+            :alt:
+            :align: center
+
+      + Click on the DAG name, to go to the Tez DAG. Include this link when reporting the error. Additionally,
+        error logs from the Application Master or a specific Vertex may be retrieved from the "Application ID" or
+        "Vertex Name" links.
+
+         .. image:: images/tez-dag-home.png
+            :height: 516px
+            :width: 883px
+            :scale: 80%
+            :alt:
+            :align: center
+
+   - Errors should be covered in all the logs above. If no exception/error is present
      in the above list, talk to Hive solutions and support with the above information, 
-     tables used, schema, and the type of query launched.
+     tables used, schema, and failing query in full (with all variables expanded).
 
 
 .. _not_found:
@@ -68,7 +106,7 @@ Solutions
        Hive history file=/home/y/libexec/hive_cli/logs/hadoopqa/hive_job_log_hadoopqa_201010062007_184624718.txt
        Exception in thread "main" java.io.FileNotFoundException: /homes/hadoopqa/.hivehistory (No such file or directory)
        The $HOME directory /homes/{userid} will not be mounted for the user on the node 
-       and hence the hive history file cannot be created. If its not possible to mount 
+       and hence the hive history file cannot be created. If it is not possible to mount
        the home directory on the node, override user.home configuration to a different 
        directory which is private to the user.
 

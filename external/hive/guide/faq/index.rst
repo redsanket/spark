@@ -8,7 +8,7 @@ troubleshooting issues, see `Troubleshooting <../troubleshooting/>`_.
 Questions
 =========
 
-* :ref:`Where are the log files created? <log_files>`  
+* :ref:`Where are the log files created? <log_files>`
 * :ref:`What should I inspect before reporting a problem to @grid-solutions or @hive-dev? <report_problems>`  
 * :ref:`What are the delimiters for data and how can I customize them? <delimiters>`  
 * :ref:`How are the delimiters expected with multiple nested complex types? <nested>`  
@@ -24,6 +24,7 @@ Questions
 * :ref:`Does Hive support functions that can be used in a query? <support_funcs>`
 * :ref:`Where can I find documentation on how to write user defined functions? <doc_user_funcs>`
 * :ref:`What are the input formats supported in Hive? <supported_input>`
+* :ref:`Why is CREATE TABLE failing for Avro tables? <avro_create_table>`
 * :ref:`Can I do custom transformations in the query and output the data? <custom_trans>`
 * :ref:`What are the advantages of using "SORT BY" when creating tables? <sort_by>`
 * :ref:`What are the known problems of using "ORDER BY"? <order_by>`
@@ -33,6 +34,7 @@ Questions
 * :ref:`Can scratch directories be configured? <config_scratch>`
 * :ref:`Can I control the Hive logging level? (I don't like too many hive log files under $HOME/hivelogs.) <log_levels>`
 * :ref:`My Hive program fails because tasks run out of memory. How do I adjust memory settings for Hive jobs? <memory_tuning>`
+* :ref:`Why does selecting a simple projection from a table take so long? <fetch_task_conversion>`
 
 
 Answers
@@ -164,6 +166,29 @@ Answers
 
    Please note, you must set ``hive.input.format`` to the appropriate java class.
 
+.. _avro_create_table:
+.. topic:: **Why is CREATE TABLE failing for Avro tables?**
+
+   Avro tables require special handling with YGrid Hive. Unlike with other data formats, Avro schemas are stored outside the table's column schema in the Hive metastore.
+   This may be stored in one of two ways:
+   - Avro schema JSON string, stored in the "``avro.schema.literal``" table property
+   - Avro schema JSON string stored on HDFS, and pointed to by the "``avro.schema.url``" table property
+
+   The contents of Avro schema-strings tend to be too large to be stored as an "``avro.schema.literal``"; the use of "``avro.schema.url``" is preferred, i.e.
+   ::
+
+    CREATE TABLE my_avro_table STORED AS AVROFILE TBLPROPERTIES( 'avro.schema.url' = 'hdfs:///path/to/schema.avsc' );
+
+   If the contents of the "``schema.avsc``" exceeds 4K characters, it is possible that this table creation might fail. One can work around this by splitting up
+   the table creation as follows:
+   ::
+
+    CREATE TABLE my_avro_table ( first_column <type> ) STORED AS AVROFILE;
+
+    ALTER TABLE my_avro_table SET TBLPROPERTIES( 'avro.schema.url' = 'hdfs:///path/to/schema.avsc' );
+
+   If an Avro table's schema needs to be modified, it must be done in the "``schema.avsc``", instead of using an ``ALTER TABLE CHANGE COLUMNS`` command.
+
 .. _custom_trans:
 .. topic:: **Can I do custom transformations in the query and output the data?**
 
@@ -272,6 +297,18 @@ Answers
       2. "The JVM Tax": Ensure that the heap-size (Xmx setting) is at 80% of the container size (or at least 512MB less than container size). This covers the JVM overhead.
       3. In case more memory is required in a mapper/reducer, please try bumping the corresponding container sizes by 512MB at a time, and adjust the heap sizes according to above.
       4. Please be careful about how much you bump the container sizes. These resources are shared by others on your queue/cluster.
+
+.. _fetch_task_conversion:
+.. topic:: **Why does selecting a simple projection from a table take so long?**
+
+   For speeding up queries that select simple projections from tables, consider using the Hive "fetch-task conversion" optimization by setting ``hive.fetch.task.conversion=more``.
+   Hive then attempts to run queries (with simple projections, limit clauses, and without group-by) within the Hive client, instead of submitting a cluster-job.
+   This is particularly useful for exploratory queries to sample table-contents.
+
+   While this approach is usually faster for queries with non-existent or easily satisfied selection predicates, it has potential to be *much* slower, if the predicates are rarely satisfied.
+   For instance, a query with a predicate like "``WHERE userid IS NULL``" will run much more slowly, if the data rarely has ``NULL`` values for ``userid``.
+   (This is because the data-files will be scanned linearly on the Hive client, looking for the elusive record.)
+   For cases like this, it would be better to ``set hive.fetch.task.conversion=minimal``, and have Hive launch a cluster job to scan the data in parallel.
 
 .. |DDL| replace:: Hive Language Manual
 .. _DDL: https://cwiki.apache.org/confluence/display/Hive/LanguageManual 
