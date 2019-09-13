@@ -44,7 +44,7 @@ If you're accessing it as a real user the OktaProxy will make you authenticate v
 Athenz/x509
 ###########
 
-If you're accessing the APIs headlessly you need to use x509 client certs. Follow this `guide <https://git.ouroath.com/pages/athens/athenz-guide/service_x509_credentials/>`_ on generating the requisite certs. For accessing Storm directly and not via
+If you're accessing the APIs headlessly you need to use x509 client certs. Follow this `guide <https://git.ouroath.com/pages/athens/athenz-guide/service_x509_credentials/>`_ on generating the requisite certs. For accessing Storm directly (i.e from within grid) and not via
 the Okta proxy this should be sufficient.
 
 If you're accessing Storm headlessly through the OktaProxy (which will happen if you're accessing it from outside grid) you will also need to include the Athenz service token. Please file a JIRA to add your Athenz service to the Storm headless role.
@@ -59,8 +59,7 @@ Then include the service token as follows in your request
 ::
 
     curl -v --cookie "okta_at={token}" "<storm_api_endpoint>" --cert <generated_service_cert>  --key <service_private_key>
-
-NOTE: Till ystorm-2.0.1.y.153 is released we do not support Athenz auth via the OktaProxy so please follow both parts above from within grid to authenticate headlessly.    
+   
 
 Kerberos Authentication
 -----------------------
