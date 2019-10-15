@@ -326,7 +326,7 @@ fi
 banner "Make sure rocl is installed on all the nodes"
 set -x
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
-/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'yinst install -yes rocl-3.6.8.2'
+/home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'if [ ! -x /home/y/bin/rocl ]; then yinst install -yes rocl; fi'
 RC=$?
 set +x
 if [[ $RC -ne 0 ]]; then
