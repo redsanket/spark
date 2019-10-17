@@ -570,94 +570,199 @@ Mac
 
 .. _tableau-mac_reqs:
 
-Miniumum Requirements
+Minimum Requirements
 *********************
 
-- MacBook Pro (mid/late 2007 or newer)
-- MacBook Air (late 2008 or newer)
-- OS X 10.8.1 or later (10.8.6 or later recommended)
+- OS X version 10.12, 10.13, or 10.14
 - 2 GB memory
-- 500 MB available disk space
+- 100 MB available disk space
+- iODBC 3.52.9+
 
 .. _tableau_windows-instructions:
 
-Install and Configure the Hortonworks Hive ODBC Driver
+Install and Configure the Simba Hive ODBC Driver
 ******************************************************
 
-#. Download and install the `Hortonworks Hive ODBC Driver for Mac OS X <http://public-repo-1.hortonworks.com/HDP/hive-odbc/1.4.8.1008/Mac_OS_X/hive-odbc-native.dmg>`_.
-#. Append the following to your ``/etc/profile`` file (you will need root access)::
+#. Download and install the `Simba Hive ODBC Driver for Mac OS X <https://drive.google.com/open?id=19gFskgkzaJrf21N4Wl7zB2gddShe1RU8>`_,
+as per `Simba's documentation <https://www.simba.com/products/Hive/doc/ODBC_InstallGuide/mac/content/odbc/macosx/install.htm>`_, i.e.
 
-       if [ "${DYLD_LIBRARY_PATH}" = "" ]; then
-           # For Hortonworks Hadoop Hive driver
-           export DYLD_LIBRARY_PATH="/usr/lib/hive/lib/native/universal" 
-       else 
-           export DYLD_LIBRARY_PATH="/usr/lib/hive/lib/native/universal":"${DYLD_LIBRARY_PATH}" 
-       fi
+    - Double-click ``SimbaHiveODBC.dmg`` to mount the disk image.
+    - Double-click ``SimbaHiveODBC.pkg`` to run the installer.
+    - In the installer, click ``Continue``.
+    - On the ``Software License Agreement`` screen, click ``Continue``, and when the prompt appears, click Agree, then ``Install``.
 
-#. Create the file ``/etc/launchd.conf`` with the following:: 
+The driver files will be installed under **/Library/simba/hive**.
 
-       setenv DYLD_LIBRARY_PATH /usr/lib/hive/lib/native/universal 
+#. Download the `Simba Hive ODBC Driver Mac License <https://drive.google.com/open?id=1hg9nHrB4FEmMQXtL_lY3yasYSsiAZ3zm>`_
+and save it as **/Library/simba/hiveodbc//lib/SimbaApacheHiveODBCDriver.lic**. (You will need *root* privileges.)
 
-   If the  file exists, append ``/usr/lib/hive/lib/native/universal`` to the 
-   existing ``DYLD_LIBRARY_PATH`` after a colon. For example::
+The driver should now be ready for use.
 
-       setenv DYLD_LIBRARY_PATH <existing text>:/usr/lib/hive/lib/native/universal 
+#. Download and install iODBC. (Available from `iodbc.org <http://www.iodbc.org/dataspace/doc/iodbc/wiki/iodbcWiki/Downloads>`_, or
+`on Google Drive <https://drive.google.com/open?id=1QexsK88FRzJgL86OPydPgo7z1CpK3Wmp>`_. This should allow the definition of ODBC
+data sources that use the Simba ODBC driver.
 
-#. Restart your Mac to ensure Tableau loads the driver correctly.
 
-Set Up Kerberos 
-***************
+#. Create the file ``/etc/krb5.conf`` with the contents from the appropriate cluster gateway. For YGRID, it might look as follows::
 
-#. Create the file ``etc/krb5.conf`` with the following::
+    [libdefaults]
+     default_realm = YGRID.YAHOO.COM
+     dns_fallback = true
+     dns_lookup_kdc = false
+     dns_lookup_realm = true
+     ticket_lifetime = 24h
+     forwardable = true
+     udp_preference_limit = 1
+     renew_lifetime = 7d
+     default_tgs_enctypes = aes256-cts
+     default_tkt_enctypes = aes256-cts
+     permitted_enctypes = aes256-cts aes128-cts arcfour-hmac-md5 des3-cbc-sha1
 
-       [logging]
-           default = FILE:/var/log/krb5libs.log
-           kdc = FILE:/var/log/krb5kdc.log
-           admin_server = FILE:/var/log/kadmind.log
-   
-       [libdefaults]
-           default_realm = YGRID.YAHOO.COM
-           dns_fallback = true
-           dns_lookup_kdc = false
-           dns_lookup_realm = true
-           ticket_lifetime = 24h
-           forwardable = yes
-           udp_preference_limit = 1
-           renew_lifetime = 7d
-           allow_weak_crypto=true
-           default_tgs_enctypes = des-cbc-md5 des-cbc-crc arcfour-hmac-md5 des3-cbc-sha1 aes128-cts aes256-cts
-   
-       [realms]
-           YGRID.YAHOO.COM = {
-              admin_server = krb-adm.ygrid.yahoo.com.:749
-              kdc = krb-rr1.red.ygrid.yahoo.com.:88
-              kdc = krb-rr2.red.ygrid.yahoo.com.:88
-              kdc = krb-rr3.red.ygrid.yahoo.com.:88
-              kdc = krb-rr4.red.ygrid.yahoo.com.:88
-              auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-              auth_to_local = RULE:[1:$1@$0](.*@YGRID.YAHOO.COM)s/@.*//
-           }
-   
-           DS.CORP.YAHOO.COM = {
-               kdc = bf1-dc1.corp.bf1.yahoo.com.:88
-               kdc = bf1-dc2.corp.bf1.yahoo.com.:88
-               kdc = sp1-dc1.corp.sp1.yahoo.com.:88
-               kdc = sp1-dc2.corp.sp1.yahoo.com.:88
-               kdc = ac4-dc1.corp.ac4.yahoo.com.:88
-               kdc = ac4-dc2.corp.ac4.yahoo.com.:88
-               auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-           }
-   
-           Y.CORP.YAHOO.COM = {
-               kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
-               kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
-               kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
-               kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
-               auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
-           }
+    [realms]
+     YGRID.YAHOO.COM = {
+      admin_server = krb-adm.ygrid.yahoo.com.:749
+      kdc = krb-rr1.red.ygrid.yahoo.com.:88
+      kdc = krb-rr2.red.ygrid.yahoo.com.:88
+      kdc = krb-rr3.red.ygrid.yahoo.com.:88
+      kdc = krb-rr4.red.ygrid.yahoo.com.:88
+      auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+      auth_to_local = RULE:[1:$1@$0](.*@YGRID.YAHOO.COM)s/@.*//
+      pkinit_kdc_hostname = ygrid-kdc.hadoop-prod.zts.yahoo.cloud
+      pkinit_eku_checking = kpServerAuth
+      pkinit_anchors = FILE:/opt/yahoo/share/ssl/certs/athenz_certificate_bundle.pem
+     }
+
+
+     Y.CORP.YAHOO.COM = {
+      kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
+      kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
+      kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
+      kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
+      auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+     }
+
+    [domain_realm]
+      .ygrid.yahoo.com = YGRID.YAHOO.COM
+      ygrid.yahoo.com = YGRID.YAHOO.COM
+      ygrid.corp.sp1.yahoo.com = YGRID.YAHOO.COM
+      .ygrid.corp.sp1.yahoo.com = YGRID.YAHOO.COM
+
+
+    [capaths]
+            YGRID.YAHOO.COM = {
+              Y.CORP.YAHOO.COM = .
+            }
+
+    [appdefaults]
+     pam = {
+       debug=true
+       forwardable=true
+       krb4_convert=false
+       cred_session=sshd
+     }
+#. Alternatively, on VCG, the ``/etc/krb5.conf`` looks as follows::
+
+    [libdefaults]
+     default_realm = VCG.OUROATH.COM
+     dns_fallback = true
+     dns_lookup_kdc = false
+     dns_lookup_realm = true
+     ticket_lifetime = 24h
+     udp_preference_limit = 1
+     renew_lifetime = 7d
+     default_tgs_enctypes = aes256-cts
+
+    [realms]
+      VCG.OUROATH.COM = {
+       kdc = krb-rr1.gq.vcg.ouroath.com.:88
+       kdc = krb-rr2.gq.vcg.ouroath.com.:88
+       admin_server = krb-adm.vcg.yahoo.com.:749
+       auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+       auth_to_local = RULE:[1:$1@$0](.*@VCG.OUROATH.COM)s/@.*//
+      }
+      Y.CORP.YAHOO.COM = {
+       kdc = gq1-gdc01.corp.gq1.yahoo.com.:88
+       kdc = gq1-gdc02.corp.gq1.yahoo.com.:88
+       kdc = bf1-gdc01.corp.bf1.yahoo.com.:88
+       kdc = bf1-gdc02.corp.bf1.yahoo.com.:88
+       auth_to_local = RULE:[1:$1@$0](.*@.*CORP.YAHOO.COM)s/@.*//
+      }
+
+    [domain_realm]
+      .vcg.yahoo.com = VCG.OUROATH.COM
+      vcg.yahoo.com = VCG.OUROATH.COM
+
+    [capaths]
+     VCG.OUROATH.COM =  {
+        Y.CORP.YAHOO.COM = .
+     }
+
 #. Request a ticket: ``$ kinit {your_user_name}@Y.CORP.YAHOO.COM``
 #. Confirm that your ticket was created: ``$ klist``
-  
+
+
+Creating Data Source definitions with iODBC:
+*********************************************
+
+#. Run `iODBC Administrator64` to define data sources, with Simba driver.
+#. Under the ``User DSN`` tab, click on ``Add``.
+#. If authenticating to the Hadoop cluster via Kerberos credentials, (e.g. to KryptoniteRed cluster in YGRID), use the following settings:
+
+    - ``Data Source Name (DSN)``: A descriptive name for the data source (E.g. ``KryptoniteRed HS2 Kerberos``)
+    - ``Comment``: A descriptive comment for the data source (E.g. ``KryptoniteRed Hive with Kerberos Authentication``
+    - ``Host``: Hostname (E.g. ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com``)
+    - ``Port``: ``50514``
+    - ``HiveServerType``: ``2`` (i.e. HiveServer2)
+    - ``ThriftTransport``: ``1`` (i.e. For Thrift/SASL)
+    - ``AuthMech``: ``1`` (i.e. "Kerberos")
+    - ``KrbServiceName``: ``hive`` (Kerberos Service name for YGRID cluster. On VCG, it is ``HTTP``)
+    - ``KrbHostFQDN``: ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (Kerberos FQDN)
+    - ``KrbRealm``: ``YGRID.YAHOO.COM`` (Kerberos Realm for YGRID clusters. For VCG, it is ``VCG.OUROATH.COM``).
+    - ``Schema``: Name of database being accessed (E.g. ``default``).
+
+   .. image:: images/macos_iodbc64_kerberos.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Simba Hive ODBC Driver DSN Setup on MacOS
+      :align: center
+
+#. Alternatively, if authenticating to the Hadoop cluster via X509 certificates, (e.g. to Polaris cluster in VCG), use the following settings:
+
+    - ``Data Source Name (DSN)``: A descriptive name for the data source (E.g. ``Polaris HS2 X509``)
+    - ``Comment``: A descriptive comment for the data source (E.g. ``Polaris Hive with Athenz Certificates``
+    - ``Host``: Hostname (E.g. ``polarisgq-hs.gq.vcg.yahoo.com``)
+    - ``Port``: ``4443``
+    - ``HiveServerType``: ``2`` (i.e. HiveServer2)
+    - ``ThriftTransport``: ``2`` (i.e. HTTPS)
+    - ``SSL``: ``1`` (i.e. SSL-enabled)
+    - ``TwoWaySSL``: ``1`` (i.e. Enable mutual TLS)
+    - ``AuthMech``: ``0`` (i.e. "No authentication" (though, not really.))
+    - ``HTTPPath``: ``cliservice`` (i.e. The webservice end-point.)
+    - ``CAIssuedCertNamesMismatch``: ``1`` (i.e. Allow the names in CA-issued SSL certificates *not* to match the HS2 hostname.)
+    - ``ClientCert``: Path to user's Athenz Role-certificate
+    - ``ClientPrivateKey``: Path to user's private key
+    - ``Schema``: Name of database being accessed (E.g. ``default``).
+
+   .. image:: images/macos_iodbc64_x509.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Simba Hive ODBC Driver DSN Setup on MacOS
+      :align: center
+
+#. Click on ``OK`` to save. This saves the settings to ``~/odbc.ini``. For instance, for the two data sources defined above,
+(``KryptoniteRed`` and ``Polaris``), the ``odbc.ini`` would have the following entries:
+
+    .. image:: images/macos_odbc_ini.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  odbc.ini on MacOS
+      :align: center
+
+#. Click on ``Test`` to test that the data source was configured correctly. If a dialog-box pops up for ``Username`` and ``Password``, leave them blank.
+A successful test should display a window saying ``The connection DSN was tested successfully, and can be used at this time.``.
 
 .. _tableau_setup-windows:
 
@@ -678,7 +783,7 @@ Requirements
 Install MIT Kerberos Software
 *****************************
 
-#. `Download the installer for 64-bit system <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fweb.mit.edu%2Fkerberos%2Fdist%2Fkfw%2F4.0%2Fkfw-4.0.1-amd64.msi&SIG=1208b47ak>`_. 
+#. `Download the installer for 64-bit system <https://web.mit.edu/kerberos/dist/>`_.
 #. Run the installer by clicking the file and choosing the **Typical** install as shown below.
 
    .. image:: images/kerberos_setup.jpg
@@ -759,7 +864,6 @@ Install MIT Kerberos Software
    in the figure below.
 
    - Your principal is ``{your_corp_id}@Y.CORP.YAHOO.COM``, if you're on the ``Y`` domain.
-   - Your principal is ``{your_corp_id}@DS.CORP.YAHOO.COM``, if you're still on ``DS`` domain.
 
    .. image:: images/kerberos_get_ticket.jpg
       :height: 225 px
@@ -778,54 +882,49 @@ Install MIT Kerberos Software
       :alt:  Kerberos: Change Adapter Settings
       :align: left
 
-#. Right-click your currently active connection (either **Local Area Connection** or 
-   **Wireless Network Connection** depending on how you're connected) and 
-   select **Properties**. (Click **Yes** in the **User Account Control** dialog window.)
-#. From the **Local Area Connection Properties**, double-click **Internet Protocol Version 4**.
-#. From the **Internet Protocol Version 4 (TCP/IPv4) Properties** dialog, select 
-   **Use the following DNS server addresses:** and enter the IP addresses below if you are 
-   on the Yahoo corporate network:
+When using network other than the Yahoo corporate network, you will need to update the
+principals and IP addresses for DNS. Please consult your system administrator, or contact grid-ops.
 
-   - 68.180.202.97 
-   - 68.180.202.98
+.. _tableau_setup-odbc-kerberos:
 
-#. Click **OK** to close the opened dialog boxes.
+Install and Configure the Simba Hive ODBC Driver to access Hive via Kerberos
+*********************************************************************************
 
-When using network other than the Yahoo corporate network, you will need to update the 
-principals and IP addresses for DNS.
-
-.. _tableau_setup-odbc:
-
-Install and Configure the Hortonworks Hive ODBC Driver
-******************************************************
-
-#. `Download the installer <http://twiki.corp.yahoo.com/pub/Grid/HiveServer2BITools/HortonworksHiveODBC32-v1.2.15.1020.msi>`_ 
-   for the Hortonworks Hive ODBC driver. The driver version must be 1.2.15 and higher for setting job queues.
-   (Also, ensure that the file is saved with the extension ``.msi``.) 
+#. `Download the installer <https://drive.google.com/file/d/1jn0V5lbGGILTM2uUZuG_MGKczfqA7HKr/view?usp=sharing>`_
+   for the Simba Hive ODBC driver. (Ensure that the file is saved with the extension ``.msi``.)
 #. Run the installer, clicking **Yes** whenever prompted by **User Account Control** and 
-   ignoring any warnings thrown by anti-virus software. 
+   ignoring any warnings thrown by anti-virus software.
+#. `Download the Simba Hive ODBC driver license <https://drive.google.com/file/d/14qIwOKfMO996Hd94bBfZY7oyEPpPOc8R/view?usp=sharing>`_
+#. Copy the license file to ``C:/Program Files/Simba Hive ODBC Driver/lib``, and rename to ``SimbaApacheHiveODBCDriver.lic``.
 
-   .. note:: This is a 32-bit ODBC driver as Tableau is only available as a 32-bit application for now.
-#. Go to **Start > All Programs > Hortonworks Hive ODBC Driver 1.2 (32-bit) > Driver Configuration**. 
+#. Go to **Start > All Programs > Simba Hive ODBC Driver 2.6 (64-bit) > Driver Configuration**.
 #. When prompted by **User Account Control**, click **Yes** to open the **ODBC Data Source Administrator** dialog.
-#. In **Hortonworks Hive ODBC Driver Configuration**, enter the following, being sure not to add extra
+#. In **Simba Hive ODBC Driver Configuration**, enter the following, being sure not to add extra
    spaces before or after the configuration value as that will cause errors:
 
    - **Hive Server Type:** Choose **Hive Server 2** from the drop-down list
+   - **Service Discovery Mode:** Choose **No Service Discovery** from the drop-down list
+   - **ZooKeeper Namespace:** Leave blank
    - **Authentication Mechanism:** Choose **Kerberos** from the drop-down list.
    - **Realm:** ``YGRID.YAHOO.COM``
    - **Host FQDN:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (Again, refer to 
      :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>` when setting up for another grid VIP.)
    - **Service Name:** ``hive``
+   - **Canonicalize Principal FQDN:** Leave unchecked
+   - **Delegate Kerberos Credentials:** Leave unchecked
+   - **User Name:** Leave blank
+   - **Password:** Leave blank
+   - **Delegation UID:** Leave blank
+   - **Thrift Transport:** Choose **SASL** from drop-down list
 
-   The filled out fields in the dialog **Hortonworks Hive ODBC Driver Configuration** should 
+   The filled out fields in the dialog **Simba Hive ODBC Driver Configuration** should
    look similar to the following figure:
 
-   .. image:: images/hw_hive_odbc_driver_config.jpg
-      :height: 310 px
+   .. image:: images/simba_hive_odbc_driver_config.jpg
+      :height: 706 px
       :width: 353 px
       :scale: 95%
-      :alt:  Hortonworks Hive ODBC Driver Configuration
+      :alt:  Simba Hive ODBC Driver Configuration
       :align: left
 
 #. Click **Advanced Options...** to open the **Advanced Options** dialog.
@@ -835,7 +934,7 @@ Install and Configure the Hortonworks Hive ODBC Driver
       :height: 342 px
       :width: 473 px
       :scale: 95%
-      :alt:  Hortonworks Hive ODBC Driver DSN Setup: Advanced Options 
+      :alt:  Simba Hive ODBC Driver DSN Setup: Advanced Options
       :align: left
 
 #. From the same dialog box, click **Add...** to add the server property for configuring a job queue.
@@ -846,7 +945,7 @@ Install and Configure the Hortonworks Hive ODBC Driver
              and run the command ``mapred queue -showacls``. You should see the queue names and the operations
              that are allowed. You can use the job queue that list the operation **SUBMIT_APPLICATIONS**.
 
-#. Go to **Start > All Programs > Hortonworks Hive ODBC Driver 1.2 (32-bit) > 32-bit ODBC Administrator**. We're
+#. Go to **ODBC Data Sources (64-bit)**. We're
    going to set many of the same configurations with the administrator tool.
 
 #. When prompted by **User Account Control**, click **Yes** to open the **ODBC Data Source Administrator** dialog.
@@ -859,7 +958,7 @@ Install and Configure the Hortonworks Hive ODBC Driver
       :alt:  ODBC Data Source Administrator: System DSN
       :align: left
 
-#. From the **System DSN** dialog, you'll see **Sample Hortonworks Hive DSN**. Select it and click **Configure...**
+#. From the **System DSN** dialog, you'll see **Simba Hive**. Select it and click **Configure...**
    as shown below.
 
    .. image:: images/hive_odbc_sys_dsn.jpg
@@ -868,50 +967,168 @@ Install and Configure the Hortonworks Hive ODBC Driver
       :scale: 95%
       :alt:  ODBC Data Source Administrator: System DSN
       :align: left
-#. In **Hortonworks Hive ODBC Driver DSN Setup**, enter the following. Again, be sure not to add extra
+#. In **Simba Hive ODBC Driver DSN Setup**, enter the following. Again, be sure not to add extra
    spaces before or after the configuration value as that will cause errors:
 
-   - **Description:** {Anything that you choose to describe this connection, or even leave 
-     it unchanged}
-   - **Host:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (When setting up for other 
+   - **Data Source Name: {A descriptive name for the connection/data-source}
+   - **Description:** {Description of the connection/data-source}
+   - **Hive Server Type:** Choose **Hive Server 2** from the drop-down list
+   - **Service Discovery Mode:*** ``No Service Discovery``
+   - **Host:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (When setting up for other
      grid hosts, please refer to :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>`.)
    - **Port:** 50514
-   - **Database:** tableau (We have prepared this sample database for this tutorial, but 
-     feel free to use your own. To view the available databases, log on to the grid host, 
-     start the Hive shell, and run ``show databases;``.)   
-   - **Hive Server Type:** Choose **Hive Server 2** from the drop-down list
+   - **Database:** ``my_db``, or the name of the database being accessed. (To view the available databases, log on to the grid host,
+     start the Hive shell, and run ``show databases;``.)
+   - ZooKeeper Namespace: {blank}
    - **Authentication Mechanism:** Choose **Kerberos** from the drop-down list.
    - **Realm:** ``YGRID.YAHOO.COM``
    - **Host FQDN:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (Again, refer to 
      :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>` when setting up for another grid VIP.)
    - **Service Name:** ``hive``
+   - **Canonicalize Principal FQDN:** Leave unchecked
+   - **Delegate Kerberos Credentials:** Leave unchecked
+   - **User Name:** Leave blank
+   - **Password:** Leave blank
+   - **Delegation UID:** Leave blank
+   - **Thrift Transport:** Choose **SASL** from drop-down list
 
-   
-   The filled out fields in the dialog **Hortonworks Hive ODBC Driver DSN Setup** should 
+   The filled out fields in the dialog **Simba Hive ODBC Driver DSN Setup** should
    look similar to the following figure:
 
-   .. image:: images/hortonworks_hive_odbc_dsn_setup.jpg
+   .. image:: images/simba_hive_odbc_dsn_setup.jpg
       :height: 470 px
       :width: 353 px
       :scale: 95%
-      :alt:  Hortonworks Hive ODBC Driver DSN Setup 
+      :alt:  Simba Hive ODBC Driver DSN Setup
       :align: left
 
 #. Click **Advanced Options...** to open the **Advanced Options** dialog.
-#. From the dialog box, set **Rows fetched per block** as we did earlier for the **Hortonworks Hive ODBC Driver Configuration**. 
+#. From the dialog box, set **Rows fetched per block** as we did earlier for the **Simba Hive ODBC Driver Configuration**.
 #. From the same dialog box, click **Add...** to add the server property for configuring a job queue.
 #. In the **Edit Property** dialog, as before, enter the key **mapred.job.queue.name**, the same job
    queue name that you entered before, and click **OK**. (Again, you will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.)
 #. Click **OK** to close the box.
-#. From the **Hortonworks Hive ODBC Driver DSN Setup** dialog, click **Test** to see if things work. 
+#. From the **Simba Hive ODBC Driver DSN Setup** dialog, click **Test** to see if things work.
    If all goes well, you should see **TESTS COMPLETED SUCCESSFULLY!**.
    If your Kerberos credentials have expired, you'll get **GSSAPI Error** or get the **MIT 
    Kerberos** window to renew them, provided the **MIT Kerberos Ticket Manager** is already running 
    in the background. Enter your principal as instructed above to let the test proceed.
 
 #. Click **OK** to close the setup and then close the **ODBC Administrator**.
-#. Congratulations, you can now use the Hortonworks Hive ODBC Driver with Tableau or any ODBC enabled application. 
+#. Congratulations, you can now use the Simba Hive ODBC Driver with Tableau or any ODBC enabled application.
 
+
+.. _tableau_setup-odbc-x509:
+
+Install and Configure the Simba Hive ODBC Driver to access Hive via Athenz (X509) certificates
+*************************************************************************************************
+
+#. `Download the installer <https://drive.google.com/file/d/1jn0V5lbGGILTM2uUZuG_MGKczfqA7HKr/view?usp=sharing>`_
+   for the Simba Hive ODBC driver. (Ensure that the file is saved with the extension ``.msi``.)
+#. Run the installer, clicking **Yes** whenever prompted by **User Account Control** and
+   ignoring any warnings thrown by anti-virus software.
+#. `Download the Simba Hive ODBC driver license <https://drive.google.com/file/d/14qIwOKfMO996Hd94bBfZY7oyEPpPOc8R/view?usp=sharing>`_
+#. Copy the license file to ``C:/Program Files/Simba Hive ODBC Driver/lib``, and rename to ``SimbaApacheHiveODBCDriver.lic``.
+
+#. Go to **ODBC Data Sources (64-bit)**. Select to "Run as administrator". We're
+   going to set many of the same configurations with the administrator tool.
+
+#. If prompted by **User Account Control**, click **Yes** to open the **ODBC Data Source Administrator** dialog.
+   Enter the administrator password, if prompted.
+#. From the **ODBC Data Source Administrator** dialog shown below, select the second tab **System DSN**.
+
+   .. image:: images/odbc_data_src_admin.jpg
+      :height: 389 px
+      :width: 471 px
+      :scale: 95%
+      :alt:  ODBC Data Source Administrator: System DSN
+      :align: left
+
+#. From the **System DSN** dialog, select "Add..." on the right, to add a new data source.
+
+   .. image:: images/odbc_new_data_src.jpg
+      :height: 389 px
+      :width: 471 px
+      :scale: 95%
+      :alt:  ODBC Data Source Administrator: System DSN
+      :align: left
+#. In **Simba Hive ODBC Driver DSN Setup**, enter the following to set up connectivity for Polaris, via X509 certificates.
+   Again, be sure not to add extra spaces before or after the configuration value as that will cause errors:
+
+   - **Data Source Name:** {A descriptive name for the connection/data-source}
+   - **Description:** {Description of the connection/data-source}
+   - **Hive Server Type:** Choose **Hive Server 2** from the drop-down list
+   - **Service Discovery Mode:*** ``No Service Discovery``
+   - **Host(s):** ``polarisgq-hs2-v2.vcg.vip.gq2.yahoo.com`` (When setting up for other
+     grid hosts, please refer to :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>`.)
+   - **Port:** ``4443``
+   - **Database:** ``my_db``, or the name of the database being accessed. (To view the available databases, log on to the grid host,
+     start the Hive shell, and run ``show databases;``.)
+   - ZooKeeper Namespace: {blank}
+   - **Authentication Mechanism:** Choose **No Authentication** from the drop-down list.
+   - **Realm:**          {blank}
+   - **Host FQDN:**      {blank}
+   - **Service Name:**   {blank}
+   - **User Name:**      {blank}
+   - **Password:**       {blank}
+   - **Delegation UID:** {blank}
+   - **Thrift Transport:** Choose **HTTP** from the drop-down list
+
+   The filled out fields in the dialog **Simba Hive ODBC Driver DSN Setup** should
+   look similar to the following figure:
+
+   .. image:: images/simba_hive_odbc_dsn_x509_setup.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Simba Hive ODBC Driver DSN Setup
+      :align: left
+
+#. Click on **HTTP Options**, to configure HTTP Settings:
+
+   - Set **HTTP Path:** to ``cliservice``
+
+   .. image:: images/simba_hive_odbc_dsn_x509_http.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Simba Hive ODBC Driver DSN Setup
+      :align: left
+
+#. Click on **SSL Options** to set up Mutual TLS and certificate settings:
+
+   - **Enable SSL:** Ensure this is enabled
+   - **Allow Common Name Host Name mismatch:** Ensure this is enabled
+   - **Allow Self-signed Server Certificate:** Disable
+   - **Use System Trust Store:** Enable
+   - **Check Certificate Revocation:** Enable
+   - **Trusted Certificates:** {blank} (Using System Trust Store, for publicly signed certificates)
+   - **Minimum TLS Version:** ``1.2``
+   - **Two-way SSL:** Enabled
+   - **Client Certificate File:** Path to X509 Certificate (PEM), fetched from Athenz
+    `as described here <https://docs.google.com/document/d/1lFL4u2bZfwX8K6VjDKYaQZokrcZCkKU3oUF78jQMDaM/edit#heading=h.m0hb5o3dgrys>`_.
+   - **Client Private Key File:** Path to User's private key (PEM)
+   - **Client Private Key Password:** Password for the Private Key, if there is one. Typically defaults to ``changeit``, or leave it {blank}.
+
+   .. image:: images/simba_hive_odbc_dsn_x509_ssl.jpg
+      :height: 470 px
+      :width: 353 px
+      :scale: 95%
+      :alt:  Simba Hive ODBC Driver DSN Setup
+      :align: left
+
+#. Click **Advanced Options...** to open the **Advanced Options** dialog.
+#. From the dialog box, set **Rows fetched per block** to ``500``.
+#. From the same dialog box, click **Add...** to add the server property for configuring a job queue.
+#. In the **Edit Property** dialog, as before, enter the key **mapred.job.queue.name**, the same job
+   queue name that you entered before, and click **OK**. (Again, you will need to have **SUBMIT_APPLICATION** ACL permission to the job queue.)
+#. Click **OK** to close the box.
+#. From the **Simba Hive ODBC Driver DSN Setup** dialog, click **Test** to see if things work.
+   If all goes well, you should see **TESTS COMPLETED SUCCESSFULLY!**.
+   Otherwise, the error message should describe the SSL-connection error.
+
+#. Click **OK** to close the setup and then close the **ODBC Administrator**.
+#. Congratulations, you can now use the Simba Hive ODBC Driver with Tableau or any ODBC enabled application.
 
 .. _tableau-install:
 
@@ -948,17 +1165,17 @@ III. Connecting Tableau to HiveServer2
 --------------------------------------
 
 After you've installed Tableau, you can connect Tableau to HiveServer2 
-using the Hortonworks Hive ODBC Driver by following the steps below:
+using the Simba Hive ODBC Driver by following the steps below:
 
 .. note:: The screenshots were taken on a Windows machine, but the Tableau interface
           for both Mac and Windows are the same except where marked in the instructions below. 
           
 #. Start **Tableau Desktop**.
 #. In the top-left corner, click **Connect to data**.
-#. In the **On a server** list, select **Hortonworks Hadoop Hive**.
+#. In the **On a server** list, select **Simba Hadoop Hive**.
 
    .. note:: Ensure that you've already set up the 'Driver Configuration' 
-#. From the **Hortonworks Hadoop Hive Connection** dialog, enter the following information
+#. From the **Simba Hadoop Hive Connection** dialog, enter the following information
 
    * **Step 1: Enter a server name:** ``kryptonitered-hs2.ygrid.vip.bf1.yahoo.com`` (For other grid hosts, refer 
      to :ref:`Grid VIP URLs/Ports <gs_appendix-grid_vips>` for the URL and port.)
@@ -1075,7 +1292,7 @@ To use JDBC to connect to HiveServer2, you would use the URL below, where ``<hos
 would be the Grid cluster, ``<database>`` the name of the Hive database you are using,
 and ``<principal>`` being the  HiveServer2 principal.
 
-    jdbc:hive2://<host>:50515/<database>;sasl.qop=auth;principal=<principal>
+    jdbc:hive2://<host>:50514/<database>;saslQop=auth-conf;principal=<principal>
 
 .. note:: If you are using Tableau or MicroStrategy, you do not need to create a custom client with 
           JDBC. If you are unsure if you need to create a custom client with JDBC, ask Hive users 
@@ -1084,7 +1301,6 @@ and ``<principal>`` being the  HiveServer2 principal.
 JDBC Requirements
 -----------------
 
-- Client using JDBC should be in the same colo as HS2.
 - ACLs on JDBC client should be set up.
 - Access to Kerberos servers.
 - Access to HiveServer2 machines and ports.
@@ -1098,34 +1314,87 @@ Limitations
 - custom UDFs are not supported
 - only read operations supported
 
+.. _beeline_jdbc_sasl_kerberos:
 
-Using Beeline With JDBC
------------------------
+Using Beeline With JDBC (SASL/Kerberos)
+---------------------------------------
 
 To use the JDBC client ``Beeline`` to get data through HiveServer2,
 follow the steps below.
 
-#. Log onto a Grid server such as Kryptonite Red (``kryptonite-gw.red.ygrid.yahoo.com``). 
-#. ``$ kinit <user>@Y.CORP.YAHOO.COM``
-#. ``$ export HADOOP_CLASSPATH=/home/y/libexec/hive_jdbc/lib/hive-jdbc.jar``
-#. ``$ hive --service beeline``
-#. ``beeline> !connect jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM anon anon org.apache.hive.jdbc.HiveDriver`` 
-    
-        Connecting to jdbc:hive2://kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com:50515/default;sasl.qop=auth;principal=hive/kryptonitered-hs2-noenc.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
-        Connected to: Hive (version 0.12.1.0.1405060032)
-        Driver: Hive (version 0.12.1.0.1405060032)
-        Transaction isolation: TRANSACTION_REPEATABLE_READ
-#. ``0: jdbc:hive2://kryptonitered-hs2-noenc.ygrid> show databases;``
+#. Log onto a Grid gateway such as Kryptonite Red (``kryptonite-gw.red.ygrid.yahoo.com``).
+#. Get Kerberos Ticket, via ``kinit`` or `pkinit <http://yo/pkinit>`_. E.g. : ``$ kinit <user>@Y.CORP.YAHOO.COM``
+#. Run Beeline as follows, to connect to HS2 over SASL/Kerberos: ::
 
+        $ hive --service beeline -n "" -p "" -u "jdbc:hive2://kryptonitered-hs2.ygrid.vip.bf1.yahoo.com:50514/default;saslQop=auth-conf;principal=hive/kryptonitered-hs2.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM" -e " show databases "
+        ...
+        Connecting to jdbc:hive2://kryptonitered-hs2.ygrid.vip.bf1.yahoo.com:50514/default;saslQop=auth-conf;principal=hive/kryptonitered-hs2.ygrid.vip.bf1.yahoo.com@YGRID.YAHOO.COM
+        Connected to: Apache Hive (version 1.2.7.3.1909180546)
+        Driver: Hive JDBC (version 1.2.7.3.1909180546)
+        Transaction isolation: TRANSACTION_REPEATABLE_READ
         +------------------------+
         |     database_name      |
         +------------------------+
         | acluster               |
         | ajaytestdb             |
         | ajeeshr                |
+        | ...                    |
 
+.. _beeline_jdbc_https_kerberos:
 
-Tutorial: Creating a Client Application That Uses JDBC 
+Using Beeline With JDBC (Thrift/HTTPS with Kerberos)
+----------------------------------------------------
+
+To use the JDBC client ``Beeline`` to get data through HiveServer2,
+follow the steps below.
+
+#. Log onto a Grid gateway such as Kryptonite Red (``kryptonite-gw.red.ygrid.yahoo.com``).
+#. Get Kerberos Ticket, via ``kinit`` or `pkinit <http://yo/pkinit>`_. E.g. : ``$ kinit <user>@Y.CORP.YAHOO.COM``
+#. Run Beeline as follows, to connect to HS2 over HTTPS with Kerberos authentication: ::
+
+        $ hive --service beeline -n "" -p "" -u "jdbc:hive2://kryptonitered-hs2.red.ygrid.yahoo.com:4443/default;transportMode=http;httpPath=cliservice;ssl=true;auth=kerberos;sslTrustStore=/home/y/share/ssl/certs/yahoo_certificate_bundle.jks;principal=HTTP/kryptonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM" -e " show databases ; "
+        ...
+        Connecting to jdbc:hive2://hs452n22.red.ygrid.yahoo.com:4443/default;transportMode=http;httpPath=cliservice;ssl=true;auth=kerberos;sslTrustStore=/home/y/share/ssl/certs/yahoo_certificate_bundle.jks;principal=HTTP/kryptonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM
+        Connected to: Apache Hive (version 1.2.7.4.1910031932)
+        Driver: Hive JDBC (version 1.2.7.3.1909180546)
+        Transaction isolation: TRANSACTION_REPEATABLE_READ
+        +------------------------+
+        |     database_name      |
+        +------------------------+
+        | acluster               |
+        | ajaytestdb             |
+        | ajeeshr                |
+        | ...                    |
+
+.. _beeline_jdbc_https_x509:
+
+Using Beeline With JDBC (Thrift/HTTPS with Athenz X509 Certificates)
+--------------------------------------------------------------------
+
+To use the JDBC client ``Beeline`` to get data through HiveServer2,
+follow the steps below.
+
+#. Log onto a Grid gateway such as Kryptonite Red (``kryptonite-gw.red.ygrid.yahoo.com``).
+#. Fetch Athenz user-certificate: ``$ athenz-user-cert``. Touch YubiKey if prompted to.
+#. Fetch role-certificate using ``zts-rolecert``, as per GridOps' `documentation <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_.
+#. Convert role-certificate and private key into a Java KeyStore (e.g. ``griduser.role.uid.mithunr.jks``) , as per :ref:`instructions in the Appendix <gs_appendix-generate-role-certs>` of this document.
+#. Run Beeline as follows, to connect to HS2 over HTTPS with X509 authentication: ::
+
+        $ hive --service beeline -n "" -p "" -u "jdbc:hive2://kryptonitered-hs2.red.ygrid.yahoo.com:4443/default;transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore=/home/y/share/ssl/certs/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore=/homes/mithunr/.athenz/griduser.role.uid.mithunr.jks;keyStorePassword=changeit" -e " show databases ; "t
+        ...
+        Connecting to jdbc:hive2://kryptonitered-hs2.red.ygrid.yahoo.com:4443/default;transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore=/home/y/share/ssl/certs/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore=/homes/mithunr/.athenz/griduser.role.uid.mithunr.jks;keyStorePassword=changeit
+        Connected to: Apache Hive (version 1.2.7.4.1910031932)
+        Driver: Hive JDBC (version 1.2.7.3.1909180546)
+        Transaction isolation: TRANSACTION_REPEATABLE_READ
+        +------------------------+
+        |     database_name      |
+        +------------------------+
+        | acluster               |
+        | ajaytestdb             |
+        | ajeeshr                |
+        | ...                    |
+
+Tutorial: Creating a Client Application That Uses JDBC
 -------------------------------------------------------
 
 The following steps will show you how to use the JDBC driver for a simple example. 
@@ -1185,10 +1454,10 @@ results.sh
 
 We are doing three main tasks in this file:
 
-#. Defining the URI to the JDBC to the Starling table on Cobalt Blue::
+#. Defining the URI to the JDBC to the Starling table on Axonite Blue::
 
-       HS2HOST=cobaltblue-hs2-noenc.ygrid.vip.gq1.yahoo.com
-       JDBCURI="jdbc:hive2://$HS2HOST:50515/starling;sasl.qop=auth;principal=hive/$HS2HOST@YGRID.YAHOO.COM?mapred.job.queue.name=unfunded"
+       HS2HOST=axoniteblue-hs2.ygrid.vip.gq1.yahoo.com
+       JDBCURI="jdbc:hive2://$HS2HOST:4443/starling;transportMode=http;httpPath=cliservice;ssl=true;auth=kerberos;sslTrustStore=/home/y/share/ssl/certs/yahoo_certificate_bundle.jks;principal=HTTP/$HS2HOST@YGRID.YAHOO.COM;mapred.job.queue.name=unfunded"
 
 #. Pointing to the JAR that we built. That JAR creates the connection and executes our HQL statement::
 

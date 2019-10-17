@@ -14,11 +14,14 @@ Questions
 * :ref:`How are the delimiters expected with multiple nested complex types? <nested>`  
 * :ref:`Is it possible to create a Hive table for a data with two maps each separated by different delimiters? <maps_two_delimiters>`
 * :ref:`I have structured data on HDFS (or any storage). Can I use Hive to run data processing queries on it? <use_hive>`
+* :ref:`How do I make my tables/partitions readable by someone else? <hdfs_permissions>`
+* :ref:`I have (only) read-access to ``hdfs:///x/y/z``. Why am I not allowed to create EXTERNAL tables pointing to those locations? <external_tables_to_readable_data>`
 * :ref:`Are there any limitations with using external tables? <limitations_ext>`
 * :ref:`I have data at multiple locations on HDFS all corresponding to the same schema. Can I map them to a single Hive table? <map_single>`
 * :ref:`How long does it take to convert my data to a form Hive understands? <convert_data>`
 * :ref:`What happens when I 'drop' an external table? <drop_table>`
 * :ref:`Table joins are taking a long time. How can the time taken be reduced? <time_joins>`
+* :ref:`How does one filter input data for an outer join? <outer_join_filtering>`
 * :ref:`Are there any known limitations/problems with bucketing? <bucketing_probs>`
 * :ref:`My query will be creating large number of dynamic partitions. Can this be done? <dyn_partitions>`
 * :ref:`Does Hive support functions that can be used in a query? <support_funcs>`
@@ -44,7 +47,7 @@ Answers
 .. topic::  **Where are the log files created?**
 
    The Hive server log is located at ``/home/y/libexec/hive_server/logs/hive_server.log``. 
-   The Hive CLI log is in ``$HADOOP_TOOLS_HOME/var/logs/hive_cli/${userid}/hive.log``.
+   The Hive CLI log is in ``$$HOME/hivelogs/hive.log.<pid>@<hostname>``. The latest file in the directory will correspond to the latest session.
     
 .. _report_problems:
 .. topic::  **What should I inspect before reporting a problem to @grid-solutions or @hive-dev?**
@@ -83,6 +86,44 @@ Answers
    on the data that already exists on HDFS. A table that exists in other storage 
    systems (HBase alone is supported so far) can also be represented in Hive using ``StorageHandlers``. 
    See |DDL|_ on how to create external tables.
+
+.. _hdfs_permissions:
+.. topic:: **How do I make my tables/partitions readable by someone else?**
+
+    Permissions to Hive's databases/tables/partitions are currently governed by the HDFS permissions on their
+    corresponding HDFS paths. E.g. To read a table's partitions, a user would need to be granted read-permissions
+    on the partitions' data paths.
+
+    It is recommended that production-tables have their data stored under ``hdfs:///projects/<project_name>``, owned
+    by a suitable production headless account.
+    User databases may be stored under ``hdfs:///user/<userid>/<database_name>``.
+
+    **Note**:
+        1. *DO NOT point databases directly to ``hdfs:///user/<userid>``.* Dropping your database will obliterate
+           your home directory, replacing it with a smoking crater.
+        2. Do not store data in ``hdfs:///tmp`` unless you're comfortable with losing said data.
+
+    The recommended way to manage permissions is as follows:
+
+        1. Ensure the data directories have 750 permissions.
+        2. Only the owner (user or headless account) has write permissions. Only this user can write to,
+           add/drop tables/partitions.
+        3. Grant read permissions to an appropriate group. Users requesting read permission will need to be
+           added to said group.
+
+.. _external_tables_to_readable_data:
+.. topic:: **I have (only) read-access to ``hdfs:///x/y/z``. Why am I not allowed to create EXTERNAL tables pointing to those locations?**
+
+    To create a Hive object (database/table/partition) pointing to a directory, the user would need to be the HDFS
+    owner of said directory. It is not enough to have read-permissions. This is by design. Were this not the case:
+
+        1. When the actual owner deletes the HDFS data, the Hive objects would be dangling pointers to non-existent
+           data paths.
+        2. Any new partitions added to a table will not be available on the replica table, unless added explicitly.
+        3. Any schema changes made on the source table would render the replica table unreadable.
+
+    Rather than to create (possibly duplicate) Hive objects for data that a user doesn't own, it is recommended that
+    the user work with the data-owner to create Hive definitions for the data.
 
 .. _limitations_ext:
 .. topic:: **Are there any limitations with using external tables?**
@@ -124,12 +165,47 @@ Answers
    Do note that if the data size of a table is very, very large (1 TB or so), 
    then creating a bucketed table will also take time.
 
+.. _outer_join_filtering:
+.. topic:: **How does one filter input data for an outer join?**
+
+    To reduce input-data to an outer join, filter-predicates may be introduced in either/both of the ``JOIN`` predicates, and the ``WHERE`` clause. If done correctly,
+    this will reduce the amount of data scanned, *before* the ``JOIN`` is processed.
+
+    One may peruse the `Apache Hive documentation for the behaviour of Outer Joins <https://cwiki.apache.org/confluence/display/Hive/OuterJoinBehavior#OuterJoinBehavior-PredicatePushdownRules>`_,
+    for a detailed explanation.
+
+    If:
+
+    1. ``Preserved Row Table``  is the table that returns all rows in the outer join (E.g. the LHS relation in a ``LEFT OUTER JOIN``.)
+    2. ``Null Supplying Table`` is the table whose columns are returned as nulls, for unmatched rows,
+
+    then, the ``OUTER JOIN`` behaviour may be summarized as below:
+
+        +-----------------+-----------------------+------------------------+
+        |                 | Preserved Row Table   | Null Supplying Table   |
+        +=================+=======================+========================+
+        | Join Predicate  |     Not Pushed        |        Pushed          |
+        +-----------------+-----------------------+------------------------+
+        | Where Predicate |       Pushed          |      Not Pushed        |
+        +-----------------+-----------------------+------------------------+
+
+    For inner joins, any filter-predicates specified in either the ``WHERE`` or ``JOIN`` clauses may be pushed down into either of the participating tables/relations, as applicable.
+
+    Outer joins differ, in that *all rows from the ``Preserved Row Table`` are returned in the result, unless explicitly filtered in the ``WHERE`` clause*. Therefore,
+
+    1. Filter predicates in the ``WHERE`` clause may be applied to the ``Preserved Row Table`` *before* processing the join. This is especially useful if the input table is large, and the join is explosive.
+    2. Filter predicates in the ``JOIN`` clause may be applied to the ``Null Supplying Table`` *before* processing the join, because rows that do not satisfy the predicate don't participate in the join anyway.
+
+    Attempting the reverse would produce incorrect results. i.e.
+
+    1. The ``Preserved Row Table`` cannot be pre-filtered by the ``JOIN`` predicates, because the ``JOIN`` clause defines the *match* condition. Rows from the ``Preserved Row Table`` that do not match the ``JOIN`` clause should still appear in the join-results.
+    2. Similarly, the ``Null Supplying Table`` cannot be pre-filtered by the ``WHERE`` predicates. Pre-filtering will erroneously produce NULL-filled records from the ``Preserved Row Table``, instead of removing the row entirely from the join-results.
+
 .. _bucketing_probs:
 .. topic:: **Are there any known limitations/problems with bucketing?** 
 
    Creating a bucketing table takes a long time if the data is skewed. There is 
    no known workarounds for this approach.
-
 
 .. _dyn_partitions:
 .. topic:: **My query will be creating large number of dynamic partitions. Can this be done?**
@@ -139,8 +215,6 @@ Answers
    sub-query and post-pone the partition creation in the reducers by using a distribute 
    by. See `Bugzilla Ticket 4016030 - Dynamic partition - errors and limits <http://bug.corp.yahoo.com/show_bug.cgi?id=4016030>`_  
    to learn how this was done internally.
-
-
 
 .. _support_funcs:
 .. topic:: **Does Hive support functions that can be used in a query?** 
@@ -301,14 +375,19 @@ Answers
 .. _fetch_task_conversion:
 .. topic:: **Why does selecting a simple projection from a table take so long?**
 
-   For speeding up queries that select simple projections from tables, consider using the Hive "fetch-task conversion" optimization by setting ``hive.fetch.task.conversion=more``.
-   Hive then attempts to run queries (with simple projections, limit clauses, and without group-by) within the Hive client, instead of submitting a cluster-job.
-   This is particularly useful for exploratory queries to sample table-contents.
+    For speeding up queries that select simple projections from tables, consider using the Hive "fetch-task conversion" optimization by setting ``hive.fetch.task.conversion=more``.
+    Hive then attempts to run queries (with simple projections, limit clauses, and without group-by) within the Hive client, instead of submitting a cluster-job.
+    This is particularly useful for exploratory queries to sample table-contents.
 
-   While this approach is usually faster for queries with non-existent or easily satisfied selection predicates, it has potential to be *much* slower, if the predicates are rarely satisfied.
-   For instance, a query with a predicate like "``WHERE userid IS NULL``" will run much more slowly, if the data rarely has ``NULL`` values for ``userid``.
-   (This is because the data-files will be scanned linearly on the Hive client, looking for the elusive record.)
-   For cases like this, it would be better to ``set hive.fetch.task.conversion=minimal``, and have Hive launch a cluster job to scan the data in parallel.
+    While this approach is usually faster for queries with non-existent or easily satisfied selection predicates, it has potential to be *much* slower, if the predicates are rarely satisfied.
+    For instance, a query with a predicate like "``WHERE userid IS NULL``" will run much more slowly, if the data rarely has ``NULL`` values for ``userid``.
+    (This is because the data-files will be scanned linearly on the Hive client, looking for the elusive record.)
+    For cases like this, it would be better to ``set hive.fetch.task.conversion=minimal``, and have Hive launch a cluster job to scan the data in parallel.
+
+    For clarity, the permitted values of ``hive.fetch.task.conversion`` are:
+        1. ``none``:    No fetch-task-conversion optimization is performed. All queries are executed via cluster jobs.
+        2. ``minimal``: Queries are converted to run on the Hive client, if they contain only simple projections and limits, with no UDFs, aggregations, or predicates.
+        3. ``more``   : Queries are converted to run on the Hive client, if they contain only simple projections and limits, with no UDFs, or aggregations. Simple predicates are permitted.
 
 .. |DDL| replace:: Hive Language Manual
 .. _DDL: https://cwiki.apache.org/confluence/display/Hive/LanguageManual 
