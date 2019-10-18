@@ -112,6 +112,8 @@ fi
 # configure the namenode for KMS support, set the key provider property and restart NN
 #
 cmd_nnconfig="yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_PATH=\"kms://https@$kmsnode:4443/kms\" ; \
+  yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_PATH=\"kms:srpc://openqe93blue-n7.blue.ygrid.yahoo.com:9999\" ; \
+  yinst set -root ${yroothome} $confpkg.TODO-KMS-SPN-WHITELIST=\"kms/openqe*.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM\" ; \
   export JAVA_HOME=/home/gs/java/jdk; yinst restart namenode -root ${yroothome}"
 
 set -x
