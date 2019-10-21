@@ -86,6 +86,7 @@ JAVA_HOME="$GSHOME/java/jdk64/current"
     echo "export YARN_HOME=${yroothome}/share/hadoop"
 	echo "export MAPREDUSER=$MAPREDUSER"
     echo "export JAVA_HOME=$JAVA_HOME"
+    echo "export HADOOP_CLASSPATH=${yroothome}/share/hadoop/share/hadoop/server/*:${yroothome}/share/hadoop/share/hadoop/server/lib/*"
 ) > $tmpfile
 
 set -x
