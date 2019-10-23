@@ -305,6 +305,8 @@ export RUNSIMPLETEST=true
 rm -f *.tgz > /dev/null 2>&1
 
 # Make sure there is sufficient disk space before we install
+banner "Make sure there is sufficient disk space before installation"
+set -x
 DU_THRESHOLD=${DU_THRESHOLD:=80}
 # Proceed only if DU_THRESHOLD is a number between 0 and 100
 if [[ "$DU_THRESHOLD" =~ ^[0-9]+$ ]] && [[ $DU_THRESHOLD -lt 100 ]] && [[ $DU_THRESHOLD -gt 0 ]] ; then
@@ -476,7 +478,6 @@ function fetch_artifacts() {
     # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
     # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
     $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
-    set +x
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
