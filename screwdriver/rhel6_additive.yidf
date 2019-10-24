@@ -1,1 +1,2 @@
 add yinst package rocl 3.6.5.1
+add yinst package git CURRENT
