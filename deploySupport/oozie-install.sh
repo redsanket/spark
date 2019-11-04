@@ -257,10 +257,11 @@ yinst set yoozie.ssl_enable=true \
 yinst set yoozie.INJECT_JARS_HCATALOG="/home/y/libexec/hive/lib/hive-common.jar,/home/y/libexec/hive/lib/hive-serde.jar,/home/y/libexec/hive/lib/hive-exec.jar,/home/y/libexec/hive/lib/hive-metastore.jar,/home/y/libexec/hive/lib/hive-hcatalog-core.jar,/home/y/libexec/hive/lib/libfb303.jar,/home/y/libexec/hive/lib/hive-webhcat-java-client.jar,/home/y/libexec/hive/lib/hive-hcatalog-server-extensions.jar,/home/y/libexec/cloud_messaging_client/lib/cloud-messaging-client-thin.jar,/home/y/libexec/cloud_messaging_client/lib/jul-to-slf4j-1.7.5.jar,/home/y/libexec/cloud_messaging_client/lib/jackson-jaxrs-1.9.13.jar,/home/y/libexec/cloud_messaging_client/lib/jersey-client-2.8.jar,/home/y/libexec/cloud_messaging_client/lib/cloud-messaging-common-0.1.jar" \
   yoozie.INJECT_JARS_YCA=/home/y/lib/jars/yjava_yca.jar
 
+# HADOOPPF-45862
 yinst set yoozie.HADOOP_CONF_DIR=/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/ \
   yoozie.HADOOP_PREFIX=/home/gs/gridre/yroot.$CLUSTER/share/hadoop/ \
   yoozie.INJECT_CONF_HADOOP="/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/core-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/hdfs-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/mapred-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/yarn-site.xml" \
-  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar" \
+  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/woodstox-core-.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/stax2-api-*.jar" \
   yoozie.INJECT_CONF_HCATALOG=/home/y/libexec/hive/conf/hive-site.xml \
   yoozie.HADOOP_VERSION=2.0
 
@@ -283,6 +284,9 @@ yinst set yoozie.CLUSTER_NAME=$CLUSTER \
 
 yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
   yoozie.conf_oozie_service_HadoopAccessorService_keytab_file=/etc/grid-keytabs/oozie.$OOZIENODE_SHORT.service.keytab
+
+# HADOOPPF-45862
+yinst unset yoozie.INJECT_JARS_CMSV2
 
 
 ### replace USERNAME with the username that will submit jobs
