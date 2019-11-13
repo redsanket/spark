@@ -1,5 +1,8 @@
 # Hadoop Documentation
 
+[![Build Status](https://screwdriver.ouroath.com/pipelines/110031/badge)](https://screwdriver.ouroath.com/pipelines/110031)
+
+
 ## Overview
 
 This repository contains Hadoop documentation for the Yahoo team
