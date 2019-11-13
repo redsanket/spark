@@ -70,55 +70,38 @@ To test Kerberos using cURL:
 
 .. _kerberos-client_API:
 
-Client API Example of Kerberos Authentication
-+++++++++++++++++++++++++++++++++++++++++++++
+Java Client
++++++++++++
 
 #. Include the JAR ``/home/y/var/yoozieclient/lib/*jar`` in your ``CLASSPATH``.
-#. Create the Oozie client ``KerbAPIExample.java`` with the following code:
+#. For a maven project, the dependency to include in the pom.xml will be `yoozie-client <https://artifactory.ouroath.com/artifactory/hadoop-maven-release/org/apache/oozie/yoozie-client/4.4.9.6.1911111914>`_
+#. Create the Oozie client ``OozieKerberosExample.java`` with the following code:
 
    .. code-block:: java
 
-      package com.yahoo.oozie.test;
       import org.apache.oozie.client.OozieClientException;
-      import org.apache.oozie.client.XOozieClient;
-      import org.apache.oozie.client.AuthOozieClient;
-      import org.apache.hadoop.security.authentication.client.Authenticator;
-      import com.yahoo.oozie.security.authentication.client.KerberosAuthenticator;
-      import java.net.URL;
-      import java.util.HashMap;
-      import java.util.Map;
+      import com.yahoo.oozie.cli.YOozieCLI.YOozieClient;
+      import com.yahoo.oozie.security.authentication.client.AthenzX509Authenticator;
 
-      public class KerbAPIExample {
-
+      public class OozieKerberosExample {
           public static void main(String args[]) {
-              String oozieurl="https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie";
+              String oozieurl = "https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie";
               String jobId = args[0];
-              KerbOozieClient koc = new KerbOozieClient(oozieurl);
+              // UserGroupInformation.loginUserFromKeytab(headlessuser, path) would not work anymore as headless user keytab support is revoked.
+              // So kinit or pkinit should have been done from the command line before executing this code.
+              // Switching to Athenz X.509 certificate authentication instead would be a better choice.
+              YOozieClient yoc = new YOozieClient(oozieurl, "KERBEROS");
               try {
-                  System.out.println(koc.getJobInfo(jobId,0,10));
-              } catch (OozieClientException e) {
+                  System.out.println(yoc.getJobInfo(jobId, 0, 10));
+              }
+              catch (OozieClientException e) {
                   e.printStackTrace();
               }
           }
-          static class KerbOozieClient extends AuthOozieClient {
-
-              String kerbAuth = "KERBEROS";
-              public KerbOozieClient(String oozieUrl) {
-                  super(oozieUrl, "KERBEROS");
-              }
-
-              @Override
-              protected Map<String, Class<? extends Authenticator>> getAuthenticators() {
-                  Map<String, Class<? extends Authenticator>> authClasses = new HashMap<String, Class<? extends Authenticator>>();
-                  authClasses.put(kerbAuth, KerberosAuthenticator.class);
-                  return authClasses;
-              }
-
-          }
       }
 
-#. Compile the code: ``$ javac -cp $CLASSPATH KerbAPIExample.java``
-#. Run your example: ``$ java -cp $CLASSPATH KerbAPIExample 00001-1234-W``
+#. Compile the code: ``$ javac -cp $CLASSPATH OozieKerberosExample.java``
+#. Run your example: ``$ java -cp $CLASSPATH OozieKerberosExample 00001-1234-W``
 
 
 .. _kerberos-yca_auth:
@@ -196,7 +179,7 @@ Athenz Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
 Authentication to Oozie can be done using mutual TLS with
-`Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 role certificates.
+`Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 user and role certificates.
 Authentication from following principals or roles are supported.
 
   - ``user.<regular_user_name>`` principal
@@ -205,26 +188,63 @@ Authentication from following principals or roles are supported.
   - `vcg.user.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ role (VCG only)
   - `vcg.user.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ role (VCG only)
 
+User certificates
++++++++++++++++++
 Refer `Athenz User X.509 Certificates <https://git.ouroath.com/pages/athens/athenz-guide/user_x509_credentials>`_
 for fetching ``user.<regular_user_name>`` user certificate. User certificates are valid for only one hour.
 
-Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_
-to create the Athenz role for headless user. After that you can add user principals or Athenz services to the newly created role. Refer `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_
-for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for
-30 days and will have to be refreshed once they expire. The validity will be reduced to 7 days in future by the Athenz team.
-If you want to automatically fetch and rotate the role certificates, Athenz provides support for it with `Calypso <https://git.ouroath.com/pages/athens/calypso-guide/role_certs/>`_.
+Role certificates
++++++++++++++++++
+1. Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_ to create the Athenz role for headless user. After that you can add Athenz user or service principals as members of the role.
+2. Refer `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_ for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for 30 days and will have to be refreshed once they expire. The validity will be reduced to 7 days in future by the Athenz team.
+3. If you want to automatically fetch and rotate the role certificates, Athenz provides support for it with `Calypso <https://git.ouroath.com/pages/athens/calypso-guide/role_certs/>`_ or `MiniNova <https://git.ouroath.com/pages/athens/calypso-guide/mininova/>`_.
 
+Oozie CLI and cURL
+++++++++++++++++++
 
 To invoke Oozie client with Athenz authentication ::
 
-    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties -auth ATHENZ -cert /path/to/role-cert.pem -key /path/to/service.key
+    $ oozie job -oozie https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie -run -config job.properties -auth ATHENZ -cert /path/to/role-cert.pem -key /path/to/service.key.pem
 
 To invoke cURL with Athenz authentication ::
 
-$ curl -v --cert /path/to/role-cert.pem --key /path/to/service.key https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
+$ curl -v --cert /path/to/role-cert.pem --key /path/to/service.key.pem https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/v1/admin/build-version
 
-Note: It is --cert and --key with cURL, and -cert and -key in Oozie CLI. If the --cert argument is not right,
+Note: It is ``--cert`` and ``--key`` with cURL, and ``-cert`` and ``-key`` in Oozie CLI. If the ``--cert`` argument is not right,
 you will see ``* NSS: client certificate not found (nickname not specified)`` warning in cURL verbose output.
+
+Java Client
++++++++++++
+
+#. Include the JAR ``/home/y/var/yoozieclient/lib/*jar`` in your ``CLASSPATH``.
+#. For a maven project, the dependency to include in the pom.xml will be `yoozie-client <https://artifactory.ouroath.com/artifactory/hadoop-maven-release/org/apache/oozie/yoozie-client/4.4.9.6.1911111914>`_
+#. Create the Oozie client ``OozieAthenzExample.java`` with the following code:
+
+   .. code-block:: java
+
+      import org.apache.oozie.client.OozieClientException;
+      import com.yahoo.oozie.cli.YOozieCLI.YOozieClient;
+      import com.yahoo.oozie.security.authentication.client.AthenzX509Authenticator;
+
+      public class OozieAthenzExample {
+          public static void main(String args[]) {
+              String oozieurl = "https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie";
+              String jobId = args[0];
+              YOozieClient yoc = new YOozieClient(oozieurl, "ATHENZ");
+              // Replace USERNAME with name of the user. If your cert and key paths are different, please change the paths accordingly
+              yoc.setAthenzConf(AthenzX509Authenticator.ATHENZ_CERT_PATH, "/var/lib/sia/certs/griduser.uid.USERNAME.cert.pem");
+              yoc.setAthenzConf(AthenzX509Authenticator.ATHENZ_KEY_PATH, "/var/lib/sia/keys/griduser.uid.USERNAME.key.pem");
+              try {
+                  System.out.println(yoc.getJobInfo(jobId, 0, 10));
+              }
+              catch (OozieClientException e) {
+                  e.printStackTrace();
+              }
+          }
+      }
+
+#. Compile the code: ``$ javac -cp $CLASSPATH OozieAthenzExample.java``
+#. Run your example: ``$ java -cp $CLASSPATH OozieAthenzExample 00001-1234-W``
 
 
 .. _yca_auth-yca_workflow:
@@ -642,10 +662,83 @@ As an alternate method to the ZTSClient API, tokens can be retrieved from the UG
    token = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
 
 
+.. _workflow_with_Athenz_role_cert:
+
+Workflow with on-prem Athenz Role Certificate
+---------------------------------------------
+
+For fetching Athenz Role Certificate, you need to follow same steps and configuration
+as the :ref:`Workflow with on-prem Athenz role token <workflow_with_Athens>` section
+with just one additional parameter
+
+- ``athens.token.type`` : Value should be set to `rolecert` for fetching role certificate.
+
+Note:
+
+Currently role certificate is supported for only one role. So ``athens.role``
+can have only one role name and not a comma separated list.
+
+
+The cert and key are passed in json format as a secret in the job ``Credentials``.
+The json also contains a keystore which has the cert and key imported into it for ease of use. Example:
+
+.. code-block:: json
+
+    {
+      "rolecert": "-----BEGIN CERTIFICATE-----\nMIIFBj...ARzLj7/+\n-----END CERTIFICATE-----\n",
+      "key": "-----BEGIN PRIVATE KEY-----\nMIIE...zfhn2pg==-----END PRIVATE KEY-----\n",
+      "keystore": "/u3+7QAAAAIAAA....A1fg=",
+      "expiry": 2592000
+    }
+
+You can access them in your job by fetching the secret from the ``Credentials`` object.
+
+
+.. code-block:: java
+
+    Credentials creds = UserGroupInformation.getCurrentUser().getCredentials();
+    // athensauth is the name of Athens credential provided in workflow.xml
+    String secret = new String(creds.getSecretKey(new Text("athensauth")), "UTF-8");
+    Map<String, String> map = new com.fasterxml.jackson.databind.ObjectMapper().readValue(secret, Map.class);
+
+    String roleCert = map.get("rolecert");
+    String privateKey = map.get("key");
+    // Json string cannot have newlines and is escaped as \\n during serialization. Convert it back to new lines
+    roleCert = roleCert.replace("\\n", "\n");
+    privateKey = privateKey.replace("\\n", "\n");
+
+    // You can use the rolecert and private key in pem format for APIs that take them like CMS
+    File tlsCertFilePath = new File("rolecert.pem");
+    File tlsKeyFilePath = new File("key.pem");
+    try {
+        org.apache.commons.io.FileUtils.writeStringToFile(tlsCertFilePath, roleCert);
+        org.apache.commons.io.FileUtils.writeStringToFile(tlsKeyFilePath, privateKey);
+        com.yahoo.cloud.messaging.client.api.Authentication auth = Authentication.tls(tlsKeyFilePath, tlsCertFilePath);
+        .....
+    finally {
+        tlsCertFilePath.delete();
+        tlsKeyFilePath.delete();
+    }
+
+    // You can use the Keystore for directly establishing https connections
+    String encodedKeyStore = map.get("keystore");
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    // changeit is the default keystore password. Copy next line as is without any change.
+    keyStore.load(new ByteArrayInputStream(java.util.Base64.getDecoder().decode(encodedKeyStore)), "changeit".toCharArray());
+    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+    kmf.init((java.security.KeyStore) keyStore, "changeit".toCharArray());
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
+    URLConnection conn = new URL("https://targethost:4443").openConnection();
+		HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+		httpsConn.setRequestMethod("GET");
+		httpsConn.setSSLSocketFactory(sslContext.getSocketFactory());
+		httpsConn.connect();
+
 .. _workflow_with_Athens_oauth2_token:
 
 Workflow with on-prem Athenz oAuth2 tokens
-------------------------------------------------
+------------------------------------------
 
 Fetching Athenz oAuth2 Access Token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
