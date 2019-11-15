@@ -255,7 +255,7 @@ if [[ "$UPDATE_RELEASE" == "true" ]]; then
 
   set -x
   BUNDLE_SERIAL=`date -u +\%Y\%m\%d\%H\%M\%S`
-
+  export TERM=xterm
   # Upload new bundle file to hadoop_releases repo and update clusters.yaml
   # Update the clusters yaml file. Use update_clusters_ext to prevent single quotes in clusters.yaml
   git config --global push.default matching

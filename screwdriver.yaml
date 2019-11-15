@@ -1,24 +1,57 @@
-platform: cpp
-
-shared:
-    notifications:
-      email: grid-re@oath.com
-
-    build_containers: [rhel6]
-    publish_containers: [rhel6]
-    steps:
-        run_makerelease:
-            description: Run makerelease 
-            command: ./deploySupport/makerelease.sd
-
-    plugins:
-      coverage:
-        enabled: false
-      test_results:
-        enabled: false
-
 jobs:
-   component:
-      order: [init, build, run_makerelease]
-   pull-request:
-      order: [init, build]
+    pull_request:
+        annotations:
+          screwdriver.cd/cpu: HIGH
+          screwdriver.cd/ram: HIGH
+          screwdriver.cd/timeout: 720
+        template: HadoopTools/gridci-6_10_3@latest
+        environment:
+          DIST_TAG: HADOOP_2_8_0_TEST
+          AUTO_PUBLISH_DIR: ${SD_SOURCE_DIR}/publish
+        requires: [~pr]
+        steps:
+          - build: gmake pr_build
+          - junit: echo "DISABLED"
+          - regression: echo "DISABLED"
+          - package: echo "DISABLED"
+          - postpackage: echo "DISABLED"
+          - publish: echo "DISABLED"
+          - git_tag: echo "DISABLED"
+          - dist_tag: echo "DISABLED"
+    gen_hadoop_release:
+        annotations:
+          screwdriver.cd/cpu: HIGH
+          screwdriver.cd/ram: HIGH
+          screwdriver.cd/timeout: 720
+        template: HadoopTools/gridci-6_10_3@latest
+        environment:
+          UPDATE_RELEASE: true
+          DIST_TAG: HADOOP_2_8_0_TEST
+        requires: [~commit]
+        steps:
+          - build: gmake build; sh -x deploySupport/makerelease.sd
+          - junit: echo "DISABLED"
+          - regression: echo "DISABLED"
+          - package: echo "DISABLED"
+          - postpackage: echo "DISABLED"
+          - publish: echo "DISABLED"
+          - git_tag: echo "DISABLED"
+          - dist_tag: echo "DISABLED"
+    conf_to_artifactory:
+        annotations:
+          screwdriver.cd/cpu: HIGH
+          screwdriver.cd/ram: HIGH
+          screwdriver.cd/timeout: 720
+        template: HadoopTools/gridci-6_10_3@latest
+        environment:
+          UPDATE_RELEASE: false
+          DIST_TAG: HADOOP_2_8_0_TEST
+        steps:
+          - build: gmake build; sh -x deploySupport/makerelease.sd
+          - junit: echo "DISABLED"
+          - regression: echo "DISABLED"
+          - package: echo "DISABLED"
+          - postpackage: echo "DISABLED"
+          - publish: echo "DISABLED"
+          - git_tag: echo "DISABLED"
+          - dist_tag: echo "DISABLED"
