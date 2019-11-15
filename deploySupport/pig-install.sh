@@ -85,7 +85,7 @@ do
   if [ -z "${TGT_OUTPUT}" ]
   then
     echo "[INFO] ABSENT: ${BASE_TGT_JAR_PATH}${i}"
-    BASE_SRC_JAR_PATH="hdfs://openqe5blue-n2/tmp/integration_test_files/lib/"
+    BASE_SRC_JAR_PATH="hdfs://openqe6blue-n2/tmp/integration_test_files/lib/"
     SRC_OUTPUT=$(hadoop fs -ls "${BASE_SRC_JAR_PATH}${i}")
     if [ -z "${SRC_OUTPUT}" ]
     then
