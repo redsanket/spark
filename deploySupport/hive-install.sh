@@ -50,6 +50,15 @@ get_hive_oradb_server() {
   if [ $? == 0 ]; then
     HIVE_DB_NODE=$host_name
     echo "$HIVE_DB_NODE"
+  else
+    # gridci-4421 need to allow for 3 digit DB names using format like 'openq145'
+    # check for 'openq' format DB name
+    SHORT_CLUSTER=openq`echo $CLUSTER | cut -c7-9`
+    ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep -w $SHORT_CLUSTER"
+    if [ $? == 0 ]; then
+      HIVE_DB_NODE=$host_name
+      echo "$HIVE_DB_NODE"
+    fi
   fi
 }
 
