@@ -743,8 +743,8 @@ Workflow with on-prem Athenz oAuth2 tokens
 Fetching Athenz oAuth2 Access Token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For fetching Athenz oAuth2 Access Token, you need to follow same steps and configuration
-as the :ref:`Workflow with on-prem Athenz role token <workflow_with_Athens>` section
+For fetching `Athenz oAuth2 Access Token <https://git.ouroath.com/pages/athens/athenz-guide/zts_access_token_guide/>`_,
+you need to follow same steps and configuration as the :ref:`Workflow with on-prem Athenz role token <workflow_with_Athens>` section
 with just one additional parameter
 
 - ``athens.token.type`` : Value should be set to `oauth2` for fetching access token.
@@ -792,14 +792,17 @@ Example Workflow XML
 Fetching Athenz oAuth2 Access token and ID Token
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Oozie can fetch access tokens on your behalf. But if you need a id token as well,
-you need to provide your service cert credentials, so that Oozie can fetch the access
-token and id token for that service. In addition to the regular athens settings, you
-will need to additionally specify the below settings so that Oozie can fetch the service private key
-from on-prem CKMS.
-You can refer to the :ref:`Workflow with on-prem CKMS secret <workflow_with_ykeykey>` section
-for the setup and configuration required for that.
+you need to provide your service credentials, so that Oozie can authenticate to Athenz
+with that and fetch the access token and id token for that service.
+In addition to the settings in the previous example for access token, you will need
+to additionally specify the below settings for getting the id token.
+
+- ``athens.id_token.service.name``: The audience (the Athenz Service name) that the id token is intended for. The service should be in the same domain as the role.
 
 Required Properties for Service Credentials:
+
+Please refer to the :ref:`Workflow with on-prem CKMS secret <workflow_with_ykeykey>` section
+for more details on the setup and configuration of the service private key in CKMS under ``prod`` environment.
 
 - ``ykeykey.group``: Name of the ykeykey key group.
 - ``ykeykey.key``: Name of the ykeykey key. This should contain PEM encoded private key.
@@ -811,7 +814,7 @@ Required Properties for Service Credentials:
 Optional properties
 
 - ``ykeykey.athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as user.
-- ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified.
+- ``ykeykey.version``: Oozie will fetch the current version, if no version is specified.
 
 Example Workflow XML
 ++++++++++++++++++++
@@ -836,6 +839,11 @@ Example Workflow XML
             <property>
                <name>athens.token.type</name>
                <value>oauth2</value>
+            </property>
+            <!-- Property that identifies the name of the target service (audience). The domain of the service will be same as that of the role -->
+            <property>
+               <name>athens.id_token.service.name</name>
+               <value>sherpaserver</value>
             </property>
             <!-- Properties for fetching Service private key from on-prem CKMS -->
             <property>
@@ -984,8 +992,10 @@ Retrieving secret using UGI
 
    byte[] secret = UserGroupInformation.getCurrentUser().getCredentials().getSecretKey(new Text("YKeyKey_test"));
 
-UGI will give secret for the current version if no version is specified in the credential section for ykeykey.version.
-
+Accessing the secret from UGI using the credential name will give the current version
+of the secret if no ``ykeykey.version`` is specified in the credential section.
+Other versions of the keys are stored in the UGI under the ``YKEYKEY_KEYDB`` alias and can
+be accessed using ``GridYKeyKeyUtil`` APIs as described in the next section.
 
 Retrieving secret using GridYKeyKeyUtil
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1009,7 +1019,7 @@ public static byte[] getKeyBytes(String key, short version); //Return the secret
 
 Retrieving ykeykey secret using native library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To read ykeykey secret using YCR, add `GRID_YKEYDB_PATH = ./keydb' to `mapreduce.map.env` and `mapreduce.reduce.env and call GridYKeyKeyUtil.setupKeyDB() to setup keydb.
+To read ykeykey secret using YCR, add `GRID_YKEYDB_PATH = ./keydb' to ``mapreduce.map.env`` and ``mapreduce.reduce.env`` and call GridYKeyKeyUtil.setupKeyDB() to setup keydb.
 Once keydb is setup, users can call YCR native call to retrieve secret. This requires ykeydb >= 2.9.1.
 
 .. code-block:: java
