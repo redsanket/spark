@@ -159,6 +159,15 @@ echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 # gridci-1937 allow installing from current branch
 if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
 
+  # gridci-4421, only yjava_yca pkg for rhel7 is on test
+  OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+  if [[ "$OS_VER" =~ ^7. ]]; then
+    echo "OS is $OS_VER, using yjava_yca from test explicitly"
+    yinst i yjava_yca -br test
+  else
+    echo "OS is $OS_VER, using yjava_yca from current as an implicit dependency"
+  fi
+
   yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
 
 # else use artifactory
@@ -184,6 +193,15 @@ else
     # get component version to use from Artifactory
     HIVE_VERSION=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b hive -p hive`
     PACKAGE_VERSION_HIVE="hive-${HIVE_VERSION}"
+
+    # gridci-4421, only yjava_yca pkg for rhel7 is on test
+    OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
+    if [[ "$OS_VER" =~ ^7. ]]; then
+      echo "OS is $OS_VER, using yjava_yca from test explicitly"
+      yinst i yjava_yca -br test
+    else
+      echo "OS is $OS_VER, using yjava_yca from current as an implicit dependency"
+    fi
 
     # GRIDCI-1525
     if [ "$REFERENCE_CLUSTER" == "LATEST" ]; then
