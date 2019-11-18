@@ -22,11 +22,14 @@ REFERENCE_CLUSTER=$2
 # its name. So if we are trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
 # with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
 # than 99.
+#
+# gridci-4421, allow 3 digit clsuter names
+#
 CLUSTER_NUM=`echo "${CLUSTER}"|sed 's/[^0-9]*//g'`
 LENGTH_CLUSTER_STRING=${#CLUSTER_NUM}
-if [[ $LENGTH_CLUSTER_STRING > 2 ]]; then
+if [[ $LENGTH_CLUSTER_STRING > 3 ]]; then
   echo "Tring to deploy hive for a VM cluster which is not supported currently!"
-  echo "ERROR: Cannot install hive on $CLUSTER because the cluster number id > 100 and not supported!"
+  echo "ERROR: Cannot install hive on $CLUSTER because the cluster number id > 3 digits!"
   exit -1
 fi
 
