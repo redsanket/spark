@@ -55,6 +55,7 @@ set +x
 #################################################################################
 # Update the bundle yaml file
 #################################################################################
+export TERM=xterm
 $GIT_DIR/scripts/insert_bundle -component $component -serial $serial -labels $labels -write
 if [ $? -eq 0 ]; then
   sh -x $GIT_DIR/scripts/update_clusters_ext -cluster axonitered -bundle $component -serial $serial -w

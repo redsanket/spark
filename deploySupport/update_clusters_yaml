@@ -59,6 +59,7 @@ set +x
 # Update the clusters yaml file
 #################################################################################
 set -x
+echo "Running update cluster script using -cluster $clusters -filename clusters.yaml -bundle $component -serial $serial -w"
 $GIT_DIR/scripts/update_clusters.pl -cluster $clusters -filename clusters.yaml -bundle $component -serial $serial -w
 set +x
 
