@@ -122,8 +122,10 @@ At Yahoo there are various ways to get help/support with HBase.
 Slack
 -----
 
-   - #hbase is the quickest way to get assistance with minor questions.
-   - This room is generally only for quick questions about APIs, use cases, and so on.
+   - #hbase is for user discussions
+   - HBase Team responses via Slack is best effort
+      - For general support issues, please file a Jira via `yo/hbasesupport <http://yo/hbasesupport>`_. We try to respond within 1 business day.
+      - For urgent production issues, please open an incident and page GRID-PE oncall.
 
 Support E-mails
 ---------------
