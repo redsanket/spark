@@ -101,13 +101,13 @@ X.509
 *****
 Authentication to Presto can be done using mutual TLS with
 `Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 role certificates.
-Authentication from following roles are supported.
+Authentication from the following roles are supported.
 
   - ``user.<regular_user_name>``
-  - `griduser.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>`_
-  - `griduser.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>`_
-  - `vcg.user.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_
-  - `vcg.user.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_
+  - `_`griduser.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>``_
+  - `_`griduser.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>``_
+  - `_`vcg.user.uid.<regular_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>``_
+  - `_`vcg.user.uid.<headless_user_name> <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>``_
 
 Refer `Athenz User X.509 Certificates <https://git.ouroath.com/pages/athens/athenz-guide/user_x509_credentials>`_
 for fetching ``user.<regular_user_name>`` user role certificate.

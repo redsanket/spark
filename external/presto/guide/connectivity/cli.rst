@@ -19,9 +19,9 @@ to hive CLI.
 
 YGRID
 =====
-Currently presto_client package is installed only on JB and TT gateways and
-you can use them to run queries against Xandar Blue and Xandar Tan. In future,
-each hadoop cluster gateway will have it installed and the default hive catalog
+Currently ``presto_client`` package is installed only on JB and TT gateways and
+you can use them to run queries against Xandar Blue and Xandar Tan. In the future,
+each hadoop cluster gateway will have it installed, and the default hive catalog
 will be set to that of the hadoop cluster.
 
 To run queries:
@@ -62,11 +62,11 @@ To run queries:
 
 Launcher
 ********
-Follow the below steps to install presto_client in your Launcher and execute queries.
+Follow the below steps to install ``presto_client`` in your Launcher and execute queries.
 
 1. Request for :ref:`ACL <acl>` if ports are not open.
-2. Install presto_client package
-3. Configure the defaults to connect to - a) Presto Coordinator URL, b) hive cluster name and c) database name. For eg:
+2. Install ``presto_client`` package
+3. Configure the defaults to connect to: a) Presto Coordinator URL, b) Hive cluster name, and c) database name. For example:
 
 .. code-block:: text
 

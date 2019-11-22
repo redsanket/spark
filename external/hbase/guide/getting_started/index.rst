@@ -119,11 +119,10 @@ Support/Help at Yahoo
 
 At Yahoo there are various ways to get help/support with HBase.
 
-Hipchat / Slackchat
--------------------
+Slack
+-----
 
-   - This is the quickest way to get assistance with minor questions.
-   - The name of the public Yahoo HBase Hipchat room is ``yhbase``.  Later on, we will migrate to Slackchat with a similar name.
+   - #hbase is the quickest way to get assistance with minor questions.
    - This room is generally only for quick questions about APIs, use cases, and so on.
 
 Support E-mails
