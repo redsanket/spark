@@ -1,6 +1,6 @@
 set +x
 #
-# Run docker_fetch_image.py on the admin node in order to ensure
+# Run setup_docker_hdfs on the admin node in order to ensure
 # any rhel7 hadoop worker has current docker image files. Any 
 # rhel6 and rhel7 non-core worker nodes are ignored. 
 #
@@ -20,7 +20,7 @@ echo "RHEL7_DOCKER_DISABLED is: $RHEL7_DOCKER_DISABLED"
 echo "DOCKER_IMAGE_TAG_TO_USE is: $DOCKER_IMAGE_TAG_TO_USE"
 echo "cluster is: $cluster"
 
-DOCKER_TAG_URI="docker-registry.ops.yahoo.com:4443/hadoop/docker_configs/$DOCKER_IMAGE_TAG_TO_USE"
+DOCKER_TAG_URI="docker-registry.ops.yahoo.com:4443/hadoop-user-images/hadoop/$DOCKER_IMAGE_TAG_TO_USE"
 
 setup_docker_hdfs() {
     echo "=========== Setting up Docker images on HDFS"
@@ -32,8 +32,5 @@ setup_docker_hdfs() {
 
 if [[ $RHEL7_DOCKER_DISABLED == "false" ]]; then
     echo "== update docker image for any rhel7 hadoop worker nodes "
-    set -x
-    /grid/0/tmp/docker_fetch_image.py $cluster $DOCKER_IMAGE_TAG_TO_USE
-    set +x
     setup_docker_hdfs
 fi
