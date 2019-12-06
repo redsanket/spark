@@ -67,7 +67,7 @@ Using Hive
 Using Pig
 ---------
 
-Pig can be used to work with tables on HCatalog. See the `HCatalog Getting Started <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/HCatalogGettingStarted.html#Pig>`_
+Pig can be used to work with tables on HCatalog. See the `HCatalog Getting Started <https://git.ouroath.com/pages/developer/Bdml-guide/grid_cline/#pighcatalog>`_
 on how to invoke Pig to use HCatalog. You have to specify your MapReduce Job queue
 using the command-line option ``-Dmapred.job.queue.name=default`` (replace ``default``
 with the queue you normally use to execute your MapReduce Jobs on AB).
