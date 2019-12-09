@@ -38,10 +38,6 @@ Tuning and Monitoring
 Getting heap dump
 -----------------
 
-You can follow instructions very like mapreduce/tez to get a spark heap dump: https://twiki.corp.yahoo.com/view/Grid/PigTroubleshooting#Getting_Heapdump
-
-The only difference is you specify the -XX options using configs ``spark.executor.extraJavaOptions`` and ``spark.driver.extraJavaOptions``
-
 Here is an example:
 - create a dump.sh script with contents, replacing youruser with your actual userid:
 

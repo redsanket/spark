@@ -863,13 +863,6 @@ You can also set this config for it to properly link the RM to the Spark history
 - ``spark.yarn.historyServer.address grid-jt1.colo.ygrid.yahoo.com:18080``
 The spark history server URI is: ``ResourceManager:18080``. So AxoniteRed would be: ``axonitered-jt1.red.ygrid.yahoo.com:18080``
 
-.. _soy_yahoozip:
-
-Reading YahooZip Compressed Files
----------------------------------
-
-See `YahooZip user guide <http://twiki.corp.yahoo.com/view/SDSMain/YahooZipUserGuide>`_ for background and `Spark section <http://twiki.corp.yahoo.com/view/SDSMain/YahooZipUserGuide#A_7_Spark>`_ for example usage.
-
 .. _soy_debugging:
 
 Debugging Information
