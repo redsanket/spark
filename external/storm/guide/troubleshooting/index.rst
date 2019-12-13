@@ -201,7 +201,7 @@ gdb (For Memory leaks/Direct Byte Buffers)
 Profiling with YourKit
 ######################
 
-`YourKit <http://twiki.corp.yahoo.com/view/Grid/YourKit>`_ is a popular tool for debugging and profiling Java applications, and it is mentioned with frequency on the Storm mailing lists.
+`YourKit TODO_LINK_NEEDED`_ is a popular tool for debugging and profiling Java applications, and it is mentioned with frequency on the Storm mailing lists.
 
 
 Installing YourKit

@@ -3,7 +3,6 @@ Quick Start
 ===========
 
 .. Status: First draft. This has been tested and written by the developer team. More notes could be added to elucidate certain steps. 
-.. Reference: http://twiki.corp.yahoo.com/view/Grid/StormQuickStart
 
 This quick start shows you how to use the ystorm package to launch a sample Storm topology on an OpenStack instance.
 We'll be launching the topology from your VM instead of using the Yahoo Grid. 

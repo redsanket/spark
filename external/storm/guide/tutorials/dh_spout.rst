@@ -47,7 +47,7 @@ For example, if your topology name is ``mydemo`` and you were using the Ebony Re
 your virtual host URI might be something like ``http://mydemo-ebonyred.ygrid.local``.
 
 
-#. Before you set the name of your virtual host, check the `Storm Data Highway Registry <http://twiki.corp.yahoo.com/view/Grid/SupportStormDHRegistry>`_
+#. Before you set the name of your virtual host, check the `Storm Data Highway Registry TODO_LINK_NEEDED`_
    to make sure that the  virtual host is not be used.  You can do this by calling `registry_client list` from a gateway.
 #. Add your virtual service URI using the following command::
 

@@ -1,9 +1,5 @@
 FAQ
 ===
-.. See also http://twiki.corp.yahoo.com/view/Grid/StormDocumentation#FAQ.
-
-.. Status: First draft. The doc has been edited, but could use more FAQs.
-
 .. _faq-reset_errs:
 
 Q: Why am I seeing "Connection reset by peer" errors and "Connection refused" messages?
@@ -76,7 +72,7 @@ Service, but did not go through the HTTP proxy. We usually have this set on all
 the gateways by default. If you ran your topology from a hosted gateway and got 
 this error please `file an issue <http://yo/ystorm-request>`_ 
 to let us know. If it was from your launcher box, you probably need to configure it. 
-See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for 
+See the `Http Proxy Node List TODO_LINK_NEEDED`_ for 
 the available HTTP proxies by colo.
 
 If you are setting it for a launcher box you probably want to set it through 
