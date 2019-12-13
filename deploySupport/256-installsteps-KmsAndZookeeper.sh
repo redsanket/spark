@@ -261,6 +261,8 @@ yjava_ysecure_agent-1.0.10 \
 yjava_resource_handler-1.0.21 \
 ysysctl-2.2.3 \
 jports_org_json__json-1.20090211_1 \
+yjava_servlet-1.0.16 \
+yjava_servlet_filters-0.77.23 \
 ${cmd_jetty_common_settings} \
 "
 
