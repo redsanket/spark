@@ -121,8 +121,7 @@ Creating an Oozie Role
 
 To create a role in Oozie for a YCA allowed namespace:
 
-#. The user should create a role under `griduser <https://roles.corp.yahoo.com/ui/role?action=list&role=griduser>`_ namespace with name of the role as the headless user name. Refer to `Support YCAProtected Grid Service <http://twiki.corp.yahoo.com/view/Grid/SupportGYCA>`_
-   for details.
+#. The user should create a role under `griduser <https://roles.corp.yahoo.com/ui/role?action=list&role=griduser>`_ namespace with name of the role as the headless user name.
 
    #. File a `Jira issue with OpsDB <https://jira.corp.yahoo.com/servicedesk/customer/portal/89/create/554>`_
       to create a role. Your role name should use the syntax ``griduser.<username>``.
@@ -301,7 +300,7 @@ There are three optional parameters for the credential type ``yca``:
 
   For example, the following contains the hosts of the production ``httpproxy``: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy``
   This role is the parent role containing the staging, research, and production ``httpproxy`` hosts: ``http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.httpproxy``
-  See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_ for
+  See the `Http Proxy Node List <https://yo/httpproxy>`_ for
   the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 
@@ -643,7 +642,7 @@ the token in the ``Yahoo-Role-Auth`` header. For compiling the code, following d
 
    // Web service call to the external web service via proxy.
    // This example assumes a production cluster in gq1 and uses corresponding proxy.
-   // Refer http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList for the different proxy urls.
+   // Refer to https://yo/httpproxy for the different proxy urls.
    InetSocketAddress inet = new InetSocketAddress("httpproxy-prod.blue.ygrid.yahoo.com", 4080);
    Proxy proxy = new Proxy(Type.HTTP, inet);
    URL url = new URL(<<external web service url>>);

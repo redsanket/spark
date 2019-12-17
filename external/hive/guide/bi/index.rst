@@ -226,7 +226,8 @@ All data sets that will be accessed must be reviewed by a Paranoid.
 
 To request a paranoid review:
 
-#. Go to `yo/paranoidreview <http://twiki.corp.yahoo.com/view/Paranoidyahoos/SecurityRequest>`_.
+#. Go to `http://yo/securityHelpdesk <http://yo/securityHelpdesk>`_.
+   for details.
 #. From the **Security Request** page, select **Service->Project Support** and **Project Type->Product/Platform**.
 #. Enter a project ID and a summary.
 #. Click **Send to Bugzilla**. 
@@ -301,7 +302,7 @@ Configure the ODBC Driver
       
       - Values for HOST, PORT, HS2HostFQDN, and HS2KrbServiceName should be set here.
       - They can also be specified on the connection string.
-      - PORT information can be obtained from http://twiki.corp.yahoo.com/view/Grid/GridPortNumbers
+      - PORT information can be obtained from https://git.ouroath.com/GridSE/docs/wiki/Grid-Port-Numbers
       HOST=gsbl90047.blue.ygrid.yahoo.com
       PORT=50514
       Schema=default
@@ -442,8 +443,6 @@ Kerberos.
 
 .. note:: Because ACL changes are only pushed on certain days of the week, we
           require three to four days of lead time.)
-
-For more information, see `Rules on using Launchers <http://twiki.corp.yahoo.com/view/Grid/RulesLauncherUsage-Rules_on_using_Launchers>`_.
 
 .. _ms-install:
 
@@ -602,6 +601,8 @@ The driver should now be ready for use.
 `on Google Drive <https://drive.google.com/open?id=1QexsK88FRzJgL86OPydPgo7z1CpK3Wmp>`_. This should allow the definition of ODBC
 data sources that use the Simba ODBC driver.
 
+
+.. _sample_krb5_config:
 
 #. Create the file ``/etc/krb5.conf`` with the contents from the appropriate cluster gateway. For YGRID, it might look as follows::
 
@@ -805,8 +806,7 @@ Install MIT Kerberos Software
 
 #. To set up Kerberos configuration file:
 
-   - Obtain a sample `krb5.conf <http://twiki.corp.yahoo.com/pub/Grid/HiveServer2BITools/krb5.conf>`_
-     configuration file for your Kerberos setup. 
+   - Obtain  a sample :ref:`krb5.conf <sample_krb5_config>` configuration file for your Kerberos setup. 
      (When working on your own  obtain ``/etc/krb5.conf`` from the appropriate cluster's 
      gateway.)
    - Change to ``C:\ProgramData\MIT\Kerberos5``. This is normally a hidden directory. 
@@ -1414,7 +1414,7 @@ Setting Up
        git clone git@git.ouroath.com:thiruvel/hive_jdbc_sample.git
 #. Change to the ``hive_jdbc_sample`` directory.
 #. Update the version of Hive in the ``pom.xml`` file. See the ``hive-client`` 
-   column in the `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_
+   column in the `Grid Versions table <http://yo/gridversions>`_
    to find the Hive version for the cluster you're using. 
 #. Build the project:: 
 
@@ -1433,7 +1433,7 @@ Run Query
 
    For other clusters, you'll have to replace {cluster_name} and {colo} with the 
    appropriate information. To find the URL to the HiveServer2 in a cluster, 
-   see `Grid Versions table <http://twiki.corp.yahoo.com/view/Grid/GridVersions?varcache=refresh>`_. 
+   see `Grid Versions table <http://yo/gridversions>`_. 
 
    .. note:: We're using port 5015 and appending ``-noenc`` to ``hs2`` because we're not 
              using encryption for this example.   

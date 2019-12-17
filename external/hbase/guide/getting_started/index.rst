@@ -75,9 +75,6 @@ To support the varying requirements during the course of a development cycle,
 HBase provides a number of environments. A service level is tied to a namespace 
 that will be created on a given HBase instance. 
 
-See the `HBase tech talk slides <http://twiki.corp.yahoo.com/pub/Grid/HBaseHome/HBase_as_a_Service_Mar_2013_Talk_Final.pptx>`_
-on more detail about namespace and resource guarantees.  (Note that this talk is from 2013 and out of date at this point.)
-
 #. Shared Sandbox
 
    - Development/Research tier

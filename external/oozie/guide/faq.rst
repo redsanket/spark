@@ -87,8 +87,6 @@ Answers
    The job submitter, however, could allow specific user(s) to see its log by defining 
    a few parameters during job submission. The same thing could be achieved through Oozie.
 
-   More information, see the 
-   `Grid Security User Impact <http://twiki.corp.yahoo.com/view/Grid/GridSecurityUserImpact>`_
    The following example shows how to configure that in ``workflow.xml``.
 
    .. code-block:: xml
@@ -779,7 +777,7 @@ Answers
    If you have a Java Maven project which uses an Oozie client or core library, you can 
    use Oozie Maven artifacts. Given below is the Maven repository and dependency 
    settings for your POM file. The ``oozie.version`` used in this 
-   example is ``4.4.1.3.1411122125``. See `Grid Versions <http://twiki.corp.yahoo.com/view/Grid/GridVersions>`_
+   example is ``4.4.1.3.1411122125``. See `Grid Versions <https://yo/gridversions>`_
    to determine the Oozie version for a particular cluster.
    
    **POM XML**
@@ -821,39 +819,6 @@ Answers
              version deployed on a research cluster. Package is promoted to 
              stable only when it is deployed on production.
               
-.. _oozie_headless_users:
-
-.. topic:: **How do you use headless users with Oozie?**
-
-   Oozie uses Kerberos authentication. If you want to use a headless user, you need to 
-   do the following:
-   
-   - Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. These accounts need a underscore "_" in their name. 
-   - Request a headless UNIX account, that matches the name of your headless Backyard account.
-   
-   Follow the steps below to set up your headless user for Oozie:
-   
-   #. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
-   
-          $ sudo keydbkeygen oozie headlessuser.pw
-   
-   #. Confirm that your ``keydb`` file looks similar to that below:
-   
-      .. code-block:: xml
-   
-         <keydb>
-           <keygroup name="oozie" id="0">
-             <keyname name="headless_user.pw" usage="all" type="a">
-               <key version="0"
-                 value = "mYsecreTpassworD" current = "true"
-                 timestamp = "20040916001312"
-                 expiry = "20070916001312">
-               </key>
-             </keyname>
-           </keygroup>
-         </keydb>
-
-
 .. _oozie_striping:
 
 .. topic:: **How do you configure Oozie jobs to use two NameNodes (Oozie Striping)?**

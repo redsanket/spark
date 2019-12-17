@@ -159,27 +159,6 @@ HiveServer2 Servers
 | Polaris  | ``polarisgq-hs.gq.vcg.yahoo.com``            | 4443     | ``HTTP/polarisgq-hs.gq.vcg.yahoo.com@VCG.OUROATH.COM``               | VCG                |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
 
-
-.. _gs_appendix-space_quotes:
-
-Space Quotas for Projects
-=========================
-
-
-Grids running Hadoop 0.20.2xx (aka Fred) have Capacity Scheduler Limits:
-
-- HDFS namespace (i.e., the number of files) that are in **Pending + Running** will be set to a maximum of
-  - Per Job: 100k
-  - Per User: 100k
-  - Per Queue: 200k
-
-  .. note:: Jobs with more than 100k files need to be split into 100k chunks.
-- Top-level HDFS directory's file space will be set to 4TB.
-- New *project* directories will be set to 4TB, unless the ticket requests a higher allocation and is approved by the Business Unit Grid POC.
-- NFS-mounted ``home`` directories will be assigned 5GB.
-
-For more information, see `HDFS Quotas Guide <http://twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fhadoop.apache.org%2Fcore%2Fdocs%2Fr0.20.0%2F%2Fhdfs_quota_admin_guide.html&SIG=12bpd0f84>`_.
-
 .. _gs_appendix-generate-role-certs:
 
 Athenz User/Role certificates, and Java KeyStores
@@ -212,3 +191,4 @@ As a first step, the certificate would need conversion to PKCS12 format, as foll
    $ keytool -importkeystore -srckeystore griduser.role.uid.mithunr.pkcs12 -srcstoretype PKCS12 -srcstorepass changeit -destkeystore griduser.role.uid.mithunr.jks -deststorepass changeit -noprompt
 
 #. The resultant ``griduser.role.uid.mithunr.jks`` Java KeyStore can now be used with Java programs, such as with :ref:`Hive Beeline <beeline_jdbc_https_x509>`.
+

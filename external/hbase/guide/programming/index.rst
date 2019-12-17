@@ -1229,9 +1229,6 @@ Where possible, you should instead prefer to use native RPCs in Java to access H
 We'll go through a short tutorial, look at the structure of resource identifiers, and then
 give some sample code for making HTTP requests in the Yahoo environment.
 
-Note that this quick tutorial doesn't go into detail on REST security, which is mandatory and used at Yahoo.
-Check our Twiki `here <https://twiki.corp.yahoo.com/view/Grid/HBase_Stargate#Security>`_ for how to use YCA or Kerberos to access HBase.
-
 Quick Walkthrough
 -----------------
 

@@ -272,7 +272,7 @@ To use YCAv2 certificates, ensure that the following is true:
     
         http://roles.corp.yahoo.com:9999/ui/role?action=view&name=grid.blue.prod.httpproxy
 
-    See the `Http Proxy Node List <http://twiki.corp.yahoo.com/view/Grid/HttpProxyNodeList>`_
+    See the `Http Proxy Node List <https://yo/httpproxy>`_
     for the role name and VIP name of the deployed HTTP proxies for staging, research, and sandbox grids.
 
 .. _submit_workflow_ycav2-workflow:
@@ -360,40 +360,6 @@ are defined in ``job.properties`` so the EL functions ``coord:latest`` and
      </data-in>
    </input-events>
 
-
-.. _cookbook-using_headless_users:
-
-Using Headless Users
---------------------
-
-Oozie uses Kerberos authentication. If you want to use a headless user, you need to 
-do the following:
-
-- Request a `Headless Bouncer account <http://twiki.corp.yahoo.com/view/SSO/HeadlessAccountSetup>`_. 
-  These accounts need a underscore "_" in their name. 
-- Request a headless UNIX account that matches the name of your headless Backyard account.
-
-Follow the steps below to set up your headless user for Oozie:
-
-#. Setup your ``keydb`` file in the path ``/home/y/conf/keydb/``::
-
-       $ sudo keydbkeygen oozie headlessuser.pw
-
-#. Confirm that your ``keydb`` file looks similar to that below:
-
-   .. code-block:: xml
-
-      <keydb>
-        <keygroup name="oozie" id="0">
-          <keyname name="headless_user.pw" usage="all" type="a">
-            <key version="0"
-              value = "mYsecreTpassworD" current = "true"
-              timestamp = "20040916001312"
-              expiry = "20070916001312">
-            </key>
-          </keyname>
-        </keygroup>
-      </keydb>
 
 .. _cookbook-configure_jobs_two_namenodes:
 
