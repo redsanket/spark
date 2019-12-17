@@ -58,9 +58,10 @@ For connectivity between Verizon and VCG, we are in the process of setting up pr
 Encryption zones
 ****************
 If your data is in an encryption zone, you need to grant Presto access to the data.
+If you are a consumer of the data, you need to request access from the Encryption Zone admins.
 
 Steps:
-  1. Go to your encryption zone in `Support Shop <https://supportshop.cloud.corp.yahoo.com:4443/doppler/ez>`_.
+  1. Go to the encryption zone page in `Support Shop <https://supportshop.cloud.corp.yahoo.com:4443/doppler/ez>`_ and find the encryption zone of your interest.
   2. If the ``Encryption Key Readers`` section does not already list ``Presto`` as a service, click on ``Edit Key Readers`` and select ``Presto`` from the drop down.
   3. Click ``Add Service`` and then click ``Update EZ Key Readers``.
 
@@ -71,6 +72,7 @@ Steps:
      :alt:
      :align: left
 
-  4. After submission, wait for the admin of your encryption zone to approve the request.
-  5. Once approved, Support Shop will create a Jira for the Grid SE to modify to the ACL.
+  4. Both ``Presto`` service and the user that will be running the queries need access to the encryption zone. If the user (regular or headless) or the unix group they belong to is not part of the ``Encryption Key Readers`` section, request access for that as well via ``Add User`` or ``Add Group``.
+  5. After submission, wait for the admin of the encryption zone to approve the request.
+  6. Once approved, Support Shop will create a Jira for the Grid SE to modify the ACL. Please wait for the ACL push to happen and Jira to be resolved. It may take 3-5 business days based on the deploy cycle.
 

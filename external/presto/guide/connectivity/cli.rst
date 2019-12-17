@@ -26,15 +26,24 @@ will be set to that of the hadoop cluster.
 
 To run queries:
 
-1. Login to JB or TT gateway and run ``kinit`` as yourself or as a headless user you have sudo access to.
+1. Login to JB or TT gateway and run ``kinit`` or ``pkinit-user`` as yourself or as a headless user you have sudo access to.
 2. Invoke ``presto`` with options. For example:
 
 .. code-block:: text
 
   ssh -A jet-gw.blue.ygrid.yahoo.com
-  kinit rohinip@Y.CORP.YAHOO.COM
+  pkinit -user
   presto --server https://xandarblue-presto.blue.ygrid.yahoo.com:4443 --catalog dilithiumblue --schema benzene
   show tables;
+
+The older methods of ``kinit`` using keytabs for headless users or ``kinit`` as ``Y.CORP.YAHOO.COM`` user shown below will be disabled by end of Q1 2020.
+
+.. code-block:: text
+
+  kinit `whoami`@Y.CORP.YAHOO.COM
+  (or)
+  sudo -iu <ygrid headless username>
+  kinit -kt /homes/`whoami`/`whoami`.prod.headless.keytab `whoami`
 
 VCG
 ===
@@ -51,14 +60,19 @@ To run queries:
 .. code-block:: text
 
   ssh -A kessel-gw.gq.vcg.yahoo.com
-  kinit rohinip@Y.CORP.YAHOO.COM
-  
-  (or)
-  
-  sudo -iu p_vcgheadlessuser
-  kinit -kt /homes/p_vcgheadlessuser/p_vcgheadlessuser.prod.headless.keytab p_vcgheadlessuser
+  pkinit-user
+  # Run Presto CLI
   presto --schema myvcgdb
   show tables;
+
+The older methods of ``kinit`` using keytabs for headless users or ``kinit`` as ``Y.CORP.YAHOO.COM`` user shown below will be disabled by end of Q1 2020.
+
+.. code-block:: text
+
+  kinit `whoami`@Y.CORP.YAHOO.COM
+  (or)
+  sudo -iu <VCG headless username>
+  kinit -kt /homes/`whoami`/`whoami`.prod.headless.keytab `whoami`
 
 Launcher
 ********
@@ -79,6 +93,6 @@ Follow the below steps to install ``presto_client`` in your Launcher and execute
 
 .. code-block:: text
 
-  kinit rohinip@Y.CORP.YAHOO.COM
+  kinit `whoami`@Y.CORP.YAHOO.COM
   presto
   show tables;

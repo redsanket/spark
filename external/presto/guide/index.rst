@@ -11,7 +11,7 @@ Presto User Guide
    deployment
    prerequisite
    quickstart
-   security
+   authentication
    connectivity/index
    best_practices
    troubleshooting

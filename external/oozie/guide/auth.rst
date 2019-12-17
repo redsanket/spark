@@ -38,7 +38,7 @@ Before invoking Oozie, obtain and cache the Kerberos ticket-granting ticket::
 
 You can also use the following if you have a keytab file::
 
-       $ kinit -kt ~/`whoami`.dev.headless.keytab `whoami`@DEV.YGRID.YAHOO.COM
+       $ kinit -kt ~/`whoami`.prod.headless.keytab `whoami`@YGRID.YAHOO.COM
 
 
 Oozie CLI
