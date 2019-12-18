@@ -1,7 +1,8 @@
 Authentication
 ##############
 
-The following modes of authentication are supported to the Presto Coordinator::
+The following modes of authentication are supported to the Presto Coordinator.
+
   - Kerberos
   - mTLS with Athenz X.509 User or Role Certificate
   - Okta (Browser and UI)
@@ -116,6 +117,8 @@ The JDBC properties pertaining to Kerberos are:
 Kerberos keytabs will be disabled by end of Q1 2020. So please migrate from using
 ``KerberosKeytabPath`` in JDBC to :ref:`X.509 certificates <jdbc_x509_auth>`.
 
+.. _x509_auth:
+
 Athenz X.509 Certificate
 ************************
 
@@ -138,9 +141,10 @@ Role certificate
 ================
 Role certificates from `griduser <https://ui.athenz.ouroath.com/athenz/domain/griduser/role>`_ and
 `vcguser <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ domain are accepted. The naming convention of the role is ``uid.<username>``.
+For regular users, roles are already created and ``user.username`` is added to the role.
 
 1. Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_ to create the Athenz role for headless user. After that you can add user principals or Athenz services to the newly created role.
-2. Refer to `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_ documentation for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for 30 days and will have to be refreshed once they expire. The validity will be reduced to 3 days in Jan 2020.
+2. Refer to `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_ documentation for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for 30 days and will have to be refreshed once they expire. The validity will be reduced to 3 days for these domains in Jan 2020.
 
 Linux
 -----
@@ -171,10 +175,13 @@ and `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/
 
 .. code-block:: text
 
+  # One time copy
+  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz
+  # Run once a day before using the BI tool to renew the role certificate
   yinit
   athenz-user-cert
-  zts-rolecert -svc-key-file /Users/$USER/.athenz/key -svc-cert-file /Users/$USER/.athenz/cert -zts https://zts.athens.yahoo.com:4443/zts/v1 -role-domain griduser -role-name uid.$USER -dns-domain zts.yahoo.cloud -role-cert-file /Users/$USER/.athenz/griduser.uid.$USER.cert.pem
-  openssl x509 -in /Users/$USER/.athenz/griduser.uid.$USER.cert.pem -text | less
+  zts-rolecert -svc-key-file ${HOME}/.athenz/key -svc-cert-file ${HOME}/.athenz/cert -zts https://zts.athens.yahoo.com:4443/zts/v1 -role-domain griduser -role-name uid.${USER} -dns-domain zts.yahoo.cloud -role-cert-file  ${HOME}/.athenz/griduser.uid.${USER}.cert.pem
+  openssl x509 -in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem -text | less
 
 CLI
 ===
@@ -213,31 +220,32 @@ Please refer to :doc:`Presto JDBC <connectivity/jdbc>` documentation for more de
 
 The JDBC options pertaining to X.509 certificate authentication are:
 
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
-| Name                  | Description                                                                                                                                                       | |
-+=======================+===================================================================================================================================================================+=+
-| SSLCertificatePath    | The location of the certificate file in PEM format that contains the certificate to use for authentication                                                        | |
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
-| SSLKeyStorePath       | The location of the key file in PEM format (or) the Java KeyStore file in JKS format that contains both the certificate and private key to use for authentication | |
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
-| SSLKeyStorePassword   | The password for the KeyStore                                                                                                                                     | |
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
-| SSLTrustStorePath     | The location of the file containing trusted certificate authorities in PEM format or JKS format that will be used to validate HTTPS server certificates           | |
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
-| SSLTrustStorePassword | The password for the TrustStore                                                                                                                                   | |
-+-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+-+
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Name                  | Description                                                                                                                                                       |
++=======================+===================================================================================================================================================================+
+| SSLCertificatePath    | The location of the certificate file in PEM format that contains the certificate to use for authentication                                                        |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| SSLKeyStorePath       | The location of the key file in PEM format (or) the Java KeyStore file in JKS format that contains both the certificate and private key to use for authentication |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| SSLKeyStorePassword   | The password for the KeyStore                                                                                                                                     |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| SSLTrustStorePath     | The location of the file containing trusted certificate authorities in PEM format or JKS format that will be used to validate HTTPS server certificates           |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| SSLTrustStorePassword | The password for the TrustStore                                                                                                                                   |
++-----------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 Example of JDBC properties that will have to be added to connect using certificate authentication:
 
 .. code-block:: text
 
   # Linux
+  SSL=true
   SSLCertificatePath=/var/lib/sia/certs/griduser.role.uid.<username>.cert.pem
   SSLKeyStorePath=/var/lib/sia/certs/griduser.role.uid.<username>.key.pem
   SSLTrustStorePath=/home/y/share/ssl/certs/yahoo_certificate_bundle.pem
 
   # Mac
-  # Please copy /home/y/share/ssl/certs/yahoo_certificate_bundle.pem from yahoo_certificate_bundle dist package to /Users/$USER/.athenz folder
+  SSL=true
   SSLCertificatePath=/Users/<username>/.athenz/griduser.uid.<username>.cert.pem
   SSLKeyStorePath=/Users/<username>/.athenz/key
   SSLTrustStorePath=/Users/<username>/.athenz/yahoo_certificate_bundle.pem

@@ -138,7 +138,7 @@ X.509
 *****
 Authentication to Presto can be done using mutual TLS with
 `Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 role certificates.
-Refer to :ref:`X.509 certificate authentication <jdbc_x509_auth>` for detailed information on the initial setup required.
+Refer to :ref:`X.509 certificate authentication <x509_auth>` for detailed information on the initial setup required.
 Authentication from the following roles are supported.
 
   - ``user.<regular_user_name>``
