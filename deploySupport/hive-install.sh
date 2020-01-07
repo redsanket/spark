@@ -170,7 +170,7 @@ if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
   OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
   if [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER, using packages from test explicitly"
-    yinst i -same -live -downgrade -branch test  hive-1.2.5.5.1812031910   hive_conf-1.2.5.5.1812031910   hcat_server-1.2.5.5.1812031910 yjava_yca
+    yinst i -same -live -downgrade -branch test  hive-1.2.5.5.1812031910   hive_conf-1.2.5.5.1812031910   hcat_server-1.2.5.5.1812031910 
   else
     echo "OS is $OS_VER, using yjava_yca from current as an implicit dependency"
     yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
