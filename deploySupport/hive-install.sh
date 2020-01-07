@@ -132,7 +132,7 @@ echo "INFO: Hive node being installed: $HIVENODE"
 # key 'hiveqeint' from ykeykey
 #
 # need to add json-c needed for athens zts
-yinst install hadoopqa_headless_keys ports/json-c-0.11.3
+yinst install hadoopqa_headless_keys
 yinst install ora11gclient-1.0.3
 
 # make sure we support hybrid mode for legacy keydb calls
