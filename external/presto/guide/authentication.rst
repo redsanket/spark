@@ -175,9 +175,13 @@ and `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/
 
 .. code-block:: text
 
-  # One time copy
-  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz
-  # Run once a day before using the BI tool to renew the role certificate
+  # One time setup. Download athenz CLI utilities and truststore file.
+  curl -o /usr/local/bin/zts-rolecert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.26/Darwin/zts-rolecert"
+  curl -o /usr/local/bin/athenz-user-cert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.9/Darwin/athenz-user-cert"
+  chmod +x /usr/local/bin/zts-rolecert /usr/local/bin/athenz-user-cert
+  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz/
+
+  # Run once a day before using the BI tool to renew the expired user certificate and role certificate
   yinit
   athenz-user-cert
   zts-rolecert -svc-key-file ${HOME}/.athenz/key -svc-cert-file ${HOME}/.athenz/cert -zts https://zts.athens.yahoo.com:4443/zts/v1 -role-domain griduser -role-name uid.${USER} -dns-domain zts.yahoo.cloud -role-cert-file  ${HOME}/.athenz/griduser.uid.${USER}.cert.pem
