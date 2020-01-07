@@ -8,6 +8,10 @@
 # inputs: cluster being installed, reference cluster name
 # outputs: 0 on success
 
+#
+# gridci-4488, migrate to supporting rhel7 installs
+#
+
 if [ $# -ne 2 ]; then
   echo "ERROR: need the cluster name, and reference cluster"
   exit 1
@@ -23,7 +27,7 @@ REFERENCE_CLUSTER=$2
 # with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
 # than 99.
 #
-# gridci-4421, allow 3 digit clsuter names
+# gridci-4421, allow 3 digit cluster names
 #
 CLUSTER_NUM=`echo "${CLUSTER}"|sed 's/[^0-9]*//g'`
 LENGTH_CLUSTER_STRING=${#CLUSTER_NUM}
@@ -156,19 +160,21 @@ yinst install yjava_oracle_jdbc_wrappers -branch test
 # check what comp version we need to use
 echo "STACK_COMP_VERSION_HIVE is using: $REFERENCE_CLUSTER"
 
+# make sure we don't have AR conflicting conf pkg
+yinst remove -live hive_conf_axonitered
+
 # gridci-1937 allow installing from current branch
 if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
 
   # gridci-4421, only yjava_yca pkg for rhel7 is on test
   OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
   if [[ "$OS_VER" =~ ^7. ]]; then
-    echo "OS is $OS_VER, using yjava_yca from test explicitly"
-    yinst i yjava_yca -br test
+    echo "OS is $OS_VER, using packages from test explicitly"
+    yinst i -same -live -downgrade -branch test  hive-1.2.5.5.1812031910   hive_conf-1.2.5.5.1812031910   hcat_server-1.2.5.5.1812031910 yjava_yca
   else
     echo "OS is $OS_VER, using yjava_yca from current as an implicit dependency"
+    yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
   fi
-
-  yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
 
 # else use artifactory
 else
@@ -236,33 +242,25 @@ HIVE_CONF_VERSION=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f2`
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/hive_conf/
 
 # hive yinst sets
-yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current
-yinst set hcat_server.HADOOP_HEAPSIZE_MB=1000
-yinst set hcat_server.HADOOP_HOME=/home/gs/hadoop/current
-yinst set hcat_server.JAVA_HOME=/home/gs/java/jdk
-# yinst set hcat_server.database_connect_url=jdbc:mysql://$HIVENODE:3306/hivemetastoredb?createDatabaseIfNotExist=true
-yinst set hcat_server.conf_hive_metastore_thrift_sasl_qop=authentication,integrity,privacy
-yinst set hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))"
-yinst set hcat_server.database_user=hive
-yinst set hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
-yinst set hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
-yinst set hcat_server.hcat_server_keytab_file=/etc/grid-keytabs/hadoopqa.$HIVENODE_SHORT.keytab
-yinst set hcat_server.hcat_server_user=hadoopqa
-yinst set hcat_server.metastore_uris=thrift://$HIVENODE:9080
+yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current \
+           hcat_server.HADOOP_HEAPSIZE_MB=1000 \
+           hcat_server.HADOOP_HOME=/home/gs/hadoop/current \
+           hcat_server.JAVA_HOME=/home/gs/java/jdk \
+           hcat_server.conf_hive_metastore_thrift_sasl_qop=authentication,integrity,privacy \
+           hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))" \
+           hcat_server.database_user=hive \
+           hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
+           hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
+           hcat_server.hcat_server_keytab_file=/etc/grid-keytabs/hadoopqa.$HIVENODE_SHORT.keytab \
+           hcat_server.hcat_server_user=hadoopqa \
+           hcat_server.metastore_uris=thrift://$HIVENODE:9080 \
+           hive.metastore_uris=thrift://$HIVENODE:9080/ \
+           hive.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
+           hive_conf.metastore_uris=thrift://$HIVENODE:9080/ \
+           hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
+           hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper \
+           hcat_server.keydb_passkey=hiveqeint
 #yinst set hive.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
-yinst set hive.metastore_uris=thrift://$HIVENODE:9080/
-yinst set hive.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
-yinst set hive_conf.metastore_uris=thrift://$HIVENODE:9080/
-yinst set hive_conf.metastore_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM
-
-# stop using keydb package and directly use hcat_server hive-site properties
-# for mysql metastore access
-#
-#yinst set hcat_server.jdbc_driver=yjava.database.jdbc.mysql.KeyDbDriverWrapper
-#yinst install hcat_dbaccess-0.0.1.1360014220.T38813-rhel.tgz
-#yinst set hcat_server.keydb_passkey=hcatPassword
-yinst set hcat_server.jdbc_driver=yjava.database.jdbc.oracle.KeyDbDriverWrapper
-yinst set hcat_server.keydb_passkey=hiveqeint
 
 # GRIDCI-2587 The hive metastore setting should be objectstore
 yinst set hcat_server.metastore_rawstore_impl=org.apache.hadoop.hive.metastore.ObjectStore
