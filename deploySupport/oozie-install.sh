@@ -170,6 +170,9 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
+# old pkgs built bfore yinst rhel7 support, need pinned
+yinst i  ysysctl-2.2.3  web_extjs-1.0.0
+
 # check we got a valid reference cluster
 RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
 RC=$?
@@ -189,12 +192,15 @@ fi
 
 # Install oozie and oozie_client on the oozie_node
 # gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
-yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
+# 
+# need to pin yjava_bcookie becuase of multiple versions on same branch, causes newer
+# yjava_jdk versions to get pulled in
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE yjava_bcookie-1.17.2571680
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE failed to install!"
   exit 1
 fi
-yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE_CLIENT failed to install!"
   exit 1
@@ -203,7 +209,7 @@ fi
 ##
 # Install oozie_client and ygrid_cacert-2.1.1 on gateway
 ##
-$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert-2.1.1 -downgrade -live"
+$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680 && yinst i ygrid_cacert-2.1.1 -downgrade -live"
 RC=$?
 
 if [ $RC -ne 0 ]; then
