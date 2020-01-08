@@ -130,7 +130,10 @@ yinst i ygrid_cacert-2.1.1 -downgrade -live
 # gridci-2227, needed for oozie webui change to https/4443, NOTE this will prompt
 # for passwd since it's a keyed pkg, per oozie team, pkg should be manually installed so if 
 # this is not installed deploy will fail
-yinst i -br current ygrid_services_cert
+#
+# have to pin version since this pkg is old, built before yinst supported rhel7
+#
+yinst i -br current ygrid_services_cert-2.0.0
 if [ $? -ne 0 ]; then
   echo "FAIL     Install of ygrid_services_cert pkg failed!!"
   echo "FAIL     This is a keyed pkg that needs to be manually installed, please install from"
