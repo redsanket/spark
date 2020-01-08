@@ -262,7 +262,7 @@ fi
 
 note "Process dist tags for any applicable components..."
 if [ -n "$TEZ_DIST_TAG" ]; then
-    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez_full | cut -d' ' -f1 | cut -d'-' -f2`
+    export TEZVERSION=`dist_tag list $TEZ_DIST_TAG | grep ytez- | cut -d' ' -f1 | cut -d'-' -f2`
 fi
 
 if [ -n "$SPARK_DIST_TAG" ]; then
