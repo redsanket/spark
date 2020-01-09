@@ -133,7 +133,7 @@ yinst i ygrid_cacert-2.1.1 -downgrade -live
 #
 # have to pin version since this pkg is old, built before yinst supported rhel7
 #
-yinst i -br current ygrid_services_cert-2.0.0
+yinst i -br current ygrid_services_cert-1.2.0
 if [ $? -ne 0 ]; then
   echo "FAIL     Install of ygrid_services_cert pkg failed!!"
   echo "FAIL     This is a keyed pkg that needs to be manually installed, please install from"
