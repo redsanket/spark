@@ -208,8 +208,9 @@ fi
 
 ##
 # Install oozie_client and ygrid_cacert-2.1.1 on gateway
+# need the test version of yjava_yca for rhel7
 ##
-$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680 && yinst i ygrid_cacert-2.1.1 -downgrade -live"
+$SSH $OOZIE_GW_NODE "yjava_yca -br test && yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680 && yinst i ygrid_cacert-2.1.1 -downgrade -live"
 RC=$?
 
 if [ $RC -ne 0 ]; then
