@@ -298,7 +298,6 @@ yinst set yoozie.conf_oozie_base_url=http://$OOZIENODE:4080/oozie \
 # HADOOPPF-45862
 yinst unset yoozie.INJECT_JARS_CMSV2
 
-
 ### replace USERNAME with the username that will submit jobs
 yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_USERNAME_groups=*
 yinst set yoozie.conf_oozie_service_ProxyUserService_proxyuser_USERNAME_hosts=*
@@ -395,7 +394,8 @@ fi
 ##
 ### if sharelib will not be used, then turn off ShareLib,
 ##
-yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=true \
+# gridci-4504, don't fail out on sharelib manifest errors
+yinst set yoozie.conf_oozie_service_ShareLibService_fail_fast_on_startup=false \
   yoozie.conf_oozie_use_system_libpath=true
 
 ##
