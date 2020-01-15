@@ -151,7 +151,7 @@ HADOOP_INSTALL_STRING=''
 HADOOP_MVN_INSTALL_STRING_PKG=''
 # JDK_QEDEFAULT=yjava_jdk-1.8.0_102.70
 # need rhel7 compatible flavor of jdk
-JDK_QEDEFAULT=yjava_jdk-1.8.0_102.263
+JDK_QEDEFAULT=yjava_jdk-8.0_8u232b09.2641196
 
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
     for i in $HADOOP_CORE_PKGS; do
@@ -173,10 +173,10 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
       # use arbitrary jdk version sent in from jenkins
       echo "Using yjava_jdk $YJAVA_JDK_VERSION"
       # note: can't use '^', jenkins is inserting some chars in front of the choice list item
-      if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-1" ]]; then
+      if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-8" ]]; then
         HADOOP_INSTALL_STRING+=" $YJAVA_JDK_VERSION"
       else
-        echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-1, got: $YJAVA_JDK_VERSION"
+        echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-8, got: $YJAVA_JDK_VERSION"
         exit 1
       fi
     # if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
