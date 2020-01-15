@@ -130,7 +130,10 @@ yinst i ygrid_cacert-2.1.1 -downgrade -live
 # gridci-2227, needed for oozie webui change to https/4443, NOTE this will prompt
 # for passwd since it's a keyed pkg, per oozie team, pkg should be manually installed so if 
 # this is not installed deploy will fail
-yinst i -br current ygrid_services_cert
+#
+# have to pin version since this pkg is old, built before yinst supported rhel7
+#
+yinst i -br current ygrid_services_cert-1.2.0
 if [ $? -ne 0 ]; then
   echo "FAIL     Install of ygrid_services_cert pkg failed!!"
   echo "FAIL     This is a keyed pkg that needs to be manually installed, please install from"
@@ -167,6 +170,9 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
+# old pkgs built bfore yinst rhel7 support, need pinned
+yinst i  ysysctl-2.2.3  web_extjs-1.0.0
+
 # check we got a valid reference cluster
 RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
 RC=$?
@@ -186,12 +192,15 @@ fi
 
 # Install oozie and oozie_client on the oozie_node
 # gridci-1708, add '-br test' to allow pulling dependencies that are on 'test'
-yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE
+# 
+# need to pin yjava_bcookie becuase of multiple versions on same branch, causes newer
+# yjava_jdk versions to get pulled in
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE yjava_bcookie-1.17.2571680
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE failed to install!"
   exit 1
 fi
-yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT
+yinst i -same -live -downgrade -br test   $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680
 if [ $? -ne 0 ]; then
   echo "Error: $PACKAGE_VERSION_OOZIE_CLIENT failed to install!"
   exit 1
@@ -199,8 +208,9 @@ fi
 
 ##
 # Install oozie_client and ygrid_cacert-2.1.1 on gateway
+# need the test version of yjava_yca for rhel7
 ##
-$SSH $OOZIE_GW_NODE "yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT && yinst i ygrid_cacert-2.1.1 -downgrade -live"
+$SSH $OOZIE_GW_NODE "yjava_yca -br test && yinst i -same -live -downgrade $PACKAGE_VERSION_OOZIE_CLIENT yjava_bcookie-1.17.2571680 && yinst i ygrid_cacert-2.1.1 -downgrade -live"
 RC=$?
 
 if [ $RC -ne 0 ]; then
@@ -261,7 +271,7 @@ yinst set yoozie.INJECT_JARS_HCATALOG="/home/y/libexec/hive/lib/hive-common.jar,
 yinst set yoozie.HADOOP_CONF_DIR=/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/ \
   yoozie.HADOOP_PREFIX=/home/gs/gridre/yroot.$CLUSTER/share/hadoop/ \
   yoozie.INJECT_CONF_HADOOP="/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/core-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/hdfs-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/mapred-site.xml,/home/gs/gridre/yroot.$CLUSTER/conf/hadoop/yarn-site.xml" \
-  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/woodstox-core-*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/stax2-api-*.jar" \
+  yoozie.INJECT_JARS_HADOOP="/home/y/lib/hadoopgplcompression/hadoop-gpl-compression.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jersey*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jetty-util*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/netty*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/htrace-core*.jar,/home/gs/gridre/yroot.$CLUSTER/share/hadoop/share/hadoop/common/lib/jackson-xc-*.jar" \
   yoozie.INJECT_CONF_HCATALOG=/home/y/libexec/hive/conf/hive-site.xml \
   yoozie.HADOOP_VERSION=2.0
 
