@@ -10,6 +10,7 @@
 
 #
 # gridci-4488, migrate to supporting rhel7 installs
+# gridci-4502, migrate to using hosted Oracle DB for Hive backing store
 #
 
 if [ $# -ne 2 ]; then
@@ -19,23 +20,6 @@ fi
 
 CLUSTER=$1
 REFERENCE_CLUSTER=$2
-# GRIDCI-2587 Fetching the hive oracle DB host from the roles db
-
-# This is a design limitation currently. The DB server name in the oracle db hosts contain the first 8 characters
-# of the cluster name. For example if the cluster name is openqe55blue, the DB server name will have 'OPENQE55' in
-# its name. So if we are trying to delpoy openqe110blue, the DB server name will be 'OPENQE11' which will conflict
-# with openqe11blue. So for the time being we are not supporting deployment of hive on VM clusters with number more
-# than 99.
-#
-# gridci-4421, allow 3 digit cluster names
-#
-CLUSTER_NUM=`echo "${CLUSTER}"|sed 's/[^0-9]*//g'`
-LENGTH_CLUSTER_STRING=${#CLUSTER_NUM}
-if [[ $LENGTH_CLUSTER_STRING > 3 ]]; then
-  echo "Tring to deploy hive for a VM cluster which is not supported currently!"
-  echo "ERROR: Cannot install hive on $CLUSTER because the cluster number id > 3 digits!"
-  exit -1
-fi
 
 export JAVA_HOME="/home/gs/java/jdk64/current"
 export PARTITIONHOME=/home
@@ -48,76 +32,24 @@ export YARN_HOME=${yroothome}/share/hadoop
 export HADOOP_COMMON_HOME=${yroothome}/share/hadoop
 export HADOOP_PREFIX=${yroothome}/share/hadoop
 
-# GRIDCI-2587 Fetching the hive oracle DB host from the roles db
-HIVE_DB_NODE=""
-get_hive_oradb_server() {
-  host_name=$1
-  SHORT_CLUSTER=`echo $CLUSTER | cut -c1-8`
-  ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep -w $SHORT_CLUSTER"
-  if [ $? == 0 ]; then
-    HIVE_DB_NODE=$host_name
-    echo "$HIVE_DB_NODE"
-  else
-    # gridci-4421 need to allow for 3 digit DB names using format like 'openq145'
-    # check for 'openq' format DB name
-    SHORT_CLUSTER=openq`echo $CLUSTER | cut -c7-9`
-    ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep ora_pmon_|cut -d'_' -f3 | tr [A-Z] [a-z]|grep -w $SHORT_CLUSTER"
-    if [ $? == 0 ]; then
-      HIVE_DB_NODE=$host_name
-      echo "$HIVE_DB_NODE"
-    fi
-  fi
-}
-
-for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
-    echo "***********************************************************************"
-    echo "Checking if host $host_name is the DB server for the cluster $CLUSTER..."
-    HIVE_DB_NODE=$(get_hive_oradb_server $host_name)
-    # trim service name prefix
-    HIVE_DB_NODE=`echo $HIVE_DB_NODE | tr '\n' ' ' | cut -d' ' -f2`
-    export HIVE_DB_NODE
-    if [ "${HIVE_DB_NODE}" == "" ]; then
-        echo "$host_name is not the DB for the cluster $CLUSTER!"
-        continue
-    else
-        echo "The hive oracle db server for $CLUSTER is: $HIVE_DB_NODE"
-        echo "***********************************************************************"
-        break
-    fi
-done
-
-if [ "${HIVE_DB_NODE}" == "" ]; then
-  echo "***********************************************************************"
-  echo "WARNING: There is no active DB in any server for the cluster $CLUSTER!"
-  echo "Finding the oracle db server based on the active DBs in that host..."
-  for host_name in `yinst range -ir "(@grid_re.clusters.flubber_oradb_servers)"`; do
-      final_count=`ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $host_name "ps aux|grep pmon|grep -v grep| wc -l"`
-      echo "Number of active DBs in $host_name is $final_count"
-      if [[ $final_count < 12 ]]; then
-          export HIVE_DB_NODE=$host_name
-          echo "The hive oracle db server for $CLUSTER is: $HIVE_DB_NODE"
-          echo "Please configure the oracle DB in this host for hive to work!!!"
-          echo "***********************************************************************"
-          break
-      fi
-  done
-  # If all the 3 DB hosts have 12 DB servers already running on them, then fail the job with an error
-  # message saying create a new oracle DB host.
-  if [ "${HIVE_DB_NODE}" == "" ]; then
-    echo "WARNING: All the oracle DB hosts are full. Please configure a new host with DB servers!"
-    echo "ERROR: Failed to install hive!"
-    exit -1
-  fi
-fi
-
 # oracle db support vars
-# use the oradb SID associated with this target cluster
-export HIVE_DB=`echo $CLUSTER | cut -c 1-8 | tr [a-z] [A-Z]`
+
+# use cluster name to derive hive's backing oracle DB from the hosted instance
+# as long as the cluster name pattern holds, this works to get name in format:
+#    openqe<NUMERIC_ID>
+#
+# This requires the hosted oracle to have a user name created in that format,
+# request this by filing jira with ORACLE project, after that setup the instance
+# using Hive team's scripts, see following doc for steps to do this:
+#  https://docs.google.com/document/d/1DqwmwVZFawM2gGGIw39NQTwUXVZvW39BcPchs8jtmFc/
+
+export HIVE_DB=`echo $CLUSTER | cut -d'b' -f1`
 echo "DEBUG: our ora db is: $HIVE_DB"
 
-export PATH=$PATH:/home/y/lib64/ora11gclient/
-export ORACLE_HOME=/home/y/lib64/ora11gclient/
-export LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
+export ORACLE_HOME=/home/y/lib64/Oracle18c_Client
+export LD_LIBRARY_PATH=/home/y/lib64/Oracle18c_Client:$LD_LIBRARY_PATH
+export TNS_ADMIN=/home/y/lib64/Oracle18c_Client
+export PATH=$ORACLE_HOME:$PATH
 
 
 HIVENODE=`hostname`
@@ -133,7 +65,7 @@ echo "INFO: Hive node being installed: $HIVENODE"
 #
 # need to add json-c needed for athens zts
 yinst install hadoopqa_headless_keys
-yinst install ora11gclient-1.0.3
+yinst install Oracle18c_Client-1.0.9
 
 # make sure we support hybrid mode for legacy keydb calls
 yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
@@ -141,10 +73,9 @@ yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE
 # kinit as dfsload, the dfsload keytab should already be there from the Configure job
 kinit -k -t /homes/dfsload/dfsload.dev.headless.keytab dfsload@DEV.YGRID.YAHOO.COM
 
-# switched to using oracle per gridci-2434
+# switched to using oracle hosted DB per gridci-4502
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "+   Now using oracle DB on $HIVE_DB_NODE                "
-echo "+   using SID $HIVE_DB                                  "
+echo "+   Using Oracle user $HIVE_DB                                  "
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 # install supporting packages
@@ -170,7 +101,7 @@ if [[ "$REFERENCE_CLUSTER" == "current" ]]; then
   OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
   if [[ "$OS_VER" =~ ^7. ]]; then
     echo "OS is $OS_VER, using packages from test explicitly"
-    yinst i -same -live -downgrade -branch test  hive-1.2.5.5.1812031910   hive_conf-1.2.5.5.1812031910   hcat_server-1.2.5.5.1812031910 
+    yinst i -same -live -downgrade -branch test  hive-1.2.5.5.1812031910   hive_conf-1.2.5.5.1812031910   hcat_server-1.2.5.5.1812031910
   else
     echo "OS is $OS_VER, using yjava_yca from current as an implicit dependency"
     yinst i -same -live -downgrade -branch current  hive  hive_conf  hcat_server
@@ -233,7 +164,7 @@ HIVE_CONF_PACKAGE=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f1`
 HIVE_CONF_VERSION=`echo $PACKAGE_VERSION_HIVE_CONF | cut -d'-' -f2`
 
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -mkdir -p /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
-/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hive/conf/hive-site.xml /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VERSION/libexec/hive/conf/
+/home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put /home/y/libexec/hive/conf/hive-site.xml /sharelib/v1/$HIVE_CONF_PACKAGE/$HIVE_CONF_PACKAGE-$HIVE_CONF_VE/
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -chmod -R 755 /sharelib/v1/$HIVE_CONF_PACKAGE/
 
 # copy the hive-site.xml from hcat to hdfs
@@ -247,8 +178,8 @@ yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current \
            hcat_server.HADOOP_HOME=/home/gs/hadoop/current \
            hcat_server.JAVA_HOME=/home/gs/java/jdk \
            hcat_server.conf_hive_metastore_thrift_sasl_qop=authentication,integrity,privacy \
-           hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = $HIVE_DB_NODE)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = $HIVE_DB)))" \
-           hcat_server.database_user=hive \
+           hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = gq1-griddev-c1.blue.ygrid.yahoo.com)(PORT = 1521)) (CO\
+           hcat_server.database_user=$HIVE_DB \
            hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
            hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
            hcat_server.hcat_server_keytab_file=/etc/grid-keytabs/hadoopqa.$HIVENODE_SHORT.keytab \
