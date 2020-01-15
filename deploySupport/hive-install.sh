@@ -178,7 +178,7 @@ yinst set hcat_server.HADOOP_CONF_DIR=/home/gs/conf/current \
            hcat_server.HADOOP_HOME=/home/gs/hadoop/current \
            hcat_server.JAVA_HOME=/home/gs/java/jdk \
            hcat_server.conf_hive_metastore_thrift_sasl_qop=authentication,integrity,privacy \
-           hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = gq1-griddev-c1.blue.ygrid.yahoo.com)(PORT = 1521)) (CO\
+           hcat_server.database_connect_url="jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = gq1-griddev-c1.blue.ygrid.yahoo.com)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = gqgdm01n.blue.ygrid.yahoo.com)))" \
            hcat_server.database_user=$HIVE_DB \
            hcat_server.hcat_server_client_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
            hcat_server.hcat_server_kerberos_principal=hadoopqa/$HIVENODE@DEV.YGRID.YAHOO.COM \
