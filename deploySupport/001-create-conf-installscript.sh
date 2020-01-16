@@ -140,9 +140,12 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
        2.[4-9])
            echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
            ;;
-       3.[0-9])
+       2.[0-9][0-9])
 	   echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
 	   ;;
+       3.[0-9])
+           echo "  " -set $confpkg.TODO_DFS_DEFAULT_FS=hdfs://\$nn \\
+           ;;
        *)
            echo "Invalid Hadoop version $HADOOPVERSION"
            exit 1
