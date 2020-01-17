@@ -190,6 +190,8 @@ data availability.
 HiveServer2
 ===========
 
+.. _hive_intro-HiveServer2:
+
 `HiveServer2 <https://cwiki.apache.org/confluence/display/Hive/Setting%20Up%20HiveServer2#SettingUpHiveServer2-HiveServer2>`_ is the 
 JDBC/ODBC endpoint that Hive clients can use to communicate with Hive.
 
