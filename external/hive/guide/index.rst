@@ -16,7 +16,6 @@ Thus, the scope of this documentation is limited to Hive within a Yahoo environm
    getting_started/index
    programming/index
    bi/index
-   hiveserver2/index
    formats/index
    tez/index
    faq/index
