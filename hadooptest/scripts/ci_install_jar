@@ -79,7 +79,8 @@ fi
 if [ ! -d "$WORKSPACE/yinst_fetch_dependencies/hbase_fetch" ]
 then
    if [[ "$OS_VER" =~ "7." ]]; then
-     hbase_version=$( /usr/local/bin/yinst packages -br test hbase | awk '{print $1}' )
+    hbase_version=$( /usr/local/bin/yinst packages -br current hbase-0.98.7.33.1806062306_h2 | awk '{print $1}' )
+    #hbase_version=$( /usr/local/bin/yinst packages -br test hbase | awk '{print $1}' )
    else
      hbase_version=$( /usr/local/bin/yinst packages hbase | awk '{print $1}' )
    fi
