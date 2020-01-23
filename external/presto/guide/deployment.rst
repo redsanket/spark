@@ -22,47 +22,47 @@ clusters by the same name.
 
 YGRID
 *****
-+------+-------------+-----------------------------------------------------------+---------------+
-| colo | environment | Presto Cluster CLI and JDBC URLs                          | Hive Catalogs |
-+======+=============+===========================================================+===============+
-| gq1  | production  | https://xandarblue-presto.blue.ygrid.yahoo.com:4443       | jetblue       |
-|      |             | jdbc:presto://xandarblue-presto.blue.ygrid.yahoo.com:4443 |               |
-|      |             |                                                           | uraniumblue   |
-|      |             |                                                           |               |
-|      |             |                                                           | oxiumblue     |
-|      |             |                                                           |               |
-|      |             |                                                           | bassniumblue  |
-|      |             |                                                           |               |
-|      |             |                                                           | phazonblue    |
-|      |             |                                                           |               |
-|      |             |                                                           | dilithiumblue |
-+------+-------------+-----------------------------------------------------------+---------------+
-| ne1  | production  | https://xandartan-presto.tan.ygrid.yahoo.com:4443         | tiberiumtan   |
-|      |             | jdbc:presto://xandartan-presto.tan.ygrid.yahoo.com:4443   |               |
-|      |             |                                                           | uraniumtan    |
-|      |             |                                                           |               |
-|      |             |                                                           | zaniumtan     |
-|      |             |                                                           |               |
-|      |             |                                                           | bassniumtan   |
-|      |             |                                                           |               |
-|      |             |                                                           | phazontan     |
-+------+-------------+-----------------------------------------------------------+---------------+
++------+-------------+-----------+-----------------------------------------------------------+---------------+
+| colo | environment | shortname | Presto Cluster CLI and JDBC URLs                          | Hive Catalogs |
++======+=============+===========+===========================================================+===============+
+| gq1  | production  | XB        | https://xandarblue-presto.blue.ygrid.yahoo.com:4443       | jetblue       |
+|      |             |           |                                                           |               |
+|      |             |           | jdbc:presto://xandarblue-presto.blue.ygrid.yahoo.com:4443 | uraniumblue   |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | oxiumblue     |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | bassniumblue  |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | phazonblue    |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | dilithiumblue |
++------+-------------+-----------+-----------------------------------------------------------+---------------+
+| ne1  | production  | XT        | https://xandartan-presto.tan.ygrid.yahoo.com:4443         | tiberiumtan   |
+|      |             |           |                                                           |               |
+|      |             |           | jdbc:presto://xandartan-presto.tan.ygrid.yahoo.com:4443   | uraniumtan    |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | zaniumtan     |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | bassniumtan   |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | phazontan     |
++------+-------------+-----------+-----------------------------------------------------------+---------------+
 
 .. _vcg_presto_clusters:
 
 VCG
 ***
-+------+-------------+---------------------------------------------------+---------------+
-| colo | environment | Presto Cluster CLI and JDBC URLs                  | Hive Catalogs |
-+======+=============+===================================================+===============+
-| gq2  | staging     | https://hothgq-presto.gq.vcg.yahoo.com:4443       | kessel        |
-|      |             | jdbc:presto://hothgq-presto.gq.vcg.yahoo.com:4443 |               |
-|      |             |                                                   | polaris       |
-+------+-------------+---------------------------------------------------+---------------+
-| gq2  | production  | https://legogq-presto.gq.vcg.yahoo.com:4443       | kessel        |
-|      |             | jdbc:presto://legogq-presto.gq.vcg.yahoo.com:4443 |               |
-|      |             |                                                   | polaris       |
-+------+-------------+---------------------------------------------------+---------------+
++------+-------------+-----------+---------------------------------------------------+---------------+
+| colo | environment | shortname | Presto Cluster CLI and JDBC URLs                  | Hive Catalogs |
++======+=============+===========+===================================================+===============+
+| gq2  | staging     | HGQ       | https://hothgq-presto.gq.vcg.yahoo.com:4443       | kessel        |
+|      |             |           |                                                   |               |
+|      |             |           | jdbc:presto://hothgq-presto.gq.vcg.yahoo.com:4443 | polaris       |
++------+-------------+-----------+---------------------------------------------------+---------------+
+| gq2  | production  | LGQ       | https://legogq-presto.gq.vcg.yahoo.com:4443       | kessel        |
+|      |             |           |                                                   |               |
+|      |             |           | jdbc:presto://legogq-presto.gq.vcg.yahoo.com:4443 | polaris       |
++------+-------------+-----------+---------------------------------------------------+---------------+
 
 If you are accessing the above VCG clusters directly from Verizon network instead of VMG (Verizon Media) network,
 please use the following URLs

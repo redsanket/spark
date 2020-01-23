@@ -143,8 +143,14 @@ Role certificates from `griduser <https://ui.athenz.ouroath.com/athenz/domain/gr
 `vcguser <https://ui.athenz.ouroath.com/athenz/domain/vcg.user/role>`_ domain are accepted. The naming convention of the role is ``uid.<username>``.
 For regular users, roles are already created and ``user.username`` is added to the role.
 
-1. Please follow steps in `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_ to create the Athenz role for headless user. After that you can add user principals or Athenz services to the newly created role.
-2. Refer to `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_ documentation for fetching role certificates using the Athenz service certificate and key. Role certificates are currently valid for 30 days and will have to be refreshed once they expire. The validity will be reduced to 3 days for these domains in Jan 2020.
+1. Please follow steps in
+   `Creating Athenz Roles for Grid Authentication <https://docs.google.com/document/d/1fUziPmsB-QALJtqQ6QZ9xf18n6mLOqRHasR9Ru7hXMg/edit>`_
+   to create the Athenz role for headless user.
+   After that you can add user principals or Athenz services to the newly created role.
+2. Refer to `Athenz X.509 Role Certificates <https://git.ouroath.com/pages/athens/athenz-guide/zts_rolecert>`_
+   documentation for fetching role certificates using the Athenz service certificate and key.
+   Role certificates are currently valid for 30 days and will have to be refreshed once they expire.
+   The validity will be reduced to 1 day for these domains in Feb 2020.
 
 Linux
 -----
@@ -157,9 +163,10 @@ Windows
 -------
 Athenz team supports fetching user and role certificates in Windows hosts as well.
 You can find the download links below
-  - `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.6/Windows/>`_
-  - `zts-svccert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-svccert/1.16/Windows/>`_
-  - `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.16/Windows/>`_
+
+- `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.6/Windows/>`_
+- `zts-svccert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-svccert/1.16/Windows/>`_
+- `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.16/Windows/>`_
 
 The ``hca`` utility is not supported on Windows. For Tableau servers running on Windows,
 the fetching of service and role certs will have to be automated by setting up
@@ -170,22 +177,68 @@ to run ``zts-svccert`` and ``zts-rolecert`` commands periodically.
 Mac
 ---
 Users running BI tools (Tableau, DbVisualizer, etc) on the Mac Laptop, will have to fetch the ``griduser.uid.<username>``
-role certificates daily before accessing Presto. Download the latest release of `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/>`_
+role certificates daily before accessing Presto. Please download the latest release of `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/>`_
 and `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/>`_ scripts for the ``Darwin`` operating system.
+We have provided two scripts below to make the process easier and they are applicable for connecting to HiveServer2 as well.
+
+.. _mac_onetime:
+
+One time setup
+^^^^^^^^^^^^^^
+
+Please :download:`download <connectivity/files/macOS_ygrid_mtls_onetime_setup.sh>` the Athenz utilities install script.
+After downloading, ``cd`` to the directory you downloaded the script to, give it execute permissions and then invoke it.
 
 .. code-block:: text
 
-  # One time setup. Download athenz CLI utilities and truststore file.
-  curl -o /usr/local/bin/zts-rolecert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.26/Darwin/zts-rolecert"
-  curl -o /usr/local/bin/athenz-user-cert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.9/Darwin/athenz-user-cert"
-  chmod +x /usr/local/bin/zts-rolecert /usr/local/bin/athenz-user-cert
-  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz/
+  chmod +x macOS_ygrid_mtls_onetime_setup.sh
+  ./macOS_ygrid_mtls_onetime_setup.sh
 
-  # Run once a day before using the BI tool to renew the expired user certificate and role certificate
-  yinit
-  athenz-user-cert
-  zts-rolecert -svc-key-file ${HOME}/.athenz/key -svc-cert-file ${HOME}/.athenz/cert -zts https://zts.athens.yahoo.com:4443/zts/v1 -role-domain griduser -role-name uid.${USER} -dns-domain zts.yahoo.cloud -role-cert-file  ${HOME}/.athenz/griduser.uid.${USER}.cert.pem
-  openssl x509 -in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem -text | less
+
+The script does the following:
+
+1. Downloads ``athenz-user-cert`` and ``zts-role-cert`` to ``/usr/local/bin``.
+   For users with restricted access on macOS, ``/usr/local/bin`` is not writable and in those cases, they are downloaded
+   to ``${HOME}/athenz/bin``.
+
+   If you are on macOS Catalina, you might run into below error
+
+   .. code-block:: text
+
+      "athenz-user-cert" cannot be opened because the developer cannot be verified.
+
+      macOS cannot verify that this app is free from malware.
+
+   To get past the error and allow ``athenz-user-cert`` and ``zts-role-cert`` that we downloaded to ``${HOME}/athenz/bin`` to be run,
+   follow instructions in `Mac Help <https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac>`_
+   and add them as an exception. We are raising the issue with Athenz team and Corp IT, so that ``athenz-user-cert`` and ``zts-role-cert``
+   are installed on the laptops similar to ``yinit`` or available via ``Self Service`` and users don't have to go
+   through above steps in future.
+
+2. Copies ``yahoo_certificate_bundle.pem`` truststore file from JB gateway which is a part of
+`yahoo_certificate_bundle dist package <https://dist.corp.yahoo.com/by-package/yahoo_certificate_bundle/>`_.
+
+.. _mac_daily:
+
+Daily setup
+^^^^^^^^^^^
+
+Please :download:`download <connectivity/files/macOS_ygrid_mtls_cert_refresh.sh>` the Athenz mTLS certificate refresh script.
+After downloading, ``cd`` to the directory you downloaded the script to, give it execute permissions and then invoke it.
+
+.. code-block:: text
+
+  chmod +x macOS_ygrid_mtls_cert_refresh.sh
+  ./macOS_ygrid_mtls_cert_refresh.sh
+
+This script has to be run once daily before connecting to Presto or HiveServer2. The script does the following:
+
+1. Generates the Athenz user cert using SSH CA (yubikey).
+2. Generates the Athenz role cert and key in PEM format for ``griduser.uid.<username>`` role
+   which will be used to authenticate to Grid services like Presto and Hive Server 2.
+3. Creates a keystore in JKS format using the role cert and key which is needed for JDBC connections to HiveServer2.
+   Internal Presto JDBC driver supports both PEM and JKS formats and so the PEM file can be used directly.
+   The JKS keystore is only required if the open source Presto JDBC driver is used which we do not recommend.
 
 CLI
 ===
@@ -242,6 +295,7 @@ Example of JDBC properties that will have to be added to connect using certifica
 
 .. code-block:: text
 
+  # Please replace all occurrences of <username> with your username or headless username
   # Linux
   SSL=true
   SSLCertificatePath=/var/lib/sia/certs/griduser.role.uid.<username>.cert.pem
@@ -251,5 +305,5 @@ Example of JDBC properties that will have to be added to connect using certifica
   # Mac
   SSL=true
   SSLCertificatePath=/Users/<username>/.athenz/griduser.uid.<username>.cert.pem
-  SSLKeyStorePath=/Users/<username>/.athenz/key
+  SSLKeyStorePath=/Users/<username>/.athenz/griduser.role.uid.<username>.key.pem
   SSLTrustStorePath=/Users/<username>/.athenz/yahoo_certificate_bundle.pem

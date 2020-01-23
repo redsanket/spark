@@ -41,6 +41,11 @@ or from artifactory repository (https://artifactory.ouroath.com/artifactory/mave
 and copy to the ``custom_jdbc_drivers`` directory. You can find the stable internal
 presto version from `dist <https://dist.corp.yahoo.com/by-package/presto_client/>`_.
 
+5. Install `yahoo_certificate_bundle <https://dist.corp.yahoo.com/by-package/yahoo_certificate_bundle/>`_ dist package.
+
+.. code-block:: text
+
+  yinst install yahoo_certificate_bundle
 
 JDBC Connection
 ===============

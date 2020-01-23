@@ -51,13 +51,13 @@ VCG
 ===
 By Paranoid mandate, any tool accessing VCG should be hosted in VCG backplane
 itself and so does not require opening ACLs through Policy Manager.
-For connectivity between Verizon and VCG, we are in the process of setting up proxies.
-*... To be updated ...*.
+Connectivity between Verizon and VCG is already setup through special proxies.
 
+.. _encryption_zone:
 
 Encryption zones
 ****************
-If your data is in an encryption zone, you need to grant Presto access to the data.
+If your data is in an encryption zone, you need to grant Presto service access to the data.
 If you are a consumer of the data, you need to request access from the Encryption Zone admins.
 
 Steps:

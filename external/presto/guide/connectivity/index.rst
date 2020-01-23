@@ -9,6 +9,7 @@ Connectivity
    hue
    superset
    jdbc
+   dbvis
    python_client
    looker
    tableau
@@ -37,6 +38,8 @@ the Grid team or to be installed by the users.
 | :doc:`Tableau Desktop <connectivity/tableau>`     | Client | self-hosting     | Laptop   |
 +---------------------------------------------------+--------+------------------+----------+
 | :doc:`Direct JDBC <connectivity/jdbc>`            | Client | self-hosting     |          |
++---------------------------------------------------+--------+------------------+----------+
+| :doc:`DbVisualizer <connectivity/dbvis>`          | Client | self-hosting     |          |
 +---------------------------------------------------+--------+------------------+----------+
 | :doc:`Python Client <connectivity/python_client>` | Client | self-hosting     |          |
 +---------------------------------------------------+--------+------------------+----------+
