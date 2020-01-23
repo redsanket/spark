@@ -1,4 +1,6 @@
 import configparser
+from shutil import copyfile
+from datetime import datetime
 import os
 import sys
 from collections import OrderedDict
@@ -24,14 +26,16 @@ clusterdetails = {
 }
 
 if len(sys.argv) < 2:
-    print """Please provide a valid cluster abbreviation as an argument to the script.
-	Eg: python create_ygrid_odbc_ini.py JB
-	Valid arguments are {}
-	Refer https://git.ouroath.com/pages/hadoop/docs/hive/appendix/index.html#future-hiveserver2-servers-after-thrift-https-rollout-on-ygrid""".format(
+    print """Please provide a valid cluster short name  as an argument to the script.
+    Syntax: python macOS_hive_odbc_add_DSN.py <cluster short name> [<schema/database name>]
+	Eg: python macOS_hive_odbc_add_DSN.py JB benzene
+	Schema/Database name is an optional argument
+	Valid cluster short names are {}
+	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(
         clusterdetails.keys())
     exit(0)
 
-odbc_data_source = "{} HS2 mTLS"
+odbc_data_source = "HS2 {} mTLS"
 odbc_data_source_details = """Driver = /Library/simba/hiveodbc/lib/libhiveodbc_sbu.dylib
 Description          = {} HS2 mTLS
 Host                 = {}
@@ -42,16 +46,29 @@ SSL                  = 1
 TwoWaySSL            = 1
 AuthMech             = 0
 HTTPPath             = cliservice
-CAIssuedCertNamesMismatch = 1
 ClientCert           = {}/.athenz/griduser.uid.{}.cert.pem
-ClientPrivateKey     = {}/.athenz/key
-Schema               = default
+ClientPrivateKey     = {}/.athenz/griduser.uid.{}.key.pem
+Schema               = {}
 user                 = {}
-UseNativeQuery       = 1"""
+UseNativeQuery       = 1
+FastSQLPrepare       = 1"""
+
+def yes_or_no(question):
+    reply = str(raw_input(question+' (y/n): ')).lower().strip()
+    if reply[0] == 'y':
+        return True
+    if reply[0] == 'n':
+        return False
+    else:
+        return yes_or_no("Please enter y or n\n{}".format(question))
 
 username = os.getenv('USER')
 userdir = os.getenv('HOME')
 cluster = sys.argv[1]
+
+schema = ""
+if len(sys.argv) > 2:
+    schema = sys.argv[2]
 
 if cluster in clusterdetails:
     config = configparser.ConfigParser()
@@ -62,24 +79,30 @@ if cluster in clusterdetails:
     odbc_data_source_cluster = odbc_data_source.format(clusterdetails[cluster][0])
 
     if odbc_data_source_cluster in config["ODBC Data Sources"]:
-        config.remove_option("ODBC Data Sources", odbc_data_source_cluster)
-        config.remove_section(odbc_data_source_cluster);
+        if yes_or_no("Do you want to overwrite the existing connection properties for {}".format(odbc_data_source_cluster)):
+            config.remove_option("ODBC Data Sources", odbc_data_source_cluster)
+            config.remove_section(odbc_data_source_cluster);
+        else:
+            exit(0)
 
     config.set("ODBC Data Sources", odbc_data_source_cluster, "Simba Hive ODBC Driver")
     odbc_data_source_details_cluster = odbc_data_source_details.format(clusterdetails[cluster][0],
-                                                                       clusterdetails[cluster][1], userdir, username,
-                                                                       userdir, username)
+                                                                       host_name, userdir, username,
+                                                                       userdir, username, schema, username)
     config.add_section(odbc_data_source_cluster)
     odbc_data_source_details_cluster_dict = OrderedDict(
         [i.strip() for i in item.split("=")] for item in odbc_data_source_details_cluster.split("\n"))
     config[odbc_data_source_cluster] = odbc_data_source_details_cluster_dict
 
+    # Create backup
+    copyfile("{}/.odbc.ini".format(userdir), "{}/.odbc.ini.backup.{}".format(userdir, datetime.now().strftime('%Y%m%d-%H%M%S')))
+
+    # Modify original
     with open("{}/.odbc.ini".format(userdir), 'w') as configfile:
         config.write(configfile)
         configfile.close()
 
 else:
     print """Invalid argument.
-	Valid arguments are {}
-	Refer https://git.ouroath.com/pages/hadoop/docs/hive/appendix/index.html#future-hiveserver2-servers-after-thrift-https-rollout-on-ygrid
-	""".format(clusterdetails.keys())
+	Valid cluster short names are {}
+	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(clusterdetails.keys())
