@@ -3,95 +3,225 @@ Tableau Desktop
 
 .. _Tableau_Desktop_Connectivity:
 
-This document contains operating system wise details to connect to HiveSever2 hosted on **YGRID** from Tableau Desktop.
+This document contains instructions to connect to HiveSever2 hosted on **YGRID** from Tableau Desktop.
 
-MAC
-***
+macOS
+*****
 
-1. Install and Configure the Simba Hive ODBC Driver
-******************************************************
+You can either connect using `Hortonworks Hadoop Hive Tableau Connector <https://help.tableau.com/current/pro/desktop/en-us/examples_hortonworkshadoop.htm>`_
+or the `Other ODBC Connector <https://help.tableau.com/current/pro/desktop/en-us/odbc_tableau.htm>`_ using the Simba Apache Hive ODBC Driver.
 
-**NOTE: This is a one time step**.
+For both the connectors, there is
+   - a onetime setup to install Athenz CLI utilities used to fetch certificates for authentication.
+   - a daily setup step to fetch the role certificates.
 
-#. Download and install the `Simba Hive ODBC Driver for Mac OS X <https://edge.artifactory.ouroath.com:4443/artifactory/ygrid/SimbaODBCDriver/ApacheHive/2.6/Darwin/>`_,
-as per `Simba's documentation <https://www.simba.com/products/Hive/doc/ODBC_InstallGuide/mac/content/odbc/macosx/install.htm>`_, i.e.
+This setup is same for Presto as well and so it is required to do only once for either Presto or HiveServer2.
 
-    - Double-click ``SimbaHiveODBC.dmg`` to mount the disk image.
-    - Double-click ``SimbaHiveODBC.pkg`` to run the installer.
-    - In the installer, click ``Continue``.
-    - On the ``Software License Agreement`` screen, click ``Continue``, and when the prompt appears, click Agree, then ``Install``.
+Onetime Setup
+=============
 
-The driver files will be installed under **/Library/simba/hive**.
-
-#. Download the `Simba Hive ODBC Driver Mac License <https://drive.google.com/open?id=1hg9nHrB4FEmMQXtL_lY3yasYSsiAZ3zm>`_
-and save it as **/Library/simba/hiveodbc//lib/SimbaApacheHiveODBCDriver.lic**. (You will need *root* privileges.)
-
-The driver should now be ready for use.
+- Download the Athenz utilities following the steps in `macOS Onetime Setup <https://git.ouroath.com/pages/hadoop/docs/presto/authentication.html#mac-onetime>`_.
 
 
-2. Authentication
-*****************
+Daily Setup
+===========
 
-Authentication to HiveServer2 can be done using mutual TLS with
-`Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 user or role certificates.
-
-Users running Tableau Desktop on the Mac Laptop, will have to fetch the ``griduser.uid.<username>``
-role certificates daily before accessing HiveServer2. Download the latest release of `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/>`_
-and `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/>`_ scripts for the ``Darwin`` operating system.
-
-.. code-block:: text
-
-  # One time setup. Download athenz CLI utilities and truststore file. Execute following commands on terminal
-  curl -o /usr/local/bin/zts-rolecert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.26/Darwin/zts-rolecert"
-  curl -o /usr/local/bin/athenz-user-cert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.9/Darwin/athenz-user-cert"
-  chmod +x /usr/local/bin/zts-rolecert /usr/local/bin/athenz-user-cert
-  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz/
-
-  # Run once a day before using the BI tool to renew the expired user certificate and role certificate
-  yinit
-  athenz-user-cert
-  zts-rolecert -svc-key-file ${HOME}/.athenz/key -svc-cert-file ${HOME}/.athenz/cert -zts https://zts.athens.yahoo.com:4443/zts/v1 -role-domain griduser -role-name uid.${USER} -dns-domain zts.yahoo.cloud -role-cert-file  ${HOME}/.athenz/griduser.uid.${USER}.cert.pem
-  # If you get a permission error for above command, remove the ${HOME}/.athenz/griduser.uid.${USER}.cert.pem file (command:  rm ${HOME}/.athenz/griduser.uid.${USER}.cert.pem) and re run the above command.
-  openssl x509 -in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem -text | less
-
-Your role cert is in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem
-
-${HOME} indicates home directory for Mac, also referred as **~/**.
-
-${USER} indicates current user's username.
+- Download and run the script to fetch Athenz role certificates following steps in `macOS Daily Setup <https://git.ouroath.com/pages/hadoop/docs/presto/authentication.html#mac-daily>`_.
 
 
-3. Update odbc.ini
-******************
 
-You need to update cluster specific settings in the .odbc.ini file in your home directory to connect to a specific cluster.
+Hortonworks Hadoop Hive Connector
+=================================
 
-.. code-block:: text
+The Hortonworks Hive ODBC driver is just a rebranded driver of Simba Apache Hive ODBC Driver but
+natively supported in Tableau. The issue is that the Tableau UI does not have options for mTLS
+authentication. With Y.CORP.YAHOO.COM being decommissioned and `pkinit <http://yo/pkinit>`_ not
+being support in macOS, mTLS with Athenz role certificates is the only option supported. We can still
+get it working with the Hortonworks Hadoop Hive Connector with some addition configuration.
 
-  # One time step. The python script is a helper to update the ~/.odbc.ini file for specific cluster.
-  Download the python script :download:`update_ygrid_odbc_ini.py <files/update_ygrid_odbc_ini.py>`
+Steps:
 
-  # install configparser for python
-  pip install configparser
+1. Edit the ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini`` file to add the following.
+   Replace all occurrences of ``<username>`` with your username.
 
-  # Run the script with the cluster abbreviation to which you want to connect as argument
-  # The following command will update the odbc.ini with JetBlue (JB) connection settings
-  python update_ygrid_odbc_ini.py JB
+   .. code-block:: text
 
-**NOTE: The python script  is tested with python 2.7**.
+      [Driver]
+      ErrorMessagesPath=/Library/hortonworks/hive/ErrorMessages/
+      LogLevel=0
+      LogPath=
+      SwapFilePath=/tmp
+      # Add below settings to make mTLS connection default for
+      # Tableau Hortonworks Hadoop Hive Connection
+      # Replace <username> with your name
+      HiveServerType = 2
+      ThriftTransport = 2
+      SSL = 1
+      TwoWaySSL = 1
+      AuthMech = 0
+      HTTPPath = cliservice
+      CAIssuedCertNamesMismatch = 0
+      ClientCert = /Users/<username>/.athenz/griduser.uid.<username>.cert.pem
+      ClientPrivateKey = /Users/<username>/.athenz/griduser.uid.<username>.key.pem
 
-3. Run Tableau Desktop
-**********************
+2. Create a new connection similar to the following example. Please do replace
+   ``jetblue-hs2.blue.ygrid.yahoo.com`` with the HiveServer2 instance you want to
+   connect to from the :ref:`list of HiveServer2 servers <hiveserver2_urls>`.
 
-- Run Tableau Desktop
-- In **Connect** menu, select **Other Databases(ODBC)** option under **To a server**
-- Select the cluster HS2 mTLS connection under DSN. **JetBlue HS2 mTLS** in this case.
-  .. image:: images/tableau_desktop_connection.png
-     :height: 516px
-     :width: 883px
-     :scale: 80%
+   .. code-block:: text
+
+      Server :           jetblue-hs2.blue.ygrid.yahoo.com
+      Port   :           4443
+      Authentication :   No Authentication
+      Transport   :      HTTP
+      HTTP Path   :      cliservice
+      Require SSL        [✓]  (Select the checkbox)
+
+   .. image:: images/tableau_hortonworkshive_new_connection.png
+     :height: 350px
+     :width: 400px
+     :scale: 100%
      :alt:
      :align: left
-- Click **Sign in**
 
-You will be able to access HiveServer2 database/schemas/tables from Tableau Desktop now.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
+Even though the mTLS options are not specified in the Tableau Connection dialog, they are
+picked from ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini``.
+
+Migrating from Kerberos
+-----------------------
+
+You might already have existing workbooks configured with Kerberos Authentication. To migrate those workbooks
+you can either open the workbook and edit the connection details or modify the workbook file directly if it is
+in the ``.twb`` xml format instead of ``.twbx`` binary format.
+
+Edit Connection
+^^^^^^^^^^^^^^^
+
+1. Open the workbook and in the ``Datasource`` tab, from the list of ``Connections``
+   click on ``Edit Connection`` for the connection to be modified .
+
+  .. image:: images/tableau_hortonworkshive_edit_connection.png
+     :height: 350px
+     :width: 400px
+     :scale: 100%
+     :alt:
+     :align: left
+
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
+2. Modify all the fields to be similar to a new connection. Remember to change
+   ``Server`` and ``Port`` as well as they are different from the Thrift/SASL Kerberos authentication
+   we had before.
+
+   .. code-block:: text
+
+      Server :           jetblue-hs2.blue.ygrid.yahoo.com
+      Port   :           4443
+      Authentication :   No Authentication
+      Transport   :      HTTP
+      HTTP Path   :      cliservice
+      Require SSL        [✓]  (Select the checkbox)
+
+   .. image:: images/tableau_hortonworkshive_new_connection.png
+     :height: 300px
+     :width: 400px
+     :scale: 100%
+     :alt:
+     :align: left
+
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
+Repeat this for all the connections still using Kerberos and older HiveServer2 servers.
+
+Modify Workbook File
+^^^^^^^^^^^^^^^^^^^^
+
+If you have saved your workbook in the ``.twb`` format, it can be directly edited instead.
+
+Here is an example with old value and changed new values for the ``<connection>`` section in the file.
+
+**Kerberos authentication:**
+
+.. code-block:: text
+
+   <connection authentication='yes' authentication-type='1' class='hortonworkshadoophive'
+   connection-type='2' dbname=''
+   kerberos-host='jetblue-hs2.ygrid.vip.gq1.yahoo.com' kerberos-realm='YGRID.YAHOO.COM' kerberos-service='hive'
+   odbc-connect-string-extras='' one-time-sql=''
+   port='50514' schema='benzene' server='jetblue-hs2.ygrid.vip.gq1.yahoo.com'
+   sslcert='' sslmode='' transport-type='1' username=''>
+
+**mTLS authentication:**
+
+.. code-block:: text
+
+   <connection authentication='no' authentication-type='0' class='hortonworkshadoophive'
+   connection-type='2' dbname=''
+   http-path='cliservice'
+   odbc-connect-string-extras='' one-time-sql=''
+   port='4443' schema='benzene' server='jetblue-hs2.ygrid.vip.gq1.yahoo.com'
+   sslcert='' sslmode='require' transport-type='2' username=''>
+
++----------------------+-------------------------------------------+----------------------------------------+
+| Attribute name       | Old Value                                 | New Value                              |
++======================+===========================================+========================================+
+| kerberos-host        | 'jetblue-hs2.ygrid.vip.gq1.yahoo.com'     |                                        |
++----------------------+-------------------------------------------+----------------------------------------+
+| kerberos-realm       | YGRID.YAHOO.COM                           |                                        |
++----------------------+-------------------------------------------+----------------------------------------+
+| kerberos-service     | hive                                      |                                        |
++----------------------+-------------------------------------------+----------------------------------------+
+| authentication-realm | yes                                       | no                                     |
++----------------------+-------------------------------------------+----------------------------------------+
+| authentication-type  | 1                                         | 0                                      |
++----------------------+-------------------------------------------+----------------------------------------+
+| server               | dilithiumblue-hs2.ygrid.vip.gq1.yahoo.com | dilithiumblue-hs2.blue.ygrid.yahoo.com |
++----------------------+-------------------------------------------+----------------------------------------+
+| port                 | 50514 or 50515                            | 4443                                   |
++----------------------+-------------------------------------------+----------------------------------------+
+| sslmode              |                                           | require                                |
++----------------------+-------------------------------------------+----------------------------------------+
+| transport-type       | 1                                         | 2                                      |
++----------------------+-------------------------------------------+----------------------------------------+
