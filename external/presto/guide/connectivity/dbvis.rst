@@ -59,15 +59,18 @@ You can create a new connection, by either running the provided script or by dir
 Script
 ------
 
-1. Please :download:`download <connectivity/files/macOS_presto_dbvis_add_connection.sh>`
+1. Close the DBVisualizer.
+2. Please :download:`download <connectivity/files/macOS_presto_dbvis_add_connection.sh>`
    the script that automates adding connection. It does it by modifying ``${HOME}/.dbvis/config70/dbvis.xml`` directly.
    It also creates a backup of the file before running in the same directory and if you run into any issues,
    you can revert to the backed up older copy of ``dbvis.xml``.
-2. After downloading, ``cd`` to the directory you downloaded the script to,
+3. After downloading, ``cd`` to the directory you downloaded the script to,
    give it execute permissions and then invoke it. The arguments to the script are:
-      - short name of the Presto cluster
-      - name of the catalog
-      - name of the schema (hive database name). This is optional
+
+   - short name of the Presto cluster
+   - name of the catalog
+   - name of the schema (hive database name). This is optional
+
    You can refer to :ref:`list of clusters and catalogs <ygrid_presto_clusters>` for the valid values for cluster and catalog.
    Below example will create a new connection to ``Xandar Blue`` cluster which has the default catalog and database as
    ``dilithiumblue`` and ``benzene`` respectively.
@@ -78,7 +81,7 @@ Script
   python macOS_presto_dbvis_add_connection.py XB dilithiumblue benzene
 
 
-Restart the DBVisualizer after running the script.
+4. Restart the DBVisualizer after running the script.
 
 
 UI
@@ -93,6 +96,7 @@ UI
      :scale: 80%
      :alt:
      :align: left
+
 |
 |
 |

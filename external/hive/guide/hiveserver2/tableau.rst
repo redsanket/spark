@@ -12,8 +12,9 @@ You can either connect using `Hortonworks Hadoop Hive Tableau Connector <https:/
 or the `Other ODBC Connector <https://help.tableau.com/current/pro/desktop/en-us/odbc_tableau.htm>`_ using the Simba Apache Hive ODBC Driver.
 
 For both the connectors, there is
-   - a onetime setup to install Athenz CLI utilities used to fetch certificates for authentication.
-   - a daily setup step to fetch the role certificates.
+
+- a onetime setup to install Athenz CLI utilities used to fetch certificates for authentication.
+- a daily setup step to fetch the role certificates.
 
 This setup is same for Presto as well and so it is required to do only once for either Presto or HiveServer2.
 
@@ -42,7 +43,8 @@ get it working with the Hortonworks Hadoop Hive Connector with some addition con
 Steps:
 
 1. Edit the ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini`` file to add the following.
-   Replace all occurrences of ``<username>`` with your username.
+   Replace all occurrences of ``<username>`` with your username. To use a different queue
+   than the ``default`` queue, change the ``SSP_tez.queue.name`` setting.
 
    .. code-block:: text
 
@@ -63,6 +65,9 @@ Steps:
       CAIssuedCertNamesMismatch = 0
       ClientCert = /Users/<username>/.athenz/griduser.uid.<username>.cert.pem
       ClientPrivateKey = /Users/<username>/.athenz/griduser.uid.<username>.key.pem
+      ApplySSPWithQueries=0
+      SSP_tez.queue.name=default
+
 
 2. Create a new connection similar to the following example. Please do replace
    ``jetblue-hs2.blue.ygrid.yahoo.com`` with the HiveServer2 instance you want to
@@ -178,7 +183,7 @@ Repeat this for all the connections still using Kerberos and older HiveServer2 s
 Modify Workbook File
 ^^^^^^^^^^^^^^^^^^^^
 
-If you have saved your workbook in the ``.twb`` format, it can be directly edited instead.
+If you have saved your workbook in the ``.twb`` format, it can be opened using any text editor and directly edited instead.
 
 Here is an example with old value and changed new values for the ``<connection>`` section in the file.
 
@@ -207,7 +212,7 @@ Here is an example with old value and changed new values for the ``<connection>`
 +----------------------+-------------------------------------------+----------------------------------------+
 | Attribute name       | Old Value                                 | New Value                              |
 +======================+===========================================+========================================+
-| kerberos-host        | 'jetblue-hs2.ygrid.vip.gq1.yahoo.com'     |                                        |
+| kerberos-host        | jetblue-hs2.ygrid.vip.gq1.yahoo.com       |                                        |
 +----------------------+-------------------------------------------+----------------------------------------+
 | kerberos-realm       | YGRID.YAHOO.COM                           |                                        |
 +----------------------+-------------------------------------------+----------------------------------------+
@@ -219,9 +224,32 @@ Here is an example with old value and changed new values for the ``<connection>`
 +----------------------+-------------------------------------------+----------------------------------------+
 | server               | dilithiumblue-hs2.ygrid.vip.gq1.yahoo.com | dilithiumblue-hs2.blue.ygrid.yahoo.com |
 +----------------------+-------------------------------------------+----------------------------------------+
-| port                 | 50514 or 50515                            | 4443                                   |
+| port                 | 50514                                     | 4443                                   |
 +----------------------+-------------------------------------------+----------------------------------------+
 | sslmode              |                                           | require                                |
 +----------------------+-------------------------------------------+----------------------------------------+
 | transport-type       | 1                                         | 2                                      |
 +----------------------+-------------------------------------------+----------------------------------------+
+
+
+FAQ
+===
+
+Different Queue
+---------------
+
+To run on a queue other than the ``default`` queue, you can either
+
+- Change the value of ``SSP_tez.queue.name`` setting in ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini``
+- If the workbook is stored in ``*.twb`` format, open the file using any text editor
+  and edit the value of ``odbc-connect-string-extras`` attribute. This can be useful to override
+  and specify different queue names for different cluster connection.
+  This will take precedence over the setting in ``hortonworks.hiveodbc.ini`` file.
+
+  .. code-block:: text
+
+    odbc-connect-string-extras='SSP_tez.queue.name=projectqueuename'
+
+You can use the above two ways to configure any of the
+`Simba Driver Configuration Options <https://www.simba.com/products/Hive/doc/ODBC_InstallGuide/mac/content/odbc/hi/options/intro-online.htm>`_.
+In case of specifying multiple options, the separator to use in ``odbc-connect-string-extras`` is ``;``

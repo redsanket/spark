@@ -45,7 +45,7 @@ def yes_or_no(question):
     else:
         return yes_or_no("Please enter y or n\n{}".format(question))
 
-dbVis_alias = "{} HS2 mTLS"
+dbVis_alias = "HS2 {} mTLS"
 dbVis_connection_details = """Alias := {}
 Url := jdbc:hive2://{}:4443/{};transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore={}/.athenz/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore={}/.athenz/griduser.role.uid.{}.jks;keyStorePassword=changeit?tez.queue.name=default
 Driver := Hive"""

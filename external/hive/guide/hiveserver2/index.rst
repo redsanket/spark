@@ -20,30 +20,30 @@ Below is the supported set of tools and classification based on whether they are
 the Grid team or to be installed by the users.
 Click on the individual tool to see details about connectivity through that tool.
 
-+----------------------------------------------+--------+---------------+----------+
-| Tool                                         | Type   | Hosting model | Location |
-+==============================================+========+===============+==========+
-| CLI                                          | Client | hosted        | Gateway  |
-+----------------------------------------------+--------+---------------+----------+
-|                                              |        | self-hosting  | Launcher |
-+----------------------------------------------+--------+---------------+----------+
-| Hue                                          | Server | hosted        |          |
-+----------------------------------------------+--------+---------------+----------+
-| :doc:`Looker <hiveserver2/looker>`           | Server | hosted        |          |
-+----------------------------------------------+--------+---------------+----------+
-| Tableau Server                               | Server | self-hosting  |          |
-+----------------------------------------------+--------+---------------+----------+
-| :doc:`Tableau Desktop <hiveserver2/tableau>` | Client | self-hosting  | Laptop   |
-+----------------------------------------------+--------+---------------+----------+
-| :doc:`Beeline <hiveserver2/beeline>`         | Client | self-hosting  |          |
-+----------------------------------------------+--------+---------------+----------+
-| :doc:`Direct JDBC <hiveserver2/jdbc>`        | Client | self-hosting  |          |
-+----------------------------------------------+--------+---------------+----------+
-| :doc:`DbVisualizer <hiveserver2/dbvis>`      | Client | self-hosting  |          |
-+----------------------------------------------+--------+---------------+----------+
++----------------------------------+--------+---------------+----------+
+| Tool                             | Type   | Hosting model | Location |
++==================================+========+===============+==========+
+| CLI                              | Client | hosted        | Gateway  |
++----------------------------------+--------+---------------+----------+
+|                                  |        | self-hosting  | Launcher |
++----------------------------------+--------+---------------+----------+
+| Hue                              | Server | hosted        |          |
++----------------------------------+--------+---------------+----------+
+| :doc:`Looker <looker>`           | Server | hosted        |          |
++----------------------------------+--------+---------------+----------+
+| Tableau Server                   | Server | self-hosting  |          |
++----------------------------------+--------+---------------+----------+
+| :doc:`Tableau Desktop <tableau>` | Client | self-hosting  | Laptop   |
++----------------------------------+--------+---------------+----------+
+| :doc:`Beeline <beeline>`         | Client | self-hosting  |          |
++----------------------------------+--------+---------------+----------+
+| :doc:`Direct JDBC <jdbc>`        | Client | self-hosting  |          |
++----------------------------------+--------+---------------+----------+
+| :doc:`DbVisualizer <dbvis>`      | Client | self-hosting  |          |
++----------------------------------+--------+---------------+----------+
 
 
-.. _hiveserver2_urls:
+.. _hiveserver2_servers:
 
 HiveServer2 Servers
 *******************
