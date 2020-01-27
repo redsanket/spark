@@ -139,7 +139,7 @@ UI
 
     SSL=true
     SSLCertificatePath=/Users/<username>/.athenz/griduser.uid.<username>.cert.pem
-    SSLKeyStorePath=/Users/<username>/.athenz/griduser.role.uid.<username>.key.pem
+    SSLKeyStorePath=/Users/<username>/.athenz/griduser.uid.<username>.key.pem
     SSLTrustStorePath=/Users/<username>/.athenz/yahoo_certificate_bundle.pem
     SessionProperties=query_max_execution_time=15m
 
@@ -150,7 +150,7 @@ UI
 
   .. image:: images/dbvis_configure_connection_properties.png
      :height: 516px
-     :width: 700px
+     :width: 836px
      :scale: 80%
      :alt:
      :align: left

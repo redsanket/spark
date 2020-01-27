@@ -46,10 +46,11 @@ Profile = auto
 Type = presto
 ServerInfoFormat = 1"""
 
-properties = """SSLKeyStorePath = {}/.athenz/griduser.uid.{}.key.pem
-SSLTrustStorePath = {}/.athenz/yahoo_certificate_bundle.pem
+properties = """SSL = true
 SSLCertificatePath = {}/.athenz/griduser.uid.{}.cert.pem
-SSL = true
+SSLKeyStorePath = {}/.athenz/griduser.uid.{}.key.pem
+SSLTrustStorePath = {}/.athenz/yahoo_certificate_bundle.pem
+SessionProperties = query_max_execution_time=15m
 dbvis.ConnectionModeMigrated = true
 dbvis.TransactionIsolation = 0"""
 
@@ -92,9 +93,9 @@ if cluster in clusterdetails:
         dbVis_connection_details_dict = OrderedDict(
             [i.strip() for i in item.split("=")] for item in dbVis_connection_details.split("\n"))
 
-        properties = properties.format(userdir, username, userdir, userdir, username)
+        properties = properties.format(userdir, username, userdir, username, userdir)
         properties_dict = OrderedDict(
-            [i.strip() for i in item.split("=")] for item in properties.split("\n"))
+            [i.strip() for i in item.split("=", 1)] for item in properties.split("\n"))
 
         url_properties = url_properties.format(host_name, catalog, schema)
         url_properties_dict = OrderedDict(
