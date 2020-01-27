@@ -122,7 +122,8 @@ Kerberos keytabs will be disabled by end of Q1 2020. So please migrate from usin
 Athenz X.509 Certificate
 ************************
 
-Authentication to Presto can be done using mutual TLS with
+Authentication to Presto can be done using
+`mutual TLS <https://git.ouroath.com/pages/athens/athenz-guide/mtls/>`_ with
 `Athenz <https://git.ouroath.com/pages/athens/athenz-guide>`_ X.509 user or role certificates.
 Authentication from the following roles are supported.
 
