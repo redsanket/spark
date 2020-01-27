@@ -60,7 +60,7 @@ Script
 ------
 
 1. Close the DBVisualizer.
-2. Please :download:`download <hiveserver2/files/macOS_hive_dbvis_add_connection.sh>`
+2. Please :download:`download <files/macOS_hive_dbvis_add_connection.py>`
    the script that automates adding connection. It does it by modifying ``${HOME}/.dbvis/config70/dbvis.xml`` directly.
    It also creates a backup of the file before running in the same directory and if you run into any issues,
    you can revert to the backed up older copy of ``dbvis.xml``.
@@ -76,7 +76,6 @@ Script
 
 .. code-block:: text
 
-  chmod +x macOS_hive_dbvis_add_connection.py
   python macOS_hive_dbvis_add_connection.py JB benzene
 
 
