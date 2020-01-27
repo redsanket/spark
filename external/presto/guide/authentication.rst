@@ -306,5 +306,5 @@ Example of JDBC properties that will have to be added to connect using certifica
   # Mac
   SSL=true
   SSLCertificatePath=/Users/<username>/.athenz/griduser.uid.<username>.cert.pem
-  SSLKeyStorePath=/Users/<username>/.athenz/griduser.role.uid.<username>.key.pem
+  SSLKeyStorePath=/Users/<username>/.athenz/griduser.uid.<username>.key.pem
   SSLTrustStorePath=/Users/<username>/.athenz/yahoo_certificate_bundle.pem
