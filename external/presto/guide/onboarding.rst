@@ -28,7 +28,7 @@ The list of currently available clusters is :doc:`here <deployment>`.
 Onboarding Process
 ******************
 
-Onboarding will be done via `Doppler <https://yo/doppler>`_. The steps to the process are
+Onboarding will be done via `yo/doppler <https://yo/doppler>`_. The steps to the process are
 
 -  User determining if Presto is the solution for their use case by running experiments
    on staging cluster and discussing with Presto team
@@ -48,8 +48,8 @@ each query is run in separate thread and not in a jvm container, that poses more
 to capturing it accurately. Since increasing the sampling comes at a cost to the performance, we do not
 plan to change this in the near future till we work on more performance fine tuning.
 
-To circumvent the problem of inaccurate metrics, our solution is to run experiments on a staging cluster
-with fixed size resource groups to better determine the resources needed by the project.
+To circumvent the problem of inaccurate metrics, our solution is to run experiments on the staging cluster
+of the same colo with fixed size resource groups to better determine the resources needed by the project.
 The Presto node specification is 384GB RAM and we run the process with 200GB heap size.
 Rest of the memory is utilized for Presto JVM non-heap memory (30-40GB), page cache, etc.
 Currently the minimum size we provision for a resource group is 10 nodes.
@@ -81,6 +81,8 @@ To estimate capacity:
    time presto --client-tags 10nodes --catalog kessel --debug --execute "$QUERY" --output-format TSV_HEADER > ~/capacitytest/$qnum.tsv &
    done
 
+
+.. _doppler:
 
 Doppler
 =======
@@ -135,7 +137,7 @@ Steps:
       :alt:
       :align: left
 
-4. You can also edit the New Environment Request and add the ``Capital Allocation Request`` details.
+4. You can edit the New Environment Request and add the ``Capital Allocation Request`` details.
 
    .. image:: images/presto_capital_allocation_request.png
       :height: 516px
@@ -164,5 +166,5 @@ Steps:
    every second by Doppler. While the concurrent and queued queries are close approximations, the memory usage is usually
    way off and we request you to not rely on that. This is due to the fact that many Presto queries run in milliseconds/seconds
    and the capture interval of both Presto and Doppler is in seconds. While the number of queries
-   is given accurately by Presto Coordinator at any time, the memory sampled by it from workers is
-   very low due to the time intervals and improving the metrics comes at a significant cost to the performance.
+   is given accurately by Presto Coordinator at any time, the memory usage it gets from workers is
+   very low due to the sampling intervals and the challenge of capturing usage at thread level.
