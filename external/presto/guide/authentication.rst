@@ -188,12 +188,11 @@ One time setup
 ^^^^^^^^^^^^^^
 
 Please :download:`download <connectivity/files/macOS_ygrid_mtls_onetime_setup.sh>` the Athenz utilities install script.
-After downloading, ``cd`` to the directory you downloaded the script to, give it execute permissions and then invoke it.
+After downloading, ``cd`` to the directory you downloaded the script to and then invoke it.
 
 .. code-block:: text
 
-  chmod +x macOS_ygrid_mtls_onetime_setup.sh
-  ./macOS_ygrid_mtls_onetime_setup.sh
+  sh macOS_ygrid_mtls_onetime_setup.sh
 
 
 The script does the following:
@@ -225,14 +224,14 @@ Daily setup
 ^^^^^^^^^^^
 
 Please :download:`download <connectivity/files/macOS_ygrid_mtls_cert_refresh.sh>` the Athenz mTLS certificate refresh script.
-After downloading, ``cd`` to the directory you downloaded the script to, give it execute permissions and then invoke it.
+After downloading, ``cd`` to the directory you downloaded the script to and then invoke it.
 
 .. code-block:: text
 
-  chmod +x macOS_ygrid_mtls_cert_refresh.sh
-  ./macOS_ygrid_mtls_cert_refresh.sh
+  sh macOS_ygrid_mtls_cert_refresh.sh
 
-This script has to be run once daily before connecting to Presto or HiveServer2. The script does the following:
+This script has to be run once daily before connecting to Presto or HiveServer2.
+Please make sure that you see no errors when the script is run. The script does the following:
 
 1. Generates the Athenz user cert using SSH CA (yubikey).
 2. Generates the Athenz role cert and key in PEM format for ``griduser.uid.<username>`` role

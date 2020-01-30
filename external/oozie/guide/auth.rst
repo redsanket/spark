@@ -670,7 +670,7 @@ For fetching Athenz Role Certificate, you need to follow same steps and configur
 as the :ref:`Workflow with on-prem Athenz role token <workflow_with_Athens>` section
 with just one additional parameter
 
-- ``athens.token.type`` : Value should be set to `rolecert` for fetching role certificate.
+- ``athens.token.type`` : Value should be set to ``rolecert`` for fetching role certificate.
 
 Note:
 
