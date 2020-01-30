@@ -165,9 +165,9 @@ Windows
 Athenz team supports fetching user and role certificates in Windows hosts as well.
 You can find the download links below
 
-- `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.6/Windows/>`_
-- `zts-svccert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-svccert/1.16/Windows/>`_
-- `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.16/Windows/>`_
+- `athenz-user-cert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.5.1/Windows/>`_
+- `zts-svccert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-svccert/1.30/Windows/>`_
+- `zts-rolecert <https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.30/Windows/>`_
 
 The ``hca`` utility is not supported on Windows. For Tableau servers running on Windows,
 the fetching of service and role certs will have to be automated by setting up

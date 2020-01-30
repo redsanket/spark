@@ -11,8 +11,8 @@ fi
 echo "Installing athenz utilities to ${INSTALL_DIRECTORY}"
 
 # Download athenz CLI utilities
-curl -o ${INSTALL_DIRECTORY}/zts-rolecert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.26/Darwin/zts-rolecert"
-curl -o ${INSTALL_DIRECTORY}/athenz-user-cert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.4.9/Darwin/athenz-user-cert"
+curl -o ${INSTALL_DIRECTORY}/zts-rolecert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/zts-rolecert/1.30/Darwin/zts-rolecert"
+curl -o ${INSTALL_DIRECTORY}/athenz-user-cert "https://artifactory.ouroath.com/artifactory/simple/core-tech/releases/athenz-user-cert/1.5.1/Darwin/athenz-user-cert"
 chmod +x ${INSTALL_DIRECTORY}/zts-rolecert ${INSTALL_DIRECTORY}/athenz-user-cert
 
 # Download truststore file
