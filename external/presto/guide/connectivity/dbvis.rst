@@ -49,7 +49,7 @@ Daily Setup
 ===========
 
 1. Download and run the script to fetch Athenz role certificates following steps in :ref:`macOS Daily Setup <mac_daily>`.
-
+   This script has to be run once daily before connecting to Presto or HiveServer2.
 
 New Connection
 ==============

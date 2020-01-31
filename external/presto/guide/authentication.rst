@@ -187,13 +187,18 @@ We have provided two scripts below to make the process easier and they are appli
 One time setup
 ^^^^^^^^^^^^^^
 
-Please :download:`download <connectivity/files/macOS_ygrid_mtls_onetime_setup.sh>` the Athenz utilities install script.
-After downloading, ``cd`` to the directory you downloaded the script to and then invoke it.
+1. Please :download:`download <connectivity/files/macOS_ygrid_mtls_onetime_setup.sh>` the Athenz utilities install script.
+   Or you can copy the contents below and save it to a file.
 
-.. code-block:: text
+   .. literalinclude:: connectivity/files/macOS_ygrid_mtls_onetime_setup.sh
 
-  sh macOS_ygrid_mtls_onetime_setup.sh
+2. After downloading, ``cd`` to the directory where you saved the file and then invoke it.
 
+   .. code-block:: text
+
+      # Replace Downloads with the directory you saved the file to
+      cd $HOME/Downloads
+      bash -v macOS_ygrid_mtls_onetime_setup.sh
 
 The script does the following:
 
@@ -223,15 +228,23 @@ The script does the following:
 Daily setup
 ^^^^^^^^^^^
 
-Please :download:`download <connectivity/files/macOS_ygrid_mtls_cert_refresh.sh>` the Athenz mTLS certificate refresh script.
-After downloading, ``cd`` to the directory you downloaded the script to and then invoke it.
+1. Please :download:`download <connectivity/files/macOS_ygrid_mtls_cert_refresh.sh>` the Athenz mTLS certificate refresh script.
+   Or you can copy the contents below and save it to a file.
 
-.. code-block:: text
+   .. literalinclude:: connectivity/files/macOS_ygrid_mtls_cert_refresh.sh
 
-  sh macOS_ygrid_mtls_cert_refresh.sh
+2.  After downloading, ``cd`` to the directory where you saved the file and then invoke it.
 
-This script has to be run once daily before connecting to Presto or HiveServer2.
-Please make sure that you see no errors when the script is run. The script does the following:
+    .. code-block:: text
+
+      # Replace Downloads with the directory you saved the file to
+      cd $HOME/Downloads
+      bash -v macOS_ygrid_mtls_cert_refresh.sh
+
+   **Important**: This script has to be run once daily before connecting to Presto or HiveServer2.
+   Please make sure that you see no errors when the script is run.
+
+The script does the following:
 
 1. Generates the Athenz user cert using SSH CA (yubikey).
 2. Generates the Athenz role cert and key in PEM format for ``griduser.uid.<username>`` role

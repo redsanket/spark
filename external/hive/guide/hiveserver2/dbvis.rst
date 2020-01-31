@@ -49,7 +49,7 @@ Daily Setup
 ===========
 
 1. Download and run the script to fetch Athenz role certificates following steps in `macOS Daily Setup <https://git.ouroath.com/pages/hadoop/docs/presto/authentication.html#mac-daily>`_.
-
+   This script has to be run once daily before connecting to HiveServer2 or Presto.
 
 New Connection
 ==============

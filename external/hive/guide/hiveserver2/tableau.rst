@@ -28,7 +28,7 @@ Daily Setup
 ===========
 
 - Download and run the script to fetch Athenz role certificates following steps in `macOS Daily Setup <https://git.ouroath.com/pages/hadoop/docs/presto/authentication.html#mac-daily>`_.
-
+  This script has to be run once daily before connecting to HiveServer2 or Presto.
 
 
 Hortonworks Hadoop Hive Connector
@@ -42,9 +42,30 @@ get it working with the Hortonworks Hadoop Hive Connector with some addition con
 
 Steps:
 
-1. Edit the ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini`` file to add the following.
+
+1. Verify that the version of Hortonworks Driver installed is at least ``v2.6.1`` or above by running
+   the ``pkgutil`` command. The latest version as of Jan 2020 is ``v2.6.5``.
+
+   .. code-block:: text
+
+      $ pkgutil --info hortonworks.hiveodbc
+      package-id: hortonworks.hiveodbc
+      version: 2.6.5
+
+2. Open the ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini`` file
+   in a text editor or using ``vim``.
+
+   .. code-block:: text
+
+      # Executing this command on Terminal, opens the file in TextEdit
+      open -a TextEdit /Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini
+
+3. Copy and paste the below contents to the ``/Library/hortonworks/hive/lib/universal/hortonworks.hiveodbc.ini`` file.
+
    Replace all occurrences of ``<username>`` with your username. To use a different queue
    than the ``default`` queue, change the ``SSP_tez.queue.name`` setting.
+
+   **Note:** If you reinstall the Hortonworks Driver, the file will be overwritten and you will have to redo the changes.
 
    .. code-block:: text
 
@@ -69,9 +90,15 @@ Steps:
       SSP_tez.queue.name=default
 
 
-2. Create a new connection similar to the following example. Please do replace
+4. Create a new connection similar to the following example. Please do replace
    ``jetblue-hs2.blue.ygrid.yahoo.com`` with the HiveServer2 instance you want to
-   connect to from the :ref:`list of HiveServer2 servers <hiveserver2_urls>`.
+   connect to from the :ref:`list of HiveServer2 servers <hiveserver2_servers>`.
+
+   **Note**: ``Server`` and ``Port`` are different from the ones used for
+   Kerberos Thrift Authentication. For example:
+
+   - Server should be ``jetblue-hs2.blue.ygrid.yahoo.com`` instead of ``jetblue-hs2.ygrid.vip.gq1.yahoo.com``
+   - Port should be ``4443`` instead of ``50514``
 
    .. code-block:: text
 

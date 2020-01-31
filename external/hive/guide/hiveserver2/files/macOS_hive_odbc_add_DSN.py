@@ -51,7 +51,8 @@ ClientPrivateKey     = {}/.athenz/griduser.uid.{}.key.pem
 Schema               = {}
 user                 = {}
 UseNativeQuery       = 1
-FastSQLPrepare       = 1"""
+FastSQLPrepare       = 1
+ApplySSPWithQueries  = 0"""
 
 def yes_or_no(question):
     reply = str(raw_input(question+' (y/n): ')).lower().strip()
