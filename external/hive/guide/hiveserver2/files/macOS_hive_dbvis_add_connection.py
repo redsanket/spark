@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 
 clusterdetails = {
+    "AB": ("AxoniteBlue", "axoniteblue-hs2.blue.ygrid.yahoo.com"),
     "AR": ("AxoniteRed", "axonitered-hs2.red.ygrid.yahoo.com"),
     "BB": ("BassniumBlue", "bassniumblue-hs2.blue.ygrid.yahoo.com"),
     "BR": ("BassnniumRed", "bassnniumred-hs2.red.ygrid.yahoo.com"),
@@ -47,7 +48,7 @@ def yes_or_no(question):
 
 dbVis_alias = "HS2 {} mTLS"
 dbVis_connection_details = """Alias := {}
-Url := jdbc:hive2://{}:4443/{};transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore={}/.athenz/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore={}/.athenz/griduser.role.uid.{}.jks;keyStorePassword=changeit?tez.queue.name=default
+Url := jdbc:hive2://{}:4443/{};transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore={}/.athenz/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore={}/.athenz/griduser.uid.{}.jks;keyStorePassword=changeit?tez.queue.name=default
 Driver := Hive"""
 
 username = os.getenv('USER')

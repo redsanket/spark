@@ -160,3 +160,24 @@ UI
   or leading/trailing whitespaces in the property name and that you have downloaded
   the :ref:`latest Presto jdbc driver`.
 
+
+TroubleShooting
+===============
+
+If you get an error while trying to connect, click on ``Tools -> Debug Window``
+on the menu bar and select the ``Error Log`` Tab. That will give a detailed stack trace.
+
+Some common connection errors are:
+
+- ``Unrecognized connection property``
+- ``Error setting up SSL: Invalid keystore format``
+- ``Error setting up SSL: toDerInputStream rejects tag type 45``
+
+They are usually the result of not following the setup steps properly.
+
+1. Ensure you have downloaded the latest internal version of :ref:`Presto JDBC Jar <dbvis_presto_jar_setup>`.
+2. Ensure you have the exact settings names and values configured as mentioned in the previous section without typos or leading/trailing spaces.
+3. Ensure you have ``<username>`` replaced with your username.
+4. Ensure you have run the :ref:`certificate refresh script <mac_daily>` at least once for the day
+   and that there were no errors when you ran the script.
+   If it was working for you the day before and it is not working today, this is the reason.

@@ -6,6 +6,7 @@ import sys
 from collections import OrderedDict
 
 clusterdetails = {
+    "AB": ("AxoniteBlue", "axoniteblue-hs2.blue.ygrid.yahoo.com"),
     "AR": ("AxoniteRed", "axonitered-hs2.red.ygrid.yahoo.com"),
     "BB": ("BassniumBlue", "bassniumblue-hs2.blue.ygrid.yahoo.com"),
     "BR": ("BassnniumRed", "bassnniumred-hs2.red.ygrid.yahoo.com"),

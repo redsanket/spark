@@ -16,7 +16,7 @@ curl -o ${INSTALL_DIRECTORY}/athenz-user-cert "https://artifactory.ouroath.com/a
 chmod +x ${INSTALL_DIRECTORY}/zts-rolecert ${INSTALL_DIRECTORY}/athenz-user-cert
 
 # Download truststore file
-if [ ! -f ${HOME}/.athenz/yahoo_certificate_bundle.pem ]; then
+if [ ! -f ${HOME}/.athenz/yahoo_certificate_bundle.jks ]; then
   yinit
-  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.pem ${HOME}/.athenz/
+  rsync -avz jet-gw.blue.ygrid.yahoo.com:/home/y/share/ssl/certs/yahoo_certificate_bundle.* ${HOME}/.athenz/
 fi

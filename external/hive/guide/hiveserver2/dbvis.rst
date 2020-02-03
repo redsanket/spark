@@ -121,7 +121,7 @@ UI
 
       Database Type      Hive
       Driver (JDBC)      Hive
-      Database URL       jdbc:hive2://jetblue-hs2.blue.ygrid.yahoo.com:4443/;transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore=/Users/<username>/.athenz/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore=/Users/<username>/.athenz/griduser.role.uid.<username>.jks;keyStorePassword=changeit?tez.queue.name=default
+      Database URL       jdbc:hive2://jetblue-hs2.blue.ygrid.yahoo.com:4443/;transportMode=http;httpPath=cliservice;ssl=true;sslTrustStore=/Users/<username>/.athenz/yahoo_certificate_bundle.jks;twoWay=true;sslKeyStore=/Users/<username>/.athenz/griduser.uid.<username>.jks;keyStorePassword=changeit?tez.queue.name=default
 
    .. image:: images/dbvis_configure_connection.png
      :height: 516px

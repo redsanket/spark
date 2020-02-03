@@ -54,6 +54,8 @@ These instances only support Thrift/HTTPS. Thrift/SASL is disabled as it does no
 +----------+--------------------------------------------+----------+-----------------------------------------------------------------+----------------+
 | **Grid** | **Hostname**                               | **Port** | **Kerberos Principal**                                          | **Type**       |
 +==========+============================================+==========+=================================================================+================+
+| AB       | ``axoniteblue-hs2.blue.ygrid.yahoo.com``   | 4443     | ``hive/axoniteblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``   | Sandbox        |
++----------+--------------------------------------------+----------+-----------------------------------------------------------------+----------------+
 | AR       | ``axonitered-hs2.red.ygrid.yahoo.com``     | 4443     | ``hive/axonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``     | Sandbox        |
 +----------+--------------------------------------------+----------+-----------------------------------------------------------------+----------------+
 | BB       | ``bassniumblue-hs2.blue.ygrid.yahoo.com``  | 4443     | ``hive/bassniumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``  | Production     |
