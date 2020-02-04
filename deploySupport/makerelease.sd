@@ -188,8 +188,8 @@ for cluster in $CLUSTERS; do
          fi
          labels+="$package,$version-$YINST_FREEZE_DTS"
          echo "labels='$labels'"
-         echo "Creating entry from if for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
-         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+         echo "Creating entry from if for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6" >> $run_script_file_path
     elif [[ "$package" == "conf" ]]; then
          version=`cat /tmp/dist_list_certified_tag|grep HadoopConfig$(echo $cluster|sed 's/\.//g')|awk '{print $1}'|cut -d - -f2`
          if [[ "$version" == "" ]]; then
@@ -197,8 +197,8 @@ for cluster in $CLUSTERS; do
              # For now keep going, but eventually this should exit on failure if cluster config packages are missing.
              # exit 1;
          fi
-         echo "Creating entry from elif1 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
-         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+         echo "Creating entry from elif1 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6" >> $run_script_file_path
     elif [[ "$package" == "hadoop_mvn_tools" ]]; then
          version=`cat /tmp/dist_list_certified_tag|grep hadoop_mvn_tools|awk '{print $1}'|cut -d - -f2`
          if [[ "$version" == "" ]]; then
@@ -207,19 +207,19 @@ for cluster in $CLUSTERS; do
              # exit 1;
          fi
          # echo "No need to run makerelease for -p $package -v $version -c $cluster el6"
-         # echo "Creating entry from elif2 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
-         # echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+         # echo "Creating entry from elif2 for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6"
+         # echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6" >> $run_script_file_path
     else
          # echo "generate jdk tarball..."
-         # echo "/usr/local/bin/makerelease.sd -p yjava_jdk -v 1.8.0_181.295 -c $cluster el6" >> $run_script_file_path
+         # echo "/usr/local/bin/makerelease.sd -p yjava_jdk -v 1.8.0_181.295 -c $cluster -br quarantine el6" >> $run_script_file_path
          version=`cat /tmp/dist_list_certified_tag|grep hadoop_mvn_tools | awk '{print $1}'|cut -d - -f2`
          if [[ "$version" == "" ]]; then
              echo "ERROR!!! Unable to find hadoop_mvn_tools version for '$package'. Exiting!!!"
              exit 1;
          fi
          # echo "No need to run makerelease for -p $package -v $version -c $cluster el6"
-         echo "Creating entry from else for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6"
-         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster el6" >> $run_script_file_path
+         echo "Creating entry from else for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6"
+         echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6" >> $run_script_file_path
     fi
   done
   cluster_index=$(($cluster_index+1))
