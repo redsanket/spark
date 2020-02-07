@@ -134,7 +134,7 @@ System Metrics YAMAS Collector Already Handles
 
 Worker-Level Metrics
 --------------------
-
+These worker level metrics are essentially pulled from JMX metrics exposed by the JVM. For additional details please read `JVM Documentation <https://docs.oracle.com/javase/8/docs/api/java/lang/management/package-frame.html>`
 .. csv-table:: Supported Metrics for Storm
    :header: "Purpose", "Metrics"
    :widths: 20, 45
