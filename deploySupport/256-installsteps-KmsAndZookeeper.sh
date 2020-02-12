@@ -135,6 +135,8 @@ else
     echo "INFO: setup NN key provider and restarted"
 fi
 
+# wait for few seconds here as the process is still running
+sleep 30
 
 # build cmd to install KMS and yinst configs
 #
@@ -368,7 +370,13 @@ set -x
 $SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
 # gridci-2904, fix the oozie user we run as in kms-site 
 $SSH $kmsnode "sudo sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml"
+RC=$?
 set +x
+if [ $RC -ne 0 ]; then
+   echo "Failed to install correct KMS kettab!"
+else
+   echo "INFO: Updated KMS keytab"
+fi
 
 #
 # smoke test to verify KMS service is running
@@ -376,6 +384,8 @@ set +x
 
 # need to have ykeykey/keydb in hybrid mode
 set -x
+# wait till the previous yinst process is finished
+sleep 30
 $SSH $kmsnode "yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE"
 RC=$?
 set +x
@@ -417,6 +427,7 @@ sleep 60
 
 # gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
 # flakyness consistently now
+sleep 30
 echo "INFO: restarting yahoo_kms..."
 $SSH $kmsnode "yinst restart daemontools_y; yinst restart yahoo_kms"
 RC=$?

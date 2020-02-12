@@ -82,6 +82,7 @@ cd deploySupport
 cmd="curl \"http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=${HADOOP_RELEASE_TAG}&os=rhel&q=1\"|cut -d' ' -f2- | sed 's/ /-/'"
 note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
+sleep 60
 if [[ $? != "0" ]] || [[ -z $DIST_TAG_LIST ]]; then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
     exit 1;
