@@ -46,7 +46,6 @@ public class TestSparkOozieIntegration extends TestSession {
     private static String jobTrackerURL = null;
     private static String nameNodeURL = null;
     private static String oozieNodeURL = null;
-    private static String cookie = null;
 
     @BeforeClass
     public static void startTestSession() throws Exception {
@@ -57,15 +56,6 @@ public class TestSparkOozieIntegration extends TestSession {
         oozieNodeURL = TestSession.getCompURL(TestSession.cluster.getClusterName(), "oozie", "4443").replace("http://", "https://");
 
         System.out.println("System.user = " + System.getProperty("user.name"));
-        TestSparkUI sparkUI = new TestSparkUI();
-        String user = sparkUI.getBouncerUser();
-        String pw = sparkUI.getBouncerPassword();
-        System.out.println("Bouncer user = " + user);
-        System.out.println();
-        HTTPHandle client = new HTTPHandle();
-        client.logonToBouncer(user,pw);
-        System.out.println("Obtained YBYCookie for the user!");
-        cookie = client.YBYCookie;
     }
 
     @AfterClass
