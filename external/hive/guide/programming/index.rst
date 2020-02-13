@@ -325,6 +325,67 @@ at random. The following query returns 5 rows from t1 at random.
 
     SELECT * FROM t1 LIMIT 5
 
+PARTITION FILTERS
+*****************
+
+Partitions allow you to create virtual columns based on keys that determine how data is stored. When a partitioned table is queried with one or more partition columns in the WHERE clause, Hive does not need to scan the whole table; it only scans the appropriate partition, which improves the performance of the query.
+
+How to find table partitions
+****************************
+
+::
+
+    hive> desc concat_test;
+    OK
+    key                 	string
+    value               	string
+    ds                  	string
+
+    # Partition Information
+    # col_name            	data_type           	comment
+    ds                  	string         =>> table Partitions
+    Time taken: 0.131 seconds, Fetched: 8 row(s)
+    hive>
+
+How to run queries with Partition filters
+*****************************************
+
+Example: for a table having partition keys ds and country, one could construct the following filter:
+
+ds='2019-12-13' AND (state = "CA" OR state = "AZ") 
+
+In particular notice that it is possible to nest sub-expressions within parentheses.
+
+The following operators are supported when constructing filters for partition columns
+
+- =
+- <
+- <=
+- >
+- >=
+- <>
+- AND
+- OR
+- LIKE (on keys of type string only, supports literal string template with '.*' wildcard)
+
+::
+
+    hive> select key from concat_test where ds='2019-12-13' order by key;
+    Status: Running (Executing on YARN cluster with App id application_1573259215464_23840)
+    
+    --------------------------------------------------------------------------------
+            VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+    --------------------------------------------------------------------------------
+    Map 1 ..........   SUCCEEDED      1          1        0        0       0       0
+    Reducer 2 ......   SUCCEEDED      1          1        0        0       0       0
+    --------------------------------------------------------------------------------
+    VERTICES: 02/02  [==========================>>] 100%  ELAPSED TIME: 286.07 s
+    --------------------------------------------------------------------------------
+    OK
+    238
+    Time taken: 288.655 seconds, Fetched: 44885 row(s)
+    hive>
+
 
 Grouping/Ordering/Sorting
 #########################
