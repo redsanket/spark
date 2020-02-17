@@ -120,39 +120,39 @@ HiveServer2 Servers (Thrift/HTTPS)
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
 | **Grid** | **Hostname**                                 | **Port** | **Kerberos Principal**                                               | **Comments**       |
 +==========+==============================================+==========+======================================================================+====================+
-| AR       | ``axonitered-hs2.red.ygrid.yahoo.com``       | 4443     | ``hive/axonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``          | Hadoop 2.x sandbox |
+| AR       | ``axonitered-hs2.red.ygrid.yahoo.com``       | 4443     | ``HTTP/axonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``          | Hadoop 2.x sandbox |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| BB       | ``bassniumblue-hs2.blue.ygrid.yahoo.com``    | 4443     | ``hive/bassniumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``       |                    |
+| BB       | ``bassniumblue-hs2.blue.ygrid.yahoo.com``    | 4443     | ``HTTP/bassniumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``       |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| BR       | ``bassnniumred-hs2.red.ygrid.yahoo.com``     | 4443     | ``bassnniumred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``             |                    |
+| BR       | ``bassnniumred-hs2.red.ygrid.yahoo.com``     | 4443     | ``HTTP/bassnniumred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``             |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| BT       | ``bassniumtan-hs2.tan.ygrid.yahoo.com``      | 4443     | ``hive/bassniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
+| BT       | ``bassniumtan-hs2.tan.ygrid.yahoo.com``      | 4443     | ``HTTP/bassniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| DB       | ``dilithiumblue-hs2.blue.ygrid.yahoo.com``   | 4443     | ``hive/dilithiumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``      |                    |
+| DB       | ``dilithiumblue-hs2.blue.ygrid.yahoo.com``   | 4443     | ``HTTP/dilithiumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``      |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| DR       | ``dilithiumred-hs2.red.ygrid.yahoo.com``     | 4443     | ``hive/dilithiumred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``        |                    |
+| DR       | ``dilithiumred-hs2.red.ygrid.yahoo.com``     | 4443     | ``HTTP/dilithiumred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``        |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| JB       | ``jetblue-hs2.blue.ygrid.yahoo.com``         | 4443     | ``hive/jetblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``            |                    |
+| JB       | ``jetblue-hs2.blue.ygrid.yahoo.com``         | 4443     | ``HTTP/jetblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``            |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| KR       | ``kryptonitered-hs2.red.ygrid.yahoo.com``    | 4443     | ``hive/kryptonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``       | Hadoop sandbox     |
+| KR       | ``kryptonitered-hs2.red.ygrid.yahoo.com``    | 4443     | ``HTTP/kryptonitered-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``       | Hadoop sandbox     |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| MR       | ``mithrilred-hs2.red.ygrid.yahoo.com``       | 4443     | ``hive/mithrilred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``          |                    |
+| MR       | ``mithrilred-hs2.red.ygrid.yahoo.com``       | 4443     | ``HTTP/mithrilred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``          |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| OB       | ``oxiumblue-hs2.blue.ygrid.yahoo.com``       | 4443     | ``hive/oxiumblue-hs2.blue.ygrid.yahoo.com``                          |                    |
+| OB       | ``oxiumblue-hs2.blue.ygrid.yahoo.com``       | 4443     | ``HTTP/oxiumblue-hs2.blue.ygrid.yahoo.com``                          |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| PB       | ``phazonblue-hs2.blue.ygrid.yahoo.com``      | 4443     | ``hive/phazonblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
+| PB       | ``phazonblue-hs2.blue.ygrid.yahoo.com``      | 4443     | ``HTTP/phazonblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| PR       | ``phazonred-hs2.red.ygrid.yahoo.com``        | 4443     | ``hive/phazonred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
+| PR       | ``phazonred-hs2.red.ygrid.yahoo.com``        | 4443     | ``HTTP/phazonred-hs2.red.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| PT       | ``phazontan-hs2.tan.ygrid.yahoo.com``        | 4443     | ``hive/phazontan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
+| PT       | ``phazontan-hs2.tan.ygrid.yahoo.com``        | 4443     | ``HTTP/phazontan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| TT       | ``tiberiumtan-hs2.tan.ygrid.yahoo.com``      | 4443     | ``hive/tiberiumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
+| TT       | ``tiberiumtan-hs2.tan.ygrid.yahoo.com``      | 4443     | ``HTTP/tiberiumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``         |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| UB       | ``uraniumblue-hs2.blue.ygrid.yahoo.com``     | 4443     | ``hive/uraniumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``        |                    |
+| UB       | ``uraniumblue-hs2.blue.ygrid.yahoo.com``     | 4443     | ``HTTP/uraniumblue-hs2.blue.ygrid.yahoo.com@YGRID.YAHOO.COM``        |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| UT       | ``uraniumtan-hs2.tan.ygrid.yahoo.com``       | 4443     | ``hive/uraniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``          |                    |
+| UT       | ``uraniumtan-hs2.tan.ygrid.yahoo.com``       | 4443     | ``HTTP/uraniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``          |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
-| ZT       | ``zaniumtan-hs2.tan.ygrid.yahoo.com``        | 4443     | ``hive/zaniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
+| ZT       | ``zaniumtan-hs2.tan.ygrid.yahoo.com``        | 4443     | ``HTTP/zaniumtan-hs2.tan.ygrid.yahoo.com@YGRID.YAHOO.COM``           |                    |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
 | Kessel   | ``kesselgq-hs.gq.vcg.yahoo.com``             | 4443      | ``HTTP/kesselgq-hs.gq.vcg.yahoo.com@VCG.OUROATH.COM``               | VCG                |
 +----------+----------------------------------------------+----------+----------------------------------------------------------------------+--------------------+
