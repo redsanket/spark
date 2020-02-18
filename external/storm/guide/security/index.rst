@@ -59,7 +59,7 @@ Then include the service token as follows in your request
 ::
 
     curl -v --cookie "okta_at={token}" "<storm_api_endpoint>" --cert <generated_service_cert>  --key <service_private_key>
-   
+
 
 Kerberos Authentication
 -----------------------
@@ -543,9 +543,11 @@ Athenz
 ------
 
 Athenz support for Storm is provided by AutoAthens plugin. It is similar to other automatic credentials plugins where it will pull package credentials for you on a
-gateway/launcher box and forward them to your running topology. In this case, AutoAthens will fetch RoleTokens using the ZTSClient Java API and then on the worker
+gateway/launcher box and forward them to your running topology. In this case, AutoAthens will fetch RoleTokens and AccessTokens (soon) using the ZTSClient Java API and then on the worker
 side insert them into the token cache for the ZTSClient.
 
+RoleToken
+#########
 This means that unlike AutoYCA, code written to use the ZTSClient can run unmodified on Storm clusters.
 
 Athenz supports several different ways of authenticating, aka telling Athenz who you are, but because AutoAthens was written initially for CMS and CMS only supports
@@ -591,6 +593,21 @@ twice a day. This is because CMS requests a token that is good for between 2 hou
 being rejected, and you need to push a new one before it only has 2 hours left or you risk it expiring. If you do have a client where the 1 day expiry AutoAthens
 uses is not compatible please reach out to the Storm team and we can make that configurable as well.
 
+AccessToken
+###########
+
+To use Athens `AccessTokens <https://git.ouroath.com/pages/athens/athenz-guide/zts_access_token_guide/>`_ (which is the recommended way going forward) configure "athenz.service.cert"
+and "athenz.service.private.key" in the topology configuration along with the above instructions (you can skip the tenant-domain and tenant-service). Refer `here <https://git.ouroath.com/pages/athens/athenz-guide/service_x509_credentials/>`_
+on how to obtain the service cert and private keys.
+
+We are currently waiting for the Athens team to implement `external cache modification <https://jira.vzbuilders.com/browse/ATHENS-5173>`_ to support the unmodified client case described above.
+Till then you can fetch AccessTokens on gateways with the SIA server running and properly configured.
+
+Using RoleToken/AccessToken via HTTPProxy
+#########################################
+
+As of Q1 2020 the HTTPProxy is going to validate Athenz credentials while routing requests to external endpoints. In your component add the RoleToken or AccessToken
+with the Proxy-Authorization header as follows "Proxy-Authorization:ACCESS_TOKEN/ROLE_TOKEN". Please refer `here <https://confluence.vzbuilders.com/display/HPROX/Use+Athenz+Auth+to+access+external+endpoints+through+HttpProxy#UseAthenzAuthtoaccessexternalendpointsthroughHttpProxy-AccessHttpProxywithAthensAccessTokenfromStorm>`_ for more information.
 
 Athenz TLS Certs using AutoSSL
 ==============================
