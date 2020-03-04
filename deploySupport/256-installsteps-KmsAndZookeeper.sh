@@ -88,7 +88,7 @@ fi
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
 set -x
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test yjava_jdk-1.8.0_241.3812154 hadoopqa_headless_keys \""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
