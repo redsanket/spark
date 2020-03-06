@@ -3,7 +3,7 @@
 # Note: We use hardcoded paths to circumvent the issue of encountering different environments in
 #       different QE clusters.
 #
-# inputs: cluster being installed, reference cluster name 
+# inputs: cluster being installed, reference cluster name
 # outputs: 0 on success
 
 #-------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ function get_spark_label_version_from_artifactory () {
   # make sure we have tools to talk to artifactory
   yinst i hadoop_releases_utils
   st=$?
-  [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install hadoop_releases_utils on $SPARKNODE <<<<<<<<<<" && exit $st  
+  [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install hadoop_releases_utils on $SPARKNODE <<<<<<<<<<" && exit $st
 
   # check we got a valid reference cluster
   RESULT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER`
@@ -24,14 +24,12 @@ function get_spark_label_version_from_artifactory () {
     echo "Artifactory URI with most recent versions:"
     echo $ARTI_URI
   else
-    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT" 
+    echo "ERROR: fetching reference cluster $REFERENCE_CLUSTER responded with: $RESULT"
     exit 1
   fi
 
-  label_version_arr[0]=DOT_SIX=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_SIX`
-  label_version_arr[1]=TWO_ZERO=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_TWO_ZERO`
-  label_version_arr[2]=CURRENT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_CURRENT`
-  label_version_arr[3]=LATEST=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_LATEST`
+  label_version_arr[0]=CURRENT=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_CURRENT`
+  label_version_arr[1]=LATEST=`/home/y/bin/query_releases -c $REFERENCE_CLUSTER -b spark -p SPARK_DOT_LATEST`
 }
 
 #-------------------------------------------------------------------------------
@@ -69,13 +67,11 @@ echo "INFO: Spark node being installed: $SPARKNODE"
 if [[ ${REFERENCE_CLUSTER:=none} != none ]]; then
   # check what comp version we need to use
   echo "STACK_COMP_VERSION_SPARK is: $REFERENCE_CLUSTER"
-  get_spark_label_version_from_artifactory 
+  get_spark_label_version_from_artifactory
+elif [[ $SPARKVERSION == "3."* ]]; then
+  label_version_arr[0]="LATEST=$SPARKVERSION"
 elif [[ $SPARKVERSION == "2."* ]]; then
-  label_version_arr[0]="TWO_ZERO=$SPARKVERSION"
-  label_version_arr[1]="LATEST=$SPARKVERSION"
-elif [[ $SPARKVERSION == "1.6"* ]]; then
-  label_version_arr[0]="DOT_SIX=$SPARKVERSION"
-  label_version_arr[1]="LATEST=$SPARKVERSION"
+  label_version_arr[0]="LATEST=$SPARKVERSION"
 else
   echo "ERROR: Aborting installation for an unexpected version of Spark" && exit 1
 fi
@@ -129,7 +125,7 @@ st=$?
 [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install yspark_yarn-$SPARKVERSION <<<<<<<<<<" && exit $st
 
 #-------------------------------------------------------------------------------
-python_install_cmd="yinst i python36_grid python27_grid -br current -same -live"
+python_install_cmd="yinst i python36_grid -br current -same -live"
 
 echo "$python_install_cmd"
 eval "$python_install_cmd"
@@ -152,9 +148,7 @@ kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 cmd="$HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_R32; \
      $HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-3.2.1.3.tgz /sharelib/v1/yspark_yarn_R32/yspark_yarn_R32.tgz; \
      $HADOOP fs -mkdir -p /sharelib/v1/python36; \
-     $HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz; \
-     $HADOOP fs -mkdir -p /sharelib/v1/python27; \
-     $HADOOP fs -put /home/y/share/python27_grid/python_build_python2.7.tgz /sharelib/v1/python27/python27.tgz;"
+     $HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz;
 
 echo "$cmd"
 eval "$cmd"
@@ -173,8 +167,8 @@ do
 
     spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
     $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
-    
-    if [[ $version == "2."* ]]; then
+
+    if [[ $version == "2."* ] || [ $version == "3.*" ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
       $HADOOP fs -put /home/gs/spark/$label/lib/ /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/ ; \
       $HADOOP fs -put /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/"
