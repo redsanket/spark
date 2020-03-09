@@ -98,6 +98,10 @@ object SparkHive {
 		// |311|val_311|
 		// ...
 
+		// Drop tables
+		sql("DROP TABLE IF EXISTS src")
+		sql("DROP TABLE IF EXISTS hive_records_v2")
+
 		spark.stop()
 	}
 }
