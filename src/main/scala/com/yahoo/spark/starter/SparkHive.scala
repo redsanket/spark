@@ -4,7 +4,7 @@ import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 
 case class Record(key: Int, value: String)
 
-// Simple example of accessing HBase from Spark
+// Simple example of accessing Hive from Spark
 // Original: https://spark.apache.org/docs/latest/sql-data-sources-hive-tables.html
 object SparkHive {
 	def main(args: Array[String]) {
