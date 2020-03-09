@@ -21,7 +21,7 @@ object SparkHive {
 
 		// Create the table and load data from a local file
 		sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
-		sql(s"LOAD DATA LOCAL INPATH 'file:///home/bzhang02/spark-starter/src/main/resources/hive/kv1.txt' INTO TABLE src")
+		sql(s"LOAD DATA LOCAL INPATH 'file://${System.getenv("HOME")}/spark-starter/src/main/resources/hive/kv1.txt' INTO TABLE src")
 
 		// Queries are expressed in HiveQL
 		sql("SELECT * FROM src").show()
