@@ -22,7 +22,7 @@ cmd="export SPARK_CONF_DIR=/home/gs/conf/spark/latest ; \
   kinit -k -t /homes/mapredqa/mapredqa.dev.headless.keytab mapredqa ; \
   echo Running $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi \
   --num-executors 2 --executor-memory 2g --queue $SPARK_QUEUE --conf spark.executorEnv.JAVA_HOME=$JAVA_HOME \
-  --conf spark.yarn.appMasterEnv.JAVA_HOME=$JAVA_HOME --conf spark.ui.view.acls="*" $SPARK_HOME/lib/spark-examples.jar ; \
+  --conf spark.yarn.appMasterEnv.JAVA_HOME=$JAVA_HOME --conf spark.ui.view.acls="*" --conf spark.security.credentials.kafka.enabled=false $SPARK_HOME/lib/spark-examples.jar ; \
   $SPARK_HOME/bin/spark-submit  --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi \
   --num-executors 2 --executor-memory 2g --queue $SPARK_QUEUE --conf spark.executorEnv.JAVA_HOME=$JAVA_HOME \
   --conf spark.yarn.appMasterEnv.JAVA_HOME=$JAVA_HOME --conf spark.ui.view.acls="*" $SPARK_HOME/lib/spark-examples.jar"
