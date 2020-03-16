@@ -1,0 +1,30 @@
+#!/bin/sh
+dist_tag=$1
+branch=$2
+set +x
+if [[ -z $dist_tag || -z $branch ]];then
+  echo "dist_tag or branch argument provided is empty!"
+  echo "Usage: $0: <dist_tag> <promote-to-dist-branch>"
+  exit -1
+fi
+if [[ ! -f /home/y/bin/dist_tag ]]; then
+   echo "Installing dist_tools..."
+   yinst i dist_tools
+fi
+/home/y/bin/dist_tag list $dist_tag > packages.txt
+awk '{print $1}' packages.txt > packages_wo_os.txt
+echo "Setting Hadoop release to branch $branch..."
+test_pkg=`cat packages_wo_os.txt | head -1`
+echo "Promoting $test_pkg ..."
+/home/y/bin/dist_setbranch $branch $test_pkg
+if [ $? -eq 0 ];then
+  echo "Okay to proceed with rest of the release packages..."
+  for release_package in $(cat packages_wo_os.txt); do
+     echo "Processing $release_package ..."
+     /home/y/bin/dist_setbranch $branch $release_package
+  done
+else
+  echo "Something is wrong with this package & version...Exiting!"
+  exit -1
+fi
+
