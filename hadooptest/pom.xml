@@ -25,8 +25,8 @@
         <hadoop.version>${hadoop.version.current}</hadoop.version>
         <spark.version>2.0.0.14</spark.version>
         <spark.version.full>2.0.0.14</spark.version.full>
-        <spark.scala.version>2.11</spark.scala.version>
-        <scala.version>2.11.8</scala.version>
+        <spark.scala.version>2.12</spark.scala.version>
+        <scala.version>2.12.10</scala.version>
         <spark.hadoop.version>2.8.0.1.1608041516</spark.hadoop.version>
         <hbase.version>0.98.7.19.1608152337_h2</hbase.version>
         <jetty.version>9.1.4.v20140401</jetty.version>
@@ -391,8 +391,8 @@
                     <scope>provided</scope>
                 </dependency>
                  <dependency>
-                    <groupId>com.databricks</groupId>
-                    <artifactId>spark-avro_2.11</artifactId>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-avro_2.12</artifactId>
                     <version>3.2.0</version>
                 </dependency>
                 <!-- HBase Client -->
@@ -1861,8 +1861,8 @@
                     </systemPath>
                 </dependency>
                 <dependency>
-                    <groupId>com.databricks</groupId>
-                    <artifactId>spark-avro_2.11</artifactId>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-avro_2.12</artifactId>
                     <version>3.2.0</version>
                 </dependency>
             </dependencies>
@@ -1949,8 +1949,8 @@
                     <artifactId>xml-path</artifactId>
                     <version>1.8.1</version>
                 </dependency>
-                
-                
+
+
                 <!-- Integration testing -->
                 <dependency>
 					<groupId>org.quartz-scheduler</groupId>
@@ -1962,7 +1962,7 @@
 					<artifactId>mysql-connector-java</artifactId>
 					<version>5.1.35</version>
 				</dependency>
-				
+
                 <dependency>
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-compiler</artifactId>
@@ -2005,7 +2005,7 @@
                     <type>test-jar</type>
                     <scope>provided</scope>
                 </dependency>
-          
+
                 <dependency>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-streaming</artifactId>
