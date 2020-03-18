@@ -390,11 +390,11 @@
                     <version>${spark.version.full}</version>
                     <scope>provided</scope>
                 </dependency>
-                 <dependency>
+		<!-- <dependency>
                     <groupId>org.apache.spark</groupId>
                     <artifactId>spark-avro_2.12</artifactId>
                     <version>3.0.0-preview2</version>
-                </dependency>
+		</dependency>-->
                 <!-- HBase Client -->
                 <dependency>
                     <groupId>org.apache.hbase</groupId>
@@ -1860,11 +1860,11 @@
                         ${HTF_WORKSPACE}/yinst_fetch_dependencies/yspark_yarn_fetch/share/spark/jars/spark-hive_${spark.scala.version}.jar
                     </systemPath>
                 </dependency>
-                <dependency>
+		<!-- <dependency>
                     <groupId>org.apache.spark</groupId>
                     <artifactId>spark-avro_2.12</artifactId>
                     <version>3.0.0-preview2</version>
-                </dependency>
+		</dependency> -->
             </dependencies>
         </profile>
 
@@ -1963,11 +1963,11 @@
 					<version>5.1.35</version>
 				</dependency>
 
-                <dependency>
+		 <dependency>
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-compiler</artifactId>
                     <version>${scala.version}</version>
-                </dependency>
+		</dependency>
                 <dependency>
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-library</artifactId>
@@ -1977,7 +1977,7 @@
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scalap</artifactId>
                     <version>${scala.version}</version>
-                </dependency>
+		</dependency>
 
                 <dependency>
                     <groupId>commons-fileupload</groupId>
