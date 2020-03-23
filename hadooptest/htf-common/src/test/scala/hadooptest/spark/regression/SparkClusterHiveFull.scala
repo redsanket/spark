@@ -72,7 +72,7 @@ object SparkClusterHiveFull {
     // ...
 
     // You can also use DataFrames to create temporary views within a HiveContext.
-    val recordsDF = spark.createDataFrame((1 to 100).map(i => (i, s"val_$i")))
+    val recordsDF = spark.createDataFrame((1 to 100).map(i => Record(i, s"val_$i")))
     recordsDF.createOrReplaceTempView("records")
 
     // Queries can then join DataFrame data with data stored in Hive.
