@@ -659,6 +659,29 @@
             <dependencies>
                 <dependency>
                     <groupId>system</groupId>
+                    <artifactId>system-woodstock-core</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>/homes/htf_mvn_deps/woodstox-core-5.0.3.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system-stax2-api</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>/homes/htf_mvn_deps/stax2-api-3.1.4.jar</systemPath>
+                </dependency>
+
+                <dependency>
+                    <groupId>system</groupId>
+                    <artifactId>system-commons-configuration2</artifactId>
+                    <version>0.9.2</version>
+                    <scope>system</scope>
+                    <systemPath>/homes/htf_mvn_deps/commons-configuration2-2.0.jar</systemPath>
+                </dependency>
+                <dependency>
+                    <groupId>system</groupId>
                     <artifactId>system-protobuf</artifactId>
                     <version>0.9.2</version>
                     <scope>system</scope>
