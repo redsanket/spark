@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 
 // Simple example of accessing Hive from Spark
 object SparkClusterHive {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit {
     val spark = SparkSession
       .builder
       .appName("Oozie Spark Cluster Hive")
