@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use DBI;
+# use DBI;
 use Data::Dumper;
 use FindBin qw($Bin $Script);
 use Getopt::Long;
@@ -49,7 +49,7 @@ sub get_dbh {
 sub get_sth {
     my ($command) = @_;
     note("$command");
-    $dbh = get_dbh();
+    # $dbh = get_dbh();
     my $sql = qq/$command/;         # the query to execute
     my $sth = $dbh->prepare($sql);  # prepare the query statement handle
     return $sth;
