@@ -512,6 +512,8 @@ public class SparkRunSparkSubmit extends App {
         }
 
         cmd.add("--conf");
+        cmd.add("spark.security.credentials.kafka.enabled=false");
+        cmd.add("--conf");
         cmd.add("spark.executorEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
         cmd.add("--conf");
         cmd.add("spark.yarn.appMasterEnv.JAVA_HOME=" + HadooptestConstants.Location.JDK64);
