@@ -10,7 +10,7 @@ object SparkClusterHiveFull {
   case class Record(key: Int, value: String)
   // $example off:spark_hive$
 
-  def main(args: Array[String]): Unit {
+  def main(args: Array[String]): Unit = {
     // When working with Hive, one must instantiate `SparkSession` with Hive support, including
     // connectivity to a persistent Hive metastore, support for Hive serdes, and Hive user-defined
     // functions. Users who do not have an existing Hive deployment can still enable Hive support.
