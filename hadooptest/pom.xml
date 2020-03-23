@@ -393,6 +393,7 @@
 		<dependency>
                     <groupId>org.apache.spark</groupId>
 		    <artifactId>spark-avro_${spark.scala.version}</artifactId>
+                    <version>3.0.0-preview2</version>
 		    <scope>provided<scope>
 		</dependency>
                 <!-- HBase Client -->
