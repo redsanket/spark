@@ -20,11 +20,6 @@ object SparkClusterHiveFull {
     // application is started.
 
     // $example on:spark_hive$
-    if (args.length < 2) {
-      System.err.println("Usage: SparkClusterHiveFull <dataFile>")
-      System.exit(1)
-    }
-
     val spark = SparkSession
       .builder()
       .appName("Spark Hive Example")
@@ -34,7 +29,7 @@ object SparkClusterHiveFull {
     import spark.implicits._
     import spark.sql
 
-    sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING)")
+    sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
     sql("LOAD DATA INPATH " + args(0) + " INTO TABLE src")
 
     // Queries are expressed in HiveQL
