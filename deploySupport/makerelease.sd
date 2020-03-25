@@ -28,7 +28,7 @@ DIST_TAG="/home/y/bin/dist_tag"
 
 mkdir $TMP_DIR
 set -x
-CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
+CERTIFIED_TAG=${CERTIFIED_TAG:="deploy_hadoop_latest_certified_release"}
 packages=${packages:="hadoop conf hadoop_mvn_tools"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod,rdg.clusters.prod"}
