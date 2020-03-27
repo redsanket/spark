@@ -11,7 +11,7 @@ from pyspark.sql import SQLContext
 #
 # exmaple spark-submit command to run this:
 #
-# $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --jars /homes/tgraves/spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar,/home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-2.04.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar,/homes/tgraves/hbase/libexec/hbase/conf/hbase-site.xml ~/hbaseread.py
+# $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --jars /homes/tgraves/spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar,/home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-2.04.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar,/home/gs/hbase/current/lib//metrics-core-2.2.0.jar --files $SPARK_CONF_DIR/hbase-site.xml ~/hbaseread.py
 
 
 sc = SparkContext()
@@ -22,6 +22,7 @@ conf = {"hbase.zookeeper.quorum": "reluxred-hb-zk0.red.ygrid.yahoo.com,reluxred-
         "zookeeper.znode.parent": "/hbase/reluxred-hb1",
         "hbase.zookeeper.property.clientPort": "50512",
         "hbase.security.authentication": "kerberos",
+        "hbase.regionserver.kerberos.principal": "hbase/_HOST@YGRID.YAHOO.COM",
 }
 rdd = sc.newAPIHadoopRDD("org.apache.hadoop.hbase.mapreduce.TableInputFormat",
                           "org.apache.hadoop.hbase.io.ImmutableBytesWritable",
