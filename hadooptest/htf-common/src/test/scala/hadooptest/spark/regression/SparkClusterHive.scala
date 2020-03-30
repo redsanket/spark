@@ -18,3 +18,4 @@ object SparkClusterHive {
     spark.stop()
   }
 }
+

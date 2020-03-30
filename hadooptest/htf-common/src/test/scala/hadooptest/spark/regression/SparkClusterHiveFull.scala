@@ -26,8 +26,8 @@ object SparkClusterHiveFull {
       .enableHiveSupport()
       .getOrCreate()
 
-    //import spark.implicits._
     import spark.sql
+    import spark.implicits._
 
     sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
     sql("LOAD DATA INPATH " + args(0) + " INTO TABLE src")
