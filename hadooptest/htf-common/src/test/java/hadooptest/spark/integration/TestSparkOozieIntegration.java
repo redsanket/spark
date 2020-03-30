@@ -156,28 +156,6 @@ public class TestSparkOozieIntegration extends TestSession {
     }
 
     @Test
-    public void runOozieSparkPiPython27() throws Exception {
-        String appName = "oozieSparkPiPython27";
-        copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
-        OozieJobProperties jobProps = new OozieJobProperties(
-                jobTrackerURL
-                ,nameNodeURL
-                ,"spark_latest"
-                ,"yarn"
-                ,"cluster"
-                ,appName
-                ,"pi.py"
-                ,"pi.py"
-                ,"--queue default --conf spark.yarn.pythonZip=hdfs:///sharelib/v1/python27/python27.tgz"
-                ,"1"
-                ,false
-        );
-
-        boolean jobSuccessful = runOozieJobAndGetResult(jobProps);
-        assertTrue("Running " + jobProps.appName + " failed running through oozie!", jobSuccessful);
-    }
-
-    @Test
     public void runOozieSparkPiPythonApacheConfigs() throws Exception {
         String appName = "oozieSparkPiPythonApacheConfigs";
         copyFileToHDFS("pi.py", null, ResourceType.AppLib, appName);
