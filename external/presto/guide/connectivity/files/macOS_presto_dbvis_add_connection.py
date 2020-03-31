@@ -8,17 +8,16 @@ from collections import OrderedDict
 
 clusterdetails = {
     "XB": ("XandarBlue", "xandarblue-presto.blue.ygrid.yahoo.com"),
-    "XT": ("XandarBlue", "xandartan-presto.tan.ygrid.yahoo.com")
+    "XT": ("XandarTan", "xandartan-presto.tan.ygrid.yahoo.com")
 }
 
 if len(sys.argv) < 3:
-    print """Please provide a valid cluster short name as an argument to the script.
+    print("""Please provide a valid cluster short name as an argument to the script.
     Syntax: python macOS_presto_dbvis_add_connection.py <cluster short name> <catalog name> [<schema name>]
 	Eg: python macOS_presto_dbvis_add_connection.py XB jetblue benzene
 	Schema name is an optional argument
 	Valid cluster short names are {}
-	Refer https://git.ouroath.com/pages/hadoop/docs/presto/deployment.html#ygrid""".format(
-        clusterdetails.keys())
+	Refer https://git.ouroath.com/pages/hadoop/docs/presto/deployment.html#ygrid""".format(clusterdetails.keys()))
     exit(0)
 
 def yes_or_no(question):
@@ -102,6 +101,7 @@ if cluster in clusterdetails:
             [i.strip() for i in item.split("=")] for item in url_properties.split("\n"))
 
         if maxDatabaseId is None:
+            maxDatabaseId = 0
             for object in root.iter("Objects"):
                 for databaseId in object.findall("Database"):
                     maxDatabaseId = max(maxDatabaseId, int(databaseId.get("id")))
@@ -129,7 +129,7 @@ if cluster in clusterdetails:
     tree.write("{}/.dbvis/config70/dbvis.xml".format(userdir))
 
 else:
-    print """Invalid argument.
+    print("""Invalid argument.
 	Valid cluster short names are {}
 	Refer https://git.ouroath.com/pages/hadoop/docs/presto/deployment.html#ygrid
-	""".format(clusterdetails.keys())
+	""".format(clusterdetails.keys()))

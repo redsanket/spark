@@ -27,13 +27,13 @@ clusterdetails = {
 }
 
 if len(sys.argv) < 2:
-    print """Please provide a valid cluster short name  as an argument to the script.
+    print("""Please provide a valid cluster short name  as an argument to the script.
     Syntax: python macOS_hive_odbc_add_DSN.py <cluster short name> [<schema/database name>]
 	Eg: python macOS_hive_odbc_add_DSN.py JB benzene
 	Schema/Database name is an optional argument
 	Valid cluster short names are {}
 	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(
-        clusterdetails.keys())
+        clusterdetails.keys()))
     exit(0)
 
 odbc_data_source = "HS2 {} mTLS"
@@ -105,6 +105,6 @@ if cluster in clusterdetails:
         configfile.close()
 
 else:
-    print """Invalid argument.
+    print("""Invalid argument.
 	Valid cluster short names are {}
-	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(clusterdetails.keys())
+	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(clusterdetails.keys()))

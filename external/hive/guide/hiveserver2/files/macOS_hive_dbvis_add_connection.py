@@ -28,13 +28,13 @@ clusterdetails = {
 }
 
 if len(sys.argv) < 2:
-    print """Please provide a valid cluster short name as an argument to the script.
+    print("""Please provide a valid cluster short name as an argument to the script.
     Syntax: python macOS_hive_dbvis_add_connection.py <cluster short name> [<schema/database name>]
 	Eg: python macOS_hive_dbvis_add_connection.py JB benzene
 	Schema/Database name is an optional argument
 	Valid cluster short names are {}
 	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(
-        clusterdetails.keys())
+        clusterdetails.keys()))
     exit(0)
 
 def yes_or_no(question):
@@ -81,6 +81,7 @@ if cluster in clusterdetails:
                     exit(0)
 
         if maxDatabaseId is None:
+            maxDatabaseId = 0
             for object in root.iter("Objects"):
                 for databaseId in object.findall("Database"):
                     maxDatabaseId = max(maxDatabaseId, int(databaseId.get("id")))
@@ -103,6 +104,6 @@ if cluster in clusterdetails:
     tree.write("{}/.dbvis/config70/dbvis.xml".format(userdir))
 
 else:
-    print """Invalid argument.
+    print("""Invalid argument.
 	Valid cluster short names are {}
-	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(clusterdetails.keys())
+	Refer https://git.ouroath.com/pages/hadoop/docs/hive/hiveserver2/index.html#hiveserver2-servers""".format(clusterdetails.keys()))
