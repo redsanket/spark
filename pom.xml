@@ -36,6 +36,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-avro_${spark.scala.version}</artifactId>
+            <version>${spark.version.full}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
             <version>${scala.version}</version>
@@ -132,7 +138,7 @@
                             <artifactId>shc-core</artifactId>
                             <version>1.0</version>
                             <packaging>jar</packaging>
-                            <file>${basedir}/lib/shc-core-1.1.1-2.0-s_2.11-SNAPSHOT.jar</file>
+                            <file>${basedir}/lib/shc-core-1.1.2-2.4-s_2.11-SNAPSHOT.jar</file>
                         </configuration>
                     </execution>
                 </executions>
