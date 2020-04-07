@@ -36,12 +36,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-avro_${spark.scala.version}</artifactId>
-            <version>${spark.version.full}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
             <version>${scala.version}</version>
