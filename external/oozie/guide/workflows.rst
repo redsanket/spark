@@ -623,7 +623,7 @@ body, and the sender's address.
 
    <action name="email_notification" cred="">
      <email xmlns="uri:oozie:email-action:0.1">
-       <to>someyahoo@yahoo-inc.com</to>
+       <to>someyahoo@verizonmedia.com</to>
        <subject>Oozie Workflow Example</subject>
        <body>This is a sample email</body>
      </email>
