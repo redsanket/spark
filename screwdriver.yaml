@@ -1,7 +1,7 @@
 version: 4
 shared:
   settings:
-    email: 
+    email: champaign-hadoop-qe-team@verizonmedia.com
 
 jobs:
   component:
