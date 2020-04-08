@@ -150,11 +150,11 @@ st=$?
 kinit -k -t /homes/hdfsqa/hdfsqa.dev.headless.keytab hdfsqa
 
 cmd="$HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_R32; \
-     $HADOOP fs -put /home/y/share/yspark_yarn_R32/yspark_yarn_R32-*.tgz /sharelib/v1/yspark_yarn_R32/yspark_yarn_R32.tgz; \
+     $HADOOP fs -put -f /home/y/share/yspark_yarn_R32/yspark_yarn_R32-*.tgz /sharelib/v1/yspark_yarn_R32/yspark_yarn_R32.tgz; \
      $HADOOP fs -mkdir -p /sharelib/v1/python36; \
-     $HADOOP fs -put /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz; \
+     $HADOOP fs -put -f /home/y/share/python36_grid/python_build_python3.6.tgz /sharelib/v1/python36/python36.tgz; \
      $HADOOP fs -mkdir -p /sharelib/v1/python27; \
-     $HADOOP fs -put /home/y/share/python27_grid/python_build_python2.7.tgz /sharelib/v1/python27/python27.tgz;"
+     $HADOOP fs -put -f /home/y/share/python27_grid/python_build_python2.7.tgz /sharelib/v1/python27/python27.tgz;"
 
 echo "$cmd"
 eval "$cmd"
@@ -171,19 +171,19 @@ do
     # convert the label to lowercase to match the directory
     label=$(echo $label | tr '[:upper:]' '[:lower:]')
 
-    spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
+    spark_install_jars_cmds="$HADOOP fs -put -f /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
+    $HADOOP fs -put -f /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
     
     if [[ $version == "2."* ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/ /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/ ; \
-      $HADOOP fs -put /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/"
+      $HADOOP fs -put -f /home/gs/spark/$label/lib/ /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/ ; \
+      $HADOOP fs -put -f /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/"
     else
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/datanucleus-api-jdo.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/datanucleus-core.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
-      $HADOOP fs -put /home/gs/spark/$label/lib/datanucleus-rdbms.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/"
+      $HADOOP fs -put -f /home/gs/spark/$label/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
+      $HADOOP fs -put -f /home/gs/spark/$label/lib/datanucleus-api-jdo.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
+      $HADOOP fs -put -f /home/gs/spark/$label/lib/datanucleus-core.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/ ; \
+      $HADOOP fs -put -f /home/gs/spark/$label/lib/datanucleus-rdbms.jar /sharelib/v1/spark/yspark_yarn-$version/share/spark/lib/"
     fi
 
     echo "INFO: Copying yspark_yarn-$version jars to hdfs://sharelib/v1/yspark_yarn/"
@@ -208,7 +208,7 @@ do
     echo "INFO: Copying yspark_yarn-$version conf to hdfs://sharelib/v1/spark_conf/"
     cmd="echo Creating hdfs://sharelib/v1/spark_conf/yspark_yarn_conf-$version/ ; \
     $HADOOP fs -mkdir -p /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/ ; \
-    $HADOOP fs -put /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/"
+    $HADOOP fs -put -f /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/"
 
     echo "$cmd"
     eval "$cmd"
