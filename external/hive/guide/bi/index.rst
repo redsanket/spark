@@ -147,7 +147,7 @@ version matches the version of the MicroStrategy Server.
 Requesting a Service Engineer (SE) to Set Up the MicroStrategy Server
 ---------------------------------------------------------------------
 
-Write to mstr-admin@yahoo-inc.com to get the MicroStrategy Server license and software.
+Write to mstr-admin@verizonmedia.com to get the MicroStrategy Server license and software.
 The MicroStrategy Admininstration team will ask you for information about your request and 
 then give you instructions as to the next steps after they have set up the MicroStrategy 
 Server.
@@ -449,7 +449,7 @@ Kerberos.
 Install/Configure the MicroStrategy Server
 ------------------------------------------
 
-- Request MicroStrategy Server from mstr-admin@yahoo-inc.com. (You'll need to know what version to install).
+- Request MicroStrategy Server from mstr-admin@verizonmedia.com. (You'll need to know what version to install).
 - Modify the MicroStrategy Server ``odbc.ini`` to include the definition for the ODBC driver. 
   This entry should be as specified in the ``odbc.ini``.  Please use the respective 
   ``HOST`` names for the appropriate grid.
@@ -1296,7 +1296,7 @@ and ``<principal>`` being the  HiveServer2 principal.
 
 .. note:: If you are using Tableau or MicroStrategy, you do not need to create a custom client with 
           JDBC. If you are unsure if you need to create a custom client with JDBC, ask Hive users 
-          on the iList yahoo-hive-dev@yahoo-inc.com.
+          on the iList yahoo-hive-dev@verizonmedia.com.
 
 JDBC Requirements
 -----------------
