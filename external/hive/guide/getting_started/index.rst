@@ -114,9 +114,9 @@ Create a User Account
 
 #. Subscribe to the following iLists: 
 
-   - ygrid-sandbox-announce@yahoo-inc.com
-   - ygrid-research-announce@yahoo-inc.com
-   - ygrid-production-announce@yahoo-inc.com
+   - ygrid-sandbox-announce@verizonmedia.com
+   - ygrid-research-announce@verizonmedia.com
+   - ygrid-production-announce@verizonmedia.com
 #. Go to the `Grid Services Request Forms <http://adm005.ygrid.corp.bf1.yahoo.com:9999/grid_forms/main.php>`_.
 #. Select the **User Account** tab.
 #. Fill out the form with the following information:
