@@ -1,7 +1,6 @@
 package com.yahoo.spark.starter
 
 import org.apache.spark.sql.{SparkSession, DataFrame}
-import org.apache.spark.sql.avro._
 
 object SparkAvroExample {
 	def main(args: Array[String]) {
