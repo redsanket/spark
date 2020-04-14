@@ -25,6 +25,40 @@ YGRID
 +------+-------------+-----------+-----------------------------------------------------------+---------------+
 | colo | environment | shortname | Presto Cluster CLI and JDBC URLs                          | Hive Catalogs |
 +======+=============+===========+===========================================================+===============+
+| gq1  | staging     | YB        | https://yodablue-presto.blue.ygrid.yahoo.com:4443         | axoniteblue   |
+|      |             |           |                                                           |               |
+|      |             |           | jdbc:presto://yodablue-presto.blue.ygrid.yahoo.com:4443   | jetblue       |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | uraniumblue   |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | oxiumblue     |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | bassniumblue  |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | phazonblue    |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | dilithiumblue |
++------+-------------+-----------+-----------------------------------------------------------+---------------+
+| ne1  | staging     | YT        | https://yodatan-presto.tan.ygrid.yahoo.com:4443           | tiberiumtan   |
+|      |             |           |                                                           |               |
+|      |             |           | jdbc:presto://yodatan-presto.tan.ygrid.yahoo.com:4443     | uraniumtan    |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | zaniumtan     |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | bassniumtan   |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | phazontan     |
++------+-------------+-----------+-----------------------------------------------------------+---------------+
+| bf1  | staging     | YR        | https://yodared-presto.red.ygrid.yahoo.com:4443           | axonitered    |
+|      |             |           |                                                           |               |
+|      |             |           | jdbc:presto://yodared-presto.red.ygrid.yahoo.com:4443     | mithrilred    |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | dilithiumred  |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | bassniumred   |
+|      |             |           |                                                           |               |
+|      |             |           |                                                           | phazonred     |
++------+-------------+-----------+-----------------------------------------------------------+---------------+
 | gq1  | production  | XB        | https://xandarblue-presto.blue.ygrid.yahoo.com:4443       | jetblue       |
 |      |             |           |                                                           |               |
 |      |             |           | jdbc:presto://xandarblue-presto.blue.ygrid.yahoo.com:4443 | uraniumblue   |
@@ -52,22 +86,34 @@ YGRID
 
 VCG
 ***
-+------+-------------+-----------+---------------------------------------------------+---------------+
-| colo | environment | shortname | Presto Cluster CLI and JDBC URLs                  | Hive Catalogs |
-+======+=============+===========+===================================================+===============+
-| gq2  | staging     | HGQ       | https://hothgq-presto.gq.vcg.yahoo.com:4443       | kessel        |
-|      |             |           |                                                   |               |
-|      |             |           | jdbc:presto://hothgq-presto.gq.vcg.yahoo.com:4443 | polaris       |
-+------+-------------+-----------+---------------------------------------------------+---------------+
-| gq2  | production  | LGQ       | https://legogq-presto.gq.vcg.yahoo.com:4443       | kessel        |
-|      |             |           |                                                   |               |
-|      |             |           | jdbc:presto://legogq-presto.gq.vcg.yahoo.com:4443 | polaris       |
-+------+-------------+-----------+---------------------------------------------------+---------------+
 
-If you are accessing the above VCG clusters directly from Verizon network instead of VMG (Verizon Media) network,
-please use the following URLs
+If you are accessing the VCG clusters directly from Verizon network instead of VMG (Verizon Media) network,
+please use the Verizon specific URLs (-dhd) as the connection has to be routed through ATS proxies.
 
-  - https://hothgq-presto-dhd.gq.vcg.yahoo.com:4443
-    jdbc:presto://hothgq-presto-dhd.gq.vcg.yahoo.com:4443
-  - https://legogq-presto-dhd.gq.vcg.yahoo.com:4443
-    jdbc:presto://legogq-presto-dhd.gq.vcg.yahoo.com:4443
++------+-------------+-----------+-------------------------------------------------------+---------------+
+| colo | environment | shortname | Presto Cluster CLI and JDBC URLs                      | Hive Catalogs |
++======+=============+===========+=======================================================+===============+
+| gq2  | staging     | HGQ       | From VMG:                                             | kessel        |
+|      |             |           |                                                       |               |
+|      |             |           | https://hothgq-presto.gq.vcg.yahoo.com:4443           | polaris       |
+|      |             |           |                                                       |               |
+|      |             |           | jdbc:presto://hothgq-presto.gq.vcg.yahoo.com:4443     |               |
+|      |             |           |                                                       |               |
+|      |             |           | From Verizon:                                         |               |
+|      |             |           |                                                       |               |
+|      |             |           | https://hothgq-presto-dhd.gq.vcg.yahoo.com:4443       |               |
+|      |             |           |                                                       |               |
+|      |             |           | jdbc:presto://hothgq-presto-dhd.gq.vcg.yahoo.com:4443 |               |
++------+-------------+-----------+-------------------------------------------------------+---------------+
+| gq2  | production  | LGQ       | From VMG:                                             | kessel        |
+|      |             |           |                                                       |               |
+|      |             |           | https://legogq-presto.gq.vcg.yahoo.com:4443           | polaris       |
+|      |             |           |                                                       |               |
+|      |             |           | jdbc:presto://legogq-presto.gq.vcg.yahoo.com:4443     |               |
+|      |             |           |                                                       |               |
+|      |             |           | From Verizon:                                         |               |
+|      |             |           |                                                       |               |
+|      |             |           | https://legogq-presto-dhd.gq.vcg.yahoo.com:4443       |               |
+|      |             |           |                                                       |               |
+|      |             |           | jdbc:presto://legogq-presto-dhd.gq.vcg.yahoo.com:4443 |               |
++------+-------------+-----------+-------------------------------------------------------+---------------+

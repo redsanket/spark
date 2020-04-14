@@ -51,19 +51,52 @@ plan to change this in the near future till we work on more performance fine tun
 To circumvent the problem of inaccurate metrics, our solution is to run experiments on the staging cluster
 of the same colo with fixed size resource groups to better determine the resources needed by the project.
 The Presto node specification is 384GB RAM and we run the process with 200GB heap size.
-Rest of the memory is utilized for Presto JVM non-heap memory (30-40GB), page cache, etc.
+Rest of the memory is utilized for Presto JVM non-heap memory (30-40GB), page cache, buffers, etc.
 Currently the minimum size we provision for a resource group is 10 nodes.
 The capacity of that would be 2TB (10*200GB = 2048 GB).
 
 To estimate capacity:
 
 - Run :doc:`Presto CLI from gateway or launcher <connectivity/cli>` with ``--client-tags`` option specifying name of the resource group.
-  For the staging cluster ``Hoth`` in VCG, the valid values are ``10nodes``, ``15nodes``, ``20nodes`` and ``30nodes``.
-  For eg:
+  For example:
 
   .. code-block:: text
 
      presto --client-tags 10nodes
+     
+   
+  Valid values for resource groups for each staging cluster are as below.
+
+  +--------+------+-----------------+-----------------+-----------------+
+  | Domain | Colo | Staging Cluster | Resource Groups | Max Concurrency |
+  +========+======+=================+=================+=================+
+  | YGRID  | gq1  | Yoda Blue       | 10nodes         | 20              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 20nodes         |                 |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 30nodes         |                 |
+  +--------+------+-----------------+-----------------+-----------------+
+  | YGRID  | ne1  | Yoda Tan        | 10nodes         | 20              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 20nodes         |                 |
+  +--------+------+-----------------+-----------------+-----------------+
+  | YGRID  | bf1  | Yoda Red        | 10nodes         | 20              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 20nodes         |                 |
+  +--------+------+-----------------+-----------------+-----------------+
+  | VCG    | gq2  | Hoth GQ         | 10nodes         | 10              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 15nodes         | 15              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 20nodes         | 20              |
+  |        |      |                 |                 |                 |
+  |        |      |                 | 30nodes         | 20              |
+  +--------+------+-----------------+-----------------+-----------------+
+
+  Some staging clusters are small (40 nodes) and only have *10nodes* and *20nodes* resource groups
+  with rest set aside for the *default* resource group.
+  If you have larger capacity requirements than what is available to test,
+  please file a support request in http://yo/prestosupport.
 
 - Run some of your largest queries to check for performance.
   If data volumes are large and queries are complex, switch to a larger queue.
