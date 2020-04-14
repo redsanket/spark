@@ -42,7 +42,7 @@ Yahoo Configurations for Oozie
 Oozie Servers on Clusters
 -------------------------
 
-.. list-table:: YGRID Oozie Clusters
+.. list-table:: **YGRID Oozie Clusters**
    :widths: 15, 30
    :header-rows: 1 
 
@@ -71,6 +71,8 @@ Oozie Servers on Clusters
      - ``https://oxiumblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
    * - Phazon Blue
      - ``https://phazonblue-oozie.blue.ygrid.yahoo.com:4443/oozie/``
+   * - Phazon Red
+     - ``https://phazonred-oozie.red.ygrid.yahoo.com:4443/oozie/``
    * - Phazon Tan
      - ``https://phazontan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
    * - Tiberium Tan
@@ -83,7 +85,7 @@ Oozie Servers on Clusters
      - ``https://zaniumtan-oozie.tan.ygrid.yahoo.com:4443/oozie/``
 
 
-.. list-table:: VCG Oozie Clusters
+.. list-table:: **VCG Oozie Clusters**
    :widths: 15, 30
    :header-rows: 1
 
@@ -94,6 +96,16 @@ Oozie Servers on Clusters
      - ``https://kesselgq-oozie.gq.vcg.yahoo.com:4443/oozie/``
    * - Polaris
      - ``https://polarisgq-oozie.gq.vcg.yahoo.com:4443/oozie/``
+
+.. list-table:: **RDG Oozie Clusters**
+   :widths: 15, 30
+   :header-rows: 1
+
+
+   * - Grid Cluster
+     - Oozie Server URL
+   * - Themis
+     - ``https://themisgq-oozie.gq.rdg.yahoo.com:4443/oozie/``
 
 Expression Language (EL) Functions
 ----------------------------------
