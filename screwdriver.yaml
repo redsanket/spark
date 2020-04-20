@@ -10,7 +10,8 @@ parameters:
     CERTIFIED_TAG: "deploy_hadoop_latest_certified_release"
     CLUSTERS: "all"
     CLUSTERS_TO_PROMOTE: "axonitered"
-    COMPONENTS: "hadoop-2.8"
+    UPLOAD_ARTIFACTORY: "true"
+    UPDATE_RELEASE: "true"
 
 jobs:
     pull_request:
@@ -40,8 +41,8 @@ jobs:
         steps:
           - restore_yidfs: echo "Disabled"
           - junit: echo "Disabled"
-          - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value), echo COMPONENTS: $(meta get parameters.COMPONENTS.value)"'
-          - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), echo CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value)"'
+          - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value), echo UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
+          - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), echo CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), echo UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
           - build: yinst i perl_ykeykey-2.0.5;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
           - regression: echo "DISABLED"
           - package: echo "Disabled"

@@ -32,15 +32,17 @@ CERTIFIED_TAG=${CERTIFIED_TAG:="deploy_hadoop_latest_certified_release"}
 packages=${packages:="hadoop conf hadoop_mvn_tools"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod,rdg.clusters.prod"}
-CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
-COMPONENTS=${COMPONENTS:='hadoop'}
+CLUSTERS_TO_PROMOTE=$(meta get parameters.CLUSTERS_TO_PROMOTE.value)
+UPLOAD_ARTIFACTORY=$(meta get parameters.UPLOAD_ARTIFACTORY.value)
+UPDATE_RELEASE=$(meta get parameters.UPDATE_RELEASE.value)
+echo "CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value)"
+echo "UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"
+echo "UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"
 CLEANUP=${CLEANUP:="false"}
-UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
 set +x
 
 REL_GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
-UPDATE_RELEASE=${UPDATE_RELEASE:="true"}
 
 release_dir="${SOURCE_DIR}/grid/0/releases"
 
