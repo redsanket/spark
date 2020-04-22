@@ -1,0 +1,90 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkHdfsLrOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkHdfsLrClusterMode' />
+
+    <action name='SparkHdfsLrClusterMode'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>spark_latest</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkHdfsLrClusterMode</name>
+            <class>com.yahoo.spark.starter.SparkHdfsLR</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--driver-memory 4g --num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/apps/lib/lr_data.txt</arg>
+            <arg>100</arg>
+        </spark>
+        <ok to="SparkHdfsLrClientMode" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkHdfsLrClientMode'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.launcher.mapreduce.map.memory.mb</name>
+                    <value>4096</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.map.java.opts</name>
+                    <value>-Xmx4g</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.map.java.opts</name>
+                    <value>-XX:MaxPermSize=1g</value>
+                </property>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>spark_latest</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>client</mode>
+            <name>SparkHdfsLrClientMode</name>
+            <class>com.yahoo.spark.starter.SparkHdfsLR</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/apps/lib/lr_data.txt</arg>
+            <arg>100</arg>
+        </spark>
+        <ok to="SparkHdfsLRTestNonexistHdfsFile" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkHdfsLRTestNonexistHdfsFile'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>spark_latest</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkHdfsLRTestNonexistHdfsFile</name>
+            <class>com.yahoo.spark.starter.SparkHdfsLR</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>bogusnonexistentfile.txt</arg>
+            <arg>100</arg>
+        </spark>
+        <ok to="fail" />
+        <error to="end" />
+    </action> 
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>
