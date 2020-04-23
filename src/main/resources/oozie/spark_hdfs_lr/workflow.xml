@@ -20,7 +20,7 @@
             <class>com.yahoo.spark.starter.SparkHdfsLR</class>
             <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
             <spark-opts>--driver-memory 4g --num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
-            <arg>${wfRoot}/apps/lib/lr_data.txt</arg>
+            <arg>${wfRoot}/apps/spark/lr_data.txt</arg>
             <arg>100</arg>
         </spark>
         <ok to="SparkHdfsLrClientMode" />
@@ -53,7 +53,7 @@
             <class>com.yahoo.spark.starter.SparkHdfsLR</class>
             <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
             <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
-            <arg>${wfRoot}/apps/lib/lr_data.txt</arg>
+            <arg>${wfRoot}/apps/spark/lr_data.txt</arg>
             <arg>100</arg>
         </spark>
         <ok to="SparkHdfsLRTestNonexistHdfsFile" />
@@ -79,7 +79,7 @@
         </spark>
         <ok to="fail" />
         <error to="end" />
-    </action> 
+    </action>
 
     <kill name="fail">
         <message>Workflow failed, error

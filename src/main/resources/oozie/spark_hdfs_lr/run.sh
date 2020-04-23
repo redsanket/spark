@@ -9,7 +9,7 @@ hdfs dfs -mkdir -p $wfRoot/apps/spark
 
 hdfs dfs -put ./workflow.xml $wfRoot/apps/spark/
 hdfs dfs -put ../../../../../target/spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar $wfRoot/apps/lib/
-hdfs dfs -put ../../data/lr_data.txt $wfRoot/apps/lib/
+hdfs dfs -put ../../data/lr_data.txt $wfRoot/apps/spark/
 
 echo "Finish setup hdfs directory"
 
