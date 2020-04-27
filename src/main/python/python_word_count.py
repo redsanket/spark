@@ -15,6 +15,13 @@ if __name__ == "__main__":
         .appName("Python Word Count")\
         .getOrCreate()
 
+    # Add log messages to spark using the same log4j logger.
+    # Note: This pattern works only for the driver.
+    jvmLogger = spark.sparkContext._jvm.org.apache.log4j
+    logger = jvmLogger.LogManager.getLogger('SparkStarter')
+    logger.info('Input : ' + sys.argv[1])
+    logger.info('Input : ' + sys.argv[2])
+
     lines = spark.read.text(sys.argv[1]).rdd.map(lambda r: r[0])
     counts = lines.flatMap(lambda x: x.split(' ')) \
                   .map(lambda x: (x, 1)) \
