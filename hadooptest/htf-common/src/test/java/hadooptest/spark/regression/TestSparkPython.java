@@ -86,11 +86,11 @@ public class TestSparkPython extends TestSession {
         appUserDefault.start();
 
         assertTrue("app (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
+            appUserDefault.waitForID(120));
         assertTrue("app ID for sleep app (default user) is invalid.",
             appUserDefault.verifyID());
 
-        int waitTime = 30;
+        int waitTime = 120;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
 
@@ -125,11 +125,11 @@ public class TestSparkPython extends TestSession {
         appUserDefault.start();
 
         assertTrue("app (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
+            appUserDefault.waitForID(120));
         assertTrue("app ID for sleep app (default user) is invalid.",
             appUserDefault.verifyID());
 
-        int waitTime = 30;
+        int waitTime = 120;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
     }
@@ -164,11 +164,11 @@ public class TestSparkPython extends TestSession {
         appUserDefault.start();
 
         assertTrue("app (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
+            appUserDefault.waitForID(120));
         assertTrue("app ID for sleep app (default user) is invalid.",
             appUserDefault.verifyID());
 
-        int waitTime = 30;
+        int waitTime = 120;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
     }
@@ -203,11 +203,11 @@ public class TestSparkPython extends TestSession {
         appUserDefault.start();
 
         assertTrue("app (default user) was not assigned an ID within 30 seconds.",
-            appUserDefault.waitForID(30));
+            appUserDefault.waitForID(1200));
         assertTrue("app ID for sleep app (default user) is invalid.",
             appUserDefault.verifyID());
 
-        int waitTime = 30;
+        int waitTime = 120;
         assertTrue("App (default user) did not succeed.",
             appUserDefault.waitForSuccess(waitTime));
     }
