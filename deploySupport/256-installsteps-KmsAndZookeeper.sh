@@ -89,7 +89,7 @@ fi
 # conflicting deps on this pkg 
 set -x
 # temp hack - install oracle jdk to get around with KMS issue - YHADOOP-3135
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-1.8.0_181.295 -downgrade \""
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade \""
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
 RC=$?
 set +x
