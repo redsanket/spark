@@ -261,7 +261,7 @@ if [[ "$UPDATE_RELEASE" == "true" ]]; then
   # Upload new bundle file to hadoop_releases repo and update clusters.yaml
   # Update the clusters yaml file. Use update_clusters_ext to prevent single quotes in clusters.yaml
   git config --global push.default matching
-  sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+  sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels $CLUSTERS_TO_PROMOTE
   # Call to update clusters.yaml is from insert_bundle_yaml
   # Update the clusters yaml file. Use update_clusters_yaml to prevent single quotes in clusters.yaml
   # sh -x $SCRIPT_DIR/update_clusters_ext -cluster $CLUSTERS_TO_PROMOTE -bundle hadoop_core -serial $BUNDLE_SERIAL -w
