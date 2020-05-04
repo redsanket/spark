@@ -24,8 +24,8 @@ git config --global push.default matching
 component=$1
 # E.g. `date -u +\%Y\%m\%d\%H\%M\%S`
 serial=$2
-
 labels=$3
+cluster=$4
 
 if [[ -z $component ]]; then
   echo "ERROR: Required component parameter is empty!!!"
@@ -37,9 +37,15 @@ if [[ -z $serial ]]; then
   exit 1
 fi
 
+if [[ -z $cluster ]]; then
+  echo "ERROR: Required cluster parameter is empty!!!"
+  exit 1
+fi
+
 echo "component='$component'"
 echo "serial='$serial'"
 echo "labels='$labels'"
+echo "cluster='$cluster'"
 
 #################################################################################
 # Clone git repo
@@ -58,8 +64,8 @@ set +x
 export TERM=xterm
 $GIT_DIR/scripts/insert_bundle -component $component -serial $serial -labels $labels -write
 if [ $? -eq 0 ]; then
-  sh -x $GIT_DIR/scripts/update_clusters_ext -cluster axonitered -bundle $component -serial $serial -w
+  sh -x $GIT_DIR/scripts/update_clusters_ext -cluster $cluster -bundle $component -serial $serial -w
 else
-  echo "FATAL! Unable to update clusters.yaml for -cluster axonitered -bundle $component -serial $serial !!!"
+  echo "FATAL! Unable to update clusters.yaml for -cluster $cluster -bundle $component -serial $serial !!!"
   exit 1
 fi

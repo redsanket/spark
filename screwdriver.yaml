@@ -1,3 +1,18 @@
+shared:
+    template: HadoopTools/gridci-6_10_3@latest
+    settings:
+      email: rchopde@verizonmedia.com
+    environment:
+      SKIP_VALIDATION: "true"
+
+parameters:
+    TEST_TAG: "HADOOP_2_8_0_LATEST"
+    CERTIFIED_TAG: "deploy_hadoop_latest_certified_release"
+    CLUSTERS: "all"
+    CLUSTERS_TO_PROMOTE: "axonitered"
+    UPLOAD_ARTIFACTORY: "true"
+    UPDATE_RELEASE: "true"
+
 jobs:
     pull_request:
         annotations:
@@ -18,6 +33,22 @@ jobs:
           - publish: echo "DISABLED"
           - git_tag: echo "DISABLED"
           - dist_tag: echo "DISABLED"
+    promote-cd-tag:
+        environment:
+          SKIP_VALIDATION: "true"
+          DIST_TAG: HADOOP_2_8_0_TEST
+        requires: [~commit]
+        steps:
+          - restore_yidfs: echo "Disabled"
+          - junit: echo "Disabled"
+          - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value), echo UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
+          - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), echo CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), echo UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
+          - build: yinst i perl_ykeykey-2.0.5;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
+          - regression: echo "DISABLED"
+          - package: echo "Disabled"
+          - publish: echo "Disabled"
+          - git_tag: echo "Disabled"
+          - dist_tag: echo "Disabled"
     gen_hadoop_release:
         annotations:
           screwdriver.cd/cpu: HIGH
@@ -27,7 +58,7 @@ jobs:
         environment:
           UPDATE_RELEASE: true
           DIST_TAG: HADOOP_2_8_0_TEST
-        requires: [~commit]
+        requires: [promote-cd-tag]
         steps:
           - build: gmake build; sh -x deploySupport/makerelease.sd
           - junit: echo "DISABLED"

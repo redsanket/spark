@@ -181,8 +181,8 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
     else
         echo "echo get latest ${DOCKER_IMAGE_TAG_TO_USE} image"
         echo "$yinst set -root ${yroothome} \\"
-        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=docker-registry.ops.yahoo.com:4443/hadoop-user-images/hadoop/${DOCKER_IMAGE_TAG_TO_USE} \\"
-        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=docker-registry.ops.yahoo.com:4443/hadoop-user-images/hadoop/${DOCKER_IMAGE_TAG_TO_USE}"
+        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_IMAGE_NAME=hadoop/${DOCKER_IMAGE_TAG_TO_USE}:current \\"
+        echo "    $confpkg.TODO_YARN_NODEMANAGER_RUNTIME_LINUX_DOCKER_ALLOWED_IMAGES=hadoop/${DOCKER_IMAGE_TAG_TO_USE}:current"
     fi
 
     # Hack to deal with split client/server configs. Currently QE does not

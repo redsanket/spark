@@ -28,19 +28,21 @@ DIST_TAG="/home/y/bin/dist_tag"
 
 mkdir $TMP_DIR
 set -x
-CERTIFIED_TAG=${CERTIFIED_TAG:="hadoop_2_8_latest_certified_release"}
+CERTIFIED_TAG=${CERTIFIED_TAG:="deploy_hadoop_latest_certified_release"}
 packages=${packages:="hadoop conf hadoop_mvn_tools"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod,rdg.clusters.prod"}
-CLUSTERS_TO_PROMOTE=${CLUSTERS_TO_PROMOTE:="axonitered"}
-COMPONENTS=${COMPONENTS:='hadoop'}
+CLUSTERS_TO_PROMOTE=$(meta get parameters.CLUSTERS_TO_PROMOTE.value)
+UPLOAD_ARTIFACTORY=$(meta get parameters.UPLOAD_ARTIFACTORY.value)
+UPDATE_RELEASE=$(meta get parameters.UPDATE_RELEASE.value)
+echo "CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value)"
+echo "UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"
+echo "UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"
 CLEANUP=${CLEANUP:="false"}
-UPLOAD_ARTIFACTORY=${UPLOAD_ARTIFACTORY:="true"}
 set +x
 
 REL_GIT_REPO="git@git.ouroath.com:GridSE/hadoop_releases.git"
 REL_MR_DIR="$TMP_DIR/hadoop_releases"
-UPDATE_RELEASE=${UPDATE_RELEASE:="true"}
 
 release_dir="${SOURCE_DIR}/grid/0/releases"
 
@@ -259,7 +261,7 @@ if [[ "$UPDATE_RELEASE" == "true" ]]; then
   # Upload new bundle file to hadoop_releases repo and update clusters.yaml
   # Update the clusters yaml file. Use update_clusters_ext to prevent single quotes in clusters.yaml
   git config --global push.default matching
-  sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels
+  sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels $CLUSTERS_TO_PROMOTE
   # Call to update clusters.yaml is from insert_bundle_yaml
   # Update the clusters yaml file. Use update_clusters_yaml to prevent single quotes in clusters.yaml
   # sh -x $SCRIPT_DIR/update_clusters_ext -cluster $CLUSTERS_TO_PROMOTE -bundle hadoop_core -serial $BUNDLE_SERIAL -w

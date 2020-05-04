@@ -88,8 +88,10 @@ fi
 # Note: the json-c hack is needed because zts-client, athens_utils and rdl_cpp have
 # conflicting deps on this pkg 
 set -x
-# temp hack - install oracle jdk to get around with KMS issue - YHADOOP-3135
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-1.8.0_181.295 -downgrade \""
+# this is a workaround for ykeyked issues mentioned in YHADOOP-3257
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"touch /dev/shm/.skip_ykeykey_restart \""
+# Installing jdk should no longer be needed. Check for few days then remove it.
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade \""
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
 RC=$?
 set +x
