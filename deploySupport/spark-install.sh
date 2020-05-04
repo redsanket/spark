@@ -165,8 +165,8 @@ do
     # convert the label to lowercase to match the directory
     label=$(echo $label | tr '[:upper:]' '[:lower:]')
 
-    spark_install_jars_cmds="$HADOOP fs -put /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
-    $HADOOP fs -put /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
+    spark_install_jars_cmds="$HADOOP fs -put -f /home/gs/spark/$label/python/lib/pyspark.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
+    $HADOOP fs -put -f /home/gs/spark/$label/python/lib/py4j-*-src.zip /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/"
 
     if [[ $version == "2."* || $version == "3."* ]]; then
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
