@@ -35,6 +35,8 @@ NEED_PKGS=
 if [[ -n "$NEED_PKGS" ]]; then
   echo "Installing $NEED_PKGS"
   set -x
+  # clean up Docker and dependent packages
+  sudo yum -y remove 'docker*' containers-common
   sudo yum -y --enablerepo=epel --enablerepo=non-core install $NEED_PKGS
   set +x
 fi
