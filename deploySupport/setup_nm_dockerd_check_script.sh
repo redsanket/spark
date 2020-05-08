@@ -48,39 +48,23 @@ function check_dockerd {
 # based on OS version and docker enable yinst setting, decide it we need
 # to start dockerd
 #
-if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
-  echo "INFO: OS is $OS_VER and Docker support is up to date and enabled, starting dockerd..."
+if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "fsimage" ]]; then
+  echo "INFO: OS is $OS_VER and runc support is up to date and enabled, ensuring packages are installed..."
 
-  echo "Verify we have latest Docker package on node $HOSTNAME"
-  set -x
-  yum install -y --enablerepo=latest* docker
-  RC=$?
-  set +x
-  if [ $RC -ne 0 ]; then
-    echo "ERROR: docker package update failed!"
-    exit 1
-  fi
-
-  check_dockerd
-  if [ $? -eq 0 ]; then
-    echo "dockerd is running ok on node $HOSTNAME"
-
-  else
-    echo "WARN: dockerd is not running, attempting to start it..."
+  # Install missing tools if necessary
+  # from setup_docker_hdfs.sh
+  NEED_PKGS=
+  [[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
+  [[ -z $(command -v mksquashfs) ]] && NEED_PKGS="$NEED_PKGS squashfs-tools"
+  [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
+  if [[ -n "$NEED_PKGS" ]]; then
+    echo "Installing $NEED_PKGS"
     set -x
-    systemctl start docker
-    sleep 5
+    # clean up Docker and dependent packages
+    sudo yum -y remove 'docker*' containers-common
+    sudo yum -y --enablerepo=epel --enablerepo=non-core install $NEED_PKGS
     set +x
-   
-    check_dockerd
-    if [ $? -eq 0 ]; then
-      echo "dockerd is now running ok on node $HOSTNAME"
-    else
-      echo "ERROR: dockered is still not running after start attempt on node $HOSTNAME !"
-      exit 1
-    fi
   fi
-
 elif [[ "$OS_VER" =~ "6." ]]; then
   echo "OS is $OS_VER, RHEL6 does not support Docker, not attempting dockerd start"
 

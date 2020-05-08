@@ -31,6 +31,10 @@ ssh  $jobtrackernode su - $MAPREDUSER
 fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
 slavefanout "sh /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
+# GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
+fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+slavefanout "sh /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
+
 # Install runc on all the nodemanagers that are not RHEL6
 slavefanout '[[ $(cut -d" " -f7 < /etc/redhat-release) =~ ^6. ]] || yum -y install runc'
 
