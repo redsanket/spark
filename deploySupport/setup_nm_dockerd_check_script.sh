@@ -53,17 +53,17 @@ if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "fsimage" ]]; then
 
   # Install missing tools if necessary
   # from setup_docker_hdfs.sh
+
+  # clean up Docker and dependent packages
+  sudo yum -y remove 'docker*' containers-common
+
   NEED_PKGS=
   [[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
   # not strictly necessary but useful
   [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
   if [[ -n "$NEED_PKGS" ]]; then
     echo "Installing $NEED_PKGS"
-    set -x
-    # clean up Docker and dependent packages
-    sudo yum -y remove 'docker*' containers-common
     sudo yum -y --enablerepo=epel --enablerepo=non-core install $NEED_PKGS
-    set +x
   fi
 elif [[ "$OS_VER" =~ "6." ]]; then
   echo "OS is $OS_VER, RHEL6 does not support Docker, not attempting dockerd start"
