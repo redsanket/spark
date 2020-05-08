@@ -55,7 +55,7 @@ if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "fsimage" ]]; then
   # from setup_docker_hdfs.sh
   NEED_PKGS=
   [[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
-  [[ -z $(command -v mksquashfs) ]] && NEED_PKGS="$NEED_PKGS squashfs-tools"
+  # not strictly necessary but useful
   [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
   if [[ -n "$NEED_PKGS" ]]; then
     echo "Installing $NEED_PKGS"
