@@ -51,18 +51,15 @@ function check_dockerd {
 if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "fsimage" ]]; then
   echo "INFO: OS is $OS_VER and runc support is up to date and enabled, ensuring packages are installed..."
 
-  # Install missing tools if necessary
-  # from setup_docker_hdfs.sh
-
-  # clean up Docker and dependent packages
-  sudo yum -y remove 'docker*' containers-common
-
+  # Install missing tools if necessary (from setup_docker_hdfs.sh)
   NEED_PKGS=
   [[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
   # not strictly necessary but useful
   [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
   if [[ -n "$NEED_PKGS" ]]; then
     echo "Installing $NEED_PKGS"
+    # clean up Docker and dependent packages
+    sudo yum -y remove 'docker*' containers-common
     sudo yum -y --enablerepo=epel --enablerepo=non-core install $NEED_PKGS
   fi
 elif [[ "$OS_VER" =~ "6." ]]; then
