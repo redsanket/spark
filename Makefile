@@ -37,6 +37,7 @@ cleanbuild:
 
 build:
 	@echo "Building..."
+	yinst i rocl
 	sudo cp bin/mtree /usr/sbin/mtree
 
 testCommit:
