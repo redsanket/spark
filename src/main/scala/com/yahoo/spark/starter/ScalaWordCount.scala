@@ -24,7 +24,7 @@ object ScalaWordCount {
 
     // Get a logger on the Driver/AppMaster
     val logger = SparkStarterUtil.logger
-   
+
     logger.info("Input : " + inputFilesUri)
     logger.info("Output : " + outputFilesUri)
 
