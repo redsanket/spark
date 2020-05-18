@@ -7,8 +7,8 @@ object ScalaWordCount {
   def main(args: Array[String]) {
     
     if (args.length < 2) {
-        System.err.println("Usage: ScalaWordCount <inputFilesURI> <outputFilesUri>")
-        System.exit(1)
+      System.err.println("Usage: ScalaWordCount <inputFilesURI> <outputFilesUri>")
+      System.exit(1)
     }
 
     val spark = SparkSession
