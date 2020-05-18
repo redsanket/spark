@@ -11,6 +11,7 @@ if __name__ == "__main__":
         print("Usage: python_word_count <input_file> <output_file>", file=sys.stderr)
         sys.exit(-1)
 
+    # These confs override the default configuration for spark applications during runtime.
     conf = SparkConf()\
         .set('spark.executor.memory', '4g')\
         .set('spark.executor.cores', '2')\
