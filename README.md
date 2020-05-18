@@ -2,7 +2,7 @@
 
 spark-starter contains simple examples of using Spark. These simple examples should get you started with using Spark. The pom file included in this project should also help you get started with build your own Spark project. It includes stuff to be able to build Java or Scala files as well as the spark dependencies necessary for accessing Spark Core, Sql, and Hive apis.
 
-#Running with Maven
+## Running with Maven
 
 To use hortonworks Spark-HBase Connector, you will need to specify a compatible shc-core jar in pom.xml. Since the latest shc-core does not exist in public repositories, you will need to install it locally.
 ```
