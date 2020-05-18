@@ -36,9 +36,10 @@ object ScalaWordCount {
       logger.info("Partition Size: " + iterator.size)
     })
 
-    val counts = textFile.flatMap(line => line.split(" "))
-                    .map(word => (word, 1))
-                    .reduceByKey(_ + _)
+    val counts = textFile
+      .flatMap(line => line.split(" "))
+      .map(word => (word, 1))
+      .reduceByKey(_ + _)
     counts.saveAsTextFile(outputFilesUri)
 
     spark.stop()

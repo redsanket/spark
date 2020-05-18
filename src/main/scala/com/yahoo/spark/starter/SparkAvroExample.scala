@@ -43,5 +43,5 @@ object SparkAvroExample {
     println(readAndWritePrimitive("randomString.avro").head().getString(0))
     println(readAndWritePrimitive("randomLongMap.avro").head().getAs[Map[String, Long]](0))
     println(readAndWritePrimitive("randomStringArray.avro").head().getAs[Array[String]](0))
-	}
+  }
 }
