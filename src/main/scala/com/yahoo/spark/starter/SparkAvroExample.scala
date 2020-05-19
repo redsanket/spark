@@ -3,11 +3,11 @@ package com.yahoo.spark.starter
 import org.apache.spark.sql.{SparkSession, DataFrame}
 
 object SparkAvroExample {
-	def main(args: Array[String]) {
-		val spark = SparkSession
-      .builder()
-      .appName("Spark Avro Example")
-      .getOrCreate()
+  def main(args: Array[String]) {
+   val spark = SparkSession
+    .builder()
+    .appName("Spark Avro Example")
+    .getOrCreate()
 
     val inputDir = "avro_test/resources/"
     val outputDir = "avro_test/output/"
@@ -43,5 +43,5 @@ object SparkAvroExample {
     println(readAndWritePrimitive("randomString.avro").head().getString(0))
     println(readAndWritePrimitive("randomLongMap.avro").head().getAs[Map[String, Long]](0))
     println(readAndWritePrimitive("randomStringArray.avro").head().getAs[Array[String]](0))
-	}
+  }
 }
