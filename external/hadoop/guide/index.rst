@@ -1,50 +1,50 @@
 ================
-Spark User Guide
+Hadoop User Guide
 ================
 
-.. 05/13/15: Edited.
+This document is **Oath Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
 .. toctree::
-   :maxdepth: 2
-   :hidden:
+  :maxdepth: 2
+  :hidden:
 
-   spark_on_yarn
-   spark_from_oozie
-   pyspark_with_python
-   debugging
-   spark_sql
-   spark_r
+  new_members
+  on_boarding
+  cpu_scheduling
 
-This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
+About
+=====
 
-About This Guide
+Apache Hadoop is a collection of open-source software utilities that
+facilitate using a network of many computers to solve problems involving
+massive amounts of data and computation. It provides a software
+framework for distributed storage and processing of big data using the
+MapReduce programming model.
+
+**Current Team members:**
+
+-  Jim Brennan
+-  Nathan Roberts
+-  Daryn Sharp
+-  Eric Badger
+-  Eric Payne
+-  Kihwal Lee
+-  Mark Holderbaugh
+-  Jon Eagles
+-  Ahmed Hussein
+-  Jon Eagles
+-  Ahmed Hussein
+-  Wayne Badger
+-  Richard Ross
+
+
+.. _developersguide:
+
+Developers-Guide
 ================
 
-The goal of this guide is to help developers use Spark for Yahoo. For general Spark documentation,
-see the `Apache Spark documentation <http://spark.apache.org/>`_.
+For new hires, visit the :ref:`New Members page <new_members>` to get all the information
+about verizonmedia environment and the initial steps to set up your
+development machine.
 
-.. _onboard:
-
-On-Boarding
-===========
-
-Before you can use Spark at Yahoo, you need to on-board by completing the steps
-found at: `Onboarding Guide <https://git.ouroath.com/pages/developer/Bdml-guide/Onboarding_to_the_Grid/>`_.
-
-
-
-Getting Help
-============
-
-General Questions and Announcements
------------------
-
-- yspark-users@oath.com
-- You could also reach out on the slack channel for spark - `#spark-users`
-
-Filing Jira Tickets
--------------------
-
-#. Go to the `Jira Spark Summary Panel <https://jira.corp.yahoo.com/browse/YSPARK/?selectedTab=com.atlassian.jira.jira-projects-plugin:summary-panel>`_.
-#. From the top navigation bar, click **Create**.
-#. Fill out the **Create Issue** form and click **Create**.
+To start on yHadoop, visit :ref:`On-Boarding page <on_boarding>`.
