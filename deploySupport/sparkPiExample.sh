@@ -17,7 +17,7 @@ export JAVA_HOME=$JAVA_HOME
 
 echo Running Spark Pi example
 
-set +x
+set -x
 kinit -k -t /homes/mapredqa/mapredqa.dev.headless.keytab mapredqa
 $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi \
   --num-executors 2 --executor-memory 2g --queue $SPARK_QUEUE --conf spark.executorEnv.JAVA_HOME=$JAVA_HOME \
