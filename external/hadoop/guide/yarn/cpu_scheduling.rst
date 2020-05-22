@@ -41,7 +41,7 @@ What if my application is not Map-reduce or Tez? (example: Spark)
 
 
 What configuration options do I use to request more/less vcores?
-#################################################################
+################################################################
 
 - For Map-Reduce and Tez applications, the following properties all default to 10 vcores:
 

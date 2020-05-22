@@ -17,7 +17,7 @@ Dump the JStack of a Slow Attempt
 
 In order to signal an application attempt to dump its stack, you will need to know its container ID.
 
-See Get the Container ID (PUT LINK HERE) below for instructions on how to obtain the container ID of the desired attempt.
+See Sec. :ref:`merge_slow_attempt_get_container_id` below for instructions on how to obtain the container ID of the desired attempt.
 
 * Cause the container to dump its JStack
 
@@ -25,7 +25,7 @@ See Get the Container ID (PUT LINK HERE) below for instructions on how to obtain
 
 * View the stdout container logs from the GUI:
 
-.. image:: images/container.logs.stdout.jstack.jpg
+.. image:: ../../images/container.logs.stdout.jstack.jpg
    :height: 777px
    :width: 839px
    :scale: 100%
@@ -41,12 +41,12 @@ Kill an Application Attempt
 
 In order to kill an application attempt by sending it a signal, you will need to know its container ID.
 
-See Get the Container ID (PUT LINK HERE) below for instructions on how to obtain the container ID of the desired attempt.
+See (:ref:`merge_slow_attempt_get_container_id`) below for instructions on how to obtain the container ID of the desired attempt.
 
 * ``yarn container -signal container_1466534149943_0002_01_000007 GRACEFUL_SHUTDOWN``
 * If the container won't die, use ``FORCEFUL_SHUTDOWN`` instead of ``GRACEFUL_SHUTDOWN``.
 
-..  _merge_slow_attempt_get_container_id
+..  _merge_slow_attempt_get_container_id:
 
 Get the Container ID
 --------------------
@@ -56,7 +56,7 @@ From the Map Reduce GUI
 
 * Select the list of running attempts from the MapReduce job overview page on the Job History Server. For example:
 
-.. image:: images/get.container.id.1.jpg
+.. image:: ../../images/get.container.id.1.jpg
    :height: 250px
    :width: 700px
    :scale: 85%
@@ -65,7 +65,7 @@ From the Map Reduce GUI
 
 * From the job's running attempts page, select the "logs" link. For example:
 
-.. image:: images/get.container.id.2.jpg
+.. image:: ../../images/get.container.id.2.jpg
    :height: 200px
    :width: 700px
    :scale: 85%
@@ -74,7 +74,7 @@ From the Map Reduce GUI
 
 * Use the container ID from the URL. For example:
 
-.. image:: images/get.container.id.3.jpg
+.. image:: ../../images/get.container.id.3.jpg
    :height: 250px
    :width: 700px
    :scale: 85%
@@ -86,7 +86,7 @@ From the TEZ GUI
 
 * Select "All TaskAttempts" from the "DAG Details" page of your application in the TEZ GUI. For example:
 
-.. image:: images/get.container.id.4.jpg
+.. image:: ../../images/get.container.id.4.jpg
    :height: 250px
    :width: 700px
    :scale: 85%
@@ -95,7 +95,7 @@ From the TEZ GUI
 
 * Get the container ID of your attempt from the "Containers" column. For example:
 
-.. image:: images/get.container.id.5.jpg
+.. image:: ../../images/get.container.id.5.jpg
    :height: 250px
    :width: 700px
    :scale: 85%
@@ -122,5 +122,3 @@ From the Gateway
   Container                               Start Time  Finish Time  State    Host Node       ...
   
   container_1466534149943_0002_01_000007  ...         N/A          RUNNING  localhost:4545  ...
-
-

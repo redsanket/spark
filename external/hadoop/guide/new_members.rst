@@ -32,9 +32,8 @@ Sean Smith is the Champaign IT guy. He should walk you throw the following steps
 **2-set up your Yahoo Bouncer password.**
 
 -  Sean sends an e-mail to you with a password reset link. The subject
-   should something like "*Yahoo! Bouncer: Passphrase reset*"
--  You can use that to set both your Bouncer, and your Unix (Yubikey)
-   password
+   should something like ``*Yahoo! Bouncer: Passphrase reset*``
+-  You can use that to set both your Bouncer, and your Unix (Yubikey) password.
 
 **3-Verify ubkey is working**
 
@@ -53,7 +52,7 @@ Next step is to verify that your ``ubkey`` is working:
 
 The previous process should look like the following:
 
-.. code:: console
+.. code-block:: console
 
   yinit
   Please enter your PIN code for YubiKey when prompted.
@@ -66,11 +65,10 @@ The previous process should look like the following:
   YubiKey for: <TOUCH_UBKEY>
   Password: <BOUNCER_PASSWORD>
 
-
 A typical day to day ``ybkey`` operation would look like this:
 
 
-.. code:: console
+.. code-block:: console
 
   $ yinit
   Enter passphrase for PKCS#11: <DEFAULT>
@@ -80,7 +78,6 @@ A typical day to day ``ybkey`` operation would look like this:
   Password: <UNIX_PASSWORD_AKA_BOUNCER>
   Touch YubiKey: <TOUCH_YBKEY>
   2019/01/31 09:59:20 SSHCA credentials loaded into your ssh-agent.
-
 
 **Troubleshooting**
 

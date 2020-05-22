@@ -1,6 +1,6 @@
-================
+=================
 Hadoop User Guide
-================
+=================
 
 This document is **Oath Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
@@ -10,8 +10,12 @@ This document is **Oath Proprietary/Confidential**. Do not release the contents 
 
   new_members
   on_boarding
-  cpu_scheduling
-  manage_slow_attempt
+  troubleshooting
+  hdfs/index
+  kms/index
+  tez/index
+  token_broker/index
+  yarn/index
 
 About
 =====
@@ -24,19 +28,17 @@ MapReduce programming model.
 
 **Current Team members:**
 
--  Jim Brennan
--  Nathan Roberts
+-  Ahmed Hussein
 -  Daryn Sharp
 -  Eric Badger
 -  Eric Payne
+-  Jim Brennan
+-  Jon Eagles
 -  Kihwal Lee
 -  Mark Holderbaugh
--  Jon Eagles
--  Ahmed Hussein
--  Jon Eagles
--  Wayne Badger
+-  Nathan Roberts
 -  Richard Ross
-
+-  Wayne Badger
 
 .. _developersguide:
 
@@ -47,4 +49,5 @@ For new hires, visit the :ref:`New Members page <new_members>` to get all the in
 about verizonmedia environment and the initial steps to set up your
 development machine.
 
-To start on yHadoop, visit :ref:`On-Boarding page <on_boarding>`.
+To start on yHadoop, visit :ref:`On-Boarding page <on_boarding>` and
+`Grid Onboarding Guide <https://git.ouroath.com/pages/developer/Bdml-guide/Onboarding_to_the_Grid/>`_.
