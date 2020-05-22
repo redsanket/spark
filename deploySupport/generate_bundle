@@ -1,0 +1,72 @@
+#/bin/sh
+
+#################################################################################
+# Insert a new bundle yaml file in the release_bundles git repo
+# Required Parameters:  dist_tag
+# USAGE:
+# $ ./generate_bundle <dist_tag>
+#
+#################################################################################
+
+dist_tag=$1
+component=hadoop
+set +x
+if [[ -z $dist_tag ]];then
+  echo "dist_tag argument provided is empty!"
+  echo "Usage: $0: <dist_tag> "
+  exit -1
+fi
+if [[ ! -f /home/y/bin/dist_tag ]]; then
+   echo "Installing dist_tools..."
+   yinst i dist_tools
+fi
+
+BD_REPO="git@git.ouroath.com:hadoop-deployments/release_bundles.git"
+TS=`date -u +%Y%m%d%H%M%S`
+serial=${serial:=$TS}
+GIT_DIR=release_bundles.$TS
+git clone $BD_REPO $GIT_DIR
+echo "Generating bundle from $dist_tag ..."
+/home/y/bin/dist_tag list $dist_tag > packages.txt
+
+bundle_file="$GIT_DIR/$component/$component-$serial.yaml"
+set +x
+cat > $bundle_file << EOF
+---
+doc: This file is auto generated for $component
+packages:
+EOF
+
+# e.g echo "HadoopConfigtitanred-2.8.5.30.2003161440 (test rhel-6.x)" | cut -d ' ' -f1 | cut -d'-' -f2
+while IFS= read -r line; do
+  pkg=`echo $line | cut -d ' ' -f1 | cut -d'-' -f1`
+  version=`echo $line | cut -d ' ' -f1 | cut -d'-' -f2`
+  echo "$pkg: $version"
+  echo "  - label: $pkg" >> $bundle_file
+  echo "    version: $version" >> $bundle_file
+done < packages.txt
+
+#################################################################################
+# Commit the new bundle file to the release_bundles git repo
+# Use the hadoopqe user to ensure the pipeline is triggered
+#################################################################################
+if [[ -f "$bundle_file" ]]; then
+  echo "--> Commit the new bundle file '$bundle_file':"
+  set -x
+  cat $bundle_file
+  set +x
+  cd $GIT_DIR
+  pwd
+  git config --global user.name hadoopqe
+  git status
+  git add $bundle_file
+  git commit -a -m "Add latest bundle $serial file for $component."
+  git remote -v
+  git push origin master
+  RC=$?
+  set +x
+  if [ $RC -ne 0 ]; then
+      echo "git push bundle to release_bundles repo failed!!!"
+      exit $RC
+  fi
+fi
