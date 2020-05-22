@@ -11,6 +11,7 @@ This document is **Oath Proprietary/Confidential**. Do not release the contents 
   new_members
   on_boarding
   cpu_scheduling
+  manage_slow_attempt
 
 About
 =====
@@ -33,7 +34,6 @@ MapReduce programming model.
 -  Jon Eagles
 -  Ahmed Hussein
 -  Jon Eagles
--  Ahmed Hussein
 -  Wayne Badger
 -  Richard Ross
 
