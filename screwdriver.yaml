@@ -41,8 +41,12 @@ jobs:
         steps:
           - restore_yidfs: echo "Disabled"
           - junit: echo "Disabled"
-          - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value), echo UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
-          - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), echo CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), echo UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
+          - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),\
+                                CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value),\
+                                UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
+          - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), \
+                             CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), \
+                             UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
           - build: yinst i perl_ykeykey-2.0.5;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
           - regression: echo "DISABLED"
           - package: echo "Disabled"
@@ -61,6 +65,25 @@ jobs:
         requires: [promote-cd-tag]
         steps:
           - build: gmake build; sh -x deploySupport/makerelease.sd
+          - junit: echo "DISABLED"
+          - regression: echo "DISABLED"
+          - package: echo "DISABLED"
+          - postpackage: echo "DISABLED"
+          - publish: echo "DISABLED"
+          - git_tag: echo "DISABLED"
+          - dist_tag: echo "DISABLED"
+    upload_bd_bundle:
+        annotations:
+          screwdriver.cd/cpu: HIGH
+          screwdriver.cd/ram: HIGH
+          screwdriver.cd/timeout: 720
+        template: HadoopTools/gridci-6_10_3@latest
+        environment:
+          UPDATE_RELEASE: true
+          DIST_TAG: HADOOP_2_8_0_TEST
+        requires: [promote-cd-tag]
+        steps:
+          - build: sh -x deploySupport/generate_bundle $(meta get parameters.TEST_TAG.value)
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
           - package: echo "DISABLED"
