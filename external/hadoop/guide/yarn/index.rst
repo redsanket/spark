@@ -1,14 +1,15 @@
 ..  _yarn:
 
-====
-YARN
-====
+================
+YARN & Mapreduce
+================
 
 .. toctree::
   :maxdepth: 2
   :hidden:
   
   cpu_scheduling
+  speculator
   troubleshooting/index
 
 The fundamental idea of YARN is to split up the functionalities of resource management and job
