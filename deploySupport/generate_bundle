@@ -26,10 +26,11 @@ TS=`date -u +%Y%m%d%H%M%S`
 serial=${serial:=$TS}
 GIT_DIR=release_bundles.$TS
 git clone $BD_REPO $GIT_DIR
+cd $GIT_DIR
 echo "Generating bundle from $dist_tag ..."
 /home/y/bin/dist_tag list $dist_tag > packages.txt
 
-bundle_file="$GIT_DIR/$component/$component-$serial.yaml"
+bundle_file="$component/$component-$serial.yaml"
 set +x
 cat > $bundle_file << EOF
 ---
@@ -54,8 +55,6 @@ if [[ -f "$bundle_file" ]]; then
   echo "--> Commit the new bundle file '$bundle_file':"
   set -x
   cat $bundle_file
-  set +x
-  cd $GIT_DIR
   pwd
   git config --global user.name hadoopqe
   git status
