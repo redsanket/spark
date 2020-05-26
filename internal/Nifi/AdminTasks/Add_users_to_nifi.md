@@ -4,7 +4,7 @@ Overall process is to find the user's VerizonMedia id, for example mine is 'patw
 
 * Please note, these steps give access to the Nifi canvas (GUI), and not to the Nifi system itself. In other words, there is an additional process, this process describes how to add a unix account for a give user:
 
-  * [How to Add Nifi Users in the Nifi Application](https://git.ouroath.com/hadoop/docs/blob/master/internal/Nifi/AdminTasks/Add_users_to_athenz_calypso.md)
+  * [How to Add Linux Users to the Nifi Project Nodes](https://git.ouroath.com/hadoop/docs/blob/master/internal/Nifi/AdminTasks/Add_users_to_athenz_calypso.md)
 
 * Have the requester create a jira in [Grid Nifi](https://jira.vzbuilders.com/projects/NIFI)
   * Example jiras for reference are [NIFI-145](https://jira.vzbuilders.com/projects/NIFI/issues/NIFI-145) and [NIFI-148](https://jira.vzbuilders.com/projects/NIFI/issues/NIFI-148)
@@ -79,4 +79,4 @@ Overall process is to find the user's VerizonMedia id, for example mine is 'patw
 # How to Add Linux Users to the Nifi Project Nodes
 
 * Please refer to the following for adding Linux accounts on Nifi nodes:
-  * [How to Add Nifi Users in the Nifi Application](https://git.ouroath.com/hadoop/docs/blob/master/internal/Nifi/AdminTasks/Add_users_to_athenz_calypso.md)
+  * [How to Add Linux Users to the Nifi Project Nodes](https://git.ouroath.com/hadoop/docs/blob/master/internal/Nifi/AdminTasks/Add_users_to_athenz_calypso.md)
