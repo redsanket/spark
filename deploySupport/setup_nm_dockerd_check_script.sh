@@ -9,86 +9,32 @@
 HOSTNAME=`hostname`
 OS_VER=`cat /etc/redhat-release | cut -d' ' -f7`
 CLUSTER=`hostname | cut -d- -f1`
-DOCKER_YINST_SET=`/usr/local/bin/yinst set -root /home/gs/gridre/yroot."$CLUSTER" | grep TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES | cut -d: -f2`
-
-echo "Checking if we need to startup Docker daemon on node $HOSTNAME"
-
-
-function check_dockerd {
-  #echo "INFO: Checking if dockerd is running..."
-
-  # verify the storage driver in use, should be overlayFS
-  CHK_DRIVER=`sudo docker info | grep Storage`
-
-
-  if [[ "$CHK_DRIVER" =~ "overlay" ]]; then
-    echo "Docker storage driver in use is overlay"
-  else
-    echo "WARN: storage driver is not correct or not found!"
-
-    echo "Setting storage driver to overlay"
-    echo "{ \"storage-driver\": \"overlay\" }" > /etc/docker/daemon.json
-
-    echo "Restarting docker service"
-    set -x
-    systemctl restart docker
-    set +x
-  fi
-
-  PS_CHECK=`ps -ef | egrep dockerd | egrep -v grep`
-  if [[ "$PS_CHECK" =~ "docker-runc-current" ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
+ALLOWED_RUNTIMES=`/usr/local/bin/yinst set -root /home/gs/gridre/yroot."$CLUSTER" | grep TODO_YARN_NODEMANAGER_RUNTIME_LINUX_ALLOWED_RUNTIMES | cut -d: -f2`
 
 #
 # based on OS version and docker enable yinst setting, decide it we need
 # to start dockerd
 #
-if [[ "$OS_VER" =~ ^7. ]] && [[ "$DOCKER_YINST_SET" =~ "docker" ]]; then
-  echo "INFO: OS is $OS_VER and Docker support is up to date and enabled, starting dockerd..."
+if [[ "$OS_VER" =~ ^7. ]] && [[ "$ALLOWED_RUNTIMES" =~ "fsimage" ]]; then
+  echo "INFO: OS is $OS_VER and runC support is enabled, ensuring packages are installed..."
 
-  echo "Verify we have latest Docker package on node $HOSTNAME"
-  set -x
-  yum install -y --enablerepo=latest* docker
-  RC=$?
-  set +x
-  if [ $RC -ne 0 ]; then
-    echo "ERROR: docker package update failed!"
-    exit 1
+  # Install missing tools if necessary (from setup_docker_hdfs.sh)
+  NEED_PKGS=
+  [[ -z $(command -v skopeo) ]] && NEED_PKGS="$NEED_PKGS skopeo"
+  # not strictly necessary but useful
+  [[ -z $(command -v jq) ]] && NEED_PKGS="$NEED_PKGS jq"
+  if [[ -n "$NEED_PKGS" ]]; then
+    echo "Installing $NEED_PKGS"
+    # clean up Docker and dependent packages
+    sudo yum -y remove 'docker*' containers-common
+    sudo yum -y --enablerepo=epel --enablerepo=non-core install $NEED_PKGS
   fi
-
-  check_dockerd
-  if [ $? -eq 0 ]; then
-    echo "dockerd is running ok on node $HOSTNAME"
-
-  else
-    echo "WARN: dockerd is not running, attempting to start it..."
-    set -x
-    systemctl start docker
-    sleep 5
-    set +x
-   
-    check_dockerd
-    if [ $? -eq 0 ]; then
-      echo "dockerd is now running ok on node $HOSTNAME"
-    else
-      echo "ERROR: dockered is still not running after start attempt on node $HOSTNAME !"
-      exit 1
-    fi
-  fi
-
+elif [[ "$OS_VER" =~ "7." ]]; then
+  echo "OS is $OS_VER, ALLOWED_RUNTIMES is not set for runC containers"
 elif [[ "$OS_VER" =~ "6." ]]; then
-  echo "OS is $OS_VER, RHEL6 does not support Docker, not attempting dockerd start"
-
-elif [[ ! "$DOCKER_YINST_SET" =~ "docker" ]]; then
-  echo "OS is $OS_VER but Docker support is not enabled in yinst setting, not attempting dockerd start"
-
+  echo "OS is $OS_VER, RHEL6 does not support runC containers"
 else
-  echo "WARN: Unknown OS $OS_VER and Docker support setting combination!"
+  echo "WARN: Unknown OS $OS_VER and ALLOWED_RUNTIMES $ALLOWED_RUNTIMES setting combination!"
   exit 1
 fi
  

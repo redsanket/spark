@@ -70,7 +70,7 @@ finalstatus=`$HADOOP_COMMON_HOME/bin/hadoop version  | sed -n 1p`
 finalstatus="${finalstatus} with $processorType on cluster $cluster"
 
 echo "==== bin/hadoop fs -ls -R /: test that name node is up."
-$HADOOP_COMMON_HOME/bin/hadoop fs -ls -R /
+$HADOOP_COMMON_HOME/bin/hadoop fs -ls /
 export written=0
 export read=0
 tmpfile=tmp-`date +%y%m%d%H%M`
