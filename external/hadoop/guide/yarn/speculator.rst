@@ -1,6 +1,6 @@
 ..  _speculator:
 
-MapReduce Sepculator
+MapReduce Speculator
 ====================
 
 
@@ -38,7 +38,7 @@ https://dilithiumblue-jt1.blue.ygrid.yahoo.com:50508/tez/ Sample job
 with multiple vertices:
 https://dilithiumblue-jt1.blue.ygrid.yahoo.com:50508/tez/#/dag/dag_1542216896066_17804406_1
 
-.. code:: java
+.. code-block:: java
 
    // source:
    // hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app/
@@ -141,19 +141,19 @@ trend at time :math:`t`. The output of the algorithm is now written as :math:`F_
 estimate of the value of :math:`x` at time :math:`t+m, \ \text{for} \ m > 0` based on the raw data up
 to time :math:`t`. The double exponential smoothing is:
 
-.. math::
+  .. math::
 
-  s_1 = x_1
+    s_1 = x_1
 
-  b_1 = x_1 - x_0,\ \text{and}
+    b_1 = x_1 - x_0,\ \text{and}
 
 :math:`\text{for}\ t > 1`
 
-.. math::
-  
-  s_t = \alpha x_t + (1-\alpha)(s_{t-1} + b_{t-1})
+  .. math::
+    
+    s_t = \alpha x_t + (1-\alpha)(s_{t-1} + b_{t-1})
 
-  b_t = \beta (s_t + s_{t-1}) + (1-\beta)\;b_{t-1}
+    b_t = \beta (s_t + s_{t-1}) + (1-\beta)\;b_{t-1}
 
 where α is the data smoothing factor, :math:`0 < \alpha < 1`, and :math:`\beta` is the trend smoothing
 factor, :math:`0 < \beta < 1`

@@ -18,21 +18,23 @@ Generate new ssh-keys
 Follow the `github instructions <https://help.github.com/enterprise/2.15/user/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent>`_ to generate your ssh keys
 
 **Step2:**
-Add your ssh key to the ssh agent following these instructions (adapted from the `github instructions <https://help.github.com/enterprise/2.15/user/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent>`_
+Add your ssh key to the ssh agent following these instructions (adapted from the
+`github (adding your ssh to the agent) page. <https://help.github.com/enterprise/2.15/user/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent>`_
 
-.. code:: console
+  .. code-block:: shell-session
 
-  eval "$(ssh-agent -s)"
+    eval "$(ssh-agent -s)"
+
 
 Add the following to your ssh config file ``~/.ssh/config``:
 
-.. code:: console
+  .. code-block:: shell-session
 
-  Host git.ouroath.com
-         User jdoe
-         AddKeysToAgent yes
-         UseKeychain yes
-         IdentityFile ~/.ssh/id_rsa
+    Host git.ouroath.com
+           User jdoe
+           AddKeysToAgent yes
+           UseKeychain yes
+           IdentityFile ~/.ssh/id_rsa
 
 
 The default name for the private key is ``id_rsa``. Please replace it
@@ -40,42 +42,42 @@ appropriately if you are using a different name. Add the SSH private key
 to the ssh-agent:
 
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  ssh-add -K ~/.ssh/id_rsa
+    ssh-add -K ~/.ssh/id_rsa
 
 
 **Step3:**
-Sign in to the enterprise github and goto the `profile settings <https://git.ouroath.com/settings/keys>`_. Add your ssh key to the ssh agent following `these instructions <https://help.github.com/enterprise/2.15/user/articles/adding-a-new-ssh-key-to-your-github-account/>`_.
+Sign in to the enterprise github and goto the `profile settings <https://git.ouroath.com/settings/keys>`_.Add your ssh key to the ssh agent following `these instructions <https://help.github.com/enterprise/2.15/user/articles/adding-a-new-ssh-key-to-your-github-account/>`_.
 
 **Step4:**
 Testing your ssh connection as explained on `github manuals <https://help.github.com/enterprise/2.15/user/articles/testing-your-ssh-connection/>`_, using the
 correct domain name as illustrated below.
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  ssh -T git@git.ouroath.com
-  # Attempts to ssh to GitHub Enterprise
+    ssh -T git@git.ouroath.com
+    # Attempts to ssh to GitHub Enterprise
 
 
-**Step5:** Set your global git config file ```~/.gitconfig``
+**Step5:** Set your global git config file ``~/.gitconfig``
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  [user]
-          name = John Doe
-          email = john.doe@verizonmedia.com
-  [core]
-          pager = less -FRX
-          autocrlf = input
-  [color]
-          ui = auto
-  [alias]
-          co = checkout
-  [pull]
-          rebase = true
-  [branch]
-          autosetuprebase = always
+    [user]
+            name = John Doe
+            email = john.doe@verizonmedia.com
+    [core]
+            pager = less -FRX
+            autocrlf = input
+    [color]
+            ui = auto
+    [alias]
+            co = checkout
+    [pull]
+            rebase = true
+    [branch]
+            autosetuprebase = always
 
 
 
@@ -86,11 +88,12 @@ Mac Environment Setup
 
 - Install ``brew`` from the self service application.
 
-- Install Java8 using brew or packages from `Oracle website <https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html>`_ (java8 had been pulled from brew, not sure if it has been put back in).
+- Install Java8 using brew or packages from `Oracle website <https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html>`_
+(java8 had been pulled from brew, not sure if it has been put back in).
 
 - Set Java_HOME:
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     $ vim .bash_profile
     export JAVA_HOME=$(/usr/libexec/java_home)
@@ -98,15 +101,17 @@ Mac Environment Setup
 
 - Install the following packages using brew
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     brew install gcc autoconf automake libtool \
                cmake snappy gzip bzip2 zlib openssl maven
 
 
-- To install protobuf v2.5.0 (no longer available on brew), first get the `tarball <https://github.com/protocolbuffers/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.bz2>`_ and untar. Then cd into the new folder, configure, make, and install (can optionally also run ``make check`` after ``make`` to run self-tests):
+- To install protobuf v2.5.0 (no longer available on brew), first get the
+`tarball <https://github.com/protocolbuffers/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.bz2>`_ and untar.
+Then cd into the new folder, configure, make, and install (can optionally also run ``make check`` after ``make`` to run self-tests):
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     tar xfvj protobuf-2.5.0.tar.bz2
     cd protobuf-2.5.0
@@ -116,7 +121,7 @@ Mac Environment Setup
 
 - Add ssh wrapper that skips running ssh when the target is local (~/bin/ssh)
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     #!/bin/sh
 
@@ -138,10 +143,10 @@ Mac Environment Setup
 
 Add the new script to the path by modifying ~/.bash_profile
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  # bypass ssh on localhost
-  export PATH=~/bin:$PATH
+    # bypass ssh on localhost
+    export PATH=~/bin:$PATH
 
 ..  _on_boarding_set_opehouse:
 
@@ -165,7 +170,7 @@ Setup your access to the VM.
 - Append the VM name to your ``~/.ssh/config`` as follows:
 
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     # define VM alias and ssh parameters
     Host johndoe_vm
@@ -180,9 +185,9 @@ Note that the ``ForwardAgent yes`` is necessary to use your local SSH keys inste
 ssh the VM.
 
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  ssh johndoe_vm
+    ssh -A johndoe_vm
 
 
 That's it! You are working on the new VM.
@@ -192,7 +197,7 @@ Install Prerequisities
 
 -  Install Java8 on the system
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     sudo yum install java-1.8.0-openjdk-devel
 
@@ -203,14 +208,14 @@ Install Prerequisities
    the alternatives. After adding the line, open a new login shell.
 
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
 
 
 -  Enable epel
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     cd /tmp
     wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -220,17 +225,17 @@ Install Prerequisities
 
 -  Install Packages:
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  sudo yum install --enablerepo=y* --enablerepo=latest* git gcc-c++
-  sudo yum --enablerepo=y* --enablerepo=latest* --enablerepo=epel install protobuf \
-       protobuf-compiler protobuf-devel
-  sudo yum install maven
+    sudo yum install --enablerepo=y* --enablerepo=latest* git gcc-c++
+    sudo yum --enablerepo=y* --enablerepo=latest* --enablerepo=epel install protobuf \
+         protobuf-compiler protobuf-devel
+    sudo yum install maven
 
 
 -  Install cmake:
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     sudo yum --enablerepo=y* --enablerepo=latest* --enablerepo=epel install cmake3
     mkdir ~/bin
@@ -240,7 +245,7 @@ Install Prerequisities
 
 -  Add Maven and cmake3 to PATH:
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
     vim ~/.bash_profile
     export PATH=$HOME/bin:/usr/share/maven/bin:$PATH
@@ -270,7 +275,7 @@ Create a working copy of yhadoop
 
 -  Create a local copy of the fork using terminal.
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      git clone git@git.ouroath.com:ahussein/Hadoop.git yhadoop-1818
      cd yhadoop-1818
@@ -284,7 +289,7 @@ Add the haddop/yhadoop repository as a remote in order to be able to
 bring changes into the local copy.
 
 
-.. code-block:: console
+.. code-block:: shell-session
 
    git remote rename origin rahussein
    git remote add ryahoo git@git.ouroath.com:hadoop/Hadoop.git
@@ -292,7 +297,7 @@ bring changes into the local copy.
 
 Verify that the remotes are set correctly
 
-.. code-block:: console
+.. code-block:: shell-session
 
    git remote -v
    > rahussein git@git.ouroath.com:ahussein/Hadoop.git (fetch)
@@ -307,7 +312,7 @@ Create branch
 Chose the main branch that used for development. In our case, let's assume it is  "y-branch-2.8". Then we create a new file
 
 
-.. code-block:: console
+.. code-block:: shell-session
 
    $ git checkout  y-branch-2.8
    $ git pull ryahoo  y-branch-2.8 && git push rahussein  y-branch-2.8
@@ -328,13 +333,13 @@ Commit changes and push
 
 After you commit your changes, push to the branch of the local repository:
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   git push -u rahussein yhadoop-1818
+     git push -u rahussein yhadoop-1818
    
 - If you want to rebase your branch. Assuming you are on branch yhadoop-1818:
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      $ git add --all
      $ git commit -m "[YHADOOP-1818]: COMMIT MESSAGE"
@@ -342,7 +347,7 @@ After you commit your changes, push to the branch of the local repository:
      $ git pull ryahoo  y-branch-2.8 && git push rahussein  y-branch-2.8
      $ git checkout yhadoop-1818
      $ git rebase -i y-branch-2.8
-     $ ## interactive console to pick and squash commits
+     $ # interactive console to pick and squash commits
      $ git push -u -f rahussein yhadoop-1818
 
 **Step5:**
@@ -358,45 +363,8 @@ Create Pull request
 Testing patch
 ~~~~~~~~~~~~~
 
-The following steps are from the hadoop git repository root folder.
-
-**Step1:**
-
-Create a patch with your changes like so:
-
-.. code-block:: console
-
-  git diff commit_1 commit_2 --no-prefix > path_to_patch_file
-
-
-**Step2:**
-
-Run test-patch
-
-``dev-support/bin/test-patch`` can be used to `test the patch <https://cwiki.apache.org/confluence/display/HADOOP/How+To+Contribute#HowToContribute-Testingyourpatch>`_ with
-compile, unit tests, checkstyle, whitespace, etc. It wants a clean git
-tree so stash changes using ``git stash`` before using ``test-patch``:
-
-.. code-block:: console
-
-  git stash
-  dev-support/bin/test-patch --run-tests --test-parallel=true path_to_patch_file
-
-It can take quite some time to run all the checks. ``test-patch`` can
-also run specific tests, eg, just checkstyle like so:
-
-.. code-block:: console
-
-  dev-support/bin/test-patch --plugins="maven,checkstyle" --test-parallel=true path_to_patch_file
-
-
-Above example by default builds first and then runs ``checkstyle``.
-``checkstyle`` should be able to run without the build step, which takes
-quite a bit of time. I found that I can "skip" that by pressing
-``Ctrl+C`` when it is building the code, once for clean tree and once
-for the patched code. The new errors introduced by the patch are stored
-in a txt file printed at the output.
-
+See Sec. :ref:`code_testing` for a full guide on running Unit tests and
+testing patches.
 
 .. _on_boarding_building-yhadoop:
 
@@ -410,21 +378,26 @@ Mac local
 
 From the command line, navigate to the hadoop root directory:
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  mvn install -Pdist -Dtar -DskipTests -DskipShade -Dmaven.javadoc.skip
+    mvn install -Pdist -Dtar -DskipTests -DskipShade -Dmaven.javadoc.skip
 
 
 If there are errors when running jobs on this compiled version, try
 doing a clean build without skipping shade.
 
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  mvn clean install -Pdist -Dtar -DskipTests -Dmaven.javadoc.skip
+    mvn clean install -Pdist -Dtar -DskipTests -Dmaven.javadoc.skip
 
 Symptoms might look like the following in the logs:
-``Exception in thread "main" java.lang.VerifyError: Inconsistent stackmap frames at branch target 160``
+
+  .. code-block:: shell-session
+
+    Exception in thread "main" java.lang.VerifyError:
+          Inconsistent stackmap frames at branch target 160
+
 
 To build native, add the ``-Pnative`` flag. We don’t support running
 natively on Mac If you're annoyed with the new animal-sniffer plugin
@@ -441,13 +414,13 @@ Running YHadoop
 Create hadoop instance folder to extract the hadoop image created
 by the build (replace paths as needed)
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   mkdir -p $HOME/workspace/yhadoop-inst
-   cp $HOME/workspace/repo/yhadoop/hadoop-dist/target/hadoop-3.1.0-SNAPSHOT.tar.gz \
-      $HOME/workspace/yhadoop-inst
-   cd $HOME/workspace/yhadoop-inst
-   tar -xzvf hadoop-3.1.0-SNAPSHOT.tar.gz
+     mkdir -p $HOME/workspace/yhadoop-inst
+     cp $HOME/workspace/repo/yhadoop/hadoop-dist/target/hadoop-3.1.0-SNAPSHOT.tar.gz \
+        $HOME/workspace/yhadoop-inst
+     cd $HOME/workspace/yhadoop-inst
+     tar -xzvf hadoop-3.1.0-SNAPSHOT.tar.gz
 
 **Step2:**
 
@@ -457,12 +430,12 @@ created directory. Also, Create a symbolic link ``hadoop-root`` pointing
 to ``hadoop-3.1.0-SNAPSHOT``. Finally add subfolder checkpoint, data,
 name to hdfs-trunk
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   mkdir -p hdfs-trunk
-   ln -s hdfs-trunk hdfs
-   ln -s hadoop-3.1.0-SNAPSHOT hadoop-root
-   mkdir -p  hdfs-trunk/checkpoint hdfs-trunk/data hdfs-trunk/name
+     mkdir -p hdfs-trunk
+     ln -s hdfs-trunk hdfs
+     ln -s hadoop-3.1.0-SNAPSHOT hadoop-root
+     mkdir -p  hdfs-trunk/checkpoint hdfs-trunk/data hdfs-trunk/name
 
 **Step3:**
 
@@ -476,49 +449,49 @@ mapred-site.xml, yarn-site.xml (say ``$HOME/workspace/yhadoop-inst``).
 Set the following environment variables accoring to the correct
 path
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   export HADOOP_PREFIX=$HOME/workspace/yhadoop-inst/hadoop-root
-   export PATH="$PATH:$HADOOP_PREFIX/bin:$HADOOP_PREFIX/sbin"
-   export HADOOP_CONF_DIR=$HOME/workspace/yhadoop-conf
-   export HADOOP_PID_DIR=$HOME/workspace/yhadoop-inst/pid
-   export HADOOP_LOG_DIR=$HOME/workspace/yhadoop-inst/logs
-   export HADOOP_COMMON_HOME=$HADOOP_PREFIX
-   export HADOOP_HDFS_HOME=$HADOOP_PREFIX
-   export HADOOP_YARN_HOME=$HADOOP_PREFIX
-   export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
-   export HADOOP_MAPRED_LOG_DIR=$HADOOP_LOG_DIR
-   export YARN_CONF_DIR=$HADOOP_CONF_DIR
-   export YARN_PID_DIR=$HADOOP_PID_DIR
-   export YARN_LOG_DIR=$HADOOP_LOG_DIR
+     export HADOOP_PREFIX=$HOME/workspace/yhadoop-inst/hadoop-root
+     export PATH="$PATH:$HADOOP_PREFIX/bin:$HADOOP_PREFIX/sbin"
+     export HADOOP_CONF_DIR=$HOME/workspace/yhadoop-conf
+     export HADOOP_PID_DIR=$HOME/workspace/yhadoop-inst/pid
+     export HADOOP_LOG_DIR=$HOME/workspace/yhadoop-inst/logs
+     export HADOOP_COMMON_HOME=$HADOOP_PREFIX
+     export HADOOP_HDFS_HOME=$HADOOP_PREFIX
+     export HADOOP_YARN_HOME=$HADOOP_PREFIX
+     export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
+     export HADOOP_MAPRED_LOG_DIR=$HADOOP_LOG_DIR
+     export YARN_CONF_DIR=$HADOOP_CONF_DIR
+     export YARN_PID_DIR=$HADOOP_PID_DIR
+     export YARN_LOG_DIR=$HADOOP_LOG_DIR
 
 
 For Hadoop 3 use the following env_variables:
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-  export HADOOP_HOME=$HOME/workspace/hadoop-inst/hadoop-root
-  export PATH="$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin"
-  export HADOOP_CONF_DIR=$HOME/workspace/hadoop-conf
-  export HADOOP_PID_DIR=$HOME/workspace/hadoop-inst/pid
-  export HADOOP_LOG_DIR=$HOME/workspace/hadoop-inst/logs
-  export HADOOP_COMMON_HOME=$HADOOP_HOME
-  export HADOOP_HDFS_HOME=$HADOOP_HOME
-  export HADOOP_YARN_HOME=$HADOOP_HOME
-  export HADOOP_MAPRED_HOME=$HADOOP_HOME
-  export HADOOP_MAPRED_LOG_DIR=$HADOOP_LOG_DIR
+    export HADOOP_HOME=$HOME/workspace/hadoop-inst/hadoop-root
+    export PATH="$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin"
+    export HADOOP_CONF_DIR=$HOME/workspace/hadoop-conf
+    export HADOOP_PID_DIR=$HOME/workspace/hadoop-inst/pid
+    export HADOOP_LOG_DIR=$HOME/workspace/hadoop-inst/logs
+    export HADOOP_COMMON_HOME=$HADOOP_HOME
+    export HADOOP_HDFS_HOME=$HADOOP_HOME
+    export HADOOP_YARN_HOME=$HADOOP_HOME
+    export HADOOP_MAPRED_HOME=$HADOOP_HOME
+    export HADOOP_MAPRED_LOG_DIR=$HADOOP_LOG_DIR
 
 **Step5:** Runn the HDFS
 
 -  First time, you need to format the namenode
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      hadoop namenode -format
 
 -  Run hadoop dfs daemons and create home directory in HDFS
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      start-dfs.sh
      hadoop fs -mkdir -p /user/ahussein
@@ -531,19 +504,19 @@ Login].
 
 -  Start Yarn
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      start-yarn.sh
 
 -  Start the History Server
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      mr-jobhistory-daemon.sh start historyserver
 
 -  Populate the HDFS with a file
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
      hadoop fs -put /etc/services .
 
@@ -552,18 +525,20 @@ Running Jobs
 
 -  Start up the Wordcount job
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
-     hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.0-SNAPSHOT.jar \
+     hadoop jar \
+         $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.0-SNAPSHOT.jar \
                 wordcount services wcout
 
 
 -  Start up the wordcount job with a input file format map slit size of 100000
 
 
-  .. code-block:: console
+  .. code-block:: shell-session
 
-     hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.0-SNAPSHOT.jar \
+     hadoop jar \
+         $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.0-SNAPSHOT.jar \
                 wordcount \
                 -Dmapreduce.input.fileinputformat.split.maxsize=100000 \
                 services wcout2
@@ -578,7 +553,7 @@ Open this URL in browser: `http://localhost:8088 <http://localhost:8088>`_
 Stopping HDFS
 
 
-.. code-block:: console
+.. code-block:: shell-session
 
   mr-jobhistory-daemon.sh stop historyserver
   stop-yarn.sh
@@ -597,7 +572,7 @@ Pick a cluster from yo/flubber: Let's say ``openqe99blue``.
 **Step2:**
 
 -  Make sure that you already have access to Oath grid
--  Ask Raj to add your userID to get access to `jenkins build scripts <https://re101.ygrid.corp.gq1.yahoo.com:4443/jenkins/view/Openstack/job/Hadoop-Cluster-Deploy-Grid-VM/>`_.
+-  Ask Raj to add your userID to get access to `yo/hadoop-deploy`_.
 -  Ask Raj to add you to the group ``ygrid_netgroup_griddev``
 
 
@@ -645,12 +620,13 @@ This step assumes that the build is successful.
       nodes listed in the hadoop cluster web page (i.e.,
       `https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes`_)
 
-      .. code-block:: console
+      .. code-block:: shell-session
 
-         scp $WORKDIR/hadoop-dist/target/hadoop-2.8.6-SNAPSHOT/share/hadoop/hdfs/hadoop-hdfs-client-2.8.6-SNAPSHOT.jar \
+         scp HADOOP_PREFIX/share/hadoop/hdfs/hadoop-hdfs-client-2.8.6-SNAPSHOT.jar \
                     hussein@openqe99blue-n2.blue.ygrid.yahoo.com:/home/
          ssh -A openqe99blue-n2.blue.ygrid.yahoo.com
-         @openqe99blue-n2$ sudo mv hadoop-hdfs-client-2.8.6-SNAPSHOT.jar $HADOOP_PREFIX/share/hadoop/hdfs/
+         @openqe99blue-n2$ sudo mv hadoop-hdfs-client-2.8.6-SNAPSHOT.jar \
+                               $HADOOP_PREFIX/share/hadoop/hdfs/
 
 
 **Step5:**
@@ -659,25 +635,27 @@ Restart the services namenode, datanode, resourcemanager, and
 nodemanager
 
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   yinst stop namenode -root /home/gs/gridre/yroot.openqe99blue
-   yinst start namenode -root /home/gs/gridre/yroot.openqe99blue
+     yinst stop namenode -root /home/gs/gridre/yroot.openqe99blue
+     yinst start namenode -root /home/gs/gridre/yroot.openqe99blue
 
 
 Ignore the memory error you get while starting the service
 
-   ``Java HotSpot(TM) 64-Bit Server VM warning: Failed to reserve shared
-   memory. (error = 12)``
+  .. code-block:: shell-session
+
+     Java HotSpot(TM) 64-Bit Server VM warning: Failed to reserve shared \
+          memory. (error = 12)``
 
 **Step6:**
 
 Initialize user for Kerberos database
 
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   kinit ahussein@Y.CORP.YAHOO.COM
+     kinit ahussein@Y.CORP.YAHOO.COM
 
 
 .. _`yo/hadoop-deploy`: https://re100.ygrid.corp.gq1.yahoo.com:4443/jenkins/job/Hadoop-Cluster-Deploy-Grid-VM/
@@ -686,40 +664,44 @@ Initialize user for Kerberos database
 
 If you forget to run ``kinit``, you may see an error like that:
 
-   19/03/11 20:08:58 WARN ipc.Client: Exception encountered while
-   connecting to the server : javax.security.sasl.SaslException: GSS
-   initiate failed [Caused by GSSException: No valid credentials
-   provided (Mechanism level: Failed to find any Kerberos tgt)]
+  ::
 
-   java.io.IOException: Failed on local exception:
-   javax.security.sasl.SaslException: GSS initiate failed [Caused by
-   GSSException: No valid credentials provided (Mechanism level: Failed
-   to find any Kerberos tgt)]; Host Details : local host is:
-   "openqe99blue-n2.blue.ygrid.yahoo.com/10.215.78.31"; destination host
-   is: "openqe99blue-n2.blue.ygrid.yahoo.com":8020;
+    19/03/11 20:08:58 WARN ipc.Client: Exception encountered while
+    connecting to the server : javax.security.sasl.SaslException: GSS
+    initiate failed [Caused by GSSException: No valid credentials
+    provided (Mechanism level: Failed to find any Kerberos tgt)]
+
+    java.io.IOException: Failed on local exception:
+    javax.security.sasl.SaslException: GSS initiate failed [Caused by
+    GSSException: No valid credentials provided (Mechanism level: Failed
+    to find any Kerberos tgt)]; Host Details : local host is:
+    "openqe99blue-n2.blue.ygrid.yahoo.com/10.215.78.31"; destination host
+    is: "openqe99blue-n2.blue.ygrid.yahoo.com":8020;
 
 **Step7:**
 
 -  Run a wordcount job
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-   hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.5.9.1903110101.jar \
-              wordcount services wcout
+     hadoop jar \
+         $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.5.9.1903110101.jar \
+                wordcount services wcout
 
 -  Run SleepJob
 
-.. code-block:: console
+  .. code-block:: shell-session
 
-    jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.5.9.1903110101-tests.jar \
-           sleep -m 1 -r 1 -rt 1200000 -mt 20
+     hadoop jar \
+         $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.5.9.1903110101-tests.jar \
+             sleep -m 1 -r 1 -rt 1200000 -mt 20
 
 Parameters used for the sleepJob:
 
-::
+  ::
 
-   "-m": number of mappers
-   "-r": number of reducers
-   "-mt": map sleep time
-   "-rt": reduce sleepTime
-   "-recordt": Record sleepTime
+     "-m": number of mappers
+     "-r": number of reducers
+     "-mt": map sleep time
+     "-rt": reduce sleepTime
+     "-recordt": Record sleepTime
