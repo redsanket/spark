@@ -24,7 +24,7 @@ if [[ "$ALLOWED_RUNTIMES" =~ "fsimage" ]]; then
   DOCKERIMAGE="--conf spark.oath.dockerImage=$IMAGENAME"
 fi
 
-echho Running Spark Pi example
+echo "Running Spark Pi example"
 
 set -x
 kinit -k -t /homes/mapredqa/mapredqa.dev.headless.keytab mapredqa
