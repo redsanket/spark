@@ -403,8 +403,6 @@ HBase Access From Spark 2.2 and Greater
 
 The gateways generally have hbase installed on them.  See ``/home/gs/conf/hbase/`` and ``/home/gs/hbase/current``
 
-Spark 2.2 we added back in the hbase example converters for python: https://git.corp.yahoo.com/hadoop/spark/blob/yspark_2_2_0/examples/src/main/scala/org/apache/spark/examples/pythonconverters/HBaseConverters.scala
-
 Spark has a symlink in $SPARK_CONF_DIR to automatically pull in hbase-site.xml.  You just have to send the hbase jars with your application.
 
 Launch the spark shell, update the namenode to be the Hbase cluster namenode you are accessing
@@ -412,13 +410,16 @@ Launch the spark shell, update the namenode to be the Hbase cluster namenode you
 .. code-block:: console
 
     $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client \
-    --jars /home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-2.04.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar
+    --jars /home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-3.1.0-incubating.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar,/home/gs/hbase/current/lib/metrics-core-2.2.0.jar
 
 For cluster mode you also have to send the $SPARK_CONF_DIR/hbase-site.xml file
 
 .. code-block:: console
 
-    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster  --jars /home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-2.04.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar --class yahoo.spark.SparkHbase --files $SPARK_CONF_DIR/hbase-site.xml ~/yahoo-spark_2.11-1.0-jar-with-dependencies.jar
+    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster \
+    --jars /home/gs/hbase/current/lib/hbase-protocol.jar,/home/gs/hbase/current/lib/hbase-common.jar,/home/gs/hbase/current/lib/hbase-client.jar,/home/gs/hbase/current/lib/htrace-core-3.1.0-incubating.jar,/home/gs/hbase/current/lib/hbase-server.jar,/home/gs/hbase/current/lib/guava-12.0.1.jar,/home/gs/hbase/current/lib/metrics-core-2.2.0.jar \
+    --class com.yahoo.spark.starter.SparkClusterHBase \
+    --files $SPARK_CONF_DIR/hbase-site.xml ./spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar <nameSpace> <tableName>
 
 .. _soy_addon_svc_hbase_example:
 
@@ -485,9 +486,8 @@ An example of the above code (writing from the driver and reading from and RDD) 
 
 An example writing from a RDD to Hbase : https://git.corp.yahoo.com/tgraves/sparkScripts/blob/spark2/sparkbuild/src/main/scala/yahoo/spark/SparkHbase.scala
 
-An example reading from HBASE via python: 
-  - spark < 2.2: https://git.corp.yahoo.com/hadoop/spark-starter/blob/branch-2.0/src/main/python/hbaseread.py
-  - spark 2.2: https://git.corp.yahoo.com/hadoop/spark-starter/blob/branch-2.0/src/main/python/hbaseread22.py
+An example reading from HBASE via python:
+https://git.corp.yahoo.com/hadoop/spark-starter/blob/branch-2.0/src/main/python/hbaseread.py
 
 More examples and information on this in the hbase documentation at: http://hbase.apache.org/book.html#spark
 
