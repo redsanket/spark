@@ -44,3 +44,16 @@ the Grid team or to be installed by the users.
 | :doc:`Python Client <python_client>` | Client | self-hosting     |          |
 +--------------------------------------+--------+------------------+----------+
 
+Business Intelligence Tools
+---------------------------
+
+As the tool intended for business intelligence use cases, Presto has good connectivity to standard BI tools.
+
+We have tested and currently support the following BI tools:
+  1. Looker
+  2. Tableau
+  3. `Superset <https://superset.incubator.apache.org/>`_. Superset is an open source BI tool that we plan to host for users in the near future. For now, each user can deploy their own version and connect to the hosted Presto.
+
+In addition, Presto supports JDBC connectivity so, theoretically, any BI tool that supports JDBC can connect to Presto. Complexity arises due to security considerations as well as making sure that Presto-friendly SQL is generated. Because of this, we recommend using one of the tools listed above.
+
+
