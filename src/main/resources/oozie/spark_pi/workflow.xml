@@ -1,0 +1,73 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkPiOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkPiClusterMode' />
+
+    <action name='SparkPiClusterMode'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPiClusterMode</name>
+            <class>com.yahoo.spark.starter.SparkPi</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 1 --executor-memory 1g --executor-cores 1 --queue default</spark-opts>
+        </spark>
+        <ok to="SparkPiClientMode" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkPiClientMode'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>client</mode>
+            <name>SparkPiClientMode</name>
+            <class>com.yahoo.spark.starter.SparkPi</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 1 --executor-memory 1g --executor-cores 1 --queue default</spark-opts>
+        </spark>
+        <ok to="SparkPiClusterModeWithDebugLogging" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkPiClusterModeWithDebugLogging'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPiClusterModeWithDebugLogging</name>
+            <class>com.yahoo.spark.starter.SparkPi</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 1 --executor-memory 1g --executor-cores 1 --queue default --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=log4j.properties" --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=log4j.properties"</spark-opts>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/log4j.properties</file>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action> 
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>
