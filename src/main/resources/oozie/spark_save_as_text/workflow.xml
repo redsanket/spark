@@ -1,0 +1,78 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkSaveAsTextOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkSaveAsText' />
+
+    <action name='SparkSaveAsText'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkSaveAsTextSparkSubmit</name>
+            <class>com.yahoo.spark.starter.SparkSaveAsText</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+            <arg>${wfRoot}/output/saveAsTextTest.txt</arg>
+        </spark>
+        <ok to="SparkSaveAsTextSparkSubmitWithExistingOutput" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkSaveAsTextSparkSubmitWithExistingOutput'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkSaveAsTextSparkSubmitWithExistingOutput</name>
+            <class>com.yahoo.spark.starter.SparkSaveAsText</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+            <arg>${wfRoot}/output/saveAsTextTest.txt</arg>
+        </spark>
+        <ok to="fail" />
+        <error to="SparkSaveAsTextWithLoggingSparkSubmit" />
+    </action>
+
+    <action name='SparkSaveAsTextWithLoggingSparkSubmit'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkSaveAsTextWithLoggingSparkSubmit</name>
+            <class>com.yahoo.spark.starter.SparkSaveAsText</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default --files {wfRoot}/data/log4j.properties --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=log4j.properties" --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=log4j.properties"</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+            <arg>${wfRoot}/output/saveAsTextTest2.txt</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>

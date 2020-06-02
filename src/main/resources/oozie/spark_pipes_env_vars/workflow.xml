@@ -1,0 +1,75 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkPipesEnvVarsOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkPipesEnvVars' />
+
+    <action name='SparkPipesEnvVars'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPipesEnvVars</name>
+            <class>com.yahoo.spark.starter.SparkPipesEnvVars</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+        </spark>
+        <ok to="SparkPipesTaskDirs" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkPipesTaskDirs'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPipesTaskDirs</name>
+            <class>com.yahoo.spark.starter.SparkPipesTaskDirs</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+        </spark>
+        <ok to="SparkPipesEnvVarsJdk64SparkSubmit" />
+        <error to="end" />
+    </action>
+
+    <action name='SparkPipesEnvVarsJdk64SparkSubmit'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPipesEnvVarsJdk64SparkSubmit</name>
+            <class>com.yahoo.spark.starter.SparkPipesEnvVars</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--driver-cores 1 --driver-memory 4g --num-executors 1 --executor-memory 6g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/lr_data.txt</arg>
+        </spark>
+        <ok to="fail" />
+        <error to="end" />
+    </action>
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>

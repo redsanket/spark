@@ -1,0 +1,38 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkDataFormatIntegrationTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkDataFormatIntegration' />
+
+    <action name='SparkDataFormatIntegration'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDataFormatIntegration</name>
+            <class>com.yahoo.spark.starter.SparkDataReadWrite</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>${wfRoot}/data/people.json</arg>
+            <arg>${wfRoot}/output/people_name.json</arg>
+            <arg>${wfRoot}/data/users.avro</arg>
+            <arg>${wfRoot}/output/users_name.avro</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>

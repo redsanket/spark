@@ -20,7 +20,7 @@
        <name>SparkHBaseViaOozieTest</name>
        <class>com.yahoo.spark.starter.SparkClusterHBase</class>
        <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
-       <spark-opts>--queue default --conf "spark.yarn.security.tokens.hbase.enabled=false" --conf "spark.yarn.security.tokens.hive.enabled=false"</spark-opts>
+       <spark-opts>--queue default</spark-opts>
        <arg>${tableName}</arg>
    </spark>
    <ok to="end" />

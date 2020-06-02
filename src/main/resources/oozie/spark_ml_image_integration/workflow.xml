@@ -1,0 +1,50 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkMLImageTests'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkRhel7MLImageIntegration' />
+
+    <action name='SparkRhel7MLImageIntegration'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkRhel7MLImageIntegration</name>
+            <jar>test_mlbundle_cpu_image.py</jar>
+            <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=ml/rhel7_mlbundle:current</spark-opts>
+        </spark>
+        <ok to="SparkRhel8MLImageIntegration" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkRhel8MLImageIntegration'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkRhel8MLImageIntegration</name>
+            <jar>test_mlbundle_cpu_image.py</jar>
+            <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=ml/rhel8_mlbundle:test</spark-opts>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>
