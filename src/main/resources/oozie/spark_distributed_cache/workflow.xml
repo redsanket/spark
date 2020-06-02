@@ -1,0 +1,276 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkDistribuedCacheOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkDistributedCacheOneFile' />
+
+    <action name='SparkDistributedCacheOneFile'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneFile</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleFile</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlefile.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlefile.txt</file>
+        </spark>
+        <ok to="SparkDistributedCacheOneFileWithHash" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheOneFileWithHash'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneFileWithHash</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleFile</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>renamed.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlefile.txt#renamed.txt</file>
+        </spark>
+        <ok to="SparkDistributedCacheThreeFiles" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheThreeFiles'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheThreeFiles</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheThreeFiles</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>firstfile.txt</arg>
+            <arg>renamedfile.txt</arg>
+            <arg>thirdfile.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/firstfile.txt</file>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/secondfile.txt#renamedfile.txt</file>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/thirdfile.txt</file>
+        </spark>
+        <ok to="SparkDistributedCacheOneFileHashBadFile" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheOneFileHashBadFile'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneFileHashBadFile</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleFile</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlefile.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlefile.txt#badfile.txt</file>
+        </spark>
+        <ok to="fail" />
+        <error to="SparkDistributedCacheNonExistFile" />
+    </action>
+
+    <action name='SparkDistributedCacheNonExistFile'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheNonExistFile</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleFile</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>nonexistentfile.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/nonexistenfile.txt</file>
+        </spark>
+        <ok to="fail" />
+        <error to="SparkDistributedCacheOneFileFromHdfs" />
+    </action>
+
+    <action name='SparkDistributedCacheOneFileFromHdfs'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneFileFromHdfs</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleFile</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlefile.txt</arg>
+            <file>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlefile.txt</file>
+        </spark>
+        <ok to="SparkDistributedCacheOneArchive" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheOneArchive'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneArchive</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleArchive</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlearchive.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlearchive.tgz</archive>
+        </spark>
+        <ok to="SparkDistributedCacheOneArchiveWithHash" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheOneArchiveWithHash'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneArchiveWithHash</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleArchive</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>renamed.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlearchive.tgz#renamed.tgz</archive>
+        </spark>
+        <ok to="SparkDistributedCacheThreeArchives" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheThreeArchives'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheThreeArchives</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheThreeArchives</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>firstarchive.tgz</arg>
+            <arg>renamedarchive.tgz</arg>
+            <arg>thirdarchive.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/firstarchive.tgz</archive>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/secondarchive.tgz#renamedarchive.tgz</archive>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/thirdarchive.tgz</archive>
+        </spark>
+        <ok to="SparkDistributedCacheOneArchiveHashBad" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkDistributedCacheOneArchiveHashBad'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneArchiveHashBad</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleArchive</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlearchive.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlearchive.tgz#badfile.tgz</archive>
+        </spark>
+        <ok to="fail" />
+        <error to="SparkDistributedCacheNonExistArchive" />
+    </action>
+
+    <action name='SparkDistributedCacheNonExistArchive'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheNonExistArchive</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleArchive</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>nonexistenarchive.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/nonexistenarchive.tgz</archive>
+        </spark>
+        <ok to="fail" />
+        <error to="SparkDistributedCacheOneArchiveFromHdfs" />
+    </action>
+
+    <action name='SparkDistributedCacheOneArchiveFromHdfs'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkDistributedCacheOneArchiveFromHdfs</name>
+            <class>com.yahoo.spark.starter.distributedcache.SparkDistributedCacheSingleArchive</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default</spark-opts>
+            <arg>singlearchive.tgz</arg>
+            <archive>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/data/singlearchive.tgz</archive>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>
