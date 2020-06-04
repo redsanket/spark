@@ -62,8 +62,8 @@
             <spark-opts>--driver-cores 1 --driver-memory 4g --num-executors 1 --executor-memory 6g --executor-cores 1 --queue default</spark-opts>
             <arg>${wfRoot}/data/lr_data.txt</arg>
         </spark>
-        <ok to="fail" />
-        <error to="end" />
+        <ok to="end" />
+        <error to="fail" />
     </action>
 
     <kill name="fail">

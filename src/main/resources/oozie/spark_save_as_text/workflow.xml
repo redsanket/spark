@@ -61,7 +61,7 @@
             <name>SparkSaveAsTextWithLoggingSparkSubmit</name>
             <class>com.yahoo.spark.starter.SparkSaveAsText</class>
             <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
-            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default --files {wfRoot}/data/log4j.properties --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=log4j.properties" --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=log4j.properties"</spark-opts>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default --files ${wfRoot}/data/log4j.properties --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=log4j.properties" --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=log4j.properties"</spark-opts>
             <arg>${wfRoot}/data/lr_data.txt</arg>
             <arg>${wfRoot}/output/saveAsTextTest2.txt</arg>
         </spark>
