@@ -1,0 +1,35 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkPythonOozieTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <start to='SparkPythonWordCount' />
+
+    <action name='SparkPythonWordCount'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkPythonWordCount</name>
+            <jar>python_word_count.py</jar>
+            <spark-opts>--queue default</spark-opts>
+            <arg>${wfRoot}/data/README.md</arg>
+            <arg>${wfRoot}/output/python_word_count_output</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>    
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>
