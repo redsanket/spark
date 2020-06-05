@@ -32,8 +32,9 @@ from docutils.utils import get_source_line
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.extlinks']
-
+extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo']
+# enable todo here
+todo_include_todos=True
 # Add any paths that contain templates here, relative to this directory.
 
 # Templates path for docs on developer.corp.yahoo.com
@@ -161,7 +162,7 @@ html_static_path = ['_static']
 html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
