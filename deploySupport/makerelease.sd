@@ -162,6 +162,7 @@ for cluster in $CLUSTERS; do
          if [[ "$package" == "hadoop" ]]; then
              set -x
              version=`cat /tmp/dist_list_certified_tag|grep coretree|awk '{print $1}'|cut -d - -f2`
+             meta set label $version
              set +x
          elif [[ "$package" == "conf" ]]; then
              set -x
