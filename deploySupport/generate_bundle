@@ -21,7 +21,7 @@ if [[ ! -f /home/y/bin/dist_tag ]]; then
    yinst i dist_tools
 fi
 
-dist_tag_output="${SD_ARTIFACT_DIR}/packages.txt"
+dist_tag_output="${SD_ARTIFACTS_DIR}/packages.txt"
 BD_REPO="git@git.ouroath.com:hadoop-deployments/release_bundles.git"
 TS=`date -u +%Y%m%d%H%M%S`
 serial=${serial:=$TS}
