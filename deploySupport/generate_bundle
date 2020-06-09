@@ -21,6 +21,7 @@ if [[ ! -f /home/y/bin/dist_tag ]]; then
    yinst i dist_tools
 fi
 
+dist_tag_output="${SD_ARTIFACTS_DIR}/packages.txt"
 BD_REPO="git@git.ouroath.com:hadoop-deployments/release_bundles.git"
 TS=`date -u +%Y%m%d%H%M%S`
 serial=${serial:=$TS}
@@ -28,7 +29,7 @@ GIT_DIR=release_bundles.$TS
 git clone $BD_REPO $GIT_DIR
 cd $GIT_DIR
 echo "Generating bundle from $dist_tag ..."
-/home/y/bin/dist_tag list $dist_tag > packages.txt
+/home/y/bin/dist_tag list $dist_tag > ${dist_tag_output}
 
 bundle_file="$component/$component-$serial.yaml"
 set +x
@@ -45,7 +46,7 @@ while IFS= read -r line; do
   echo "$pkg: $version"
   echo "  - label: $pkg" >> $bundle_file
   echo "    version: $version" >> $bundle_file
-done < packages.txt
+done < ${dist_tag_output}
 
 #################################################################################
 # Commit the new bundle file to the release_bundles git repo
