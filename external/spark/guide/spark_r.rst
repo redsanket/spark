@@ -7,13 +7,13 @@ Using R on Spark requires spark to be compiled with R support and R to be availa
 
 .. _r_grid:
 
-Oath/VCG Grid Install
+VMG/VCG Grid Install
 ---------------------
 
-For Oath/VCG we automatically handle shipping R for you for both current (yspark_yarn-2.3.x) and latest (yspark_yarn-2.4.x).
-Current R version supported is R-3.4.3 for rhel7 docker container and the way to set the docker container is by specifying `--conf spark.oath.dockerImage=hadoop/rhel7:current` during launch on your respective gateways.
+For VMG/VCG we automatically handle shipping R for you for both current and latest (yspark_yarn-2.4.x).
+Current R version supported is R-3.4.3 and the way to set the docker container is by specifying `--conf spark.oath.dockerImage=spark/rhel7_sparkr:current` during launch on your respective gateways.
 
-Getting started on ygrid/VCG and available gateways: https://git.ouroath.com/pages/developer/Bdml-guide/
+Getting started on VMG/VCG and available gateways: https://git.ouroath.com/pages/developer/Bdml-guide/
 
 VCG gateways:
   * Research/Sandbox: kessel-gw.gq.vcg.yahoo.com
@@ -36,12 +36,12 @@ Spark R cluster mode
 The following script enables you to launch R on Spark in cluster mode and enables you to work with R-3.4.3.
 
 R script is available here: https://github.com/apache/spark/blob/master/examples/src/main/r/data-manipulation.R
-  
+
 For example:
 
 .. code-block:: console
 
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/datamanipulation.R flights.csv
+  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=spark/rhel7_sparkr:current ~/datamanipulation.R flights.csv
 
 
 .. _r_client_mode:
@@ -54,7 +54,7 @@ Interactive/Client Mode:
 
 .. code-block:: console
 
-  $SPARK_HOME/bin/sparkR  --master yarn --deploy-mode client  --conf spark.oath.dockerImage=hadoop/rhel7:current
+  $SPARK_HOME/bin/sparkR  --master yarn --deploy-mode client  --conf spark.oath.dockerImage=spark/rhel7_sparkr:current
 
 .. _r_hive:
 
@@ -66,7 +66,7 @@ Examples:
 
 .. code-block:: console
 
-  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=hadoop/rhel7:current ~/test.R
+  $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.oath.dockerImage=spark/rhel7_sparkr:current ~/test.R
 
 .. _r_parquet:
 

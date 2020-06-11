@@ -2,7 +2,7 @@
 
 Spark Debugging
 ================
-This section talks about debugging spark applications. 
+This section talks about debugging spark applications.
 
 .. _dbg_config:
 
@@ -82,9 +82,9 @@ The Spark Web UI has a lot of information about the running application. It has 
 Finding Spark Web UI
 ~~~~~~~~~~~~~~~~~~~~
 
-- Go the Hadoop ResourceManager web UI: 
+- Go the Hadoop ResourceManager web UI:
 
-  - ``http://[ResourceManager node for your cluster].ygrid.yahoo.com:8088/cluster/apps``
+  - ``http://[ResourceManager node for your cluster].ygrid.yahoo.com:50505/cluster/apps``
 
 - Find your application id. The application id is printed on the client side (ie application identifier: application_1389725918559_11438) or search for your user name in the list.
 - Click no the "Tracking UI" link and this will take you to the Spark web UI. This is Bouncer authenticated.
@@ -157,7 +157,7 @@ You can also see just the application master logs by doing something like:
 Yamas Metrics
 -------------
 
-The Oath version of Spark (`yspark`) contains an additional metrics sink (`YamasSink`) to send Spark metrics (https://spark.apache.org/docs/latest/monitoring.html#metrics) to Yamas (http://http://yo/yamas-guide).
+The Verizon Media version of Spark (`yspark`) contains an additional metrics sink (`YamasSink`) to send Spark metrics (https://spark.apache.org/docs/latest/monitoring.html#metrics) to Yamas (http://http://yo/yamas-guide).
 
 Configuration
 ~~~~~~~~~~~~~
@@ -165,24 +165,26 @@ Configuration
 To configure a `YamasSink`, please add a custom `metrics.properties` file when submitting your Spark application.
 
 ::
-  
+
   $SPARK_HOME/spark-submit --conf spark.metrics.conf=./metrics.properties
-  
+
 The `metrics.properties` file should contain at least the following parameters:
 
 ::
 
   [instance].sink.yamas.class=org.apache.spark.metrics.sink.YamasSink
   [instance].sink.yamas.namespace=[your yamas namespace]
+  [instance].sink.yamas.applicationDimensions=[comma separated application tags, restricted to 5 tags]
 
-For example, `"[instance]"` (as defined here https://spark.apache.org/docs/latest/monitoring.html#metrics) could be: "*" for all instances, "driver", "executor", etc., and `"[your yamas namespace]"` is the target Yamas namespace. 
+For example, `"[instance]"` (as defined here https://spark.apache.org/docs/latest/monitoring.html#metrics) could be: "*" for all instances, "driver", "executor", etc., and `"[your yamas namespace]"` is the target Yamas namespace.
 
-In order to allocate a Yamas namespace for your project, please onboard your namespace with the Yamas team (http://yo/yamas-namespace-onboarding). If you haven't onboarded your namespace with Yamas, you can still send the metrics to any namespace (e.g. your username) for testing purposes. Note that once you onboard your namespace to Yamas, you will be allowed to set alerts and pre-aggregations via Git. 
+In order to allocate a Yamas namespace for your project, please onboard your namespace with the Yamas team (http://yo/yamas-namespace-onboarding). If you haven't onboarded your namespace with Yamas, you can still send the metrics to any namespace (e.g. your username) for testing purposes. Note that once you onboard your namespace to Yamas, you will be allowed to set alerts and pre-aggregations via Git.
 
 ::
 
   *.sink.yamas.class=org.apache.spark.metrics.sink.YamasSink
   *.sink.yamas.namespace=My-Yamas-Namespace
+  *.sink.yamas.applicationDimensions=cluster,colo
 
 The configuration above is the minimum required, but there are other important configs you should pay attention to:
 
@@ -191,14 +193,14 @@ spark.metrics.namespace
 
 ::
 
-  spark.metrics.namespace="${spark.app.id}" 
+  spark.metrics.namespace="${spark.app.id}"
 
 The setting `spark.metrics.namespace` is a regular Spark conf, and not included in `metrics.properties`. It is set using ``--conf spark.metrics.namespace="your-namespace"`` when submitting your Spark application. By default, the value of `spark.metrics.namespace` is your Yarn application id (e.g. application_123456789_12345). While it is useful to track metrics per application id, you may consider changing this to be the application name instead ``${spark.app.name}``:
 
 ::
 
   spark.metrics.namespace="${spark.app.name}"
-  
+
 This is recommended as it will reduce the cardinality of the metrics that Yamas needs to keep track of.
 
 [instance].sink.yamas.application
@@ -208,7 +210,7 @@ This is recommended as it will reduce the cardinality of the metrics that Yamas 
 
   [instance].sink.yamas.application=[yamas-app-name]
 
-In Yamas, each metric corresponds to an `application`. This does not map to any concept in Spark or Yarn, but instead can be thought of as a grouping of metrics. One consideration is to set `application` to the type of Spark app you are running (say "ML"), and setting `spark.metrics.namespace` to a more specific name for your Spark app (say "NLP-pipeline"). 
+In Yamas, each metric corresponds to an `application`. This does not map to any concept in Spark or Yarn, but instead can be thought of as a grouping of metrics. One consideration is to set `application` to the type of Spark app you are running (say "ML"), and setting `spark.metrics.namespace` to a more specific name for your Spark app (say "NLP-pipeline").
 
 Having a Yamas `application` name that is of coarser granularity than a specific Spark application can be beneficial, for example, to supress Yamas alerts for all of the Spark applications under a Yamas application.
 
@@ -242,7 +244,7 @@ The configurations in the table below are set in the `metrics.properties` file, 
     +--------------------------------------+-------------------------+-------------------------------------------------------------------------------------------+
     | invalidCharacterReplacementValue     | __                      | Value to use to replace invalid characters (in Yamas)                                     |
     +--------------------------------------+-------------------------+-------------------------------------------------------------------------------------------+
-    | reportExpandedStats                  | false                   | If true, report if available  min, max, median, stddev, and percentiles                   | 
+    | reportExpandedStats                  | false                   | If true, report if available  min, max, median, stddev, and percentiles                   |
     +--------------------------------------+-------------------------+-------------------------------------------------------------------------------------------+
     | requestRetries                       | 3                       | Times to retry requests to Yamas. After reaching the last retry, the metrics are dropped. |
     +--------------------------------------+-------------------------+-------------------------------------------------------------------------------------------+

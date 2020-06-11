@@ -12,7 +12,7 @@ Releases
 
 Release Information:
 
-Note that Spark 2.3 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
+Note that Spark 2.4.5.4 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
 
 .. _soy_start:
 
@@ -21,7 +21,7 @@ Getting Started
 ---------------
 Spark can be run on any of the Yahoo Grids. You must have onboarded to Hadoop and have capacity and access to a queue on the grid you want to run.
 
-Please subscribe to yspark-users ilist (yspark-users@oath.com) to get announcements about Spark.
+Please subscribe to yspark-users ilist (yspark-users@verizonmedia.com) to get announcements about Spark.
 
 
 .. _soy_installation:
@@ -59,11 +59,11 @@ Self Installation (if you need a version not on the gateway)
 
 The spark on yarn package is here: `yspark_yarn <http://dist.corp.yahoo.com/by-package/yspark_yarn/>`_
 
-If you are running on a gateway you can install this package in the root somewhere. Please always check dist to make sure these are the latest versions. 
+If you are running on a gateway you can install this package in the root somewhere. Please always check dist to make sure these are the latest versions.
 Also note that the newer versions of Spark conf point to a jar in hdfs. If you do self install a different version you will want to override that or install yspark_yarn_conf package as well.
-To point to your self installed version: 
+To point to your self installed version:
 
-For spark 2.x: ``--conf spark.yarn.archive=file:///homes/$USERNAME$/testroot/share/spark/yspark-jars-2.0.0.24.tgz``
+For spark 2.x: ``--conf spark.yarn.archive=file:///homes/$USERNAME$/testroot/share/spark/yspark-jars-2.4.5.4.tgz``
 
 You can also install yspark_yarn_conf package to get the default set of confs. If you do this you will also need to change SPARK_CONF_DIR and still set spark.yarn.jar or spark.yarn.archive:
 
@@ -73,19 +73,12 @@ You can also install yspark_yarn_conf package to get the default set of confs. I
 
 Once you install it locally you need to change ``SPARK_HOME`` to point the install location, for example: ``export SPARK_HOME=/homes/dashar/testroot/share/spark``.
 
-- Spark 2.3.x
+- Spark 2.x
 
 ::
 
-    yinst i -nosudo -r /homes/dashar/testroot yspark_yarn-2.3.0.29
-    yinst i -nosudo -r /homes/dashar/testrootconfs yspark_yarn_conf-2.3.0.29
-
-- Spark 2.2.x
-
-::
-
-    yinst i -nosudo -r /homes/dashar/testroot yspark_yarn-2.2.0.27
-    yinst i -nosudo -r /homes/dashar/testrootconfs yspark_yarn_conf-2.2.0.27
+    yinst i -nosudo -r /homes/dashar/testroot yspark_yarn-2.4.5.4
+    yinst i -nosudo -r /homes/dashar/testrootconfs yspark_yarn_conf-2.4.5.4
 
 Make sure to use the full path to the root directory in the -r option. If you put the relative path you might have problems.
 
@@ -98,7 +91,7 @@ Launcher Box Setup
 
 Note that by default you cannot run in yarn client mode from launchers, this means spark-shell, pyspark, anything else client mode won't run from a launcher box. This is due to acls not being open to connect back to the launcher. If you have a use case for this you can talk to the paranoids to see if you can get an exception.
 
-Setup like normal Grid launcher box for acls: https://yahoo.jiveon.com/docs/DOC-26932. This dist_tag only shows current stable version, if you are looking for the spark latest you will need to go to a gateway and run yinst set yspark_yarn_install.
+Setup like normal Grid launcher box for acls: https://git.ouroath.com/pages/developer/Bdml-guide/migrated-pages/Grid_Launchers/. This dist_tag only shows current stable version, if you are looking for the spark latest you will need to go to a gateway and run yinst set yspark_yarn_install.
 
 There are 2 ways to setup launcher boxes. Normal yinst install and then setup like the grid gateways.
 
@@ -110,7 +103,7 @@ Normal yinst
 Install yspark_yarn and yspark_conf. Get the latest versions by looking at the gateway boxes for your grid. Look at /home/gs/spark. Then take that version and install it
 
 ::
-    
+
     yinst i yspark_yarn-{VERSION} yspark_yarn_conf-{VERSION} -br current
 
 .. note:: The version here should match the gateway on your grid, if you pull from current you may get a version not yet deployed!!!
@@ -118,7 +111,7 @@ Install yspark_yarn and yspark_conf. Get the latest versions by looking at the g
 Then you need to export SPARK_HOME and SPARK_CONF_DIR to pick them up
 
 ::
-    
+
     export SPARK_HOME=/home/y/share/spark
     export SPARK_CONF_DIR=/home/y/conf/spark
 
@@ -136,8 +129,8 @@ You should find the latest versions for your grid and then install it like
 ::
 
     yinst i yspark_yarn_install -br current \
-    -set yspark_yarn_install.CURRENT=yspark_yarn-2.3.2.28 \
-    -set yspark_yarn_install.LATEST=yspark_yarn-2.4.1.15
+    -set yspark_yarn_install.CURRENT=yspark_yarn-2.4.5.4 \
+    -set yspark_yarn_install.LATEST=yspark_yarn-2.4.5.4
 
 This will create ``/home/gs/spark`` and ``/home/gs/conf/spark`` symlinks.
 
@@ -182,7 +175,7 @@ For example if I'm running on AR and want to access data on KR
 
 ::
 
-    $SPARK_HOME/bin/spark-shell  --executor-cores 1  --master yarn --deploy-mode client 
+    $SPARK_HOME/bin/spark-shell  --executor-cores 1  --master yarn --deploy-mode client
     --executor-memory 2g --queue default --num-executors 6  
     --conf spark.yarn.access.hadoopFileSystems=hdfs://kryptonitered-nn1.red.ygrid.yahoo.com:8020
 
@@ -257,9 +250,9 @@ Accessing Services (Hive/HBASE/etc)
 
 .. _soy_addon_svc_hive:
 
-Spark Sql Accessing Hive (Spark 1.3.1 and Greater)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Spark Sql can now access our Hive installations in either client or cluster mode. You can use most regular hive command for both reading and creating tables. See the Apache Spark docs for specifics on what might not be supported: http://spark.apache.org/docs/latest/sql-programming-guide.html#supported-hive-features
+Spark Sql Accessing Hive
+~~~~~~~~~~~~~~~~~~~~~~~~
+Spark Sql can now access our Hive installations in either client or cluster mode. You can use most regular hive command for both reading and creating tables. See the Apache Spark docs for specifics on what might not be supported: https://spark.apache.org/docs/latest/sql-programming-guide.html#supported-hive-features
 
 Note if you are using subdirectories in your hive partitions then you will have to enable recursive directory traversing when reading
 
@@ -276,7 +269,7 @@ For example to run via spark shell:
 
 .. code-block:: scala
 
-    $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client 
+    $SPARK_HOME/bin/spark-shell --master yarn --deploy-mode client
 
     scala> spark.sql("show databases").collect()
     scala> spark.sql("select * from tgraves.doctors").collect().foreach(println)
@@ -289,7 +282,7 @@ For Cluster Mode
 Spark 2.x
 
 - Make sure your application jar does not include Spark in it (you should pick it up from the spark-assembly provided with yspark)
-- ship hive-site.xml with your job 
+- ship hive-site.xml with your job
   - ``--files $SPARK_CONF_DIR/hive-site.xml``
 
 For Spark 2.x if you are running cluster mode with SparkSession you need to enable Hive support:
@@ -313,7 +306,7 @@ Example run command calling a python sql script
 Example python sql script accessing hive:
 
 .. code-block:: python
-    
+
     from __future__ import print_function
 
     import sys
@@ -345,7 +338,7 @@ Example python sql script accessing hive:
 Known Issues with Spark Sql Accessing Hive
 ++++++++++++++++++++++++++++++++++++++++++
 
-Note that Spark 2.3 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
+Note that Spark 2.4.5.4 is the minimum supported version in YGrid and VCG.  Check your grid to see if it has rolled out ``ls /home/gs/spark`` on a grid gateway.
 
 - Before Spark 2.2 dataframe creates of tables can be a problem, meaning there are sometimes issues reading it from hive.  If you are planning on reading/writing from both Spark and Hive, you should use the sql interface to create and alter tables.  Spark 2.2+ supports integration with the dataframe api.  See https://issues.apache.org/jira/browse/SPARK-19150.
 
@@ -363,7 +356,7 @@ Accessing Hive Through HCatalog
 From Spark 2.2 and Greater
 ++++++++++++++++++++++++++++
 
-Here we give an example to access hive from spark-shell using hcatalog for yspark_yarn version 2.2.x and greater
+Here we give an example to access hive from spark-shell using hcatalog for yspark_yarn version 2.4.x and greater
 
 .. code-block:: console
 
@@ -394,7 +387,7 @@ Example
 Spark Accessing HBase Table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Firstly, make sure you have permissions to the desired HBase clusters. If not, you can go to http://yo/doppler-hbase to request permission. For example, now you have permission to the "spark_test" namespace of the HBase on relux-red cluster. 
+Firstly, make sure you have permissions to the desired HBase clusters. If not, you can go to http://yo/doppler-hbase to request permission. For example, now you have permission to the "spark_test" namespace of the HBase on relux-red cluster.
 
 .. _soy_addon_svc_hbase_spark_2.2+:
 
@@ -457,7 +450,7 @@ After that, you can try to access your HBase table from Spark shell.
     myTable.flushCommits();
 
     // access the table through RDD
-    val hBaseRDD = sc.newAPIHadoopRDD(hconf, classOf[TableInputFormat], 
+    val hBaseRDD = sc.newAPIHadoopRDD(hconf, classOf[TableInputFormat],
           classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
           classOf[org.apache.hadoop.hbase.client.Result])
     val count = hBaseRDD.count()
@@ -475,7 +468,7 @@ Example writing to HBASE.
     val jobConfig = new JobConf(conf, this.getClass)
     jobConfig.setOutputFormat(classOf[TableOutputFormat])
     jobConfig.set(TableOutputFormat.OUTPUT_TABLE, tableName)
-     
+
     //convert data to puts then write to OF
     rdd = <RDD data represented as hbase Puts>
     rdd.saveAsHadoopDataset(jobConfig)
@@ -546,7 +539,7 @@ Start the spark-shell and load some sample data to HDFS (make sure hive-site.xml
 - Import necessary packages, obtain the HiveContect and load the sample data as a table DataFrame.
 
 .. code-block:: scala
-  
+
     import org.apache.spark.sql.hive.orc._
     import org.apache.spark.sql._
     import org.apache.spark.sql.types._
@@ -590,8 +583,8 @@ Start the spark-shell and load some sample data to HDFS (make sure hive-site.xml
 
 SparkR
 ------
-SparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or greater to use. 
-  - :ref:`r` 
+SparkR requires yspark_yarn-1.5.1.1_2.6.0.16.1506060127_1510071630 or greater to use.
+  - :ref:`r`
 
 .. soy_sql:
 
@@ -601,18 +594,18 @@ Spark-sql
 
 .. _soy_pyspark:
 
-PySpark Usage [PySpark+Anaconda,IPython,Hive,Python2.7 and packages]
---------------------------------------------------------------------
+PySpark Usage
+-------------
 Please note that if you are using python with Spark, the python process uses off heap memory.  The way to configure
 off heap memory on Spark is with the overhead configurations ``spark.driver.memoryOverhead`` and ``spark.executor.memoryOverhead``.  Please see the configuration docs on specifics about those.
 
-  - `PYspark, Pyspark + Anaconda,IPython,Hive` :ref:`swp`
+  - `Pyspark` :ref:`swp`
 
 .. _soy_streaming:
 
 Spark Streaming
 -----------------------
-Spark streaming can be run on Yarn but there are a few things to keep in mind since Yarn is a multi-tenant environment. 
+Spark streaming can be run on Yarn but there are a few things to keep in mind since Yarn is a multi-tenant environment.
 
 - Spark Streaming is not good for sub-second latency requirements, we recommend you look at Storm for this
 - Yarn does not provide network or disk isolation. This can affect Spark Streaming jobs since they are running on multi-tenant hosts and another application may start to use all the network or disk bandwidth which could slow your streaming job down or worst case cause that executor to fail.
@@ -625,11 +618,11 @@ Spark on Hosted Jupyter
 -----------------------
 Start at: yo/jupyter
 
-.. _soy_python_jupyter:
+.. _soy_pyspark_hue:
 
-Python Packages With HUE/Jupyter
---------------------------------
-  - `Hue - add python packages` :ref:`swp_packages`
+Pyspark with HUE
+----------------
+  - `Hue` :ref:`swp_hue`
 
 .. _soy_hue:
 
@@ -648,10 +641,6 @@ From there you can just type spark commands. To do tables you can use %table dat
 
     val textFile = sc.textFile("README.md")
     %table textFile
-
-If you are using pyspark you by default get python 2.7 with numpy and pandas. If you need to add your own python packages follow instructions here:
-  - `Hue - add python packages` :ref:`swp_packages`
-
 
 .. _soy_sparkconfs_hue:
 
@@ -675,54 +664,16 @@ Accessing Hive Through Hue
 For hue with Spark 2.x, everything should just work.
   - For example just run: ``spark.sql("show databases").collect()``
 
-For hue with Spark 1.6 the following steps are required:
-  - Upload hive-site.xml and datanucleus jars to hdfs from a gateway
-
-    - hadoop fs -mkdir huehive (creates directory /user/yourid/huehive
-    - hadoop fs -put $SPARK_HOME/lib/datanucleus-{api-jdo,core,rdbms}.jar huehive
-    - Modify hive-site.xml file
-
-      - cd; cp $SPARK_CONF_DIR/hive-site.xml
-      - Change hive.querylog.location from ${user.name} to ${java.io.tmpdir}/hivelogs so that its in the container directory, its unique and will get cleaned up on exit
-
-      .. code-block:: xml
-
-          <property>
-            <name>hive.querylog.location</name>
-            <value>${java.io.tmpdir}/hivelogs</value>
-            <description>Local Directory where structured hive query logs are created. One file per session is created in this directory. If this variable set to empty string structured log will not be created.</description>
-          </property>
-
-      - hadoop fs -put hive-site.xml huehive
-
-  - Now Start your hue session and you will have to specify the datanucleus jars and hive-site.xml in the configuration settings
-
-    - Start your spark hue notebook
-    - Once its started to go upper right corner select "Context"
-    - In drop down menu select "Jars" and you are going to add 3 jars
-    - select the ".." to see hdfs and select the huehive directory and then one of the jars like (datanucleus-api-jdo.jar)
-    - select the "+" to add another jar and repeat above step and select datanucleus-core.jar
-    - seelct the "+" to add another jar and select datanucleus-rdbms.jar
-    - Now from the dropdown menu select "Archives" and press "+" to add
-    - Go to the Archives field and select ".." and select huehive/hive-site.xml
-    - Now hit the "Recreate" button and you will have hive access 
-
 .. _soy_hue_avro:
 
 Accessing Avro Through Hue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Spark version < 2.2:
-
-If you are bundling the avro jar as a dependency with your application, then you don't need to supply any additional files. If not, you would have to first download the avro jar file and upload it to hdfs. Then you can select the avro jar by following the instructions above and recreate the hue session. The avro file should now be loaded and available to use.
-
-You can find the required avro jar version and try out an example by refering the section :ref:`soy_avro` and download the avro jar from ``http://spark-packages.org/package/databricks/spark-avro``
-
 Spark version >= 2.2: spark-avro jar is included with yspark so you can just use it.
 
 .. _soy_monitoring:
 
-Controlling & Monitoring 
+Controlling & Monitoring
 ------------------------
 
 You can kill a spark application via:
@@ -756,7 +707,7 @@ Examples
 SparkPi Example
 ~~~~~~~~~~~~~~~
 
-- kinit on the cluster ``kinit <userid>@Y.CORP.YAHOO.COM``
+- kinit on the cluster ``pkinit-user``
 - run it
   - The usage of the ``SparkPi`` example is ``Usage: SparkPi [<slices>]``
   - run it on YARN (substitute user as appropriate)
@@ -781,7 +732,7 @@ SparkPi Example
 SparkHdfsLR Example using HDFS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- kinit on the cluster: ``kinit %USERNAME%@Y.CORP.YAHOO.COM``
+- kinit on the cluster: ``pkinit-user``
 - Download the ``lr_data.txt`` file: ``wget http://raw.githubusercontent.com/apache/spark/master/data/mllib/lr_data.txt --no-check-certificate``
 - upload it into your hdfs directory: ``hadoop fs -put lr_data.txt``
 
@@ -804,7 +755,7 @@ SparkHdfsLR Example using HDFS
 JavaWordCount Example
 ~~~~~~~~~~~~~~~~~~~~~
 
-- kinit on the cluster: ``kinit %USERNAME%@Y.CORP.YAHOO.COM``
+- kinit on the cluster: ``pkinit-user``
 - Download the ``README.md`` file: ``wget https://raw.github.com/mesos/spark/master/README.md --no-check-certificate``
 - upload it into your hdfs directory: ``hadoop fs -put README.md``
 - run it
@@ -855,11 +806,11 @@ JAVA_HOME and LD_LIBRARY _PATH
 Spark Configs for History Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Spark has a history server similar to the MapReduce one. You have to have the following configs on for it to save the history for your application. 
+Spark has a history server similar to the MapReduce one. You have to have the following configs on for it to save the history for your application.
 - ``spark.eventLog.enabled true``
 - ``spark.eventLog.dir hdfs:///mapred/sparkhistory``
 
-You can also set this config for it to properly link the RM to the Spark history server # modify this to link the RM history UI link to the spark history server properly on your grid (change grid and colo below) 
+You can also set this config for it to properly link the RM to the Spark history server # modify this to link the RM history UI link to the spark history server properly on your grid (change grid and colo below)
 - ``spark.yarn.historyServer.address grid-jt1.colo.ygrid.yahoo.com:18080``
 The spark history server URI is: ``ResourceManager:18080``. So AxoniteRed would be: ``axonitered-jt1.red.ygrid.yahoo.com:18080``
 
@@ -890,7 +841,7 @@ Running in Local Mode
 ---------------------
 
 The Yahoo version of Spark has authentication on by default. On YARN the secret key is generated for the user automatically but when running in local mode the secret key must be set manually.
-- add `` --conf spark.authenticate.secret=testingsecret`` to your spark-submit command 
+- add `` --conf spark.authenticate.secret=testingsecret`` to your spark-submit command
 - run it ``./bin/spark-shell``
 
   - alternatively you can specify a number of executors to use like ``./bin/spark-shell --master local[2] --conf spark.authenticate.secret=testingsecret``
