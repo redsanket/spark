@@ -180,6 +180,59 @@ job.properties
   oozie.libpath=/user/${user.name}/${wfRoot}/apps/lib
   oozie.wf.application.path=${nameNode}/user/${user.name}/${wfRoot}/apps/spark
 
+.. _sfo_sparkr-2.4:
+
+Using Spark R
+------------------------------
+This section describes how to run SparkR through Oozie. Since sparkr.zip is missing from sharelib, you need to follow the instructions below to upload sparkr.zip to HDFS and specify spark.rpackage.home.
+
+- Manually copy ``$SPARK_HOME/R/lib/sparkr.zip`` on gateway to ``<oozie.libpath>/R/lib/sparkr.zip`` on HDFS. 
+- In <spark-opts> of workflow.xml, add ``--conf "spark.rpackage.home=./"``.
+
+workflow.xml example
+
+.. code-block:: xml
+
+  <workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkRTest'>
+    <global>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+    </global>
+    <start to="spark-node"/>
+    <action name='spark-node'>
+      <spark xmlns="uri:oozie:spark-action:0.2">
+        <configuration>
+          <property>
+            <name>oozie.action.sharelib.for.spark</name>
+            <value>spark_latest</value>
+          </property>
+        </configuration>
+        <master>yarn</master>
+        <mode>cluster</mode>
+        <name>spark_R_test</name>
+        <jar>dataframe.R</jar>
+        <spark-opts>--queue default --conf "spark.rpackage.home=./"</spark-opts>
+        <arg>people.json</arg>
+      </spark>
+      <ok to="end" />
+      <error to="fail" />
+    </action>
+    <kill name="fail">
+      <message>Script failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name='end' />
+  </workflow-app>
+
+job.properties example
+
+::
+
+  nameNode=hdfs://axonitered-nn1.red.ygrid.yahoo.com:8020
+  jobTracker=axonitered-jt1.red.ygrid.yahoo.com:8032
+  wfRoot=spark_R_test
+  oozie.libpath=/user/${user.name}/${wfRoot}/apps/lib
+  oozie.wf.application.path=${nameNode}/user/${user.name}/${wfRoot}/apps/spark
+
 .. _sfo_custom_version:
 
 Running a Different Spark Version
