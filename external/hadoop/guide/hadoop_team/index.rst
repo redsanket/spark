@@ -7,8 +7,11 @@ Hadoop Core Team
 .. toctree::
   :maxdepth: 3
 
-  getting_started/management
+  team_organization/index
   getting_started/index
-  core/index
+  knowledge_center.rst
+  hdfs/index
+  security/index
+  yarn/index
   releasing
   faq

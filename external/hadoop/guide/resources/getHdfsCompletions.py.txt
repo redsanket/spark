@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+import sys, os, pdb
+
+def getHdfsCompletions():
+    if len(sys.argv) > 1 and sys.argv[1] == "-x":
+        del sys.argv[1]
+        pdb.set_trace()
+    w = ""
+    if len(sys.argv) > 1:
+        w = sys.argv[1]
+    print "\n".join(completeArg(w))
+
+def completeArg(w):
+    if w == "":
+        r = completeWord("/", "/")
+    elif w.endswith("/"):
+        r = completeWord(w, w)
+    else:
+        r = completeWord(w+"\\*", w)
+    return r
+
+def completeWord(w, p):
+    pathlist = getHdfsPaths(w)
+    compdict = {}
+    for f in pathlist:
+        if not w.startswith("/"):
+            f = "/".join(f.split("/")[3:])
+        pos = f.find("/", len(p))
+        c = pos == -1 and f or f[:pos+1]
+        compdict[c] = 1
+    complist = compdict.keys()
+    if len(complist) == 1 and complist[0].endswith("/"):
+        complist = [complist[0], complist[0]]
+    return complist
+    
+def getHdfsPaths(w):
+    dir = getStdout("hadoop dfs -ls %s" % w).splitlines()
+    if len(dir) > 0 and dir[0].startswith("Found"):
+        del dir[0]
+    return [d.split()[7] for d in dir]
+
+# modified, from commands.py
+# note: stderr is discarded by closing
+
+def getStdout(cmd):
+    """Return stdout from executing cmd in a bash shell."""
+    pipe = os.popen('{ ' + cmd + '; } 2>&-', 'r')
+    text = pipe.read()
+    pipe.close()
+    if text[-1:] == '\n': text = text[:-1]
+    return text
+
+if __name__ == "__main__":
+    getHdfsCompletions()

@@ -8,7 +8,6 @@ Onboarding
   :local:
   :depth: 3
 
-
 -----------
 
 
@@ -34,7 +33,7 @@ Resources and Tools
    * `yo/cmitraining <https://yo/cmitraining>`_
    * `yo/champaignslides <https://yo/champaignslides>`_
 
-#. Become familiar with Jira
+#. Become familiar with Jira: `Internal Hadoop Jira home-page <https://jira.vzbuilders.com/projects/YHADOOP/summary>`_
 #. Open Source:
 
    * `How to Contribute to Apache Hadoop <https://cwiki.apache.org/confluence/display/HADOOP/How+To+Contribute/>`_
@@ -80,6 +79,7 @@ Resources and Tools
 
 #. :guilabel:`GRID Tools`
 
+   * `pkinit User Guide <https://git.ouroath.com/pages/developer/Bdml-guide/migrated-pages/PKINIT_User_Guide/>`_
    * `yinst User Guide <https://git.ouroath.com/pages/Tools/guide-yinst/>`_ describes how to use the Yahoo! installer tool, ``yinst``
    * `yo/supportshop <https://yo/supportshop>`_ yo/supportshop - GRID dashboard
    * `yo/gridci <https://yo/gridci>`_ yo/gridci - Build status
@@ -99,7 +99,7 @@ Resources and Tools
    * :token:`Grid Access:`
 
       * Get familiar with the grid naming convention: `Gateway Naming Convention <https://git.ouroath.com/pages/developer/Bdml-guide/Gateway_Naming_Convention/>`_
-      * `yo/grid-dash <https://yo/grid-dash/>`_ Lisst all hadoop clusters
+      * `yo/grid-dash <https://yo/grid-dash/>`_ List all hadoop clusters
       * There is a list of yo/links to access cluster web UI. Go to `yo/links <https://yo.vzbuilders.com/ylinks/index.php>`_ and search by owner ``ebadger``.
         For example, to access Jet Blue Resource manager, it will be `yo/jbrm <https://yo/jbrm>`_.
       * `ygrid versions <https://git.ouroath.com/pages/GridSE/gsdocs/ygrid_versions.html/>`_ also has clusters list.
@@ -113,6 +113,10 @@ Resources and Tools
             * `Legacy yo/vipviewer <https://yo/vipviewer/>`_
             * `Libra page <https://libra.ops.corp.yahoo.com:4443/>`_
             * `Confluence Documentation <https://confluence.vzbuilders.com/pages/viewpage.action?spaceKey=GNISDOCS&title=Libra+View/>`_
+
+      * :token:`Grid Command Line`
+
+          This `Bdml-guide CLI grid documentation <https://git.ouroath.com/pages/developer/Bdml-guide/grid_cline/>`_ provides a good source for some useful commands to access the grid command line, and run basic HDFS commands
 
       * :token:`OpsDB`
 
@@ -137,7 +141,7 @@ Resources and Tools
 .. _hadoop_team_getting_started_onboarding_checklist:
 
 *********************
-New Members Checklist
+New-Members Checklist
 *********************
 
 Account Access
@@ -199,17 +203,18 @@ If you have any problems initializing your ssh key:
 
 
 Verify Access
--------------------------
+-------------
 
 #. **slack channels:**
 
    * `hadoopcoreteam <https://vzbuilders.slack.com/archives/G6MQ07F9P>`_
    * `nroberts_directs <https://vzbuilders.slack.com/archives/GGC5GAPU4>`_
 
-#. **Google Docs and Sheets:**
+#. **Google Docs, Sheets, and Calendars:**
 
    * `2020 Hadoop Core / Spark / Jupyter caplabor <https://docs.google.com/spreadsheets/d/1E0QZABFUxHfLvgW3PHgXL9wkvtR0XX4ZCDHn5gonQ1M>`_
    * `Flubber Next Gen <https://docs.google.com/spreadsheets/d/18OaLmkoS7YG_A6Jg554UvcEar15J2brXIxSrRGxYziA>`_
+   * Subscribe to Google Calnedar ``Oath Big Data (Grid/ML/Vespa/VI) Out Of Office`` to mark your OOO days.
 
 
 #. **Github repositories:**
@@ -236,6 +241,7 @@ Verify Access
 #. **Doppler:**
 
    It takes some time to the permissions to propagate through the system.
+   More details can be found on `Grid Onboarding Guide <https://git.ouroath.com/pages/developer/Bdml-guide/Onboarding_to_the_Grid>`_.
 
    * Go to `yo/doppler <https://yo/doppler>`_
    * click ``Request Verizon VCG Grid Access``
@@ -268,6 +274,7 @@ Follow the steps in :ref:`hadoop_team_getting_started_development` to achieve th
 #. Build Hadoop
 #. Run Hadoop
 #. Launch Hadoop job
+#. Execute command line examples from `Bdml_guide CLI <https://git.ouroath.com/pages/developer/Bdml-guide/grid_cline>`_
 
 Picking first Jira
 ------------------
@@ -280,4 +287,4 @@ This will be first task to get familiar with the following:
 #. Testing changes
 #. Creating PR
 #. Peer Review process
-#. MErging code changes
+#. Merging code changes

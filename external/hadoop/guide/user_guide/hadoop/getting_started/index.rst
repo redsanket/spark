@@ -1,4 +1,4 @@
-..  _hadoop_team_getting_started:
+..  _user_guide_hadoop_getting_started:
 
 ###############
 Getting Started
@@ -9,5 +9,4 @@ Getting Started
   :numbered:
 
   onboarding
-  development
-
+  quick_start

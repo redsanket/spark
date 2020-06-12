@@ -1,15 +1,17 @@
-..  _hadoop_users:
+.. _hadoop_users:
 
-=======================
+############
 Hadoop Users
-=======================
+############
 
 .. toctree::
-  :maxdepth: 2
-  :hidden:
+  :maxdepth: 3
 
-  getting_started
-  onboarding
+  getting_started/index
   cookbook
-  troubleshooting
-  faq
+  yarn/index
+  troubleshooting/index
+  faq/index
+
+
+

@@ -19,17 +19,27 @@ export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
 # Screwdriver uses this to build documentation.
 # Use 'make build' to build the documentation locally. Docs will be copied to docs/<product>.
-build:
-	echo 'Creating temp dir $(TMP_ENV)'
+build: prebuild hadoop
+	@echo "running $(SPHINXBUILD) to generate documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
+	@echo 'Removing temp dir $(TMP_ENV)'
+	rm -rf $(TMP_ENV)
+
+hadoop: prebuild
+	@echo "running $(SPHINXBUILD) to generate hadoop documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP) docs/hadoop
+
+prebuild:
+	@echo '****** Start Prebuilding Steps ******'
+	@echo 'Creating temp dir $(TMP_ENV)'
 	mkdir $(TMP_ENV)
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
-	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
-	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto && $(SPHINXBUILD) $(HADOOP) docs/hadoop
-	echo 'Removing temp dir $(TMP_ENV)'
-	rm -rf $(TMP_ENV) 
+	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme  
+	@echo "Installing sphinxcontrib-bibtex..."
+	. $(ACTIVATE) && $(PIP) install sphinxcontrib-bibtex
+	@echo '****** End Prebuilding Steps ******'
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
 gh-pages:

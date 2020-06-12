@@ -459,6 +459,8 @@ line to skip the slow signature checking.
 Making Changes on local Machine
 ================================
 
+.. _hadoop_team_getting_started_development_importing_into_ide:
+
 Importing Project into IDE
 --------------------------
 
@@ -562,6 +564,11 @@ The easiest way to do that is the following:
             You can install the plugin from the `official plugin page <https://plugins.jetbrains.com/plugin/1065-checkstyle-idea/>`_
 
 
+Running test cases from IDE
+---------------------------
+
+It is possible tun test cases from the IDE. However, this may not work all the time.
+Refer to :ref:`hadoop_team_general_testiong_code_run_in_ide`
 
 
 Running YHadoop (Single Node)

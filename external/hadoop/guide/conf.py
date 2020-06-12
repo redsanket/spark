@@ -23,7 +23,6 @@ import sphinx_rtd_theme
 import sphinx.environment
 from docutils.utils import get_source_line
 
-
 # -- General configuration -----------------------------------------------------
 
 
@@ -32,7 +31,8 @@ from docutils.utils import get_source_line
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo']
+extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo', 'sphinxcontrib.bibtex']
+
 # enable todo here
 todo_include_todos=True
 # Add any paths that contain templates here, relative to this directory.
@@ -174,6 +174,13 @@ html_show_sphinx = False
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
+
+
+rst_prolog = """
+.. |br| raw:: html
+
+ <br />
+"""
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'HadoopUserGuide'
