@@ -50,7 +50,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Hadoop'
+project = u'Hadoop Doc'
 copyright = u'2020, Verizonmedia! Inc., 2020'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -58,7 +58,7 @@ copyright = u'2020, Verizonmedia! Inc., 2020'
 # built documents.
 #
 # The short X.Y version.
-#version = '0.1.0.178'
+version = 'v.2.10.01'
 # The full version, including alpha/beta/rc tags.
 #release = '0.1.0.178'
 
@@ -121,6 +121,7 @@ html_title = 'Hadoop User Guide'
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 # html_logo = 'images/hbase_logo.png'
+#html_logo = "_static/dev-guide-icon.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -131,6 +132,12 @@ html_title = 'Hadoop User Guide'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_context = {
+    'css_files': [
+        '_static/theme_overrides.css',  # override wide tables in RTD theme
+        ],
+     }
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -164,6 +171,15 @@ html_show_sourcelink = False
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_show_sphinx = False
 
+html_theme_options = {
+	'sticky_navigation': True,
+	'logo_only': True
+}
+
+edit_on_github_project = 'username/reponame'
+
+
+edit_on_github_branch = 'master'
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
 

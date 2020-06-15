@@ -6,16 +6,8 @@ Releasing
 
 .. toctree::
   :maxdepth: 2
+  :numbered:
 
-*******
-CI/CD
-*******
-
-
-*********
-Packaging
-*********
-
-**********
-Deployment
-**********
+  packaging
+  ci-cd
+  deployment

@@ -5,7 +5,13 @@ HDFS
 ####
 
 .. toctree::
-  :maxdepth: 4
+   :maxdepth: 4
+   :numbered:
 
-  operationals-manual/index
+   operationals-manual/index
+   encryption-manual/encryption
+
+
+
+
 

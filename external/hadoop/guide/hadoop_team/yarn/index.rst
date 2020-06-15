@@ -8,7 +8,7 @@ Yarn/Mapreduce
   :maxdepth: 3
 
   containers/index
-  speculator
+  speculator/index
   troubleshooting/index
 
 -----------

@@ -254,11 +254,11 @@ Optional Steps for VM
        $>yum whatprovides yinst
        Loaded plugins: versionlock
        Repository ygrid is listed more than once in the configuration
-       dps-rpms-stable                                                                                                                                   10/10
-       oath-rdrs-release                                                                                                                                   8/8
-       oath-rpms-stable                                                                                                                                  87/87
-       paranoids_rpm-stable                                                                                                                              1367/1367
-       ygrid-stable                                                                                                                                    60/60
+       dps-rpms-stable                    10/10
+       oath-rdrs-release                  8/8
+       oath-rpms-stable                   87/87
+       paranoids_rpm-stable               1367/1367
+       ygrid-stable                       60/60
 
 
    * if the output is empty then:

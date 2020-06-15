@@ -9,7 +9,7 @@ This guide will walk you through using the Spark SQL Cli.
 
 Spark-SQL Shell (spark-sql)
 ---------------------------
-spark-sql is a utility that allows interactive execution of Spark SQL statements, without having to wrap them in Scala or other code. It uses HCat and Hive so VMG/VCG Grid Hive databases and tables are all available. It can be accessed in VMG/VCG grids via the spark-sql command. Note that the command supports client mode only (interactive).
+spark-sql is a utility that allows interactive execution of Spark SQL statements, without having to wrap them in Scala or other code. It uses HCat and Hive so Oath Grid Hive databases and tables are all available. It can be accessed in Oath grids via the spark-sql command. Note that the command supports client mode only (interactive).
 
 .. _sql_capabilities:
 
@@ -78,10 +78,10 @@ Command Examples
 SQL Migration Guide
 ------------------
 - You can follow the sql upgrading guide here: https://spark.apache.org/docs/latest/sql-migration-guide-upgrade.html  which enlists the changes required to upgrade
-  from one version of spark to another.
+  from one version of spark to another(example: upgrading from Spark SQL 2.3 to 2.4).
 
 Handling spark.sql.files.maxPartitionBytes in Spark SQL
--------------------------------------------------------
+------------------------------------------------------
 - Spark SQL takes into account a bunch of factors while computing the maximum number of bytes to pack within a single partition.
 
 Currently, it computes the maximum number of bytes per partition in Spark SQL with the following equation:
