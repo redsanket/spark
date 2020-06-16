@@ -39,7 +39,7 @@ Getting Help
 General Questions and Announcements
 -----------------
 
-- yspark-users@oath.com
+- yspark-users@verizonmedia.com
 - You could also reach out on the slack channel for spark - `#spark-users`
 
 Filing Jira Tickets
