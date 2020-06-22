@@ -91,7 +91,7 @@ Launcher Box Setup
 
 Note that by default you cannot run in yarn client mode from launchers, this means spark-shell, pyspark, anything else client mode won't run from a launcher box. This is due to acls not being open to connect back to the launcher. If you have a use case for this you can talk to the paranoids to see if you can get an exception.
 
-Setup like normal Grid launcher box for acls: https://git.ouroath.com/pages/developer/Bdml-guide/migrated-pages/Grid_Launchers/. This dist_tag only shows current stable version, if you are looking for the spark latest you will need to go to a gateway and run yinst set yspark_yarn_install.
+Setup like normal Grid launcher box for acls: https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/Grid_Launchers/. This dist_tag only shows current stable version, if you are looking for the spark latest you will need to go to a gateway and run yinst set yspark_yarn_install.
 
 There are 2 ways to setup launcher boxes. Normal yinst install and then setup like the grid gateways.
 

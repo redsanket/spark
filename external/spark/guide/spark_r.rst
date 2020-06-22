@@ -13,7 +13,7 @@ VMG/VCG Grid Install
 For VMG/VCG we automatically handle shipping R for you for both current and latest (yspark_yarn-2.4.x).
 Current R version supported is R-3.4.3 and the way to set the docker container is by specifying `--conf spark.oath.dockerImage=spark/rhel7_sparkr:current` during launch on your respective gateways.
 
-Getting started on VMG/VCG and available gateways: https://git.ouroath.com/pages/developer/Bdml-guide/
+Getting started on VMG/VCG and available gateways: https://git.vzbuilders.com/pages/developer/Bdml-guide/
 
 VCG gateways:
   * Research/Sandbox: kessel-gw.gq.vcg.yahoo.com
@@ -99,4 +99,4 @@ Custom R packaging
 
 If we want to use any other R package apart from the default packages available in the docker container please follow the steps here_
 
-.. _here: https://git.ouroath.com/hadoop/sparktest/blob/spark_custom_R/README.md
+.. _here: https://git.vzbuilders.com/hadoop/sparktest/blob/spark_custom_R/README.md

@@ -14,7 +14,7 @@ For VMG/VCG we automatically handle shipping Python for you for both current and
 Current Python version supported is python3.6 for rhel7 docker container and the way to set the docker container is by specifying `--conf spark.oath.dockerImage=hadoop/rhel7:current`
 during launch on your respective gateways or launcher boxes.
 
-Getting started on VMG/VCG and available services and gateways please visit: https://git.ouroath.com/pages/developer/Bdml-guide/
+Getting started on VMG/VCG and available services and gateways please visit: https://git.vzbuilders.com/pages/developer/Bdml-guide/
 
 .. _swp_examples:
 
@@ -68,7 +68,7 @@ PySpark with Jupyter on Grid
 Jupyter has a Pyspark kernel available which enables users to have a shell based interaction framework similar to pyspark shell.
 We highly recommend browsing through the demos_ for sample pyspark kernels for general usage and for ML applications on grid.
 
-.. _demos: https://git.ouroath.com/pages/developer/Bdml-guide/migrated-pages/Jupyter_User_Guide/
+.. _demos: https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/Jupyter_User_Guide/
 
 .. _swp_hue:
 
@@ -101,7 +101,7 @@ The recommendation is to use default ML docker image ml/rhel8_mlbundle:2020.05.1
 for basic pyspark usage as they include most recent python libraries required for applications. The below steps should be used only when you need additional python packages not available
 in the docker images.
 
-(from the Dockerfile steps: https://git.ouroath.com/hadoop/docker_configs/blob/2e5b51dfd7983399027f4c6443a68bf531febce6/rhel7/Dockerfile#L15)
+(from the Dockerfile steps: https://git.vzbuilders.com/hadoop/docker_configs/blob/2e5b51dfd7983399027f4c6443a68bf531febce6/rhel7/Dockerfile#L15)
 
 - In Linux rhel7 vm: ``yum-config-manager --add-repo https://edge.artifactory.yahoo.com:4443/artifactory/python_rpms/python_rpms.repo``
 - Then install the python36 distribution: ``sudo yum install -y yahoo_python36``

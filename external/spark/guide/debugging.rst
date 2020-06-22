@@ -285,7 +285,7 @@ The accumulators will be reported as a single series for your application from t
 Yamas Pre-Aggregated Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On the Yamas UI query side, the cardinality of metrics from a Spark app may be overwhelming, and you may notice a slow response time when querying. Consider using Yamas Pre-Aggregation (http://yo/yamas-preaggregation) to generate summary metrics that are more easily queried. Note, this requires an onboarded Yamas namespace, and a Git repo with .yo rule files (see: https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/DSL/DSL_user_guide/).
+On the Yamas UI query side, the cardinality of metrics from a Spark app may be overwhelming, and you may notice a slow response time when querying. Consider using Yamas Pre-Aggregation (http://yo/yamas-preaggregation) to generate summary metrics that are more easily queried. Note, this requires an onboarded Yamas namespace, and a Git repo with .yo rule files (see: https://git.vzbuilders.com/pages/monitoring/yamas_userguide_2.0/DSL/DSL_user_guide/).
 
 FAQs/Hints
 ----------

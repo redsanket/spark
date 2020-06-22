@@ -12,11 +12,11 @@ Using Spark Action
 
 The Yahoo version of oozie recently started supporting the Spark action in oozie.
 
-See instructions at for various workflow.xml setups: https://git.ouroath.com/pages/hadoop/docs/oozie/workflows.html
+See instructions at for various workflow.xml setups: https://git.vzbuilders.com/pages/hadoop/docs/oozie/workflows.html
 
 - create an hdfs directory for your oozie application, for example spark_oozie/apps.
 - upload the application jar to be run to hdfs (for example put it in spark_oozie/apps/lib/yourapplication.jar), your application jar should not include hadoop or spark.
-- update workflow.xml (see examples at https://git.ouroath.com/pages/hadoop/docs/oozie/workflows.html) and upload into hdfs: spark_oozie/apps/spark/workflow.xml
+- update workflow.xml (see examples at https://git.vzbuilders.com/pages/hadoop/docs/oozie/workflows.html) and upload into hdfs: spark_oozie/apps/spark/workflow.xml
   - Note put your jobtracker and namenode in a global section in your workflow.xml
 
 .. code-block:: xml
@@ -368,7 +368,7 @@ Example
     <end name='end' />
   </workflow-app>
 
-An example of this is bundled with the spark-starter to try out. You can get the Spark HBase example here : https://git.ouroath.com/hadoop/spark-starter/blob/branch-2.0/src/main/scala/com/yahoo/spark/starter/SparkClusterHBase.scala You can get the Spark HBase Oozie files here : https://git.ouroath.com/hadoop/spark-starter/tree/branch-2.0/src/main/resources/oozie/hbase
+An example of this is bundled with the spark-starter to try out. You can get the Spark HBase example here : https://git.vzbuilders.com/hadoop/spark-starter/blob/branch-2.0/src/main/scala/com/yahoo/spark/starter/SparkClusterHBase.scala You can get the Spark HBase Oozie files here : https://git.vzbuilders.com/hadoop/spark-starter/tree/branch-2.0/src/main/resources/oozie/hbase
 
 - export oozie url according to the cluster you are on: ``export OOZIE_URL=http://your_cluster-oozie.colo.ygrid.yahoo.com:4443/oozie``
 - run it: ``oozie job -run -config job.properties -auth KERBEROS``

@@ -29,7 +29,7 @@ On-Boarding
 ===========
 
 Before you can use Spark at Yahoo, you need to on-board by completing the steps
-found at: `Onboarding Guide <https://git.ouroath.com/pages/developer/Bdml-guide/Onboarding_to_the_Grid/>`_.
+found at: `Onboarding Guide <https://git.vzbuilders.com/pages/developer/Bdml-guide/Onboarding_to_the_Grid/>`_.
 
 
 
