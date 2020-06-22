@@ -25,6 +25,7 @@ jobs:
           AUTO_PUBLISH_DIR: ${SD_SOURCE_DIR}/publish
         requires: [~pr]
         steps:
+          - restore_yidfs: echo "Disabled"
           - build: gmake pr_build
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
