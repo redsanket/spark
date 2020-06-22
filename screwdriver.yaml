@@ -1,5 +1,5 @@
 shared:
-    template: HadoopTools/gridci-6_10_3@latest
+    template: HadoopTools/gridci-7_5_4@latest
     settings:
       email: rchopde@verizonmedia.com
     environment:
@@ -19,7 +19,7 @@ jobs:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-6_10_3@latest
+        template: HadoopTools/gridci-7_5_4@latest
         environment:
           DIST_TAG: HADOOP_2_8_0_TEST
           AUTO_PUBLISH_DIR: ${SD_SOURCE_DIR}/publish
@@ -58,7 +58,7 @@ jobs:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-6_10_3@latest
+        template: HadoopTools/gridci-7_5_4@latest
         environment:
           UPDATE_RELEASE: true
           DIST_TAG: HADOOP_2_8_0_TEST
@@ -77,7 +77,7 @@ jobs:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-6_10_3@latest
+        template: HadoopTools/gridci-7_5_4@latest
         environment:
           UPDATE_RELEASE: true
           DIST_TAG: HADOOP_2_8_0_TEST
@@ -96,7 +96,7 @@ jobs:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-6_10_3@latest
+        template: HadoopTools/gridci-7_5_4@latest
         environment:
           UPDATE_RELEASE: false
           DIST_TAG: HADOOP_2_8_0_TEST
