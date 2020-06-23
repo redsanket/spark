@@ -90,6 +90,8 @@ fi
 set -x
 # this is a workaround for ykeyked issues mentioned in YHADOOP-3257
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"touch /dev/shm/.skip_ykeykey_restart \""
+# CM3 circus to get around GRIDCI-4719 / CM-904
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo systemctl stop cm3-client-sync.service \""
 # Installing jdk should no longer be needed. Check for few days then remove it.
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade \""
 $SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
@@ -99,6 +101,7 @@ if [ $RC -ne 0 ]; then
     echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
     exit 1
 fi
+$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo systemctl start cm3-client-sync.service \""
 
 # create and make accessible conf dir for kms
 set -x
