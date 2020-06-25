@@ -484,6 +484,152 @@ https://git.corp.yahoo.com/hadoop/spark-starter/blob/branch-2.0/src/main/python/
 
 More examples and information on this in the hbase documentation at: http://hbase.apache.org/book.html#spark
 
+Accessing HBase through SHC Connector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the original project you can look up the documentation at https://github.com/hortonworks-spark/shc.
+
+For using the connector you need to use HBase Version 1.3 and above. Most of our grids have the required version of HBase. You would need hbase 1.3 jars to be supplied with your spark job. On the gateway, you can find the hbase 1.3 jars on /home/gs/hbase/current/lib.
+
+Packaging the shc-core dependency
++++++++++++++++++++++++++++++++++
+
+Since the latest shc-core artifact is not available on public repositories, you can package the shc-core dependency to your application jar by either
+
+- Placing the shc-core jar in your project’s lib folder and installing it to your local repository with maven-install-plugin, or
+- (recommended) Getting the shc-core dependency from our internal maven-release repository.
+
+Using maven-install-plugin
+
+1. Copy the shc-core jar from the spark-starter project at https://git.vzbuilders.com/hadoop/spark-starter/tree/branch-2.0/lib to your project under a directory - lib. It can be any appropriate location.
+
+2. Update your pom file to ensure the dependency is installed when you build your project.
+
+.. code-block:: xml
+
+    <!-- specify this under the plugins section -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+            <execution>
+                <phase>initialize</phase>
+                <goals>
+                    <goal>install-file</goal>
+                </goals>
+                <configuration>
+                    <groupId>com.hortonworks</groupId>
+                    <artifactId>shc-core</artifactId>
+                    <version>1.0</version>
+                    <packaging>jar</packaging>
+                    <!-- current available spark and scala versions are 2.4/3.0 and 2.11/2.12 respectively -->
+                    <file>${basedir}/lib/shc-core-1.1.2-${spark.version}-s_${spark.scala.version}-SNAPSHOT.jar</file>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+
+    <!-- specify the dependency under the dependencies section -->
+    <dependency>
+        <groupId>com.hortonworks</groupId>
+        <artifactId>shc-core</artifactId>
+        <version>1.0</version>
+    </dependency>
+
+3. Run ``mvn initialize`` under your project’s root directory to install the shc-core.
+
+Getting it from the internal maven-release repository
+
+1. Add the maven-release repostitory to your pom file.
+
+.. code-block:: xml
+
+    <!-- specify the repository under the repositories section -->
+    <repository>
+        <id>maven-releases</id>
+        <url>http://edge.artifactory.yahoo.com:8000/artifactory/maven-release</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+    </repository>
+
+2. Specify the shc-core as a dependency.
+
+.. code-block:: xml
+
+    <!-- specify the dependency under the dependencies section -->
+    <dependency>
+        <groupId>com.hortonworks</groupId>
+        <artifactId>shc-core</artifactId>
+        <!-- current available spark and scala versions are 2.4/3.0 and 2.11/2.12 respectively -->
+        <version>1.1.2-${spark.version}-s_${spark.scala.version}-SNAPSHOT</version>
+    </dependency>
+
+Launching the job
++++++++++++++++++
+
+Define an ENV variable - HBASE_JARS to point to the directory which contains hbase 1.3 jars.
+
+.. code-block:: bash
+
+    export HBASE_JARS=/home/gs/hbase/current/lib
+
+Launching in cluster mode
+
+.. code-block:: bash
+
+    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode cluster \
+    --jars $HBASE_JARS/hbase-protocol.jar,$HBASE_JARS/hbase-common.jar,$HBASE_JARS/hbase-client.jar,$HBASE_JARS/htrace-core-3.1.0-incubating.jar,$HBASE_JARS/hbase-server.jar,$HBASE_JARS/guava-12.0.1.jar,$HBASE_JARS/metrics-core-2.2.0.jar \
+    --files $SPARK_CONF_DIR/hbase-site.xml \
+    ...
+
+Launching in client mode
+
+.. code-block:: bash
+
+    $SPARK_HOME/bin/spark-submit --master yarn --deploy-mode client \
+    --jars $HBASE_JARS/hbase-protocol.jar,$HBASE_JARS/hbase-common.jar,$HBASE_JARS/hbase-client.jar,$HBASE_JARS/htrace-core-3.1.0-incubating.jar,$HBASE_JARS/hbase-server.jar,$HBASE_JARS/guava-12.0.1.jar,$HBASE_JARS/metrics-core-2.2.0.jar \
+    ...
+
+Using the SHC Connector
++++++++++++++++++++++++
+
+Check the hortonworks documentation for more details and examples at https://github.com/hortonworks-spark/shc for further details.
+
+Below is an additional example for your reference explaining how to define your own catalog. You need to define a catalog so that a DataFrame can be mapped to an HBase table or vice-versa. This is defined in a JSON format.
+
+.. code-block:: scala
+
+    def catalog = s"""{
+            |"table":{"namespace":"default", "name":"table1"},
+            |"rowkey":"key",
+            |"columns":{
+              |"df_col0":{"cf":"rowkey", "col":"key", "type":"string"},
+              |"df_col1":{"cf":"cf1", "col":"col1", "type":"boolean"},
+              |"df_col2":{"cf":"cf2", "col":"col2", "type":"double"},
+              |"df_col3":{"cf":"cf3", "col":"col3", "type":"float"},
+              |"df_col4":{"cf":"cf4", "col":"col4", "type":"int"},
+              |"df_col5":{"cf":"cf5", "col":"col5", "type":"bigint"},
+              |"df_col6":{"cf":"cf6", "col":"col6", "type":"smallint"},
+              |"df_col7":{"cf":"cf7", "col":"col7", "type":"string"},
+              |"df_col8":{"cf":"cf8", "col":"col8", "type":"tinyint"}
+            |}
+          |}""".stripMargin
+
+- ``table`` - you specify the namespace and the name of the table
+- ``rowkey`` - you specify the column/s in the hbase table that form the rowkey. Composite keys are not currently supported.
+- ``columns`` field - you specify the name of the column in the DataFrame and its corresponding column_family, column_name and column_type in hbase. You identify the column/s which are used to form the rowkey using the column_family as rowkey.
+
+Note: Since a user can add any arbitrary columns to a column family, individual columns are not specified under the table schema in HBase table description. Therefore it is helpful to know the columns of interest available in hbase table while defining the catalog.
+
+Spark Example Using SHC
++++++++++++++++++++++++
+
+A complete example of accessing HBase through SHC is available on https://git.vzbuilders.com/hadoop/spark-starter/blob/branch-2.0/src/main/scala/com/yahoo/spark/starter/SparkClusterHBaseConnector.scala.
+
 .. _soy_readdata:
 
 Reading Data (ORC files, avro, etc)
