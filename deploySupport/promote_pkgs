@@ -93,7 +93,7 @@ my $yds_db_table = 'gridci_result_summary';
 chomp(my $time = `/bin/date +%s`);
 
 note("Install required packages");
-execute("yinst i dist_tools");
+execute("yinst i dist_tools -br test");
 
 #################################################################################
 # Fetch the package version based on the test tag

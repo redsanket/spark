@@ -48,7 +48,7 @@ jobs:
           - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), \
                              CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), \
                              UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
-          - build: yinst i perl_ykeykey-2.0.5;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
+          - build: sudo yum install perl-Test-Simple perl-Tie-IxHash -y;yinst i perl_ykeykey; yinst i dist_tools -br test;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
           - regression: echo "DISABLED"
           - package: echo "Disabled"
           - publish: echo "Disabled"
@@ -65,7 +65,8 @@ jobs:
           DIST_TAG: HADOOP_2_8_0_TEST
         requires: [promote-cd-tag]
         steps:
-          - build: gmake build; sh -x deploySupport/makerelease.sd
+          - restore_yidfs: echo "Disabled"
+          - build: sudo yum install perl-Test-Simple perl-Tie-IxHash -y;yinst i perl_ykeykey; yinst i dist_tools -br test;gmake build; sh -x deploySupport/makerelease.sd
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
           - package: echo "DISABLED"
@@ -84,6 +85,7 @@ jobs:
           DIST_TAG: HADOOP_2_8_0_TEST
         requires: [promote-cd-tag]
         steps:
+          - restore_yidfs: echo "Disabled"
           - build: sh -x deploySupport/generate_bundle $(meta get parameters.TEST_TAG.value)
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
@@ -102,6 +104,7 @@ jobs:
           UPDATE_RELEASE: false
           DIST_TAG: HADOOP_2_8_0_TEST
         steps:
+          - restore_yidfs: echo "Disabled"
           - build: gmake build; sh -x deploySupport/makerelease.sd
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
