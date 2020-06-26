@@ -4,28 +4,16 @@ spark-starter contains simple examples of using Spark. These simple examples sho
 
 ## Running with Maven
 
-To use hortonworks Spark-HBase Connector, you will need to specify a compatible shc-core jar in pom.xml. Since the latest shc-core does not exist in public repositories, you will need to install it locally.
-```
-<configuration>
-    <groupId>com.hortonworks</groupId>
-    <artifactId>shc-core</artifactId>
-    <version>1.0</version>
-    <packaging>jar</packaging>
-    <file>${basedir}/lib/shc-core-1.1.2-<spark_version>-s_<scala_version>-SNAPSHOT.jar</file>
-</configuration>
-```
-`<spark_version>` and `<scala_version>` should be substituted with the version you are using.
-
-To install shc-core to local maven repository:
-
-```
-mvn initialize
-```
-
 To create a package:
 
 ```
 mvn clean package
+```
+
+To create a spark-3.x compatible jar:
+
+```
+mvn -Pscala-2.12 clean package
 ```
 
 Jars are located in <project-root>/target.  Two jars will be created in <project-root>/target, one jar packaged with all dependencies:

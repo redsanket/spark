@@ -30,11 +30,10 @@
             </releases>
         </repository>
         <repository>
-            <id>hadoop-artifactory-releases</id>
-            <url>http://edge.artifactory.yahoo.com:8000/artifactory/hadoop-maven-release</url>
-            <name>hadoop-artifactory-releases</name>
+            <id>maven-releases</id>
+            <url>http://edge.artifactory.yahoo.com:8000/artifactory/maven-release</url>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
             <releases>
                 <enabled>true</enabled>
@@ -108,7 +107,7 @@
         <dependency>
             <groupId>com.hortonworks</groupId>
             <artifactId>shc-core</artifactId>
-            <version>1.0</version>
+            <version>1.1.2-${spark.version}-s_${spark.scala.version}-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.scalanlp</groupId>
@@ -148,26 +147,6 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>com.hortonworks</groupId>
-                            <artifactId>shc-core</artifactId>
-                            <version>1.0</version>
-                            <packaging>jar</packaging>
-                            <file>${basedir}/lib/shc-core-1.1.2-${spark.version}-s_${spark.scala.version}-SNAPSHOT.jar</file>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
