@@ -1,0 +1,50 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='SparkHiveTest'>
+    <global>
+        <job-tracker>${jobTracker}</job-tracker>
+        <name-node>${nameNode}</name-node>
+    </global>
+
+    <credentials>
+        <credential name='hive_credentials' type='hcat'></credential>
+    </credentials>
+
+    <start to='CopyData' />
+
+    <!-- We need to copy kv1.txt because it will be moved to hive warehouse dir when it's loaded to a hive table -->
+    <action name='CopyData'>
+        <distcp xmlns="uri:oozie:distcp-action:0.2">
+            <arg>${wfRoot}/data/kv1.txt</arg>
+            <arg>${wfRoot}/output/kv1.txt</arg>
+        </distcp>
+        <ok to="SparkHiveTest" />
+        <error to="fail" />
+    </action>
+
+    <action name='SparkHiveTest' cred='hive_credentials'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <configuration>
+                <property>
+                    <name>oozie.action.sharelib.for.spark</name>
+                    <value>${sparkTag}</value>
+                </property>
+            </configuration>
+            <master>yarn</master>
+            <mode>cluster</mode>
+            <name>SparkHiveTest</name>
+            <class>com.yahoo.spark.starter.SparkHiveExample</class>
+            <jar>spark-starter-2.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+            <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default --conf spark.yarn.security.tokens.hive.enabled=false</spark-opts>
+            <arg>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/output/hive_location</arg>
+            <arg>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/output/kv1.txt</arg>
+        </spark>
+        <ok to="end" />
+        <error to="fail" />
+    </action>
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end' />
+</workflow-app>

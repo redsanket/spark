@@ -8,6 +8,15 @@ case class Record(key: Int, value: String)
 // Original: https://spark.apache.org/docs/latest/sql-data-sources-hive-tables.html
 object SparkHiveExample {
   def main(args: Array[String]) {
+
+    if (args.length < 2) {
+      System.err.println("Usage: SparkHiveExample <databaseDir> <inputFile>")
+      System.exit(1)
+    }
+
+    val databaseDir = args(0)
+    val inputFile = args(1)
+
     val spark = SparkSession
       .builder()
       .appName("Spark Hive Example")
@@ -17,11 +26,16 @@ object SparkHiveExample {
     import spark.implicits._
     import spark.sql
 
-    sql("USE default")
+    // Create a database under hdfs home directory for testing purpose
+    sql(s"CREATE DATABASE IF NOT EXISTS spark_hive_test LOCATION '$databaseDir'")
 
-    // Create the table and load data from a local file
+    sql("USE spark_hive_test")
+
+    // Create the table and load data from a text file on hdfs
     sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
-    sql(s"LOAD DATA LOCAL INPATH 'file://${System.getenv("HOME")}/spark-starter/src/main/resources/hive/kv1.txt' INTO TABLE src")
+
+    // The inputFile is available at spark-starter/src/main/resources/hive/kv1.txt
+    sql(s"LOAD DATA INPATH '$inputFile' INTO TABLE src")
 
     // Queries are expressed in HiveQL
     sql("SELECT * FROM src").show()
@@ -46,7 +60,7 @@ object SparkHiveExample {
 
     // The items in DataFrames are of type Row, which allows you to access each column by ordinal.
     val stringsDS = sqlDF.map {
-    case Row(key: Int, value: String) => s"Key: $key, Value: $value"
+      case Row(key: Int, value: String) => s"Key: $key, Value: $value"
     }
     stringsDS.show()
     // +--------------------+
@@ -98,9 +112,8 @@ object SparkHiveExample {
     // |311|val_311|
     // ...
 
-    // Drop tables
-    sql("DROP TABLE IF EXISTS src")
-    sql("DROP TABLE IF EXISTS hive_records_v2")
+    // Drop the database
+    sql("DROP DATABASE IF EXISTS spark_hive_test CASCADE")
 
     spark.stop()
   }
