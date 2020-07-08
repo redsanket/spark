@@ -225,6 +225,11 @@ In the yarn client mode the client is a fat client. Instead of the SparkContext 
 
     $SPARK_HOME/bin/pyspark --master yarn --deploy-mode client
 
+.. note:: IMPORTANT: VMG gateways are still on RHEL6 and you need to set the image explicitly to launch a shell. Use --conf spark.oath.dockerImage=hadoop/rhel6:current to launch a pyspark shell on VMG gateways.
+
+::
+    $SPARK_HOME/bin/pyspark --conf spark.oath.dockerImage=hadoop/rhel6:current
+
 - sparkR for interactive queries in R: :ref:`soy_sparkr`
 
 - spark-sql for interactive queries in SQL: :ref:`sql`
