@@ -1,9 +1,10 @@
 shared:
-    template: HadoopTools/gridci-7_5_4@latest
+    template: HadoopTools/gridci@latest
     settings:
       email: rchopde@verizonmedia.com
     environment:
       SKIP_VALIDATION: "true"
+      DIST_TAG: HADOOP_2_8_0_LATEST
 
 parameters:
     TEST_TAG: "HADOOP_2_8_0_LATEST"
@@ -12,20 +13,13 @@ parameters:
     CLUSTERS_TO_PROMOTE: "axonitered"
     UPLOAD_ARTIFACTORY: "true"
     UPDATE_RELEASE: "true"
+    TGZ_VERSION: "2.10.1"
 
 jobs:
     pull_request:
-        annotations:
-          screwdriver.cd/cpu: HIGH
-          screwdriver.cd/ram: HIGH
-          screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-7_5_4@latest
-        environment:
-          DIST_TAG: HADOOP_2_8_0_TEST
-          AUTO_PUBLISH_DIR: ${SD_SOURCE_DIR}/publish
         requires: [~pr]
         steps:
-          - restore_yidfs: echo "Disabled"
+          - info: echo "PR build"
           - build: gmake pr_build
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
@@ -34,14 +28,11 @@ jobs:
           - publish: echo "DISABLED"
           - git_tag: echo "DISABLED"
           - dist_tag: echo "DISABLED"
+          - bundle: echo "DISABLED"
     promote-cd-tag:
-        environment:
-          SKIP_VALIDATION: "true"
-          DIST_TAG: HADOOP_2_8_0_TEST
         requires: [~commit]
         steps:
-          - restore_yidfs: echo "Disabled"
-          - junit: echo "Disabled"
+          - info: echo "Promote release dist tag to certified tag"
           - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),\
                                 CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value),\
                                 UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
@@ -49,6 +40,7 @@ jobs:
                              CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), \
                              UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"'
           - build: sudo yum install perl-Test-Simple perl-Tie-IxHash -y;yinst i perl_ykeykey; yinst i dist_tools -br test;./deploySupport/promote_pkgs -test_tag $(meta get parameters.TEST_TAG.value) -cert_tag $(meta get parameters.CERTIFIED_TAG.value) -clusters $(meta get parameters.CLUSTERS.value)
+          - junit: echo "Disabled"
           - regression: echo "DISABLED"
           - package: echo "Disabled"
           - publish: echo "Disabled"
@@ -59,14 +51,14 @@ jobs:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-7_5_4@latest
+        template: HadoopTools/gridci@latest
         environment:
           UPDATE_RELEASE: true
           DIST_TAG: HADOOP_2_8_0_TEST
         requires: [promote-cd-tag]
         steps:
-          - restore_yidfs: echo "Disabled"
-          - build: sudo yum install perl-Test-Simple perl-Tie-IxHash -y;yinst i perl_ykeykey; yinst i dist_tools -br test;gmake build; sh -x deploySupport/makerelease.sd
+          - info: echo "Generate deploy packages and upload bundles"
+          - build: gmake build; sh -x deploySupport/makerelease.sd
           - junit: echo "DISABLED"
           - regression: echo "DISABLED"
           - package: echo "DISABLED"
@@ -74,35 +66,34 @@ jobs:
           - publish: echo "DISABLED"
           - git_tag: echo "DISABLED"
           - dist_tag: echo "DISABLED"
-    upload_bd_bundle:
-        annotations:
-          screwdriver.cd/cpu: HIGH
-          screwdriver.cd/ram: HIGH
-          screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-7_5_4@latest
-        environment:
-          UPDATE_RELEASE: true
-          DIST_TAG: HADOOP_2_8_0_TEST
-        requires: [promote-cd-tag]
-        steps:
-          - restore_yidfs: echo "Disabled"
-          - build: sh -x deploySupport/generate_bundle $(meta get parameters.TEST_TAG.value)
-          - junit: echo "DISABLED"
-          - regression: echo "DISABLED"
-          - package: echo "DISABLED"
-          - postpackage: echo "DISABLED"
-          - publish: echo "DISABLED"
-          - git_tag: echo "DISABLED"
+    upload_bd_bundle:	
+        annotations:	
+          screwdriver.cd/cpu: HIGH	
+          screwdriver.cd/ram: HIGH	
+          screwdriver.cd/timeout: 720	
+        template: HadoopTools/gridci@latest	
+        environment:	
+          UPDATE_RELEASE: true	
+          DIST_TAG: HADOOP_2_8_0_TEST	
+        requires: [gen_hadoop_release]	
+        steps:	
+          - build: sh -x deploySupport/generate_bundle	
+          - junit: echo "DISABLED"	
+          - regression: echo "DISABLED"	
+          - package: echo "DISABLED"	
+          - postpackage: echo "DISABLED"	
+          - publish: echo "DISABLED"	
+          - git_tag: echo "DISABLED"	
           - dist_tag: echo "DISABLED"
     conf_to_artifactory:
         annotations:
           screwdriver.cd/cpu: HIGH
           screwdriver.cd/ram: HIGH
           screwdriver.cd/timeout: 720
-        template: HadoopTools/gridci-7_5_4@latest
+        template: HadoopTools/gridci@latest
         environment:
           UPDATE_RELEASE: false
-          DIST_TAG: HADOOP_2_8_0_TEST
+          DIST_TAG: HADOOP_2_8_0_LATEST
         steps:
           - restore_yidfs: echo "Disabled"
           - build: gmake build; sh -x deploySupport/makerelease.sd

@@ -48,6 +48,7 @@ release_dir="${SOURCE_DIR}/grid/0/releases"
 
 # OVERRIDE_TAG=${OVERRIDE_TAG:="false"}
 
+YINST_FREEZE_DTS=`date +%Y%m%d-000`
 # set -x
 
 ################################################################################
@@ -153,6 +154,7 @@ EOF
 
 labels=""
 YINST_FREEZE_DTS=`date +%Y%m%d-000`
+
 cluster_index=1
 for cluster in $CLUSTERS; do
   # TODO: check cluster has the format of <cluster>.<color>
@@ -162,7 +164,6 @@ for cluster in $CLUSTERS; do
          if [[ "$package" == "hadoop" ]]; then
              set -x
              version=`cat /tmp/dist_list_certified_tag|grep coretree|awk '{print $1}'|cut -d - -f2`
-             meta set label $version
              set +x
          elif [[ "$package" == "conf" ]]; then
              set -x
@@ -190,6 +191,9 @@ for cluster in $CLUSTERS; do
              labels+=","
          fi
          labels+="$package,$version-$YINST_FREEZE_DTS"
+         meta set YINST_FREEZE_VERSION $version-${YINST_FREEZE_DTS}
+         meta set label $version-${YINST_FREEZE_DTS}
+         echo "Value for YINST_FREEZE_VERSION is: `meta get YINST_FREEZE_VERSION`"
          echo "labels='$labels'"
          echo "Creating entry from if for $package: /usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6"
          echo "/usr/local/bin/makerelease.sd -p $package -v $version -c $cluster -br quarantine el6" >> $run_script_file_path
@@ -262,6 +266,7 @@ if [[ "$UPDATE_RELEASE" == "true" ]]; then
   # Upload new bundle file to hadoop_releases repo and update clusters.yaml
   # Update the clusters yaml file. Use update_clusters_ext to prevent single quotes in clusters.yaml
   git config --global push.default matching
+  # Add chef bundle (will be outdated soon)
   sh -x $SCRIPT_DIR/insert_bundle_yaml hadoop_core $BUNDLE_SERIAL $labels $CLUSTERS_TO_PROMOTE
   # Call to update clusters.yaml is from insert_bundle_yaml
   # Update the clusters yaml file. Use update_clusters_yaml to prevent single quotes in clusters.yaml

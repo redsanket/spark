@@ -7,20 +7,30 @@
 # $ ./generate_bundle <dist_tag>
 #
 #################################################################################
+# ${meta get parameters.TEST_TAG.value} ${meta get UPSTREAM.YINST_FREEZE_VERSION}
 
-dist_tag=$1
-component=hadoop
-set +x
+dist_tag=$(meta get parameters.TEST_TAG.value)
+tgz_version=$(meta get YINST_FREEZE_VERSION)
+# [[ -z $tgz_version ]] && tgz_version=$(meta get parameters.TGZ_VERSION.value)
+
+if [[ -z "$tgz_version" ]];then
+   echo "TGZ VERSION is empty!"
+   exit -1
+fi
+
 if [[ -z $dist_tag ]];then
   echo "dist_tag argument provided is empty!"
   echo "Usage: $0: <dist_tag> "
   exit -1
 fi
-if [[ ! -f /home/y/bin/dist_tag ]]; then
+
+if [[ ! -f "/home/y/bin/dist_tag" ]]; then
    echo "Installing dist_tools..."
-   yinst i dist_tools
+   # ideally we should not run into this situation
+   yinst i dist_tools -br test
 fi
 
+component=hadoop
 dist_tag_output="${SD_ARTIFACTS_DIR}/packages.txt"
 BD_REPO="git@git.ouroath.com:hadoop-deployments/release_bundles.git"
 TS=`date -u +%Y%m%d%H%M%S`
@@ -30,6 +40,10 @@ git clone $BD_REPO $GIT_DIR
 cd $GIT_DIR
 echo "Generating bundle from $dist_tag ..."
 /home/y/bin/dist_tag list $dist_tag > ${dist_tag_output}
+if [ $? -eq 1 ]; then
+   echo "ERROR! Unable to list dist tag!"
+   exit
+fi
 
 bundle_file="$component/$component-$serial.yaml"
 set +x
@@ -48,6 +62,9 @@ while IFS= read -r line; do
   echo "    version: $version" >> $bundle_file
 done < ${dist_tag_output}
 
+echo "  - label: tgz_version" >> $bundle_file
+echo "    version: $tgz_version" >> $bundle_file
+
 #################################################################################
 # Commit the new bundle file to the release_bundles git repo
 # Use the hadoopqe user to ensure the pipeline is triggered
@@ -60,7 +77,7 @@ if [[ -f "$bundle_file" ]]; then
   git config --global user.name hadoopqe
   git status
   git add $bundle_file
-  git commit -a -m "Add latest bundle $serial file for $component."
+  git commit -a -m "Add latest bundle $serial file for $component from ${SD_PROJECT}."
   git remote -v
   git push origin master
   RC=$?
