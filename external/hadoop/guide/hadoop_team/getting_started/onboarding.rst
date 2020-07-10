@@ -214,7 +214,8 @@ Verify Access
 
    * `2020 Hadoop Core / Spark / Jupyter caplabor <https://docs.google.com/spreadsheets/d/1E0QZABFUxHfLvgW3PHgXL9wkvtR0XX4ZCDHn5gonQ1M>`_
    * `Flubber Next Gen <https://docs.google.com/spreadsheets/d/18OaLmkoS7YG_A6Jg554UvcEar15J2brXIxSrRGxYziA>`_
-   * Subscribe to Google Calnedar ``Oath Big Data (Grid/ML/Vespa/VI) Out Of Office`` to mark your OOO days.
+   * Subscribe to Google Calendar ``Oath Big Data (Grid/ML/Vespa/VI) Out Of Office`` to mark your OOO days.
+      * Calendar email address: oath.com_52bjahec0m2ftb7eue1gqh1ioc@group.calendar.google.com
 
 
 #. **Github repositories:**
