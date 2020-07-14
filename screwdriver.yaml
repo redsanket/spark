@@ -11,6 +11,7 @@ parameters:
     CERTIFIED_TAG: "deploy_hadoop_latest_certified_release"
     CLUSTERS: "all"
     CLUSTERS_TO_PROMOTE: "axonitered"
+    GENERATE_PACKAGES: "true"
     UPLOAD_ARTIFACTORY: "true"
     UPDATE_RELEASE: "true"
     TGZ_VERSION: "2.10.1"
@@ -35,6 +36,7 @@ jobs:
           - info: echo "Promote release dist tag to certified tag"
           - preprebuild: 'echo "TEST_TAG: $(meta get parameters.TEST_TAG.value),\
                                 CERTIFIED_TAG: $(meta get parameters.CERTIFIED_TAG.value),\
+                                GENERATE_PACKAGES: $(meta get parameters.GENERATE_PACKAGES.value),\
                                 UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"'
           - prebuild: 'echo "CLUSTERS: $(meta get parameters.CLUSTERS.value), \
                              CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value), \

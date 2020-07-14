@@ -36,6 +36,7 @@ CLUSTERS_TO_PROMOTE=$(meta get parameters.CLUSTERS_TO_PROMOTE.value)
 UPLOAD_ARTIFACTORY=$(meta get parameters.UPLOAD_ARTIFACTORY.value)
 UPDATE_RELEASE=$(meta get parameters.UPDATE_RELEASE.value)
 echo "CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value)"
+echo "GENERATE_PACKAGES: $(meta get parameters.GENERATE_PACKAGES.value)"
 echo "UPLOAD_ARTIFACTORY: $(meta get parameters.UPLOAD_ARTIFACTORY.value)"
 echo "UPDATE_RELEASE: $(meta get parameters.UPDATE_RELEASE.value)"
 CLEANUP=${CLEANUP:="false"}
@@ -232,31 +233,39 @@ for cluster in $CLUSTERS; do
   cluster_index=$(($cluster_index+1))
 done
 
-set -x
-hostname
-sudo groupadd -g 10787 hadoop
-chmod a+x $run_script_file_path
-ls -l $run_script_file_path
-cat $run_script_file_path
-set +x
-$run_script_file_path
-if [ $? -eq 0 ]; then
-  if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
-     # For GDM we often got timeout error and it was not obvious to see which pkg is causing it
-     # Upload one pkg at a time, in case of failure it is easy to debug
-     cd ${SOURCE_DIR}/grid/0/releases
-     for pkg in `ls *.tgz*`; do
-	echo "Uploading $pkg to artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/ ..."
-	scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
-     done
+# run makerelease if GENERATE_PACKAGES is set to true
+if [[ "$GENERATE_PACKAGES" == "true" ]]; then
+  echo "GENERATE_PACKAGES=true: Proceed to run makerelease..."
+  set -x
+  hostname
+  sudo groupadd -g 10787 hadoop
+  chmod a+x $run_script_file_path
+  ls -l $run_script_file_path
+  cat $run_script_file_path
+  set +x
+  $run_script_file_path
+  if [ $? -eq 0 ]; then
+    # upload release to artifactory if UPLOAD_ARTIFACTORY is set to true
+    if [[ "$UPLOAD_ARTIFACTORY" == "true" ]]; then
+      # For GDM we often got timeout error and it was not obvious to see which pkg is causing it
+      # Upload one pkg at a time, in case of failure it is easy to debug
+      cd ${SOURCE_DIR}/grid/0/releases
+        for pkg in `ls *.tgz*`; do
+	  echo "Uploading $pkg to artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/ ..."
+	  scp -P 4443 $pkg artifactory-ssh-proxy.corp.yahoo.com:/ygrid/Releases/$pkg
+        done
+    else
+      echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
+    fi
   else
-     echo "UPLOAD_ARTIFACTORY=false; Skipping artifactory upload"
+    echo "Error: Something went wrong with $run_script_file_path"
+    exit -1
   fi
 else
-  echo "Error: Something went wrong with $run_script_file_path"
-  exit -1
+  echo "GENERATE_PACKAGES=false; Skipping running makerelease"
 fi
 
+# update release in clusters.yaml if UPDATE_RELEASE is set to true
 if [[ "$UPDATE_RELEASE" == "true" ]]; then
   echo "UPDATE_RELEASE=true: Proceed to update the hadoop_releases git repo"
 
