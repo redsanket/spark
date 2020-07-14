@@ -33,6 +33,7 @@ packages=${packages:="hadoop conf hadoop_mvn_tools"}
 CLUSTERS=${CLUSTERS:="all"}
 CLUSTER_ROLES=${CLUSTER_ROLES:="grid.clusters.sandbox,grid.clusters.research,grid.clusters.prod,grid_re.clusters.staging,vcg.clusters.research,vcg.clusters.prod,rdg.clusters.prod"}
 CLUSTERS_TO_PROMOTE=$(meta get parameters.CLUSTERS_TO_PROMOTE.value)
+GENERATE_PACKAGES=$(meta get parameters.GENERATE_PACKAGES.value)
 UPLOAD_ARTIFACTORY=$(meta get parameters.UPLOAD_ARTIFACTORY.value)
 UPDATE_RELEASE=$(meta get parameters.UPDATE_RELEASE.value)
 echo "CLUSTERS_TO_PROMOTE: $(meta get parameters.CLUSTERS_TO_PROMOTE.value)"
@@ -234,6 +235,8 @@ for cluster in $CLUSTERS; do
 done
 
 # run makerelease if GENERATE_PACKAGES is set to true
+# Note: this should not be set to false for releases as  it won't generated pacakges
+# set false only for testing
 if [[ "$GENERATE_PACKAGES" == "true" ]]; then
   echo "GENERATE_PACKAGES=true: Proceed to run makerelease..."
   set -x

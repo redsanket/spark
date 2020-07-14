@@ -90,7 +90,7 @@ if [[ -f "$bundle_file" ]]; then
   git add $bundle_file
   git commit -a -m "Add latest bundle $serial file for $component from ${SD_PROJECT}."
   git remote -v
-#  git push origin master
+  git push origin master
   RC=$?
   set +x
   if [ $RC -ne 0 ]; then
