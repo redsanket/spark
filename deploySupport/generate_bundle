@@ -11,10 +11,16 @@
 
 dist_tag=$(meta get parameters.TEST_TAG.value)
 tgz_version=$(meta get YINST_FREEZE_VERSION)
+jdk_version=`cat cicd/JDK_FREEZE_VERSION`
 # [[ -z $tgz_version ]] && tgz_version=$(meta get parameters.TGZ_VERSION.value)
 
 if [[ -z "$tgz_version" ]];then
    echo "TGZ VERSION is empty!"
+   exit -1
+fi
+
+if [[ -z "$jdk_version" ]];then
+   echo "JDK VERSION is empty!"
    exit -1
 fi
 
@@ -62,9 +68,13 @@ while IFS= read -r line; do
   echo "    version: $version" >> $bundle_file
 done < ${dist_tag_output}
 
+# Add hadoop tgz versions
 echo "  - label: tgz_version" >> $bundle_file
 echo "    version: $tgz_version" >> $bundle_file
 
+# Add JDK tgz versions
+echo "  - label: jdk_version" >> $bundle_file
+echo "    version: $jdk_version" >> $bundle_file
 #################################################################################
 # Commit the new bundle file to the release_bundles git repo
 # Use the hadoopqe user to ensure the pipeline is triggered
