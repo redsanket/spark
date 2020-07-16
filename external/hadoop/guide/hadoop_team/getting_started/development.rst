@@ -756,6 +756,7 @@ Ask Nathan Roberts to assign a QE cluster to you from `yo/flubber <https://yo/fl
 -  Make sure that you already have access to Oath grid
 -  Ask Raj to add your userID to get access to `yo/hadoop-deploy`_.
 -  Ask Raj to add you to the group ``ygrid_netgroup_griddev``
+-  Request membership of ``hadoopqa`` grid unix group by visiting `yo/doppler`_. 
 
 
 **Step3:**
@@ -805,7 +806,7 @@ This step assumes that the build is successful.
       .. code-block:: bash
 
          scp HADOOP_PREFIX/share/hadoop/hdfs/hadoop-hdfs-client-2.8.6-SNAPSHOT.jar \
-                    hussein@openqe99blue-n2.blue.ygrid.yahoo.com:/home/
+                    hussein@openqe99blue-n2.blue.ygrid.yahoo.com:~
          ssh -A openqe99blue-n2.blue.ygrid.yahoo.com
          @openqe99blue-n2$ sudo mv hadoop-hdfs-client-2.8.6-SNAPSHOT.jar \
                                $HADOOP_PREFIX/share/hadoop/hdfs/
