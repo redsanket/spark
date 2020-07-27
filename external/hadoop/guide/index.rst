@@ -1,6 +1,6 @@
-####################
-Hadoop Documentation
-####################
+#############################
+Hadoop Documentation External
+#############################
 
 .. admonition:: Confidential...
 
@@ -36,4 +36,3 @@ Hadoop Documentation
    hadoop_team/oncall/index
    hadoop_team/releasing/index
    hadoop_team/faq
-
