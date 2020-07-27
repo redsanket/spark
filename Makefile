@@ -104,6 +104,7 @@ publish: gh-pages build
 	cp -R docs/hadoop/* hadoop
 	## in case the folder does not exist to prevent failure in first commits
 	mkdir -p $(INTERNAL_DOCS_PATH)/hadoop
+	mkdir -p $(HADOOP_INTERNAL_PAGES)
 	cp -R $(INTERNAL_DOCS_PATH)/hadoop/* $(HADOOP_INTERNAL_PAGES)
 	@echo "Removing build files."
 	rm -rf docs setup.cfg tox.ini MANIFEST.ini external internal $(INTERNAL_DOCS_PATH)
@@ -112,4 +113,4 @@ publish: gh-pages build
 	git commit -m "Generated gh-pages." && git push origin gh-pages
 
 clean:
-	rm -rf docs
+	rm -rf docs internal_docs
