@@ -205,6 +205,8 @@ If you have any problems initializing your ssh key:
 Verify Access
 -------------
 
+#. Install `opsgenie` on your phone from app store (`Android <https://play.google.com/store/apps/details?id=com.ifountain.opsgenie&hl=en_US>`_ | `Apple <https://apps.apple.com/us/app/opsgenie/id528590328>`_). Use your verizonmedia email to login. The app is used during the OnCall cycle (see Sec. :ref:`hadoop_team_organization_management_oncall`).
+
 #. **slack channels:**
 
    * `hadoopcoreteam <https://vzbuilders.slack.com/archives/G6MQ07F9P>`_
@@ -226,6 +228,13 @@ Verify Access
       - `Hadoop Configuration <https://git.ouroath.com/hadoop/hadoop_configs>`_
       - `Hadoop Documentation <https://git.ouroath.com/hadoop/docs>`_
       - `Cloud Engineering Group Test Automation Framework (Hadoop/Storm/Spark/GDM) <https://git.ouroath.com/HadoopQE/hadooptest>`_
+
+#. **Screwdriver links (CI/CD):**
+   
+   * `ScrewDriver Dashboard <https://screwdriver.ouroath.com/dashboards/7304>`_ : https://screwdriver.ouroath.com/dashboards/7304
+   * `yhadoop-2.10 pipeline <https://screwdriver.ouroath.com/pipelines/1022207>`_
+   * `yhadoop-2.8 pipeline <https://screwdriver.ouroath.com/pipelines/1019804>`_
+
 
 #. **Create Athenz domain:**
 

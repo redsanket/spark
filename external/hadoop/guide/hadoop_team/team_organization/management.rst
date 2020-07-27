@@ -8,6 +8,7 @@ Management
 
 -----------
 
+.. _hadoop_team_organization_management_oncall:
 
 Oncall rotation
 ===============
@@ -17,6 +18,9 @@ Dev
 
 PE
 	.. todo:: Link to oncall rotation
+
+
+See Sec :ref:`hadoop_team_oncall` for details on handling, solving, and updating tickets.
 
 
 Triage

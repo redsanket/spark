@@ -33,6 +33,7 @@ Hadoop Documentation
    hadoop_team/hdfs/index
    hadoop_team/security/index
    hadoop_team/yarn/index
+   hadoop_team/oncall/index
    hadoop_team/releasing/index
    hadoop_team/faq
 

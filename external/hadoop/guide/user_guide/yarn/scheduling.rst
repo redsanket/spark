@@ -10,6 +10,15 @@ Scheduling and Queuing
 
 -----------
 
+
+The Capacity Scheduler
+======================
+
+.. admonition:: Reading...
+   :class: readingbox
+
+   Read about the Capacity Scheduler on Cloudera Blog `YARN – The Capacity Scheduler <https://blog.cloudera.com/yarn-capacity-scheduler>`_, or download the :download:`PDF version</resources/yarn-capacity-scheduler-cloudera-blog.pdf>`.
+
 Hadoop CPU Scheduling
 =====================
 

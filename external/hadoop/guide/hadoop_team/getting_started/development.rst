@@ -31,6 +31,22 @@ Mac Environment Setup
     $ vim .bash_profile
     export JAVA_HOME=$(/usr/libexec/java_home)
 
+  In case you have multiple java versions. Assume you have java 11 as default, and you want to use java 8. Then do the following 
+
+
+  .. code-block:: bash
+
+    $ /usr/libexec/java_home -V
+    export JAVA_HOME=$(/usr/libexec/java_home)
+  
+    # your output should look like this
+    # Matching Java Virtual Machines (2):
+    #  11.0.1, x86_64: "Java SE 11.0.1" /Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home
+    #  1.8.0_201, x86_64: "Java SE 8" /Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+
+    $ vim .bash_profile
+    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+
 
 - Install the following packages using brew
 

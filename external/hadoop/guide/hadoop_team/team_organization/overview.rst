@@ -32,6 +32,6 @@ Development Lead
 	* Daryn Sharp (daryn)
 	* Nathan Roberts (Mgr)
 
-Production Engineering Lead
+
 Readings
 ========
