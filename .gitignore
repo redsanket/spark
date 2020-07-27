@@ -14,7 +14,7 @@ _build/
 *.txt~
 *.swp
 *.swo
- 
+
 # svn
 .svn
 
@@ -30,3 +30,4 @@ include/
 lib/
 pip-selfcheck.json
 docs
+internal_docs

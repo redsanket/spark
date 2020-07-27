@@ -1,0 +1,136 @@
+#!/bin/bash
+
+#
+# gridx - a script to run distributed shared-nothing jobs on the grid.
+#
+# @author jason zien (jasonyz@yahoo-inc.com)
+#
+
+dest=/user/$USER
+
+partitions=1
+
+allocate="n"
+
+fileUpload=
+
+archive=
+
+if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "" ]]
+then
+        echo "ARGS:"
+        echo " -p numParts      // number of jobs to run, each job can use $p to identify its partition number, default=
+$partitions"
+        echo "                  //    partitions are counted from 0 ... p-1"
+        echo ""
+        echo " -file filename   // upload a file to the processing node"
+        echo ""
+        echo " -cacheArchive hdfsfilename#dirname   // upload a file to the processing node via hdfs and unjar it in dir
+name"
+        echo ""
+        echo " -c command       // (REQUIRED) the command to run.  For example, -c 'echo \"partition=\$p\"; hostname'"
+        echo "                  //    \$p is mapped to the partition number"
+        echo "                  //    \$pzz is mapped to the partition number with 2-digit zero padding, such as 03"
+        echo "                  //    \$pzzz is mapped to the partition number with 3-digit zero padding, such as 003"
+        echo "                  //    \$pzzzzz is mapped to the partition number with 5-digit zero padding, such as 0000
+3"
+        echo ""
+        echo "EXAMPLE:  runs getq_orig.gawk on all 24 log files"
+        echo "          (00.log.gz ... 23.log.gz) for a day"
+        echo ""
+        echo "gridx -p 24 -c 'hadoop dfs -get /data/jasonyz/ks_logs/2008/05/01/\$pzz.log.gz .; gunzip \$pzz.log.gz; gawk
+ -f getq_orig.gawk $pzz.log > \$pzz.out ; hadoop dfs -put \$pzz.out /user/jasonyz' -file getq_orig.gawk"
+        echo ""
+        exit -1
+fi
+
+# get the command line args
+until [ -z "$1" ]
+do
+  if [ "$1" == "-p" ] 
+  then
+        shift
+        partitions=$1
+  fi
+
+  if [ "$1" == "-c" ] 
+  then
+        shift
+        cmd=$1
+  fi
+
+  if [ "$1" == "-file" ] 
+  then
+        shift
+        fileUpload="$fileUpload -file $1"
+  fi
+
+  if [ "$1" == "-cacheArchive" ] 
+  then
+        shift
+        archive="$cacheArchive -cacheArchive $1"
+  fi
+
+  if [ "$1" == "-a" ] 
+  then
+        shift
+        allocate=$1
+  fi
+
+  shift
+done
+
+echo "PARTITIONS=$partitions"
+echo "CMD=$cmd"
+
+tempfile=`mktemp gridx.tmp.XXXXXXXXXX` || exit 1
+
+set +e
+rm -f $tempfile
+hadoop dfs -rmr $dest/$tempfile
+hadoop dfs -rmr $dest/gridx_out
+set -e
+
+function handle {
+   echo "TRAPPED ERROR, cleaning up."
+   rm -f $tempfile
+   echo "cleaning up $dest/$tempfile"
+   hadoop dfs -rmr $dest/$tempfile
+   exit 1
+}
+trap handle ERR
+
+
+for ((i=0; i<$partitions; i+=1)); do
+        echo "$i" >> $tempfile
+done
+
+hadoop dfs -put $tempfile $dest
+
+configdir="--config hodtmp"
+
+if [ "$allocate" != "n" ]
+then
+    hod allocate -d hodtmp -n $allocate
+fi
+
+hadoop $configdir jar /grid/0/hadoop/current/hadoop-streaming.jar \
+    -input $dest/$tempfile \
+    -mapper "/bin/bash -c \"export PATH=/grid/0/hadoop/current/bin:/grid/0/java/jdk/bin:$PATH; while read p; do export p
+; export pzz=\`seq -f %02g \$p \$p\`;  export pzzz=\`seq -f %03g \$p \$p\`; export pzzzzz=\`seq -f %05g \$p \$p\`; $cmd;
+  done\"" \
+    -output $dest/gridx_out \
+    -jobconf mapred.map.tasks=$partitions \
+    -jobconf mapred.reduce.tasks=0 $fileUpload $archive
+
+if [ "$allocate" != "n" ]
+then
+    hod deallocate -d hodtmp
+fi
+
+# clean up
+set +e
+rm -f $tempfile
+echo "cleaning up $dest/$tempfile"
+hadoop dfs -rmr $dest/$tempfile
+set -e

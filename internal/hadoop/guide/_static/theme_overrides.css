@@ -1,0 +1,22 @@
+/* override table width restrictions */
+/* taken from: https://rackerlabs.github.io/docs-rackspace/tools/rtd-tables.html */
+@media screen and (min-width: 1200px) {
+
+   .wy-table-responsive table td {
+      /* !important prevents the common CSS stylesheets from overriding
+         this as on RTD they are loaded after this stylesheet */
+      white-space: normal !important;
+   }
+
+   .wy-table-responsive {
+      overflow: visible !important;
+   }
+
+   .rst-content .readingbox .admonition-title {
+   		background: #1abc9c
+	 }
+
+	 .rst-content .readingbox {
+      background: #dbfaf4
+   }
+}
