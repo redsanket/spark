@@ -9,7 +9,7 @@ GIT_PR_BRANCH_NAME = master
 GIT_BRANCH_PR := $(GIT_BRANCH:$(BRANCH_PREIX)%=%)
 ACTIVATE = $(TMP_ENV)/bin/activate
 PIP = $(TMP_ENV)/bin/pip
-INTERNAL_DOCS_PATH := internal_docs
+INTERNAL_DOCS_PATH = internal_docs
 OOZIE = external/oozie/guide
 HIVE = external/hive/guide
 HUE = external/hue/guide
@@ -26,7 +26,7 @@ export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 
 # Screwdriver uses this to build documentation.
 # Use 'make build' to build the documentation locally. Docs will be copied to docs/<product>.
-build: prebuild hadoop hadoop_internal
+build: hadoop hadoop_internal
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
 	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
 	@echo 'Removing temp dir $(TMP_ENV)'
@@ -38,9 +38,7 @@ hadoop: prebuild
 
 hadoop_internal: prebuild
 	git branch -v
-	@echo "branches are: $(echo git branch -v)"
-	@echo "running $(SPHINXBUILD) to generate hadoop documentation locally..."
-	@echo "The git Branch is $(GIT_BRANCH); $(GIT_BRANCH_PR); $(patsubst origin,heh,$(GIT_BRANCH)); $(shell $(GIT_BRANCH) | sed s/"origin"//)"
+	@echo "running $(SPHINXBUILD) to generate hadoop internal documentation locally..."
 	mkdir -p $(INTERNAL_DOCS_PATH)
 	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP_INTERNAL_SRC) $(INTERNAL_DOCS_PATH)/hadoop
 
@@ -58,11 +56,6 @@ prebuild:
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.
 gh-pages:
-	## fetching the PR
-	@echo "listing branches"
-	git branch -v
-	#@echo "fetching origin branch"
-	#git fetch origin ${GIT_BRANCH_PR}
 	@echo "Checking out gh-pages branch"
 	git checkout -f gh-pages # throw away local changes made by screwdriver
 	rm -rf oozie/_images/ oozie/_sources/ oozie/_static/ oozie/*.html oozie/*.js oozie/objects.inv
@@ -78,16 +71,8 @@ gh-pages:
 		@echo "Removing hadoop internal documents in gh_pages"; \
 		rm -rf $(HADOOP_INTERNAL_PAGES)/_images/ $(HADOOP_INTERNAL_PAGES)/_sources/ $(HADOOP_INTERNAL_PAGES)/_static/ $(HADOOP_INTERNAL_PAGES)/*.html $(HADOOP_INTERNAL_PAGES)/hadoop/*.js $(HADOOP_INTERNAL_PAGES)/objects.inv; \
 	fi
-	#git branch -v
-	#@echo "Fetching the PR $(GIT_BRANCH); $(GIT_BRANCH_PR)"
-	#@echo "branches are: $(echo git branch -v)"
-	#git fetch origin ${GIT_BRANCH_PR}
-	@echo "branches are: $(git branch -v)"
-	@echo "Checking out PR $(GIT_PR_BRANCH_NAME)"
 	git checkout ${GIT_PR_BRANCH_NAME} external
-	@echo "Checking out PR $(GIT_PR_BRANCH_NAME) internal"
 	git checkout ${GIT_PR_BRANCH_NAME} internal
-	ls internal
 	git reset HEAD
 
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
