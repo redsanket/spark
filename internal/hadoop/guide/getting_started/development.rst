@@ -31,14 +31,14 @@ Mac Environment Setup
     $ vim .bash_profile
     export JAVA_HOME=$(/usr/libexec/java_home)
 
-  In case you have multiple java versions. Assume you have java 11 as default, and you want to use java 8. Then do the following 
+  In case you have multiple java versions. Assume you have java 11 as default, and you want to use java 8. Then do the following
 
 
   .. code-block:: bash
 
     $ /usr/libexec/java_home -V
     export JAVA_HOME=$(/usr/libexec/java_home)
-  
+
     # your output should look like this
     # Matching Java Virtual Machines (2):
     #  11.0.1, x86_64: "Java SE 11.0.1" /Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home
@@ -772,7 +772,7 @@ Ask Nathan Roberts to assign a QE cluster to you from `yo/flubber <https://yo/fl
 -  Make sure that you already have access to Oath grid
 -  Ask Raj to add your userID to get access to `yo/hadoop-deploy`_.
 -  Ask Raj to add you to the group ``ygrid_netgroup_griddev``
--  Request membership of ``hadoopqa`` grid unix group by visiting `yo/doppler`_. 
+-  Request membership of ``hadoopqa`` grid unix group by visiting `yo/doppler  <https://yo/doppler>`_. 
 
 
 **Step3:**

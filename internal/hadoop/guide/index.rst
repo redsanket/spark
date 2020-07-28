@@ -15,25 +15,20 @@ Hadoop Documentation
    home
 
 .. toctree::
-   :caption: User Guide
+   :caption: Team
    :maxdepth: 4
 
-   user_guide/yarn/index
-   user_guide/troubleshooting/index
-   user_guide/faq/index
-
+   team_organization/index
+   getting_started/index
+   oncall/index
+   releasing/index
 
 .. toctree::
-   :caption: Hadoop Core Team
+   :caption: Hadoop Core
    :maxdepth: 4
 
-   hadoop_team/team_organization/index
-   hadoop_team/getting_started/index
-   hadoop_team/knowledge_center/index
-   hadoop_team/hdfs/index
-   hadoop_team/security/index
-   hadoop_team/yarn/index
-   hadoop_team/oncall/index
-   hadoop_team/releasing/index
-   hadoop_team/faq
-
+   knowledge_center/index
+   hdfs/index
+   security/index
+   yarn/index
+   faq

@@ -43,31 +43,31 @@ Useful Tools for documentation:
 
 Sublime
   sublime is a rich editor available on linux and OS X.
-  
+
   * Install Sublime:
-  
+
      * OS X: Using `homebrew Formulae <https://formulae.brew.sh/cask/sublime-text>`_
      * Linux: Packages are provided for `most of the major distributions <https://www.sublimetext.com/docs/3/linux_repositories.html>`_
-  
+
   * Install sphinx Sublime Packages (see the `guide <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/packages.html>`_)
-     
+
      * Use `RestructuredText Improved` to set highlighting of RST syntax in Sublime.
-     * `Sublime RST Completion` is a group of snippets and commands to facilitate writing restructuredText with SublimeText. 
+     * `Sublime RST Completion` is a group of snippets and commands to facilitate writing restructuredText with SublimeText.
 
 Code Helpers
   * `Online RST Editor <http://rst.ninjs.org>`_
   * Use an online table generator to build tables fast (see `Tables Generator <https://www.tablesgenerator.com/text_tables>`_).
-  
+
   * **Reuse Content:** Sphinx supports several ways to reuse content within and across projects.
-     
+
      * `Use a Substitution <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/reuse.html#use-a-substitution>`_ to reuse short, inline content.
      * `Include a Shared File <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/reuse.html#include-a-shared-file>`_ to reuse longer, more complex content.
      * Uee Iframe to embed external documents into sphinx. For example, the following code sample will embed GDoc into your page:
-     
+
         .. code-block:: rst
 
           .. raw:: html
-          
+
             <iframe width="560" height="315" src="https://docs.google.com/document/d/1nleU1sSm7p4Ulp-7KzLcLBh0znHLf_MOklcl8jieEec/edit?usp=sharing" frameborder="0" allowfullscreen></iframe>
 
 Sphinx Guides
@@ -93,13 +93,13 @@ Sphinx Guides
     ##################
 
     Introduction text.
-    
+
     *********
     Sample H2
     *********
 
     Sample content.
-    
+
     **********
     Another H2
     **********
@@ -147,14 +147,8 @@ Onboarding the Grid
 	  - `Grid Quick Start <https://git.ouroath.com/pages/developer/Bdml-guide/quickstart>`_: Run a Hadoop, Run Spark via Jupyter, Launch Hue, Run HDFS via Hue, Run Hive from Hue, Run Pig via Hue, Run Storm.
 	  - `Grid Command Line <https://git.ouroath.com/pages/developer/Bdml-guide/grid_cline>`_
 	  - `Dashboards <https://git.ouroath.com/pages/developer/Bdml-guide/bubble_analytics_dashboards_reports_bi>`_
-	
+
 	* For the Hadoop version upgrade plan or release timeline of specific features, *file a jira and assign* it to `yahoo-hadoop-core-dev@verizonmedia.com`.
-
-
-New team members
-	* Make sure you visit the links above first.
-	* visit the :ref:`New Members page <hadoop_team_getting_started_onboarding>` to get all the information about verizonmedia environment and the initial steps to set up your development machine.
-	* To start on yHadoop (internal hadoop development), visit :ref:`On-Boarding page <hadoop_team_getting_started_development>` and :ref:`Getting Started <hadoop_team_getting_started_development>`.
 
 .. _community_hadoop:
 
