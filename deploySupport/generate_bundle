@@ -51,7 +51,7 @@ if [ $? -eq 1 ]; then
    exit
 fi
 
-hadoop_version=`cat ${dist_tag_output} | grep hadoopcoretree | cut -d ' ' -f1 | cut -d'-' -f2`
+release_id=`cat ${dist_tag_output} | grep hadoopcoretree | cut -d ' ' -f1 | cut -d'-' -f2`
 bundle_file="$component/$component-$serial.yaml"
 set +x
 cat > $bundle_file << EOF
@@ -105,7 +105,7 @@ fi
 # release_id, if the release_id parameter is provided.
 #
 #################################################################################
-if [[ -n $hadoop_version ]]; then
+if [[ -n $release_id ]]; then
   cd ../
   component_repo="git@git.ouroath.com:hadoop-deployments/${component}_deploy.git"
   echo "Update ${component_repo}/${component}.yaml with new serial number '$serial' and release_id '$release'"
