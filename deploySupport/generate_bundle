@@ -51,6 +51,7 @@ if [ $? -eq 1 ]; then
    exit
 fi
 
+hadoop_version=`cat ${dist_tag_output} | grep hadoopcoretree | cut -d ' ' -f1 | cut -d'-' -f2`
 bundle_file="$component/$component-$serial.yaml"
 set +x
 cat > $bundle_file << EOF
@@ -97,4 +98,32 @@ if [[ -f "$bundle_file" ]]; then
       echo "git push bundle to release_bundles repo failed!!!"
       exit $RC
   fi
+fi
+
+################################################################################
+# Update hadoop-deployments/<component>.yaml with new serial number and
+# release_id, if the release_id parameter is provided.
+#
+#################################################################################
+if [[ -n $hadoop_version ]]; then
+  cd ../
+  component_repo="git@git.ouroath.com:hadoop-deployments/${component}_deploy.git"
+  echo "Update ${component_repo}/${component}.yaml with new serial number '$serial' and release_id '$release'"
+  echo "Cloning $component_repo..."
+  git clone $component_repo $component_repo.$serial
+  cd $component_repo.$serial
+  pwd
+  echo "--> Commit the new bundle '$serial' and release_id '$release' to 'conf/$component.yaml'"
+  sed -i "s/^\( *\)release_id:.*/\1release_id: $release/" conf/$component.yaml
+  sed -i "s/^\( *\)bundle_id:.*/\1bundle_id: $serial/" conf/$component.yaml
+  git diff && git status && git remote -v
+  git commit -a -m "Update ${component}.yaml with new $serial and release_id $release"
+  git push origin master
+  RC=$?
+  if [ $RC -ne 0 ]; then
+      echo "git push to $component_repo repo failed!!!"
+      exit $RC
+  fi
+else
+  echo "Update serial number to the component yaml config file is disabled"
 fi
