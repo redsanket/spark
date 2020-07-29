@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/zsh -v
 
 yinit
 
@@ -14,5 +14,6 @@ openssl x509 -in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem -text | grep -A2 
 # Create keystore file for Hive JDBC
 openssl pkcs12 -export -name griduser.uid -inkey ${HOME}/.athenz/griduser.uid.${USER}.key.pem -in ${HOME}/.athenz/griduser.uid.${USER}.cert.pem -out ${HOME}/.athenz/griduser.uid.${USER}.pkcs12 -password pass:changeit
 keytool -importkeystore -srckeystore ${HOME}/.athenz/griduser.uid.${USER}.pkcs12 -srcstoretype PKCS12 -srcstorepass changeit -destkeystore ${HOME}/.athenz/griduser.uid.${USER}.jks -deststorepass changeit -noprompt
-rm ${HOME}/.athenz/griduser.uid.${USER}.pkcs12
+rm -f ${HOME}/.athenz/griduser.uid.${USER}.pkcs12
+chmod 400 ${HOME}/.athenz/griduser.uid.*
 

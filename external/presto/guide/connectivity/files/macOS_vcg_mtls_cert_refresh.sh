@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/zsh -v
 
 yinit
 
@@ -14,4 +14,5 @@ openssl x509 -in ${HOME}/.athenz/vcg.user.uid.${USER}.cert.pem -text | grep -A2 
 # Create keystore file for Hive
 openssl pkcs12 -export -name vcg.user.uid -inkey ${HOME}/.athenz/vcg.user.uid.${USER}.key.pem -in ${HOME}/.athenz/vcg.user.uid.${USER}.cert.pem -out ${HOME}/.athenz/vcg.user.uid.${USER}.pkcs12 -password pass:changeit
 keytool -importkeystore -srckeystore ${HOME}/.athenz/vcg.user.uid.${USER}.pkcs12 -srcstoretype PKCS12 -srcstorepass changeit -destkeystore ${HOME}/.athenz/vcg.user.uid.${USER}.jks -deststorepass changeit -noprompt
-rm ${HOME}/.athenz/vcg.user.uid.${USER}.pkcs12
+rm -f ${HOME}/.athenz/vcg.user.uid.${USER}.pkcs12
+chmod 400 ${HOME}/.athenz/vcg.user.uid.*
