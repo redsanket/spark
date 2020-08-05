@@ -13,11 +13,41 @@ Hadoop User Guide
    :maxdepth: 3
 
    home
+   onboarding
 
 .. toctree::
-   :caption: User Guide
+   :caption: Yarn
+   :numbered:
    :maxdepth: 4
 
-   user_guide/yarn/index
-   user_guide/troubleshooting/index
-   user_guide/faq/index
+   yarn/home
+   yarn/scheduling
+   yarn/troubleshooting/home
+   yarn/faq/index
+
+.. toctree::
+   :caption: Mapreduce
+   :numbered:
+   :maxdepth: 4
+
+   mapreduce/home
+   mapreduce/speculator
+   mapreduce/faq/index
+
+.. toctree::
+   :caption: HDFS
+   :numbered:
+   :maxdepth: 4
+
+   hdfs/home
+   hdfs/faq/index
+
+.. toctree::
+   :caption: Security
+   :numbered:
+   :maxdepth: 4
+
+   security/home
+   security/faq/index
+   
+   

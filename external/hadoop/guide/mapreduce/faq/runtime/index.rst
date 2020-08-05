@@ -1,19 +1,14 @@
-.. _user_guide_hadoop_faq:
-
-###
-FAQ
-###
+*******
+Runtime
+*******
 
 .. todo:: This section is pulled from `Archived Wiki - Grid Cook Book <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/CookBook.html>`_ and needs to be updated.
 
-.. toctree::
-  :maxdepth: 4
-  :numbered:
-  :caption: Table of Contents
 
-  yarn/index
-  streaming
-  pipes
-  compressing_output
-  security
-  hdfs
+.. toctree::
+   :caption: Table of Contents
+   :maxdepth: 4
+
+   runtime-qa-part-01
+   runtime-qa-part-02
+   runtime-qa-part-03

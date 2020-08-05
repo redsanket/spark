@@ -1,8 +1,7 @@
 ..  _user_guide_hadoop_troubleshooting_yarn_manage_slow_attempt:
 
-**********************************************
 Manage Slow or Stuck Yarn Application Attempts
-**********************************************
+==============================================
 
 Hadoop applications periodically will have one or more attempts that are running slowly (or are stuck) and are slowing down the rest of the application.
 
@@ -13,8 +12,9 @@ In Hadoop `2.7.2.15` and later releases, there is a new feature that allows you 
 
 ..  _merge_slow_attempt_dump_jstack:
 
+
 Dump the JStack of a Slow Attempt
-=================================
+---------------------------------
 
 In order to signal an application attempt to dump its stack, you will need to know its container ID.
 
@@ -34,9 +34,8 @@ See Sec. :ref:`yarn_troubleshooting_merge_slow_attempt_get_container_id` below f
 
 ..  _yarn_troubleshooting_merge_slow_attempt_kill_attempt:
 
-
 Kill an Application Attempt
-============================
+---------------------------
 
 In order to kill an application attempt by sending it a signal, you will need to know its container ID.
 
@@ -48,10 +47,10 @@ See (:ref:`yarn_troubleshooting_merge_slow_attempt_get_container_id`) below for 
 ..  _yarn_troubleshooting_merge_slow_attempt_get_container_id:
 
 Get the Container ID
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 From the Map Reduce GUI
-^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""
 
 * Select the list of running attempts from the MapReduce job overview page on the Job History Server. For example:
 
@@ -81,7 +80,7 @@ From the Map Reduce GUI
   :align: center
 
 From the TEZ GUI
-^^^^^^^^^^^^^^^^
+""""""""""""""""
 
 * Select "All TaskAttempts" from the "DAG Details" page of your application in the TEZ GUI. For example:
 
@@ -102,7 +101,7 @@ From the TEZ GUI
   :align: center
 
 From the Gateway
-^^^^^^^^^^^^^^^^
+""""""""""""""""
 
 * Get the application attempt ID:
 

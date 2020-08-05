@@ -1,8 +1,8 @@
 .. _hadoop_team_getting_started_onboarding:
 
-##################
+##########
 Onboarding
-##################
+##########
 
 .. contents:: Table of Contents
   :local:

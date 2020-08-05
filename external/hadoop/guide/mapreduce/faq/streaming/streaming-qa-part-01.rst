@@ -1,16 +1,3 @@
-*********
-Streaming
-*********
-
-.. contents:: Table of Contents
-  :local:
-  :depth: 4
-
------------
-
-Making Hadoop act like Unix (for languages other than Java).
-
-.. seealso:: Follow Apache Hadoop `streaming docs for r2\.10\.0 <https://hadoop.apache.org/docs/r2.10.0/hadoop-streaming/HadoopStreaming.html>`_
 
 How Does Streaming Work?
 ========================
@@ -32,7 +19,7 @@ How to use multiple jars to run my job?
 
 
 What's the difference between ``TextInputFormat`` and ``OneLineInputFormat``
-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 * ``TextInputFormat`` uses the default implementation of ``getSplits()`` inherited from ``FileInputFormat``. It respects the number of splits determined by the framework based on the size of your input data and the number of nodes available. You can't control the number of map tasks to spawn.
 
@@ -41,7 +28,7 @@ What's the difference between ``TextInputFormat`` and ``OneLineInputFormat``
 * Both inputformat classes use ``LineRecordReader`` to read a line into a ``<K,V> pair``. The byte offset of the first character of that line is to be used as the key. And the rest of the line is to be used as the value. However Hadoop Streaming has made it a special case for ``TextInputFormat`` that it passes only the value part to your pipe program. For other inputformat classes, both key and value will be passed to your pipe program, delimited by ``\t``.
 
 Where to find ``OneLineInputFormat``?
---------------------------------------
+-------------------------------------
 
 * ``$HADOOP_HOME/tools/jars/oneLineInputformat.jar``
 * ``$SOLUTIONS_HOME/jars/oneLineInputformat.jar`` (on mithril-gold)
@@ -110,8 +97,10 @@ For more information on hadoop streaming please refer to `GridDocStreaming <http
 
 .. todo:: Find page GridDocStreaming
 
+
 How To Use libyell with Streaming
 =================================
+
 
 Overview
 --------
@@ -130,6 +119,7 @@ As of Oct/29. 2015, the choices of libyell are: version 6.12.x on 'stable', vers
 Steps for get libyell to runtime node
 -------------------------------------
 
+
 Prepare a libyell tarball for your job
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -146,7 +136,6 @@ Since libyell also depends on other packages, you need to install it to get all 
     tar -zcvf ../libyell_4grid.tgz bin64 conf include lib lib* share 
 
 :download:`webma.conf </resources/webma.conf>`
-
 
 Put libyell tarball for distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -182,8 +171,9 @@ Use libyell in MapReduce
 #. Run your jobs with ``libyell_java.jar``. The working nodes will find the libyell package on the gateway:
    ``-libjars $libyell_install_path/libyell_java.jar``
 
+
 Using distributed cache
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 #. Write your own ``map/reduce`` java code. The following code snippet provides you an example of using libyell in ``map/reduce``,
    Access the libyell with distributedcache
@@ -236,7 +226,7 @@ Using distributed cache
          
 
 Using libyell
---------------
+-------------
 
 I packaged a version of libyell that contains ``libyell_xt`` data. ``/user/clementg/yell.zip``
 
@@ -251,7 +241,6 @@ The launching command looks something like this:
           -input /tmp/clementg/referralsNa -output /tmp/clementg/referralsNaClean \
           -mapper mapperCleaner \
           -cmdenv LD_LIBRARY_PATH = ./yell/yell/lib64
-
 
 Streaming in Pig
 ================
@@ -271,6 +260,7 @@ For those who have absolutely no experience with Hadoop and Map/Reduce ... try t
 
 .. _user_guide_faq_streaming_in_python_pymapred:
 
+
 Streaming in Python -- pymapred Example
 =======================================
 
@@ -285,6 +275,7 @@ pymapred also supports ``Join`` and ``Parameter Sweep``.
 .. todo:: move content from twiki 
 
 see `PymapredMapReduce <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Main/PymapredMapReduce/>`_
+
 
 Streaming with a recent version of Python
 =========================================
@@ -306,7 +297,7 @@ How to use map/reduce to run N independent tasks
 
 
 GridX - a script for running distributed shared nothing jobs on the grid
--------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 GridX can be used to run jobs on a set of input files. You can give GridX a command and it will do command substitution to run a command on each of the inputs.
 
@@ -350,6 +341,7 @@ How to debug streaming jobs
 
 * Hadoop 0.18 - use ``hadoop dfs -ls hod-logs`` (the logs are placed in your home directory).
 * Hadoop 0.20 - use the web interface via the job/task tracker to view the logs
+
 
 Use streaming to do shell-like work
 ===================================
@@ -431,277 +423,3 @@ Streaming Command used:
       -input input.txt -output streamop \
       -file mapper.py -file reducer.py
 
-
-.. _guide_faq_compressing_output_of_streaming_job:
-
-Compressing the output of a streaming job
-=========================================
-
-**Q:** Is there a way to set the output format in hadoop streaming to be gzip similar to the way input compression is specified:
-``-jobconf stream.recordreader.compression=gzip``
-
-**Ans:**
-
-  .. code-block:: bash
-
-    -jobconf mapred.output.compress=true \
-    -jobconf mapred.output.compression.type=gzip \
-    -jobconf mapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
-
-
-
-What are the rules for hadoop streaming quotes?
-===============================================
-
-This works:
-
-  .. code-block:: bash
-
-    -mapper "perl -ane 'print join(\"\n\", @F), \"\n\"'
-
-Sorting data to use off the grid
-=================================
-
-.. todo:: find missing page `Lexical Partitioner`
-
-
-Sometimes it is necessary to take data off the grid and occasionally you would like it to be sorted. The grid does a great job of partitioning data and sorting it efficiently within each partion, but to get the sorted data off, you need to merge the partitions.
-``dfs -getmerge`` won't do it for you (it just concatenates the parts) and specifying that you want all output to go to a single reducer is just as bad as doing that final merge on a single machine.
-The right way to do it is to use a `Lexical Partitioner <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/PartitioningInLexiconOrde>`_ as suggested in the original :cite:`2004:OSDI-MR`. Unfortunately, the only partitioners supplied in the streaming jar are the default HashPartitioner and ``KeyFieldBasedPartitioner``.
-
-An easy way to speed up sorts, provided your keys are reasonably well-behaved, is to prefix each record with just a part of the key that you want to sort by.
-For example, to sort alphabetically, you could use as a mapper:
-
-  .. code-block:: bash
-
-    awk -F '\t' '{ print substr($1, 0, 2) \"\t\" $0 }'
-
-
-You then specify that you want to use ``KeyFieldBasedPartitioner`` to partition on just the single prefix field while sorting within the partition on the full key:
-
-  .. code-block:: bash
-
-    -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
-    -jobconf num.key.fields.for.partition=1 stream.num.map.output.key.fields=2. 
-
-Your reducer can just be cat. Each reducer output file will be fully sorted and all the records with a given prefix will go to just a single file. Note that if you are sorting URLs, the ww partition may be rather large. If you are sorting UTF-8 strings with many non-ascii characters (e.g. Japanese), you may want to use a 3- or 6-byte prefix instead of 2 bytes as in the example above.
-
-Now you need to put the files together off the grid. sort ``-m`` won't do because it doesn't utilize the knowledge you have about distinct keys being in different files, so it takes a very long time doing unnecessary comparisons.
-
-You need to write a merge program of your own to merge the files off the grid. This program merges the files normally except that whenever it reads a new key from a file, it just slurps all the records with the same key from that file and sends them to the output. Experience sorting queries in a 6GB sample on 200 nodes is that each of 800 or so reducer files had just 1 to 4 partitions in it. Sorting on the grid took about 3 minutes instead of 30 minutes using a single reducer. The final merge was comparable in speed to using cat.
-
-A sample merge loop in `C++` is:
-
-  .. code-block:: c++
-
-    void fast_merge(heap_of_files &heap , ostream *out)
-    {
-      source_t *top = heap.top();
-      for ( top = heap.top(); ! top->eof(); top = heap.top() ) {
-        char currkey[1024];
-        strcpy(currkey, top->key);
-        do {                    // slurp all the records with a given key
-          (*out) << top->value << '\n';
-          top->advance();
-        } while (! top->eof() && strcmp(top->key, currkey) == 0);
-        heap.topModified();    // force the next merge step
-      }
-    }
-
-Similarly, to sort descending by frequency, where frequency is in the second field of a record, use a mapper such as:
-
-  .. code-block:: bash
-
-    awk -F '\t' '{ print 1000000000-$2 \"\t\" $0 }'
-
-and change the sort criterion in the merge program to compare numerically.
-
-
-How to process 10% webdata using streaming
-==========================================
-
-`tenPercentSample` webdata could be used with streaming by specifying input format as `SequenceFileAsTextInputFormat`. Since value class of the webdata is of Document class, we would also need to included the tenPercentSample jar via the ``-file`` option. So your streaming command would include 2 more options
-
-  .. code-block:: bash
-
-    –inputformat org.apache.hadoop.mapred.SequenceFileAsTextInputFormat \
-    -file /usr/releng/tools/hadoop/kryptonite/examples/tenPercentSample/build/kryptonite-0.0.1-dev.jar
-
-As an example, to cat the contents of `tenPercentSample`.
-
-  .. code-block:: bash
-
-    hod -m 50 -b 4 \
-      -a 'stream -inputformat org.apache.hadoop.mapred.SequenceFileAsTextInputFormat \
-      -input "/data/webdata/tenPercentSample/31Aug2007/part-00147" \
-      -output /user/lohit/testOut -verbose \
-      -mapper cat -reducer NONE \
-      -file /usr/releng/tools/hadoop/kryptonite/examples/tenPercentSample/build/kryptonite-0.0.1-dev.jar'
-
-
-How to process SDS data using streaming
-=======================================
-
-.. todo:: find missing page `How to process ULTRecords`
-
-Please refer SDS processing using streaming for examples and usage.
-Also refer to `How to process ULTRecords <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/UsingStreaming>`_ (below) for more generic options.
-
-
-How to process ULTRecords with streaming
-========================================
-
-How to turn speculative execution on and off?
-=============================================
-
-Supply the following parameters on the command line.
-
-  .. code-block:: bash
-
-    -jobconf mapred.map.tasks.speculative.execution=true \
-    -jobconf mapred.reduce.tasks.speculative.execution=true
-
-
-The ``stream.non.zero.exit.status.is.failure`` Parameter and Job Failures
-=========================================================================
-
-In 0.18.0+, configuration parameter ``stream.non.zero.exit.status.is.failure`` is set to true as a default. So, the ``egrep/grep`` command used in the mapper, if not finding any matching records, would return non-zero return code, thus would fail the map task and hence the job. You can set this configuration parameter to false, if encounter such problem.
-
-Processing files, one per map
-=============================
-
-An example of this was the problem of zipping file. Given a set of files, the user wanted to zip it up and wanted to do it across the hadoop cluster.
-This could be achieved in few ways.
-
-#. Using Hadoop Streaming and custom mapper script. Generate a file containing the full DFS path of the input files. Each map task would get one file name as input. Create a mapper script which, given a filename will get the file to local disk, gzips the file and puts it back in the desired output directory
-
-#. Use the existing Hadoop Framework to achieve this Add these to your main function:
-
-   .. code-block:: java
-
-     OutputFormatBase.setCompressOutput(conf, true);
-     OutputFormatBase.setOutputCompressorClass(conf,
-          org.apache.hadoop.io.compress.GzipCodec.class);
-     conf.setOutputFormat(NonSplitableTextInputFormat.class);
-     conf.setNumReduceTasks(0);
-
-#. Write your map function as show below
-
-   .. code-block:: java
-     
-      public void map(WritableComparable key, Writable value, 
-                      OutputCollector output, 
-                      Reporter reporter) throws IOException {
-        output.collect((Text)value, null);
-      }
-
-However, the output filename will not be the same as the original filename.
-
-How to specify multiple input directories
-=========================================
-
-Multiple input directories can be specified using multiple `-input` option. E.g.
-
-  .. code-block:: bash
-    
-    hadoop jar hadoop-streaming.jar \
-      -input '/user/foo/dir1' -input '/user/foo/dir2' 
-
-Is PHP supported in streaming?
-==============================
-
-PHP is not installed on the Grid machines.
-
-To run yphp and all possible extension on Grid, you will have to install all things you'll need on your machine, inside a yroot, pack the content of all ``/home/y``, distribute it via Distributed Cache. Then, have a small wrapper that point extension directory as well as library path to the right location.
-
-This is a capture of how I run `YInst:yphp_thoth <http://dist.corp.yahoo.com/by-package/yphp_thoth/>`_ on Grid.
-First on your machine:
-
-#. Create a yroot of RHEL 5.6 (since Grid today is running 5.x)
-#. Install all the packages you need.
-#. Exit the yroot and pack the content
-   
-    .. code-block:: bash
-    
-      cd /home/y/var/yroots/<your yroot name>/home/y;
-      sudo rm -f *.tgz;
-      sudo tar --exclude=var/yinst -zcvpf yphp-yroot.tgz .
-
-  Then copy this `yphp-yroot.tgz` to Grid Gateway, then upload to HDFS (e.g. `/user/pgonzal/y/yphp-yroot.tgz`. In streaming, first you will have to distribute this tgz via Distributed Cache, e.g:
-
-    .. code-block:: bash
-    
-      -archives "hdfs://nitroblue-nn1.blue.ygrid.yahoo.com:8020/user/pgonzal/y/yphp-yroot.tgz#y"
-
-
-This will make the content available as `./y/` to the node where you task is launched (note you should change to `viewfs://` and remove the `:8020` part for Hadoop 0.23+). The final touch is your mapper/reducer should be run with a wrapper like this:
-
-  .. code-block:: bash
-
-    #!/bin/sh
-
-    export ROOT=$PWD/y
-    export LD_LIBRARY_PATH=$ROOT/lib
-
-    $ROOT/bin/php \
-        -d display_errors=stderr \
-        -d open_basedir=/ \
-        -d extension_dir=$ROOT/lib/php/20060613 \
-        -d extension=yahoo_thoth.so \
-        ./mapper.php
-
-Change `20060613` to the correct extension directory based on your PHP version.
-
-How to Run Ruby Scripts
-=======================
-
-These examples use JRuby instead of the C-Ruby. JRuby (http://jruby.org/) is an open-source pure-Java implementation of ruby. Since JRuby is written in Java, you can use Java to invoke JRuby's Java main class which will run with your Ruby scripts.
-
-
-**Example 1**
-
-#. Create a command line to invoke scripts.
-
-  .. code-block:: bash
-
-    export JRUBY="java -cp ./lib/jruby-complete.jar:.:${CLASSPATH} org.jruby.main"
-    #or
-    export JRUBY="java -jar ./lib/jruby-complete.jar "
-
-#. Copy the jruby-complete.jar to your workspace.
-#. Modify the configurations of your Hadoop Streaming scripts to include the `jruby-complete.jar` file:
-   
-  .. code-block:: bash
-
-    hadoop  jar $HADOOP_HOME/hadoop-streaming.jar \
-        -mapper "${JRUBY} tp_metrics_filters_mapper.rb" \
-        -file ./lib/jruby-complete.jar
-
-**Example 2**
-
-Please replace the HDFS location, `/user/chiac`, with your own location.
-
-#. Copy `jruby-complete.jar` to Hadoop HDFS. You only need to do this one.
-   
-   .. code-block:: bash
-
-      sudo -u tp hadoop fs -mkdir /user/chiac/tools
-      sudo -u tp hadoop fs -put jruby-complete.jar /user/chiac/tools/.
-      sudo -u tp hadoop fs -chmod -R a+rx /user/chiac/tools
-
-#. Use these statements in your script.
-
-  .. note:: The following line is NOT a typo; `jruby-complete.jar` will be copied to the cwd instead!
-
-  .. code-block:: bash
-
-    export JRUBY="java -jar ./jruby-complete.jar "
-    hadoop jar $HADOOP_HOME/hadoop-streaming.jar \
-        -files "hdfs:///user/chiac/tools/jruby-complete.jar" \
-        -mapper "${JRUBY} tp_metrics_serves_mapper.rb"
-
-Where did my files (passed in with `-file`) go?
-===============================================
-
-You can conveniently pass files to your nodes by using the `-file` argument. These files will generally be placed in the current directory of you streaming job (or a symlink will).
-However, some files are special-cased. If you pass a class file, jar file, or zip file, these will not be placed in the current directory, but will instead be placed in a subdirectory (`./classes`, `./lib`, and `./lib`, respectively). This seems to be undocumented, and there may be other files that are similarly special-cased.

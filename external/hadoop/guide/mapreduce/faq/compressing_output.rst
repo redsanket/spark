@@ -2,6 +2,9 @@
 Compressing Output
 ******************
 
+
+.. todo:: This section is pulled from `Archived Wiki - Grid Cook Book <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/CookBook.html>`_ and needs to be updated.
+
 .. contents:: Table of Contents
   :local:
   :depth: 4
@@ -41,7 +44,6 @@ To conserve space on HDFS, compress your output files. Available compression sch
 * To compress your existing uncompressed **TEXT** data on the Grid use the data compression tool (note that this tool is not useful for compressing the sequence files).
 
 The following sections show how to compress job output files and how to subsequently consume them through another Map/Reduce (or Map only) job.
-
 
 How to Compress Job Output and Intermediate Map Output
 ======================================================
@@ -104,6 +106,7 @@ How to Read the Compressed Data into Map/Reduce Job
 * Note: ``Bzip2`` codec input format does not support the bzip2 compressed file that is created by concatenating multiple ``.bz2`` files.
   It currently does NOT through any error for such concatenated bzip compressed files but silently skips the records. See following JIRAs opened to fix the problem HADOOP-5601, HADOOP-5602.     
 
+
 Data Compression Tool
 =====================
 
@@ -113,8 +116,9 @@ The tool is a streaming M/R job that compresses TEXT files under a specified HDF
 
 ..  _guide_faq_compressing_output_how_use_bzip2_compression_on_grid:
 
-How do I use bzip2 compression scheme on the Grid ?
-===================================================
+
+How do I use bzip2 compression scheme on the Grid?
+==================================================
 
 ``BZIP2`` codec is supported in hadoop-0.20.0 (set io.compression.codecs=org.apache.hadoop.io.compress.BZip2Codec) but until then you can use the bzip2.jar from $SOLUTIONS_HOME/jars. It provides bzip2 input format to split and read the input bzip files.
 

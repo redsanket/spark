@@ -10,6 +10,7 @@ GIT_BRANCH_PR := $(GIT_BRANCH:$(BRANCH_PREIX)%=%)
 ACTIVATE = $(TMP_ENV)/bin/activate
 PIP = $(TMP_ENV)/bin/pip
 INTERNAL_DOCS_PATH = internal_docs
+EXTERNAL_DOCS_PATH = docs
 OOZIE = external/oozie/guide
 HIVE = external/hive/guide
 HUE = external/hue/guide
@@ -28,13 +29,13 @@ export SPHINXBUILD = $(TMP_ENV)/bin/sphinx-build
 # Use 'make build' to build the documentation locally. Docs will be copied to docs/<product>.
 build: hadoop hadoop_internal
 	@echo "running $(SPHINXBUILD) to generate documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) docs/oozie && $(SPHINXBUILD) $(HIVE) docs/hive && $(SPHINXBUILD) $(HUE) docs/hue && $(SPHINXBUILD) $(STORM) docs/storm && $(SPHINXBUILD) $(STARLING) docs/starling && $(SPHINXBUILD) $(HBASE) docs/hbase && $(SPHINXBUILD) $(SPARK) docs/spark && $(SPHINXBUILD) $(PRESTO) docs/presto
+	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) $(EXTERNAL_DOCS_PATH)/oozie && $(SPHINXBUILD) $(HIVE) $(EXTERNAL_DOCS_PATH)/hive && $(SPHINXBUILD) $(HUE) $(EXTERNAL_DOCS_PATH)/hue && $(SPHINXBUILD) $(STORM) $(EXTERNAL_DOCS_PATH)/storm && $(SPHINXBUILD) $(STARLING) $(EXTERNAL_DOCS_PATH)/starling && $(SPHINXBUILD) $(HBASE) $(EXTERNAL_DOCS_PATH)/hbase && $(SPHINXBUILD) $(SPARK) $(EXTERNAL_DOCS_PATH)/spark && $(SPHINXBUILD) $(PRESTO) $(EXTERNAL_DOCS_PATH)/presto
 	@echo 'Removing temp dir $(TMP_ENV)'
 	rm -rf $(TMP_ENV)
 
 hadoop: prebuild
 	@echo "running $(SPHINXBUILD) to generate hadoop documentation locally..."
-	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP) docs/hadoop
+	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP) $(EXTERNAL_DOCS_PATH)/hadoop
 
 hadoop_internal: prebuild
 	git branch -v
@@ -78,21 +79,21 @@ gh-pages:
 # Screwdriver changes to the gh-pages branch, builds the docs, and then adds the new documentation.
 publish: gh-pages build
 	@echo "Copying new files."
-	cp -R docs/oozie/* oozie
-	cp -R docs/hive/* hive
-	cp -R docs/hue/* hue
-	cp -R docs/storm/* storm
-	cp -R docs/starling/* starling
-	cp -R docs/hbase/* hbase
-	cp -R docs/spark/* spark
-	cp -R docs/presto/* presto
-	cp -R docs/hadoop/* hadoop
+	cp -R $(EXTERNAL_DOCS_PATH)/oozie/* oozie
+	cp -R $(EXTERNAL_DOCS_PATH)/hive/* hive
+	cp -R $(EXTERNAL_DOCS_PATH)/hue/* hue
+	cp -R $(EXTERNAL_DOCS_PATH)/storm/* storm
+	cp -R $(EXTERNAL_DOCS_PATH)/starling/* starling
+	cp -R $(EXTERNAL_DOCS_PATH)/hbase/* hbase
+	cp -R $(EXTERNAL_DOCS_PATH)/spark/* spark
+	cp -R $(EXTERNAL_DOCS_PATH)/presto/* presto
+	cp -R $(EXTERNAL_DOCS_PATH)/hadoop/* hadoop
 	## in case the folder does not exist to prevent failure in first commits
 	mkdir -p $(INTERNAL_DOCS_PATH)/hadoop
 	mkdir -p $(HADOOP_INTERNAL_PAGES)
 	cp -R $(INTERNAL_DOCS_PATH)/hadoop/* $(HADOOP_INTERNAL_PAGES)
 	@echo "Removing build files."
-	rm -rf docs setup.cfg tox.ini MANIFEST.ini external internal $(INTERNAL_DOCS_PATH)
+	rm -rf $(EXTERNAL_DOCS_PATH) setup.cfg tox.ini MANIFEST.ini external internal $(INTERNAL_DOCS_PATH)
 	@echo "Adding and saving new docs."
 	git add -A
 	git commit -m "Generated gh-pages." && git push origin gh-pages

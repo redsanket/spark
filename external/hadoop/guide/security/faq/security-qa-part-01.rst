@@ -1,13 +1,3 @@
-********
-Security
-********
-
-.. contents:: Table of Contents
-  :local:
-  :depth: 4
-
------------
-
 Kerberos Tickets and Passwords
 ==============================
 
@@ -51,3 +41,38 @@ For anybody who is trying to use the FileSystem API from a Gateway or Launcher w
 `Topher's Guide to Hadoop 0.20s HDFS Access <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Yst/TophersGuideTo20sHdfsAccess/>`_
 
 This does NOT cover accessing FileSystem from inside a map-reduce job.
+
+
+How to authenticate and run jobs across the Grid (Proxy)
+========================================================
+
+.. note:: this content has replaced the original legacy `Grid Invoke Web Request Via Proxy <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Sandbox/GridInvokeWebRequestViaProxy.html>`_
+
+
+HTTP Proxy
+----------
+
+Grid `HttpProxy` allows user jobs/processes running on ygrid to access services outside of ygrid.
+There are two types of HttpProxy:
+
+* Internal HttpProxy allows access to internal services in `.yahoo.com domain`.
+* External HttpProxy allows access to external services. Athenz authentication with External `HttpProxy` is required for accessing external services.
+
+For more information see the `HTTP Proxy confluence page <https://confluence.vzbuilders.com/display/HPROX/HTTP+Proxy>`_
+
+
+
+HDFS Proxy
+----------
+
+`HDFSProxy` provides authenticated encrypted access to a particular cluster's Hadoop file system (HDFS) from *outside a cluster*:
+e.g. cross-colo, or when trying to access HDFS outside of the grid backplane. (Within the grid backplane, use HDFS).
+
+For more information see the `HDFSProxy confluence page <https://confluence.vzbuilders.com/display/HPROX/HDFS+Proxy>`_
+
+
+HTTPFS Proxy
+------------
+
+* `Httpfs Proxy Dev Guide <https://confluence.vzbuilders.com/display/HPROX/Httpfs+Proxy+Dev+Guide>`_
+* `Configuring Oath HttpFS for CertificateBased Auth <https://docs.google.com/document/d/1mjLerhHZeiOLChNyP33yZDsCB6AC8X6geqLbjrlxi00>`_
