@@ -1,4 +1,4 @@
-..  _user_guide_hadoop_troubleshooting_yarn_manage_slow_attempt:
+..  _yarn_troubleshooting_part-01:
 
 Manage Slow or Stuck Yarn Application Attempts
 ==============================================
@@ -120,3 +120,26 @@ From the Gateway
     Container                               Start Time  Finish Time  State    Host Node       ...
 
     container_1466534149943_0002_01_000007  ...         N/A          RUNNING  localhost:4545  ...
+
+
+Yarn job failed with Error: `Split metadata size exceeded 10000000`
+===================================================================
+
+:guilabel:`Root Cause`
+
+The error could come because there are too many splits generated for the map reduce job. The Metadata file which stores the split information has too much information(``> 10MB`` default value) possibly because of too many splits. 
+
+:guilabel:`Solutions`
+
+* If there are too many mappers (in the order of thousands) and you actually don't need them (having way too many mappers is actually bad for performance), try reducing the number of total mapper tasks by having bigger splits by setting:
+  ``-Dmapreduce.input.fileinputformat.split.minsize=536870912`` (``512M`` or any higher value, default to block size which is ``128M`` on our grid. For ABF feeds ``1G`` or ``2G`` is good).
+
+* If the file sizes are small, say 128MB, setting ``split.minsize`` to a higher value like 1G does not help.
+  In that case, you can try to combine splits (See `Mapreduce FAQ related to number of mappers <runtime-qa-part-02-number-of-mappers>`_).
+
+* If first two options does not work for you and it is still hitting the same error, please try bumping up AM meta info size by setting ``-Dmapreduce.job.split.metainfo.maxsize=___`` to higher value (default is 10,000,000). The latter is the maximum permissible size of the split metainfo file. The MapReduce ``ApplicationMaster`` won't attempt to read submitted split metainfo files bigger than this configured value. No limits if set to ``-1``.
+
+
+* If first two options does not work for you and if Application Master is hitting OOM due to too many tasks, please try bumping up heapsize of the application master by the options in the table below:
+  
+  .. include:: /common/yarn/memory/yarn-memory-appmaster-conf.rst

@@ -22,6 +22,7 @@ Hadoop User Guide
 
    yarn/home
    yarn/scheduling
+   yarn/memory
    yarn/troubleshooting/home
    yarn/faq/index
 

@@ -2,76 +2,7 @@
 How to give your tasks more memory
 ==================================
 
-There are a number of mapreduce options that control how much memory your tasks can access. Users/admins can also specify the maximum virtual memory of the launched child-task, and any sub-process it launches recursively.
-The value ``mapreduce.{map|reduce}.memory.mb`` should be specified in mega bytes (MB). Note the following:
-
-* This is a *per-process* limit
-* The value must be greater than or equal to the ``-Xmx`` passed to JavaVM, else the VM might not start.
-  
-
-
-The following are the mapreduce configurations option for mapreduce
-
-  .. code-block:: bash
-
-    mapreduce.{CONFIGURATION_OPTION}
-
-
-:guilabel:`Map Parameters`
-
-+--------------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------+
-|                 Name                 |  Type |                                                           Description                                                          |
-+======================================+=======+================================================================================================================================+
-| ``task.io.sort.mb``                  | int   | The cumulative size of the serialization and accounting buffers storing records emitted from the map, in megabytes.            |
-+--------------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------+
-| ``map.sort.spill.percent``           | float | The soft limit in the serialization buffer. Once reached, a thread will begin to spill the contents to disk in the background. |
-+--------------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------+
-
-:guilabel:`Shuffle/Reduce Parameters`
-
-
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                        Name                       |  Type |                                                                                                                                                                                                                                              Description                                                                                                                                                                                                                                             |
-+===================================================+=======+======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================+
-| ``task.io.soft.factor``                           | int   | Specifies the number of segments on disk to be merged at the same time. It limits the number of open files and compression codecs during merge. If the number of files exceeds this limit, the merge will proceed in several passes. Though this limit also applies to the map, most jobs should be configured so that hitting this limit is unlikely there.                                                                                                                                         |
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``reduce.merge.inmem.thresholds``                 | int   | The number of sorted map outputs fetched into memory before being merged to disk. Like the spill thresholds in the preceding note, this is not defining a unit of partition, but a trigger. In practice, this is usually set very high (1000) or disabled (0), since merging in-memory segments is often less expensive than merging from disk (see notes following this table). This threshold influences only the frequency of in-memory merges during the shuffle.                                |
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``reduce.shuffle.merge.percent``                  | float | The memory threshold for fetched map outputs before an in-memory merge is started, expressed as a percentage of memory allocated to storing map outputs in memory. Since map outputs that can’t fit in memory can be stalled, setting this high may decrease parallelism between the fetch and merge. Conversely, values as high as 1.0 have been effective for reduces whose input can fit entirely in memory. This parameter influences only the frequency of in-memory merges during the shuffle. |
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``reduce.shuffle.input.buffer.percent``           | float | The percentage of memory- relative to the maximum heapsize as typically specified in ``mapreduce.reduce.java.opts`` - that can be allocated to storing map outputs during the shuffle. Though some memory should be set aside for the framework, in general it is advantageous to set this high enough to store large and numerous map outputs.                                                                                                                                                      |
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``reduce.input.buffer.percent``                   | float | The percentage of memory relative to the maximum heapsize in which map outputs may be retained during the reduce. When the reduce begins, map outputs will be merged to disk until those that remain are under the resource limit this defines. By default, all map outputs are merged to disk before the reduce begins to maximize the memory available to the reduce. For less memory-intensive reduces, this should be increased to avoid trips to disk.                                          |
-+---------------------------------------------------+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-
-.. note:: ``mapreduce.{map|reduce}.java.opts`` are used only for configuring the launched child tasks from ``MRAppMaster``. Configuring the memory options for daemons is documented in :hadoop_rel_doc:`Configuring the Environment of the Hadoop Daemons<hadoop-project-dist/hadoop-common/ClusterSetup.html#Configuring_Environment_of_Hadoop_Daemons>`.
-
-First, ``mapreduce.map.memory.mb`` controls how much memory space is allocated to your map tasks (Physical memory).
-The physical memory configured for your job must fall within the minimum and maximum memory allowed for containers in your cluster. The maximum value is set as YARN confoguration parameter in the ``mapred-site.xml``, dubbed ``yarn.scheduler.maximum-allocation-mb`` , which is currently set to ``20480MB`` (``131072`` for AxoniteBlue) and not over-writable. See also ``yarn.scheduler.minimum-allocation-mb``.
-
-Next you need to configure the JVM heap size for your map and reduce processes. These sizes need to be less than the physical memory you configured 
-ou can do this for both mapper and reducer with  ``mapreduce.{map|reduce}.java.opts``.  For example, to set the mapper heap size to 2GB,
-use ``-Dmapreduce.map.java.opts=-Xmx2048m``. Other ``java -X`` options let you the initial heap size & stack size.
-
-By default ``512MB`` is left for native memory. We recommend users maintain the same ratio while increasing memory unless more native memory is required with JNI. So in general, ``mapreduce.{map|reduce}.memory.mb`` should be equal to sum of ``-Xmx`` specified in ``mapreduce.{map|reduce}.java.opts`` and 512 MB. If you set ``mapreduce.{map|reduce}.memory.mb`` to 4096 but only have ``-Xmx1536M`` in your ``mapreduce.{map|reduce}.java.opts``, then you are wasting 2G of memory.
-Always ensure that you increase both ``memory.mb`` and ``java.opts`` together and the difference between them is 512MB.
-You can check the actual Physical memory usage of the tasks in the Counters page of the job in the UI (:menuselection:`cluster/scheduler --> Tracking UI --> select Application[ID] --> Job --> Counters`) and tune (increase or reduce) the memory further based on actual usage. If the Counters page shows that there are lot of spill (:menuselection:`Map-Reduce Framework --> Spilled Records`), then increase ``mapreduce.task.io.sort.mb`` to 512 or 768. Default is 256. Reducing spill will also speed up the job.
-
-.. note:: Reducers usually require more memory and increasing for both map and reducers will waste memory. So, you may need to set ``mapreduce.reduce.java.opts`` slightly higher than ``mapreduce.map.java.opts`` in order to save memory.
-
-
-For Tez, you can go to "All Tasks" in the DAG UI and select the counter of interest in the Column Selector settings on the top right corner. If there are thousands of tasks and UI is slow, you can also query starling by going to Axonite Blue Hue, choosing the database as starling.
-
-.. code-block:: sql
-
-  select task_attempt_id,
-         CAST(counters['org.apache.tez.common.counters.TaskCounter']['PHYSICAL_MEMORY_BYTES'] as bigint) as memory
-  from starling_vertex_task_attempt_counters
-  where dt == '2016_05_22' and
-        grid == 'PT' and
-        app_id = 'application_1459233834927_12719048'
-  ORDER BY memory desc;
+:ref:`yarn_memory` is a good source to learn about memory configurations. See :ref:`yarn_memory_important_configurations_tasks` to increase memory of the running program.
 
 How are the binary files split by Hadoop programmatically?
 ==========================================================
@@ -85,6 +16,8 @@ How are the binary files split by Hadoop programmatically?
 **Ans**: As I understand it, what they do in ``SequenceFile`` is every so many records they write a sync marker. That way, when an ``InputSplit`` starts in the middle of a record (which in general it will) they can skip to the sync marker and then start reading records. When an ``InputSplit`` comes to the end of its split, it keeping reading past the end until it hits a sync marker.
 This is exactly what ``TextRecordReader`` does, except it uses ``\n`` as a sync marker.
 Since you can't use any single byte as a sync marker in binary data, it uses a longer string of many bytes that hopefully would not be in the data itself.
+
+.. _runtime-qa-part-02-number-of-mappers:
 
 Specifying the Number of Mappers
 =================================
