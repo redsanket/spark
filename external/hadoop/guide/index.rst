@@ -7,6 +7,8 @@ Hadoop User Guide
    This document |version| is **Verizonmedia Proprietary/Confidential**.
    Do not release the contents of this document outside the company.
 
+   `Last updated: |today|`
+
 .. toctree::
    :caption: About The guide
    :numbered:
@@ -32,6 +34,7 @@ Hadoop User Guide
    :maxdepth: 4
 
    mapreduce/home
+   mapreduce/compression
    mapreduce/speculator
    mapreduce/faq/index
 

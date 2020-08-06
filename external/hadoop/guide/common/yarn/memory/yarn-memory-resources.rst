@@ -1,5 +1,4 @@
-Resources
-=========
+:token:`Yarn Memory Resources`
 
 * :hadoop_rel_doc:`Hadoop memory management <hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html#Memory_Management>`
 * `Hadoop Apps Dashboard <http://yo/hadoop-apps>`_

@@ -206,5 +206,7 @@ If other teams / projects share this queue, you should discuss if your usage is 
 
   Project Quota and Usage
 
+Resources
+=========
 
 .. include:: /common/yarn/memory/yarn-memory-resources.rst
