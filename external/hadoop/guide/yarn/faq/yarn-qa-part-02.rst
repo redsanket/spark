@@ -69,7 +69,7 @@ Queueing and Scheduling
 
 Will a higher priority job preempt a lower priority job in the same queue?
 --------------------------------------------------------------------------
-No. Higher priority jobs are offered resources ahead of lower priority jobs within the same queue. Resources which are already allocated to lower priority jobs are not currently taken away. Preemption of lower priority resources may become an option in the future.
+No.  Preemption of lower priority resources can be configured on, but by default it is configured off. Higher priority jobs are offered resources ahead of lower priority jobs within the same queue, but resources which are already allocated to lower priority jobs are not currently taken away.
 
 Are priorities respected between queues?
 ----------------------------------------
@@ -108,14 +108,16 @@ No. Only queues can be configured as preemptable/non-preemptable
 
 Will the scheduler preempt things within a queue to satisfy a higher priority job within that queue?
 ----------------------------------------------------------------------------------------------------
-No. There is no concept of priority within a queue (although that feature is coming shortly, stay tuned).
+No.  Preemption of lower priority resources can be configured on, but by default it is configured off. Higher priority jobs are offered resources ahead of lower priority jobs within the same queue, but resources which are already allocated to lower priority jobs are not currently taken away.
+
 
 Which clusters will have preemption enabled?
 ---------------------------------------------
 
-Clusters must be running at least Hadoop 2.6.0.10 before preemption can be enabled. Normally, shortly after moving to this release, the default queue is changed to be preemptable.
+Preemption is enabled in the default queue in VerizonMedia clusters and can be used by any user. However, there are _no_ SLA guarantees for jobs running in the default queue.
+All queues in VCG have preemption enabled except the GPU queues.
 
-Sometimes my job runs really fast, and sometimes it seems to take forever.
----------------------------------------------------------------------------
+Sometimes my job in the default queue runs really fast, and sometimes it seems to take forever.
+-----------------------------------------------------------------------------------------------
 
 When the cluster is busy, the default queue does not have a lot of capacity associated with it so jobs may appear to run slowly. When the cluster is mostly idle, the default queue can make use of these idle resources and therefore jobs can run orders of magnitude faster.
