@@ -197,6 +197,14 @@ rst_prolog = """
 
  <br />
 
+.. |ss| raw:: html
+
+   <strike>
+
+.. |se| raw:: html
+
+   </strike>
+
 .. |HADOOP_RELEASE_VERSION| replace:: r2.10.0
 """
 

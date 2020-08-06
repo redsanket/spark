@@ -9,3 +9,4 @@ Troubleshooting
    :maxdepth: 4
 
    part-01
+   part-02
