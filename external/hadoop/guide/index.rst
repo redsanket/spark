@@ -36,6 +36,7 @@ Hadoop User Guide
    mapreduce/home
    mapreduce/compression
    mapreduce/speculator
+   mapreduce/streaming
    mapreduce/faq/index
 
 .. toctree::

@@ -1,13 +1,13 @@
-#########
+..  _mapreduce_streaming_faq:
+
+*********
 Streaming
-#########
+*********
 
-.. todo:: This section is pulled from `Archived Wiki - Grid Cook Book <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/CookBook.html>`_ and needs to be updated.
+.. admonition:: Readings...
+   :class: readingbox
 
-Making Hadoop act like Unix (for languages other than Java).
-
-.. seealso:: Follow Apache Hadoop `streaming docs for r2\.10\.0 <https://hadoop.apache.org/docs/r2.10.0/hadoop-streaming/HadoopStreaming.html>`_
-
+   Make sure you go through the overview section (:ref:`mapreduce_streaming`).
 
 .. toctree::
    :caption: Table of Contents
@@ -15,5 +15,3 @@ Making Hadoop act like Unix (for languages other than Java).
 
    streaming-qa-part-01
    streaming-qa-part-02
-   streaming-qa-part-03
-

@@ -1,425 +1,228 @@
+Specifying Configuration Variables with the ``-D`` Option
+=========================================================
 
-How Does Streaming Work?
-========================
+You can specify additional configuration variables by using ``-D <property>=<value>``.
 
-.. todo:: Find page HadoopStreaming
+  .. code-block:: bash
 
-For an overview, see `Hadoop Streaming <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/HadoopStreaming>`_
+    # To change the local temp directory use:
+    -D dfs.data.dir=/tmp
 
-Streaming Tips
-==============
-
-
-How to use multiple jars to run my job?
----------------------------------------
-
-
-* Use ``-libjars`` to specify multiple jars on the command line.
-* Set environment variable ``HADOOP_CLASSPATH`` to the jars for your jobs main class.
+    # To specify additional local temp directories use:
+    -D mapred.local.dir=/tmp/local
+    -D mapred.system.dir=/tmp/system
+    -D mapred.temp.dir=/tmp/temp
 
 
-What's the difference between ``TextInputFormat`` and ``OneLineInputFormat``
------------------------------------------------------------------------------
+Often, you may want to process input data using a map function only. To do this, simply set ``mapreduce.job.reduces`` to zero. The Map/Reduce framework will not create any reducer tasks. Rather, the outputs of the mapper tasks will be the final output of the job. To be backward compatible, Hadoop Streaming also supports the ``-reducer NONE`` option, which is equivalent to ``-D mapreduce.job.reduces=0``.
 
-* ``TextInputFormat`` uses the default implementation of ``getSplits()`` inherited from ``FileInputFormat``. It respects the number of splits determined by the framework based on the size of your input data and the number of nodes available. You can't control the number of map tasks to spawn.
+  .. code-block:: bash
 
-* ``OneLineInputFormat`` overrides ``getSplits()`` such that every single line in your input file(s) becomes an ``InputSplit``. Thus the number of map tasks spawned will be exactly the number of lines in your input file(s). And each map task is fed with a single line.
-
-* Both inputformat classes use ``LineRecordReader`` to read a line into a ``<K,V> pair``. The byte offset of the first character of that line is to be used as the key. And the rest of the line is to be used as the value. However Hadoop Streaming has made it a special case for ``TextInputFormat`` that it passes only the value part to your pipe program. For other inputformat classes, both key and value will be passed to your pipe program, delimited by ``\t``.
-
-Where to find ``OneLineInputFormat``?
--------------------------------------
-
-* ``$HADOOP_HOME/tools/jars/oneLineInputformat.jar``
-* ``$SOLUTIONS_HOME/jars/oneLineInputformat.jar`` (on mithril-gold)
-
-
-How to make mutiple files available to my tasks?
-------------------------------------------------
-
-* Use ``-file`` if you have a couple of small files to ship with your job. Those files will be copied into CWD on the task nodes.
-
-* Examples:
+    # Specifying Map-Only Jobs
+    -D mapreduce.job.reduces=0
     
-   * Use ``-cacheFile`` if your files are large.
-   * Use ``-cacheArchive`` if your files are large and there are too many of them.   
+    # Specifying the Number of Reducers, for example two, use:
+    hadoop jar hadoop-streaming-2.10.0.jar \
+      -D mapreduce.job.reduces=2 \
+      -input myInputDirs \
+      -output myOutputDir \
+      -mapper /bin/cat \
+      -reducer /usr/bin/wc
 
-How to run N-fold cross validation on Hadoop?
----------------------------------------------
-
-* Split your data using n_fold.pl.
-* Put all data splits into a Java archive.
-  
-  .. code-block:: bash
-
-    $JAVA_HOME/bin/jar cvf data.jar fold.*
-
-* Upload data.jar to HDFS
+When the Map/Reduce framework reads a line from the stdout of the mapper, it splits the line into a key/value pair. By default, the prefix of the line up to the first tab character is the key and the rest of the line (excluding the tab character) is the value.
+However, you can customize how Lines are Split into Key/Value Pairs. You can specify a field separator other than the tab character (the default), and you can specify the n :superscript:`th` (``n >= 1``) character rather than the first character in a line (the default) as the separator between the key and value. For example:
 
   .. code-block:: bash
-  
-    hadoop dfs -put data.jar data.jar
 
-* Create a text file (input_file) and put all your cross validation tasks into it, one task per line. This file is going to be used as your job's input.
+    # Customizing How Lines are Split into Key/Value Pairs
+    hadoop jar hadoop-streaming-2.10.0.jar \
+      -D stream.map.output.field.separator=. \
+      -D stream.num.map.output.key.fields=4 \
+      -input myInputDirs \
+      -output myOutputDir \
+      -mapper /bin/cat \
+      -reducer /bin/cat
 
-  .. code-block:: bash
-  
-    perl cross_validate_task.pl -f 0 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 1 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 2 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 3 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 4 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 5 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 6 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 7 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 8 -c 0.5 -w 0.5 -i data -b .
-    perl cross_validate_task.pl -f 9 -c 0.5 -w 0.5 -i data -b .
-
-* Run cross validation using this command:
-
-  .. code-block:: bash
-  
-     % hadoop dfs -put input_file input_file
-     % setenv HADOOP_CLASSPATH  $HADOOP_HOME/tools/jars/oneLineInputformat.jar 
-     % hadoop --config config_dir jar \
-              -libjars $HADOOP_HOME/tools/jars/oneLineInputformat.jar $HADOOP_HOME/hadoop-streaming.jar \
-              -input input_file \
-              -output output_dir \
-              -mapper run_stdin.pl \
-              -file cross_validate_task.pl \
-              -file run_stdin.pl \
-              -file train \
-              -file predict \
-              -inputformat com.yahoo.kryptonite.web.OneLineInputFormat \
-              -cacheArchive hdfs://kry-nn1:8020/user/dun/data.jar#data
-
-For more information on hadoop streaming please refer to `GridDocStreaming <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/GridDocumentation/GridDocStreaming>`_.
-
-.. todo:: Find page GridDocStreaming
+In the above example, ``-D stream.map.output.field.separator=.`` specifies ``.`` as the field separator for the map outputs, and the prefix up to the fourth ``.`` in a line will be the key and the rest of the line (excluding the fourth ``.``) will be the value. If a line has less than four ``.`` s, then the whole line will be the key and the value will be an empty Text object (like the one created by new Text("")). |br|
+Similarly, you can use ``-D stream.reduce.output.field.separator=SEP`` and ``-D stream.num.reduce.output.fields=NUM`` to specify the :superscript:`th` field separator in a line of the reduce outputs as the separator between the key and the value. |br|
+Similarly, you can specify ``stream.map.input.field.separator`` and ``stream.reduce.input.field.separator`` as the input separator for Map/Reduce inputs. By default the separator is the tab character.
 
 
-How To Use libyell with Streaming
-=================================
+How to work with Mutiple Files, Large Files and Archives?
+=========================================================
 
+The ``-files`` and ``-archives`` options allow you to make files and archives available to the tasks. The argument is a URI to the file or archive that you have already uploaded to HDFS. These files and archives are cached across jobs. You can retrieve the host and `fs_port` values from the ``fs.default.name`` config variable.
 
-Overview
---------
-
-* Grid SE requires all packages to be used in the same way as any other yinst-able package
-* In order to access libyell, you need to keep the structure on each grid node as it is running on an openhouse machine
-
-As a grid user, you need to package libyell and distribute it to all your nodes.
-
-Here is an example about how to distribute yinst packages: `StoneCutterOnGrid <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Apex/StoneCutterOnGrid.html/>`_
-
-As of Oct/29. 2015, the choices of libyell are: version 6.12.x on 'stable', version 6.13 on 'current'.
-
-.. todo:: move page StoneCutterOnGrid
-
-Steps for get libyell to runtime node
--------------------------------------
-
-
-Prepare a libyell tarball for your job
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Since libyell also depends on other packages, you need to install it to get all necessary dependenciese available first and then generate one tarball. Here are the steps to generate one tarball.
+The ``-files`` option creates a symlink in the current working directory of the tasks that points to the local copy of the file. In this example, Hadoop automatically creates a symlink named testfile.txt in the current working directory of the tasks. This symlink points to the local copy of testfile.txt.
 
 
   .. code-block:: bash
-  
-    ssh kryptonite-gw.red.ygrid.yahoo.com  #or any gateway machine
-    mkdir 4grid
-    cd 4grid
-    yinst i libyell [-br current] -nosudo -root .
-    # replace ./libdata/yell/wseos/webma.conf with the attached webma.conf
-    tar -zcvf ../libyell_4grid.tgz bin64 conf include lib lib* share 
 
-:download:`webma.conf </resources/webma.conf>`
+    -files hdfs://host:fs_port/user/testfile.txt
 
-Put libyell tarball for distribution
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # User can specify a different symlink name for -files using #.
+    -files hdfs://host:fs_port/user/testfile.txt#testfile
 
-Put the newly generated tarball on HDFS just like any other files to be ready for distibution.
-Here is an example cmd:
+    # Multiple entries can be specified like this:
+    -files hdfs://host:fs_port/user/testfile1.txt,hdfs://host:fs_port/user/testfile2.txt
+
+
+The ``-archives`` option allows you to copy jars locally to the current working directory of tasks and automatically unjar the files. In this example, Hadoop automatically creates a symlink named ``testfile.jar`` in the current working directory of tasks. This symlink points to the directory that stores the unjarred contents of the uploaded jar file.
 
   .. code-block:: bash
-  
-    hdfs dfs -put ../libyell_4grid.tgz ./yell_path
+
+    -archives hdfs://host:fs_port/user/testfile.jar
+
+    # User can specify a different symlink name for -archives using #.
+    -archives hdfs://host:fs_port/user/testfile.tgz#tgzdir
+
+In this example, the `input.txt` file has two lines specifying the names of the two files: `cachedir.jar/cache.txt` and `cachedir.jar/cache2.txt`. `cachedir.jar` is a symlink to the archived directory, which has the files `cache.txt` and `cache2.txt`.
+
+.. literalinclude:: /resources/code/mapreduce/streaming-faq-archive-command-example.bash
+   :language: bash
+   :caption: Making Archives Available to Tasks
+   :linenos:
+
+How to partition the map outputs based on certain key fields?
+=============================================================
+
+Hadoop has a library class, :hadoop_rel_doc:`KeyFieldBasedPartitioner <api/org/apache/hadoop/mapred/lib/KeyFieldBasedPartitioner.html>`, that is useful for many applications. This class allows the Map/Reduce framework to partition the map outputs based on certain key fields, not the whole keys. For example:
+
+  .. parsed-literal::
+
+     hadoop jar hadoop-streaming-|HADOOP_RELEASE_VERSION|.jar
+        -D stream.map.output.field.separator=.
+        -D stream.num.map.output.key.fields=4
+        -D map.output.key.field.separator=.
+        -D mapreduce.partition.keypartitioner.options=-k1,2
+        -D mapreduce.job.reduces=12
+        -input myInputDirs
+        -output myOutputDir
+        -mapper /bin/cat
+        -reducer /bin/cat
+        -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+
+Here, ``-D stream.map.output.field.separator=.`` and ``-D stream.num.map.output.key.fields=4`` are as explained in previous example. The two variables are used by streaming to identify the key/value pair of mapper. |br|
+The map output keys of the above Map/Reduce job normally have four fields separated by `.`. However, the Map/Reduce framework will partition the map outputs by the first two fields of the keys using the ``-D mapred.text.key.partitioner.options=-k1,2`` option. Here, ``-D map.output.key.field.separator=.`` specifies the separator for the partition. This guarantees that all the key/value pairs with the same first two fields in the keys will be partitioned into the same reducer.
 
 
-* ``libyell_java.jar`` file is under ``$libyell_install_path/lib/jars/``. Insert ``$libyell_install_path/lib`` for ``java.library.path``.
+How Can I specify Hadoop Comparator Class?
+==========================================
 
-* Here is how QCAT project uses libyell on grid: https://git.corp.yahoo.com/QCAT/qcat-core/tree/master/core/src/main/script/grid
+Hadoop has a library class, :hadoop_rel_doc:`KeyFieldBasedComparator <api/org/apache/hadoop/mapreduce/lib/partition/KeyFieldBasedComparator.html>`, that is useful for many applications. This class provides a subset of features provided by the Unix/GNU Sort. For example:
 
-* Here is how Gemini project uses libyell on grid: https://git.corp.yahoo.com/guoqiang/udfs/blob/master/README.md
+  .. parsed-literal::
 
-Use libyell in MapReduce
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-#. Add the following lines of codes in your Java code (changing the libyell_install_path accordingly)
-
-    .. code-block:: java
-    
-        String config_file = libyell_install_path + "/conf/yell/libyell.config";
-        yellAPI = new YellAPI();
-        yellAPI.yellInit(libyell_install_path, config_file, 0);
-
-        conf.set("mapred.child.java.opts", "-Djava.library.path=$libyell_install_path/lib -Xmx512m");
-        conf.set("mapred.child.env", "LD_LIBRARY_PATH=$libyell_install_path/lib");
-
-#. Run your jobs with ``libyell_java.jar``. The working nodes will find the libyell package on the gateway:
-   ``-libjars $libyell_install_path/libyell_java.jar``
+     hadoop jar hadoop-streaming-|HADOOP_RELEASE_VERSION|.jar
+        -D mapreduce.job.output.key.comparator.class=org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator
+        -D stream.map.output.field.separator=.
+        -D stream.num.map.output.key.fields=4
+        -D mapreduce.map.output.key.field.separator=.
+        -D mapreduce.partition.keycomparator.options=-k2,2nr
+        -D mapreduce.job.reduces=1
+        -input myInputDirs
+        -output myOutputDir
+        -mapper /bin/cat
+        -reducer /bin/cat
 
 
-Using distributed cache
-^^^^^^^^^^^^^^^^^^^^^^^
-
-#. Write your own ``map/reduce`` java code. The following code snippet provides you an example of using libyell in ``map/reduce``,
-   Access the libyell with distributedcache
-
-    .. code-block:: java
-    
-        URI [] urilist = new URI[1];
-        try {
-          //replacing the URI accordingly, if you are using other clusters
-          urilist[0] = new URI ("hdfs://gateway_host_name/yell_path/libyell_4grid.tgz#yell");
-        } catch ( Exception e ){
-          throw new IOException(StringUtils.stringifyException(e));
-        }
-        DistributedCache.setCacheArchives(urilist, conf);
-        DistributedCache.createSymlink(conf);
-        conf.set("mapred.child.java.opts", "-Djava.library.path=./yell/lib -Xmx512m");
-        conf.set("mapred.child.env", "LD_LIBRARY_PATH=./yell/lib");
-
-        try {
-          DistributedCache.addCacheArchive(new URI("./yell_path/libyell_4grid.tgz"), conf);
-          DistributedCache.addFileToClassPath(new Path("./yell_path/lib/jars/libyell_java.jar"), conf);
-        } catch (URISyntaxException e) {
-          System.out.println(e);
-        }
-
-#. In your map/reduce, you can call the yellAPI in this way
-
-    .. code-block:: java
-    
-        String pwd = System.getenv("PWD");
-        String install_path = pwd + "/yell";  
-        String config_file = install_path + "/conf/yell/libyell.config";
-        try {
-          YellAPI yellAPI = new YellAPI();
-          yellAPI.yellInit(install_path, config_file, 0);
-          YellLang yellLang = yellAPI.yellLangOpen("zh-hans");
-          int v[] = yellAPI.yellGetVersion();
-          System.out.println("version: " + v[0] + "." + v[1] + "." + v[2]);
-        } catch (YellException ex) { 
-          System.out.println(ex);
-        }
-
-#. Run your job Example:
-
-  .. code-block:: bash
-  
-     hadoop jar your.jar [mainclass] \
-          -libjars $yell_install_path/lib/jars/libyell_java.jar \
-          -Dmapred.job.queue.name=queuename ...... [args]  
-         
-
-Using libyell
--------------
-
-I packaged a version of libyell that contains ``libyell_xt`` data. ``/user/clementg/yell.zip``
-
-The launching command looks something like this:
-
-  .. code-block:: bash
-  
-     hadoop jar /grid/0/gs/hadoop/hadoop-0.20.1.3041192001/hadoop-streaming.jar \
-          -Dmapred.reduce.tasks=0 -Dmapred.job.queue.name=unfunded \
-          -cacheArchive "hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com/user/clementg/yell.zip#yell" \
-          -file "../mapperCleaner" -file "../libyell.config" \
-          -input /tmp/clementg/referralsNa -output /tmp/clementg/referralsNaClean \
-          -mapper mapperCleaner \
-          -cmdenv LD_LIBRARY_PATH = ./yell/yell/lib64
-
-Streaming in Pig
-================
-
-.. todo:: find stream link
-
-Streaming is also available as Pig operator -- you can combine high-level relational notation with running existing C++ or Perl programs in a single Pig script.
-In the Pig Latin Manual, see `Stream <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fhadoop.apache.org%2Fpig%2Fdocs%2Fr0.2.0%2Fpiglatin.html%23STREAM&SIG=11qq394rh>`_ for more details.
-
-
-Streaming in Python -- Count Dogs Example
-=========================================
-
-For those who have absolutely no experience with Hadoop and Map/Reduce ... try this example.
-
-.. todo:: move content from https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Yst/VkMrCtDogs.html
-
-.. _user_guide_faq_streaming_in_python_pymapred:
-
-
-Streaming in Python -- pymapred Example
-=======================================
-
-There is a powerful convenience package that encapsulate interaction with ``Hadoop py`` wrapping it into Python.
-A single python script runs both on the gateway and in map/reduce tasks.
-On the gateway it generates the necessary Hadoop commands and launches map/reduce jobs.
-
-On the cluster, it does the actual data processing. From the user perspective, the user does not need to know anything but Python and the general concepts of map/reduce computation.
-
-pymapred also supports ``Join`` and ``Parameter Sweep``.
-
-.. todo:: move content from twiki 
-
-see `PymapredMapReduce <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Main/PymapredMapReduce/>`_
-
-
-Streaming with a recent version of Python
-=========================================
-
-.. todo:: move content of YResearch GridTools page from twiki 
-
-The grid team currently only supports Python 2.4, which is quite old and lacks a number of useful modules (e.g., json, defaultdict, etc.). Adding two lines to any Hadoop Streaming or Pig job submission will use the distributed cache mechanism to make a local copy of this library to each mapper or reducer and modify paths accordingly:
-
-  .. code-block:: bash
-  
-    -Dmapred.child.env=PATH=./gridtools/bin:'${PATH}',LD_LIBRARY_PATH=./gridtools/lib:./gridtools/lib64 \
-    -cacheArchive /user/hofman/gridtools.tar.gz#gridtools \
-
-More details are available on the `YResearch GridTools page <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/YResearch/GridTools.html>`_.
-
-
-How to use map/reduce to run N independent tasks
-================================================
-
-
-GridX - a script for running distributed shared nothing jobs on the grid
-------------------------------------------------------------------------
-
-GridX can be used to run jobs on a set of input files. You can give GridX a command and it will do command substitution to run a command on each of the inputs.
-
-
-.. code-block:: bash
-  
-   ARGS:
-     -p numParts      // number of jobs to run, each job can use  to identify its partition number, default=1
-                      //    partitions are counted from 0 ... p-1
-
-     -file filename   // upload a file to the processing node
-
-     -cacheArchive hdfsfilename#dirname   // upload a file to the processing node via hdfs and unjar it in dirname
-
-     -c command       // (REQUIRED) the command to run.  For example, -c 'echo "partition=$p"; hostname'
-                      //    $p is mapped to the partition number
-                      //    $pzz is mapped to the partition number with 2-digit zero padding, such as 03
-                      //    $pzzz is mapped to the partition number with 3-digit zero padding, such as 003
-                      //    $pzzzzz is mapped to the partition number with 5-digit zero padding, such as 00003
-
-   EXAMPLE:  runs getq_orig.gawk on all 24 log files
-            (00.log.gz ... 23.log.gz) for a day
-
-   gridx -p 24 -file getq_orig.gawk -c 
-      'hadoop dfs -get /data/jasonyz/ks_logs/2008/05/01/$pzz.log.gz .; gunzip $pzz.log.gz; gawk -f getq_orig.gawk .log > $pzz.out ; hadoop dfs -put $pzz.out /user/jasonyz'
-
-.. note::
-  - You must have already allocated nodes on the grid with a config dir named hodtmp.
-  - be careful to use the 'single quotes' around your command so that the ``'$'`` sign is preserved by the shell and not interpreted if you use any of the macro ``$p`` macro expansions.
-    
-
-GridX script
-------------
-
-* see :download:`GridX script </resources/gridx.sh.txt>`
-* see `Sweeper` class in :ref:`user_guide_faq_streaming_in_python_pymapred`
-
-
-How to debug streaming jobs
-===========================
-
-* Hadoop 0.18 - use ``hadoop dfs -ls hod-logs`` (the logs are placed in your home directory).
-* Hadoop 0.20 - use the web interface via the job/task tracker to view the logs
-
-
-Use streaming to do shell-like work
+Does Streaming support Aggregators?
 ===================================
 
-A lot of times, we have simple input data that we just want to transform using common Unix tooks like ``awk``, ``grep``, ``sed``. Streaming lends itself well to this application, though you will likely want to iterate over a small sample while you work to get your command perfect. (You do this in the Unix shell too, don't you?)
+Hadoop has a library package called :hadoop_rel_doc:`Aggregate <api/org/apache/hadoop/mapred/lib/FieldSelectionMapReduce.html>`. Aggregate provides a special reducer class and a special combiner class, and a list of simple aggregators that perform aggregations such as `sum`, `max`, `min` and so on over a sequence of values. Aggregate allows you to define a mapper plugin class that is expected to generate `aggregatable items` for each input key/value pair of the mappers. The combiner/reducer will aggregate those aggregatable items by invoking the appropriate aggregators. |br|
+To use Aggregate, simply specify ``-reducer aggregate``:
 
-*Examples:*
 
-Here are some examples specific to working with the XML files from news.yahoo.com, but you can use the same techniques for many applications.
+  .. parsed-literal::
 
-Distributed Cache with Streaming (Python Example)
--------------------------------------------------
+     hadoop jar hadoop-streaming-|HADOOP_RELEASE_VERSION|.jar
+        -input myInputDirs
+        -output myOutputDir
+        -mapper myAggregatorForKeyCount.py
+        -reducer aggregate
+        -file myAggregatorForKeyCount.py
 
-  .. code-block:: bash
+The python program `myAggregatorForKeyCount.py` looks like:
 
-    yinst install ypython-2.7.0 -nosudo -root /grid/0/tmp/ypython stub/ycron-1.9.0
-    cd /grid/0/tmp/ypython
-    zip -r ypython-2.7.0 *
-    hadoop dfs -put ypython-2.7.0.zip .
-    hadoop dfs -ls ypython-2.7.0.zip 
-      Found 1 items
-      -rw-------   3 peeyushb users  227414492 2011-11-12 11:02 /user/peeyushb/ypython-2.7.0.zip
-    cat mapper.py 
-      #!./PYTHONROOT/bin/python2.7
-      import sys
-       
-      #--- get all lines from stdin ---
-      for line in sys.stdin:
-          #--- remove leading and trailing whitespace---
-          line = line.strip()
-       
-          #--- split the line into words ---
-          words = line.split()
-       
-          #--- output tuples [word, 1] in tab-delimited format---
-          for word in words: 
-              print '%s\t%s' % (word, "1")
+  .. code-block:: python
+     
+      #!/usr/bin/python
 
-    cat reducer.py 
-      #!./PYTHONROOT/bin/python2.7
-      import sys
-       
-      # maps words to their counts
-      word2count = {}
-       
-      # input comes from STDIN
-      for line in sys.stdin:
-          # remove leading and trailing whitespace
-          line = line.strip()
-       
-          # parse the input we got from mapper.py
-          word, count = line.split('\t', 1)
-          # convert count (currently a string) to int
+      import sys;
+
+      def generateLongCountToken(id):
+          return "LongValueSum:" + id + "\t" + "1"
+
+      def main(argv):
+          line = sys.stdin.readline();
           try:
-              count = int(count)
-          except ValueError:
-              continue
-       
-          try:
-              word2count[word] = word2count[word]+count
-          except:
-              word2count[word] = count
-       
-      # write the tuples to stdout
-      # Note: they are unsorted
-      for word in word2count.keys():
-          print '%s\t%s'% ( word, word2count[word] )
+              while line:
+                  line = line&#91;:-1];
+                  fields = line.split("\t");
+                  print generateLongCountToken(fields&#91;0]);
+                  line = sys.stdin.readline();
+          except "end of file":
+              return None
+      if __name__ == "__main__":
+           main(sys.argv)
+
+How To process text data like the unix `cut` utility?
+=====================================================
+
+Hadoop has a library class, :hadoop_rel_doc:`FieldSelectionMapReduce <api/org/apache/hadoop/mapred/lib/FieldSelectionMapReduce.html>, that effectively allows you to process text data like the unix `cut` utility. The map function defined in the class treats each input key/value pair as a list of fields. You can specify the field separator (the default is the tab character). You can select an arbitrary list of fields as the map output key, and an arbitrary list of fields as the map output value. Similarly, the reduce function defined in the class treats each input key/value pair as a list of fields. You can select an arbitrary list of fields as the reduce output key, and an arbitrary list of fields as the reduce output value. For example:
+
+  .. parsed-literal::
+
+     hadoop jar hadoop-streaming-|HADOOP_RELEASE_VERSION|.jar
+        -D mapreduce.map.output.key.field.separator=.
+        -D mapreduce.partition.keypartitioner.options=-k1,2
+        -D mapreduce.fieldsel.data.field.separator=.
+        -D mapreduce.fieldsel.map.output.key.value.fields.spec=6,5,1-3:0-
+        -D mapreduce.fieldsel.reduce.output.key.value.fields.spec=0-2:5-
+        -D mapreduce.map.output.key.class=org.apache.hadoop.io.Text
+        -D mapreduce.job.reduces=12
+        -input myInputDirs
+        -output myOutputDir
+        -mapper org.apache.hadoop.mapred.lib.FieldSelectionMapReduce
+        -reducer org.apache.hadoop.mapred.lib.FieldSelectionMapReduce
+        -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+
+The option ``-D mapreduce.fieldsel.map.output.key.value.fields.spec`` specifies key/value selection for the map outputs. Key selection spec and value selection spec are separated by `:`. In this case, the map output key will consist of fields 6, 5, 1, 2, and 3. The map output value will consist of all fields (0- means field 0 and all the subsequent fields).
+
+The option ``-D mapreduce.fieldsel.reduce.output.key.value.fields.spec`` specifies key/value selection for the reduce outputs. In this case, the reduce output key will consist of fields 0, 1, 2 (corresponding to the original fields 6, 5, 1). The reduce output value will consist of all fields starting from field 5 (corresponding to all the original fields).
 
 
-Streaming Command used:
+How do I run an arbitrary set of (semi) independent tasks?
+==========================================================
 
-  .. code-block:: bash
+Often you do not need the full power of Map Reduce, but only need to run multiple instances of the same program - either on different parts of the data, or on the same data, but with different parameters. You can use Hadoop Streaming to do this.
 
-    hadoop jar /grid/0/gs/hadoop/current/hadoop-streaming.jar \
-      -Dmapred.job.queue.name=grideng \
-      -archives hdfs://axoniteblue-nn1.blue.ygrid.yahoo.com:8020/user/peeyushb/ypython-2.7.0.zip#PYTHONROOT \
-      -cmdenv LD_LIBRARY?_PATH=PYTHONROOT/lib/ \
-      -mapper mapper.py -reducer reducer.py \
-      -input input.txt -output streamop \
-      -file mapper.py -file reducer.py
+How do I process files, one per map?
+====================================
 
+As an example, consider the problem of zipping (compressing) a set of files across the hadoop cluster. You can achieve this by using Hadoop Streaming and custom mapper script:
+
+* Generate a file containing the full HDFS path of the input files. Each map task would get one file name as input.
+* Create a mapper script which, given a filename, will get the file to local disk, gzip the file and put it back in the desired output directory.
+
+How do I specify multiple input directories?
+============================================
+
+You can specify multiple input directories with multiple ``-input`` options:
+
+  .. parsed-literal::
+
+     hadoop jar hadoop-streaming-|HADOOP_RELEASE_VERSION|.jar
+           -input '/user/foo/dir1' -input '/user/foo/dir2'
+           (rest of the command)
+
+How do I generate output files with gzip format?
+================================================
+
+Instead of plain text files, you can generate gzip files as your generated output.
+Pass the following as option to your streaming job:
+
+  .. parsed-literal::
+
+     -D mapreduce.output.fileoutputformat.compress=true
+     -D mapreduce.output.fileoutputformat.compress.codec=org.apache.hadoop.io.compress.GzipCodec

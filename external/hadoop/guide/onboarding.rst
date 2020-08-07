@@ -39,6 +39,13 @@ Onboarding the Grid
 	  - `Complete list of documentations: <https://git.vzbuilders.com/pages/developer/Bdml-guide/resources/#apache-user-guides>`_.
 
 
+List of Resources and Readings
+==============================
+
+.. include:: /common/mapreduce/mapreduce-reading-resources.rst
+.. include:: /common/mapreduce/streaming-reading-resources.rst 
+.. include:: /common/yarn/memory/yarn-memory-resources.rst
+
 .. bibliography:: resources/refs.bib
    :cited:
    :all:
