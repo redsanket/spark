@@ -23,7 +23,7 @@ Hadoop User Guide
    :maxdepth: 4
 
    yarn/home
-   yarn/scheduling
+   yarn/scheduling/index
    yarn/memory
    yarn/troubleshooting/home
    yarn/faq/index

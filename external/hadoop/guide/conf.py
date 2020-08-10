@@ -35,6 +35,10 @@ extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo', 'sphinxcontrib.bibtex']
 
 # enable todo here
 todo_include_todos=True
+
+# enable numbering of figures and tables
+numfig=True
+
 # Add any paths that contain templates here, relative to this directory.
 
 # Templates path for docs on developer.corp.yahoo.com

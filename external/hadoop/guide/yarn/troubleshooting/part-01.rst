@@ -26,7 +26,7 @@ See Sec. :ref:`yarn_troubleshooting_merge_slow_attempt_get_container_id` below f
 
 * View the stdout container logs from the GUI:
 
-.. image:: /images/container.logs.stdout.jstack.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/container.logs.stdout.jstack.jpg
   :height: 777px
   :scale: 100%
   :alt:
@@ -54,7 +54,7 @@ From the Map Reduce GUI
 
 * Select the list of running attempts from the MapReduce job overview page on the Job History Server. For example:
 
-.. image:: /images/get.container.id.1.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/get.container.id.1.jpg
   :height: 250px
   :width: 700px
   :scale: 85%
@@ -63,7 +63,7 @@ From the Map Reduce GUI
 
 * From the job's running attempts page, select the "logs" link. For example:
 
-.. image:: /images/get.container.id.2.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/get.container.id.2.jpg
   :height: 200px
   :width: 700px
   :scale: 85%
@@ -72,7 +72,7 @@ From the Map Reduce GUI
 
 * Use the container ID from the URL. For example:
 
-.. image:: /images/get.container.id.3.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/get.container.id.3.jpg
   :height: 250px
   :width: 700px
   :scale: 85%
@@ -84,7 +84,7 @@ From the TEZ GUI
 
 * Select "All TaskAttempts" from the "DAG Details" page of your application in the TEZ GUI. For example:
 
-.. image:: /images/get.container.id.4.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/get.container.id.4.jpg
   :height: 250px
   :width: 700px
   :scale: 85%
@@ -93,7 +93,7 @@ From the TEZ GUI
 
 * Get the container ID of your attempt from the "Containers" column. For example:
 
-.. image:: /images/get.container.id.5.jpg
+.. image:: /images/yarn/troubleshooting/manage-slow-attempts/get.container.id.5.jpg
   :height: 250px
   :width: 700px
   :scale: 85%

@@ -64,8 +64,8 @@ Is there a limit to the number of vcores an application can request?
 
 *Yes*. This setting is cluster-specific. To see the value for the cluster you are interested in, go to the Resource Manager front page (example: `AxoniteRed <http://axonitered-jt1.red.ygrid.yahoo.com:8088/cluster/scheduler>`_), under ``Tools`` select ``Configuration``, then search for ``yarn.scheduler.maximum-allocation-vcores``.
 
-Queueing and Scheduling
-=======================
+Scheduling and Queuing
+======================
 
 Will a higher priority job preempt a lower priority job in the same queue?
 --------------------------------------------------------------------------
