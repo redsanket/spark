@@ -2,12 +2,24 @@
 Pipes
 *****
 
-.. todo:: This section is pulled from `Archived Wiki - Grid Cook Book <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/CookBook.html>`_ and needs to be updated.
+What is Hadoop pipes?
+=====================
+
+Hadoop pipes allows users to use the `C++` language for MapReduce programming. The main method it takes is to put the `C++` code of the application logic in a separate process, and then let the Java code communicate with `C++` code through the socket. To a large extent, this approach is similar to Hadoop streaming, where communication differs: one is the standard input output and the other is the socket.
 
 
-.. todo:: those two links are broken
+Whick API should I use for `Non-java` applications?
+===================================================
 
-`C++ Word Count Example <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fwiki.apache.org%2Fhadoop%2FC%2B%2BWordCount&SIG=11e3nnhdi/>`_
+Refer to Apache Hadoop :hadoop_rel_doc:`pipes package <api/org/apache/hadoop/mapred/pipes/package-summary.html>`
 
-`Package org.apache.hadoop.mapred.pipes <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fhadoop.apache.org%2Fcore%2Fdocs%2Fr0.19.1%2Fapi%2Forg%2Fapache%2Fhadoop%2Fmapred%2Fpipes%2Fpackage-summary.html&SIG=1365mqn4n/>`_
+How to submit the script?
+=========================
 
+A quick way to submit the debug script is to set values for the properties ``mapreduce.map.debug.script`` and ``mapreduce.reduce.debug.script``, for debugging map and reduce tasks respectively. These properties can also be set by using APIs ``Configuration.set(MRJobConfig.MAP_DEBUG_SCRIPT, String)`` and ``Configuration.set(MRJobConfig.REDUCE_DEBUG_SCRIPT, String)``. |br|
+**Note:** In streaming mode, a debug script can be submitted with the command-line options ``-mapdebug`` and ``-reducedebug``, for debugging map and reduce tasks respectively.
+
+How to Run `C++` programs on Hadoop?
+====================================
+
+See the dated tutorial `Hadoop Tutorial 2.2 -- Running C++ Programs on Hadoop <http://www.science.smith.edu/dftwiki/index.php/Hadoop_Tutorial_2.2_--_Running_C++_Programs_on_Hadoop>`_

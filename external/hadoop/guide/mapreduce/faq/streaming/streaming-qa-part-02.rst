@@ -46,3 +46,10 @@ How to debug streaming jobs?
 
 * User can specify ``stream.non.zero.exit.is.failure`` as true or false to make a streaming task that exits with a non-zero status to be `Failure` or `Success` respectively. By default, streaming tasks exiting with non-zero status are considered to be failed tasks. (See :ref:`Streaming Overview Section <mapreduce_streaming>`).
 * Use ``-mapdebug`` and ``-reducedebug`` to configure a script to call when a task fails.
+  
+In streaming mode, a debug script can be submitted with the command-line options ``-mapdebug`` and ``-reducedebug``, for debugging map and reduce tasks respectively.
+The arguments to the script are the task’s stdout, stderr, syslog and jobconf files. The debug command, run on the node where the MapReduce task failed, is:
+
+  .. code-block:: bash
+
+    $script $stdout $stderr $syslog $jobconf
