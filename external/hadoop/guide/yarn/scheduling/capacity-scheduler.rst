@@ -135,20 +135,18 @@ How Do User Weights Work?
 -------------------------
 
 * Users with higher weights will be assigned more resources than users with lower weights within a queue.
-* Although there are many additional variables to consider, the calculation for **Max Resource** basically boils down to :eq:`user-weight-hadoop`
+* Although there are many additional variables to consider, the calculation for **Max Resource** basically boils down to :eq:`eq-user-weight-hadoop`
   
   * Let :math:`R` is the total resources consumed by active users, :math:`N` is the number of active users, :math:`C` is the cluster capacity, :math:`l` is the number of active users,  :math:`l` Configured Minimum User Limit Percent, and :math:`w` is the user's weight, then:
   
     .. math::
-      :label: user-weight-hadoop
+      :label: eq-user-weight-hadoop
 
        \text{Max-Resource} = 
-       \Biggl \lbrace
-       {
-       w * \textit{max} \left( \frac{C}{N} , \frac{C * l}{100} \right),\quad \textit{for hadoop-2.8}
-       \atop
-       w * \textit{max} \left( \frac{R}{N} , \frac{R * l}{100} \right),\quad \textit{for hadoop-2.9+}
-       }
+      \begin{cases}
+       w \times \textit{max} \left( \dfrac{C}{N} , \dfrac{C \times l}{100} \right) & \textit{for hadoop-2.8}\\
+       w \times \textit{max} \left( \dfrac{R}{N} , \dfrac{R \times l}{100} \right) & \textit{for hadoop-2.9+}
+       \end{cases}
 
   * A weight value of `0.0` will assign owned container to the first active application of a user. No further resources will be assigned to that user. This is because when a user's `Used Resource` is equal to the user's `Max Resource`, the capacity scheduler will assign the user one more container.
 
@@ -217,10 +215,10 @@ User's Weight Is a Multiplier for the Configured User Limit Factor
 In this example, a single user with weight 1.0 can only ever use 2GB (plus 1 container--See :numref:`yarn_scheduling_how_does_user_weights_work`) because the Configured User Limit Factor is `1.0` and the Configured Capacity is `10.0%`. In the following image, see that:
 
   .. math::
-    \text{Max-Resource} = (\textit{Cluster-Total-Resources} * \textit{Configured-Capacity} * \textit{User-Weight})
+    \text{Max-Resource} = (\textit{Cluster-Total-Resources} \times \textit{Configured-Capacity} \times \textit{User-Weight})
 
   .. math::
-    \text{Max-Resource} = (20480 * 0.1 * 1.0) = 2048 \text{MB} \\
+    \text{Max-Resource} = (20480 \times 0.1 \times 1.0) = 2048 \text{MB} \\
     \text{Used-Resource} = \text{Max-Resource} + 1 \textit{container} = (20480 + 512) = 2560\text{MB}
 
 .. image:: /images/yarn/scheduling/user-weights/image-06.png

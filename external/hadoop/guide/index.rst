@@ -7,7 +7,7 @@ Hadoop User Guide
    This document |version| is **Verizonmedia Proprietary/Confidential**.
    Do not release the contents of this document outside the company.
 
-   `Last updated: |today|`
+   `Last updated:` |today|
 
 .. toctree::
    :caption: About The guide
