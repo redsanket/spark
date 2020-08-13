@@ -6,14 +6,17 @@ Intra-queue (in-queue) Preemption
 .. admonition:: Reading...
    :class: readingbox
 
-   * Review :ref:`yarn_scheduling_preemption_inter-queue`
-   * Review section :ref:`yarn_scheduling_capacity_scheduler`.
-   * Hadoop Resource Manager's Capacity Scheduler, especially Queue Properties at Apache Hadoop :hadoop_rel_doc:`Capacity Scheduler <hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html#Queue_Properties>`
+   * Section :ref:`yarn_scheduling_preemption_inter-queue`
+   * Section :ref:`yarn_scheduling_capacity_scheduler`.
+   * Queue Properties at Apache Hadoop Doc - :hadoop_rel_doc:`Capacity Scheduler <hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html#Queue_Properties>`
 
-.. glossary::
+.. topic:: Definitions
+   :class: definitionbox
 
-   userLimit
-     Each user is given at least this percentage of a queue's resources. It is calculated using the configuration ``yarn.scheduler.capacity.<queue-path>.minimum-user-limit-percent``. The dfault value is `100`, which means `no-limits`. Note that ff this value is `25` and there are `4` or more users with submitted jobs, each user will be given at least `25%`` of the resources when their jobs run. This also means that if users always use their max allotment, only 4 users (in this example) can have running jobs at a time. There could be more if each user doesn't need the full `25%`.
+   .. glossary::
+
+      userLimit
+        Each user is given at least this percentage of a queue's resources. It is calculated using the configuration ``yarn.scheduler.capacity.<queue-path>.minimum-user-limit-percent``. The dfault value is `100`, which means `no-limits`. Note that ff this value is `25` and there are `4` or more users with submitted jobs, each user will be given at least `25%`` of the resources when their jobs run. This also means that if users always use their max allotment, only 4 users (in this example) can have running jobs at a time. There could be more if each user doesn't need the full `25%`.
 
 Configuration Properties
 ------------------------
@@ -70,7 +73,7 @@ Let's assume we have:
 
 .. table:: `. Step-2. User hadoop1 launches a high priority app, but gets no resources because app1 is holding on to them:`
   :widths: auto
-  
+
   +--------------------------------+-------------------+----------------------+----------------------------+--------------------------------+
   | App Name in |br| default Queue | Owner of |br| App | Priority |br| of App | Resources Used |br| By App | Resources Pending |br| for App |
   +================================+===================+======================+============================+================================+

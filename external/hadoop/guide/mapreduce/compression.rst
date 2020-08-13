@@ -33,29 +33,33 @@ There are many different compression formats available in Hadoop framework. Para
 * Space saving.
 * Compression format is splittable or not.
 
-**List of available compression formats:**
 
-.. glossary::
 
-   Deflate (`.deflate`)
-     It is the compression algorithm whose implementation is zlib. `Deflate` compression algorithm is also used by gzip compression tool.
-   
-   gzip (`.gzip`)
-     gzip compression is based on Deflate compression algorithm. Gzip compression is not as fast as LZO or snappy but compresses better so space saving is more. Gzip is not splittable.
+.. topic:: List of available compression formats:
+   :class: definitionbox
 
-   bzip2 (`.bz2`)
-     Using bzip2 for compression will provide higher compression ratio but the compressing and decompressing speed is slow. Bzip2 is splittable, Bzip2Codec implements SplittableCompressionCodec interface which provides the capability to compress / de-compress a stream starting at any arbitrary position.
+   .. glossary::
 
-   Snappy (`.snappy`)
-   	 The Snappy compressor from Google provides fast compression and decompression but compression ratio is less. Snappy is not splittable. Filename extension is `.snappy`.
+     Deflate
+       (`.deflate`). It is the compression algorithm whose implementation is zlib. `Deflate` compression algorithm is also used by gzip compression tool.
+     
+     gzip
+       (`.gzip`). It is based on Deflate compression algorithm. Gzip compression is not as fast as LZO or snappy but compresses better so space saving is more. Gzip is not splittable.
 
-   LZ4 (`.lz4`)
-     Has fast compression and decompression speed but compression ratio is less. LZ4 is not splittable.
+     bzip2
+       (`.bz2`). Using bzip2 for compression will provide higher compression ratio but the compressing and decompressing speed is slow. Bzip2 is splittable, Bzip2Codec implements SplittableCompressionCodec interface which provides the capability to compress / de-compress a stream starting at any arbitrary position.
+
+     Snappy
+       (`.snappy`). The Snappy compressor from Google provides fast compression and decompression but compression ratio is less. Snappy is not splittable. Filename extension is `.snappy`.
+
+     LZ4
+       (`.lz4`). It has fast compression and decompression speed but compression ratio is less. LZ4 is not splittable.
 
 Typically you should use either `gzip` or `bzip2` compression scheme to compress your job output files.
 From the grid or Map/Reduce processing standpoint, the following is an important difference:
-* `gzip` compressed input file can not be split across multiple maps. One map instance will be created to consume single gzipped input file and thus may restrict the granularity of the map task processing.
-* `bzip2` compressed input file can be split across multiple maps and thus recommended for processing the data on the grid.
+
+* :term:`gzip` compressed input file can not be split across multiple maps. One map instance will be created to consume single gzipped input file and thus may restrict the granularity of the map task processing.
+* :term:`bzip2` compressed input file can be split across multiple maps and thus recommended for processing the data on the grid.
 
 Compared to `bzip2`, the `snappy` is faster but it has poor compression.
 
@@ -70,7 +74,7 @@ Let's try to clarify it with an example. If you have a 1 GB file it will be part
 
 Now, if you compress this 1 GB file using gzip (which is not splittable) then HDFS still stores the file as 8 separate blocks. As it is not possible to read data at an arbitrary point in the compressed gzip stream, MapReduce job won’t calculate input splits and launch only one map task to process all the 8 HDFS blocks. So you lose the advantage of parallel processing and there is no data locality optimization too. Even if map task is launched on the node where data for one of the block is stored data for all the other blocks has to be transferred to the node where map task is launched.
 
-Here note that compression used is Splittable or not is a factor for text files only. If you are using container file format like sequence file or Avro then splitting is supported even if the compressor used is not splittable like Snappy or Gzip.
+Note that compression used is Splittable or not is a factor for text files only. If you are using container file format like sequence file or Avro then splitting is supported even if the compressor used is not splittable like Snappy or Gzip.
 
 Compression increases CPU processing
 ------------------------------------
@@ -128,7 +132,7 @@ Then you can run the Java program using the following command.
     $ hdfs fsck /user/out/test.bz2
 
 The previous command should list 2 HDFS blocks.
-In order to verify that MapReduce job will create input splits or not giving this compressed file `test.bz2` as input to a `wordcount` MapReduce program. Since the compression format used is `bz2`, which is a splittable compression format, there should be two input splits for the job.
+In order to verify that MapReduce job will create input splits or not giving this compressed file `test.bz2` as input to a `wordcount` MapReduce program. Since the compression format used is :term`bzip2`, which is a splittable compression format, there should be two input splits for the job.
 
   .. code-block:: bash
 

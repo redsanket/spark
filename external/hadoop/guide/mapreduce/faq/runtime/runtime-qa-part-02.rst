@@ -1,8 +1,57 @@
+..  _mapreduce_faq_runtime_increase_job_memory:
 
 How to give your tasks more memory
 ==================================
 
 :ref:`yarn_memory` is a good source to learn about memory configurations. See :ref:`yarn_memory_important_configurations_tasks` to increase memory of the running program.
+
+
+.. sidebar:: Related Readings...
+
+    * :ref:`yarn_memory`
+    * :ref:`yarn_memory_important_configurations_tasks`
+    * :ref:`YARN memory Troubleshooting <yarn_troubleshooting_memory>`
+
+
+In summary, For MapReduce running on YARN there are actually two memory settings you have to configure at the same time:
+
+* The physical memory for your YARN map and reduce processes
+* The JVM heap size for your map and reduce processes
+
+
+Configure ``mapreduce.map.memory.mb`` and ``mapreduce.reduce.memory.mb`` to set the YARN container physical memory limits for your map and reduce processes respectively. For example, if you want to limit your map process to `2GB` and your reduce process to `4GB`, and you wanted that to be the default in your cluster, then you’d set the following in `mapred-site.xml`:
+
+  .. code-block:: xml
+
+      <property>
+        <name>mapreduce.map.memory.mb</name>
+        <value>2048</value>
+      </property>
+      <property>
+        <name>mapreduce.reduce.memory.mb</name>
+        <value>4096</value>
+      </property>
+
+The physical memory configured for your job must fall within the minimum and maximum memory allowed for containers in your cluster (check the ``yarn.scheduler.maximum-allocation-mb`` and ``yarn.scheduler.minimum-allocation-mb`` properties respectively).
+
+Next you need to configure the JVM heap size for your map and reduce processes. These sizes need to be less than the physical memory you configured in the previous section. Configure ``mapreduce.map.java.opts`` and ``mapreduce.reduce.java.opts`` to set the map and reduce heap sizes respectively. 
+
+  .. code-block:: xml
+
+      <property>
+        <name>mapreduce.map.java.opts</name>
+        <value>-Xmx1638m</value>
+      </property>
+      <property>
+        <name>mapreduce.reduce.java.opts</name>
+        <value>-Xmx3278m</value>
+      </property>
+
+The above values are 80% of the physical memory 2GB and 4GB respectively.
+
+Finally, to configure those properties for your job, pass the configurations to your command line launching the job.
+
+  .. include:: /common/yarn/memory/yarn-memory-appmaster-conf.rst
 
 How are the binary files split by Hadoop programmatically?
 ==========================================================

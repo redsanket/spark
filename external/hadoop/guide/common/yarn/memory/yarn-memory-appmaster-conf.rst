@@ -15,7 +15,7 @@
    #default is 1024m and you can go up to 3584 
    -Dyarn.app.mapreduce.am.command-opts= \
        'Xmx2048m -XX:NewRatio=8 -Djava.net.preferIPv4Stack=true' \
-   #default 1536, Max - 4096. Rule of thumb - 512MB higher than the Xmx value
+   #default 1536, Max - 4096. Rule of thumb - `512MB` higher than the Xmx value
    -Dyarn.app.mapreduce.am.resource.mb=2560
 
 
@@ -24,3 +24,18 @@
    - Increase the value for the parameters only at the job level (e.g for map reduce jobs use jvm parameters ``-Dmapreduce.job.split.metainfo.maxsize=_____`` |br|
    - Always increase in 512mb steps and leave headroom for native memory. 
 
+
+.. table:: `Memory Configuration Settings for Job`
+  :widths: auto
+
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  |            PROPERTY            |                                                  DESCRIPTION                                                 |
+  +================================+==============================================================================================================+
+  | ``mapreduce.map.memory.mb``    | The amount of physical memory that your YARN map process can use.                                            |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | ``mapreduce.reduce.memory.mb`` | The amount of physical memory that your YARN reduce process can use.                                         |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | ``mapreduce.map.java.opts``    | Used to configure the heap size for the map JVM process. Should be 80% of ``mapreduce.map.memory.mb``.       |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+
+  | ``mapreduce.reduce.java.opts`` | Used to configure the heap size for the reduce JVM process. Should be 80% of ``mapreduce.reduce.memory.mb``. |
+  +--------------------------------+--------------------------------------------------------------------------------------------------------------+

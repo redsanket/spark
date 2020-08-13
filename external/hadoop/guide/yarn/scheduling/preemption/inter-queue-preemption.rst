@@ -11,17 +11,18 @@ Hadoop preemption is a feature within the Hadoop capacity scheduler. This featur
 Overview
 --------
 
-.. glossary::
+.. topic:: Definitions
+   :class: definitionbox
 
    Under-served queue
      is one that is consuming less than its allotted capacity and is requesting additional resources from the cluster.
-   
+
    Over-capacity queue
      is a queue that is using more resources than its allotted capacity.
 
 Whether or not resources can be preempted from a queue is configurable on a queue-by-queue basis. Initially, we are configuring clusters so that only the "default" queue is preemptable. All other queues will be marked as non-preemptable.
 
-.. tip:: Queue owners can request their queue be marked preemptable. Since the system can take resources from a preemptable queue in order to meet demand, preemptable queues can have much higher `max-capacity` settings. In other words, when a queue is configured to be preemptable, its max-capacity setting will often increase at the same time giving those queues more resources to work with when the cluster has available resources.
+.. tip:: Queue owners can request their queue be marked preemptable. Since the system can take resources from a preemptable queue in order to meet demand, preemptable queues can have much higher :term:`Configured Max-Capacity` settings. In other words, when a queue is configured to be preemptable, its max-capacity setting will often increase at the same time giving those queues more resources to work with when the cluster has available resources.
 
 
 :guilabel:`Example:`

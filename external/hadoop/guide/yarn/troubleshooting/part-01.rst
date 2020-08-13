@@ -18,11 +18,13 @@ Dump the JStack of a Slow Attempt
 
 In order to signal an application attempt to dump its stack, you will need to know its container ID.
 
-See Sec. :ref:`yarn_troubleshooting_merge_slow_attempt_get_container_id` below for instructions on how to obtain the container ID of the desired attempt.
+See :numref:`yarn_troubleshooting_merge_slow_attempt_get_container_id` below for instructions on how to obtain the container ID of the desired attempt.
 
 * Cause the container to dump its JStack
 
-   * ``yarn container -signal container_1466534149943_0002_01_000007OUTPUT_THREAD_DUMP``
+  .. code-block:: bash
+
+    $ yarn container -signal container_1466534149943_0002_01_000007OUTPUT_THREAD_DUMP
 
 * View the stdout container logs from the GUI:
 
@@ -39,7 +41,7 @@ Kill an Application Attempt
 
 In order to kill an application attempt by sending it a signal, you will need to know its container ID.
 
-See (:ref:`yarn_troubleshooting_merge_slow_attempt_get_container_id`) below for instructions on how to obtain the container ID of the desired attempt.
+See (:numref:`yarn_troubleshooting_merge_slow_attempt_get_container_id`) below for instructions on how to obtain the container ID of the desired attempt.
 
 * ``yarn container -signal container_1466534149943_0002_01_000007 GRACEFUL_SHUTDOWN``
 * If the container won't die, use ``FORCEFUL_SHUTDOWN`` instead of ``GRACEFUL_SHUTDOWN``.
@@ -125,19 +127,19 @@ From the Gateway
 Yarn job failed with Error: `Split metadata size exceeded 10000000`
 ===================================================================
 
-:guilabel:`Root Cause`
+.. rubric:: Root Cause
 
 The error could come because there are too many splits generated for the map reduce job. The Metadata file which stores the split information has too much information(``> 10MB`` default value) possibly because of too many splits. 
 
-:guilabel:`Solutions`
+.. rubric:: Solutions
 
 * If there are too many mappers (in the order of thousands) and you actually don't need them (having way too many mappers is actually bad for performance), try reducing the number of total mapper tasks by having bigger splits by setting:
-  ``-Dmapreduce.input.fileinputformat.split.minsize=536870912`` (``512M`` or any higher value, default to block size which is ``128M`` on our grid. For ABF feeds ``1G`` or ``2G`` is good).
+  ``-Dmapreduce.input.fileinputformat.split.minsize=536870912`` (`512M` or any higher value, default to block size which is `128M` on our grid. For ABF feeds `1G` or `2G` is good).
 
-* If the file sizes are small, say 128MB, setting ``split.minsize`` to a higher value like 1G does not help.
-  In that case, you can try to combine splits (See `Mapreduce FAQ related to number of mappers <runtime-qa-part-02-number-of-mappers>`_).
+* If the file sizes are small, say `128MB`, setting ``split.minsize`` to a higher value like 1G does not help.
+  In that case, you can try to combine splits (See :numref:`runtime-qa-part-02-number-of-mappers`).
 
-* If first two options does not work for you and it is still hitting the same error, please try bumping up AM meta info size by setting ``-Dmapreduce.job.split.metainfo.maxsize=___`` to higher value (default is 10,000,000). The latter is the maximum permissible size of the split metainfo file. The MapReduce ``ApplicationMaster`` won't attempt to read submitted split metainfo files bigger than this configured value. No limits if set to ``-1``.
+* If first two options do not work for you and it is still hitting the same error, please try bumping up AM meta info size by setting ``-Dmapreduce.job.split.metainfo.maxsize=___`` to higher value (default is `10,000,000`). The latter is the maximum permissible size of the split metainfo file. The MapReduce `ApplicationMaster` won't attempt to read submitted split metainfo files bigger than this configured value. No limits if set to `-1`.
 
 
 * If first two options does not work for you and if Application Master is hitting OOM due to too many tasks, please try bumping up heapsize of the application master by the options in the table below:

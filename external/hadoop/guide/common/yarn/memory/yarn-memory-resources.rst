@@ -5,3 +5,4 @@
 * `GCViewer <https://github.com/chewiebug/GCViewer>`_ - Garbage Collection and Heap Size Analysis
 * `Oozie2Shell <https://git.ouroath.com/jmartell/oozie2shell>`_ - Clone an Oozie job
 * `YourKit <https://yahoo.jiveon.com/docs/DOC-15112#jive_content_id_Do_we_have_a_site_license_for_YourKit>`_ - Commercial Java Profiler
+* `Configuring Memory for MapReduce Running on YARN <https://dzone.com/articles/configuring-memory-for-mapreduce-running-on-yarn>`_, a DZone's article.

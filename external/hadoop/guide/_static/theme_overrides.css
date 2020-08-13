@@ -19,4 +19,22 @@
 	 .rst-content .readingbox {
       background: #dbfaf4
    }
+
+   .rst-content .definitionbox .topic-title {
+      display: block;
+      font-family: Roboto Slab,ff-tisa-web-pro,Georgia,Arial,sans-serif;
+      font-weight: 700;
+      background: #e1e4e5;
+      padding: 6px 12px;
+      margin: -24px -24px 24px;
+      font-size: 100%;
+   }
+
+   .rst-content .definitionbox {
+      display: block;
+      margin: 0 0 24px 24px;
+      padding: 24px;
+      background: #f3f6f6;
+      border: 1px solid #e1e4e5;
+   }
 }

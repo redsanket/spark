@@ -10,3 +10,4 @@ FAQ
 
    yarn-qa-part-01
    yarn-qa-part-02
+   yarn-qa-part-03

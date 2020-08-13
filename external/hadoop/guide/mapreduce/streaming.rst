@@ -11,7 +11,8 @@ Streaming
 
 Although the Hadoop framework is implemented in Java, MapReduce applications need not be written in Java.
 
-.. glossary::
+.. topic:: Definitions
+   :class: definitionbox
 
    Hadoop Streaming (:hadoop_rel_doc:`api package <api/org/apache/hadoop/streaming/package-summary.html>`)
      It is a utility which allows users to create and run jobs with any executables (e.g. shell utilities) as the mapper and/or the reducer.
