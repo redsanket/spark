@@ -160,7 +160,9 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # and  -Dssl.client.truststore.password=changeit  
 # CANNOT USE: -Djavax.net.ssl.trustStore, hadoop ignores this in its x509
 # handler to create the factory
-# fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
+# Below change is for YHADOOP-3394 where Tez inherits the correct environment without containers and unable to find certs in /opt/yahoo..
+fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
+# Below changes was for YHADOOP-3385 where /home/gs bindmount was not available from the container
 fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /opt/yahoo/share/ssl/certs/."
 
 set +x
