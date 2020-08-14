@@ -1,152 +1,52 @@
-Configuring Hadoop namenode heap size
-=====================================
 
-*Important data structures in namenode:*
+Copying And Moving Files
+========================
 
-BlockInfo 
-  used for storing block information, one for every block in the cluster.
-INodeFile
-  used for storing file information, one for every file on HDFS.
-INodeDirectory
-  used for storing directory information, one for every directory on HDFS.
+.. include:: /common/hdfs/data-governance-warning.rst
 
-*Calculating heap size:*
+.. rubric:: DistCp Tool
 
-Java heap is organized into Young and Tenured generation. Young generation heap size is currently chosen as 3GB on production clusters.
-
-*Tenured generation is made of:*
-
-Live objects
-  calculated based on number of blocks, files and directories. Additional 20% of space is allocated for other live objects and working heap.
-Space for young generation
-  Live objects from young generation are moved to Tenured space during minor GC. Young generation heap space needs to be free in the Tenured space assuming the worst case scenario.
-Floating garbage
-  During concurrent collection of Tenured generation some of the garbage is not collected (because the collection runs concurrently with the application and garbage marked as live could be garbage at the end of marking). To account for it, additional 20% of the Tenured space is allocated.
-
-Use the :download:`excel spreadsheet </resources/NameNodeHeapSize-v4.xls>` to calculate the namenode heap size.
-
-
-Various data copy scenarios
-===========================
-
-``DistCp``
-  is a Hadoop utility implemented as a Map/Reduce job to copy files from one HDFS cluster to another HDFS cluster.
-  As per `Hadoop Cluster Access Across Colos <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Hadoop/HadoopCrossColoUsers.html/>`_, please use ``webhdfs:`` as the source when the source cluster is cross-colo read *OR* when source and target clusters are on different hadoop versions.
-
-Copying/Moving files from within same HDFS Cluster
---------------------------------------------------
-
-Use ``bin/hadoop fs`` command on the gateway machine with appropriate options mentioned below.
-For more information, see ``bin/hadoop fs -help``
+:hadoop_rel_doc:`DistCp <hadoop-distcp/DistCp.html>` is a tool used for large
+inter/intra-cluster copying. It uses MapReduce to effect its distribution, error
+handling and recovery, and reporting. It expands a list of files and directories
+into input to map tasks, each of which will copy a partition of the files
+specified in the source list.
 
   .. code-block:: bash
 
-     bin/hadoop fs 
-           [-mv <hdfs_src> <hdfs_dst>]
-           [-cp <hdfs_src> <hdfs_dst>]
+    hadoop distcp
+
+For detailed desciption of usage and command line options, visit Apache Docs - :hadoop_rel_doc:`DistCp Guide <https://hadoop.apache.org/docs/r2.10.0/hadoop-distcp/DistCp.html>`.
+
+.. important::
+   
+   * Do not use :hadoop_rel_doc:`Hadoop shell commands <hadoop-project-dist/hadoop-common/FileSystemShell.html>`
+     (such as `cp`, `copyfromlocal`, `put`, `get`) for large copying jobs or you
+     may experience I/O bottlenecks.
+   * You should no longer use ``hadoop -fs`` to access HDFS.
+     Instead use ``hdfs dfs``.
+     See Apach Docs - :hadoop_rel_doc:`HDFS Commands Guide <hadoop-project-dist/hadoop-hdfs/HDFSCommands.html>`.
+   * When copying between same major versions of Hadoop cluster, use `hdfs`
+     protocol. |br| For copying between two different major versions of Hadoop, one will
+     usually use `WebHdfsFileSystem`.
+
+Should a map fail to copy one of its inputs, there will be several side-effects. |br|
+Unless `-overwrite` is specified, files successfully copied by a previous map on
+a re-execution will be marked as “`skipped`”. |br|
+If a map fails "`mapreduce.map.maxattempts`" times, the remaining map tasks will be
+killed (unless `-i` is set). |br|
+If "`mapreduce.map.speculative`" is set to `final` and `true`, the result of the
+copy is `undefined`.
 
 
-Copying files from one HDFS Cluster to another HDFS Cluster using webhdfs
--------------------------------------------------------------------------
+.. rubric:: dfs command
 
-.. todo:: Review the content because it is outdated. Content has been pulled from `Hadoop Cluster Access Across Colos (and using webhdfs to communciate between .23 and 2.x grids) <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Hadoop/HadoopCrossColoUsers.html>`_
-
-All data being transmitted CROSS-colo must be encrypted. This page documents guidelines on how to access Hadoop grids in view of this initiative.
-`INTRA-colo` traffic should still use hdfs! as hdfs for intra-colo is more efficient!
-HISTORICAL note, the information below on converting to webhdfs was required as we migrated to 2.x as hdfs rpc is not compatible between .23 and 2.x and as such users should convert to webhdfs for that use case as well.
-
-If at all possible, avoid accessing Hadoop clusters cross-colo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If you need to use data on a particular cluster but don't have resources (like disk quota) on that cluster, please first try to gain the appropriate access and resources on that cluster before you copy the data somewhere else. This avoids duplication of data and wasting of space and network bandwidth.
-If you must copy data cross-colo, read on...
-
-Use WebHDFS to read data across colos (and to communicate between .23 and 2.x Clusters)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Cross colo HDFS access must be done via webhdfs. If you are currently reading data from a remote colo, you must change the way you access this data--from Hadoop RPC to Hadoop webhdfs.
-For example:
-
-* OLD: hdfs://axonitered-nn1.red.ygrid.yahoo.com:8020/user/nroberts/blah
-* NEW: webhdfs://axonitered-nn1.red.ygrid.yahoo.com/user/nroberts/blah
-
-Don't write cross-colo (NO PUSHING)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You should always use a pull model when transferring data cross-colo.
-That is, the destination Hadoop cluster should be reading data (pulling) from the source Hadoop cluster. The source Hadoop cluster should not be writing (pushing) data to the destination Hadoop cluster.
-
-For example, with `distcp`,
-
-* Always launch the job from the destination cluster's gateway
-* Always use `WebHDFS` to access the source and HDFS to access the destination
-
-.. code-block:: bash
-
-    [ axonite-gw.red ] % hadoop distcp -Dmapred.job.queue.name=${queueName} webhdfs://cobaltblue-nn1/foo hdfs://axonitered-nn1/bar
-
-Don't write via WebHDFS
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Writes via WebHDFS are not currently supported, hence the no cross-colo write directive above. Usage of `WebHDFS` should be reads only, so pull models where data is read from `WebHDFS` need to be used instead of push models where data is written via `WebHDFS`.
-
-Don't include a port when using WebHDFS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Including a port on the machine name in a URL is not necessary for either hdfs or webhdfs. Using a port is error prone, so now is a good time to remove it. Users often change ``hdfs://host:8020/`` to ``webhdfs://host:8020/``, or ``webhdfs://host:50070/`` back to ``hdfs://host:50070/`` and experience confusing error messages from hadoop.
-
-
-For example:
-
-* OLD: hdfs://axonitered-nn1.red.ygrid.yahoo.com:8020/user/nroberts/blah
-* NEW: in colo: hdfs://axonitered-nn1.red.ygrid.yahoo.com/user/nroberts/blah
-* NEW: cross colo: webhdfs://axonitered-nn1.red.ygrid.yahoo.com/user/nroberts/blah
-
-.. note:: The har filesystem currently has a bug that requires ports to be specified. Ex. ``har://webhdfs-host:50070/path``
-
-Errors encountered when entering bad ports
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* If you try to use a port, but mis-type it, you will get a connection exception (8021 is not a valid port):
-
-  .. code-block:: bash
-  
-      hadoop distcp webhdfs://gsbl90339:8021/user/myname/afile hdfs://fsbl350n09/user/myname/file4
-      14/03/06 18:25:19 ERROR tools.DistCp: Exception encountered 
-      java.net.ConnectException: Connection refused
-* If you use a port that something is waiting on, you get an IOException (50070 is a valid port, but not for this):
-
-  .. code-block:: bash
-  
-      % hadoop distcp webhdfs://gsbl90339/user/myname/afile hdfs://fsbl350n09:50070/user/myname/file5
-      14/03/06 18:35:12 ERROR tools.DistCp: Exception encountered 
-      java.io.IOException: Failed on local exception: java.io.IOException: com.google.protobuf.InvalidProtocolBufferException: Protocol message end-group tag did not match expected tag.; ... 
-
-Never use HFTP
-^^^^^^^^^^^^^^
-
-HFTP is a legacy interface for reading Hadoop data. It no longer works.
-
-
-Provision launches within the same colo as destination
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Launchers are generally associated with an cluster. These need to be deployed in the same site as the cluster (BF1/NE1/GQ1). It is almost never a good idea to have a launcher box in one colo launch a job on a cluster that is in another colo.
-
-In Q2, to reduce our dependency on network crypto gear, we would be removing all cross colo launcher acls. Please reach out to grid-ops@ if you have specific need to have launchers in different colo that your primary cluster. Applications can always use Oozie or HDFS Proxy, which provide encrypted access (TLS), for cross colo access.
-
-Connection between the client and ATS Proxies used for encrypting cross colo transfers is not encrypted. By having launchers in an different colo, traffic between hadoop client, running on launcher, and proxy would go through network crypto gear, this is something we would like to avoid.
-
-
-Copying/Moving files between HDFS and Gateway
----------------------------------------------
-
-Use ``bin/hadoop fs`` command on the gateway machine with appropriate options mentioned below.
-For more information, see ``bin/hadoop fs -help``.
-The prefix ``local_`` indicates file path on gateway machine, where prefix ``hdfs_`` indicates file path on HDFS.
+The prefix ``local_`` indicates file path on gateway machine, where prefix
+``hdfs_`` indicates file path on HDFS.
 
   .. code-block:: bash
 
-     bin/hadoop fs 
+    hdfs dfs
            [-put <local_src> ... <hdfs_dst>]
            [-copyFromLocal <local_src> ... <hdfs_dst>]
            [-moveFromLocal <local_src> ... <hdfs_dst>]
@@ -155,60 +55,219 @@ The prefix ``local_`` indicates file path on gateway machine, where prefix ``hdf
            [-copyToLocal [-ignoreCrc] [-crc] <hdfs_src> <local_dst>]
            [-moveToLocal [-crc] <hdfs_src> <local_dst>]
 
-
-Copying files between HDFS and User machine via a gateway node (without storing them on gateway)
--------------------------------------------------------------------------------------------------
-
-While the HDFS is a great place to store massive inputs and working sets, sometimes it's good to get data onto and off of the system. But GridServices restricts access to the cluster through the gateway machines, which have relatively small storage capacity. Here's a great way to get data onto and off of the HDFS, without the intermediate step of storing data on the gateway machines' disks.
-
-Remember that the hadoop ``dfs -put`` command accepts - to indicate standard in, and the ``-cat`` command writes to stdout.
-You can put this together with SSH to pipe data through the gateway nodes without ever storing any temporary data on the gateway disks. It's easiest if you are running ``ssh-agent`` to handle ssh keys, and dotfiles on the gateway hosts that will automatically set up your ``HADOOP_CONF _DIR`` environment variable. If not, you can still type your password, and you can always supply ``--config`` as part of your hadoop command.
-
-.. note::
-  - ``-get`` writing to stdout has been deprecated
-  - If you are using a proxy server (such as login1) to pipe the data, your connection may be closed after an hour of transfer. In that case, you will need to find a blessed box to send the data from.
+The list of `COMMAND_OPTIONS` is defined in
+Apache Docs - :hadoop_rel_doc:`File System (FS) shell <hadoop-project-dist/hadoop-common/FileSystemShell.html>`
 
 
-Examples:
+How To Move Data In And Out of Hadoop
+-------------------------------------
+.. code-block:: bash
+
+   ## for VCG
+   ssh -A kessel-gw.gq.vcg.yahoo.com
+
+   ## for YGrid
+   ssh -A jet-gw.blue.ygrid.yahoo.com
+
+   ## Get credentials to talk to HDFS
+   pkinit-user
+
+   ## Upload a file to HDFS
+   $local> scp myfile.txt jet-gw.blue.ygrid.yahoo.com:~/gateway.txt
+   $local> ssh -A jet-gw.blue.ygrid.yahoo.com
+   
+   # now we are on the gateway
+   $local> hdfs dfs -put gateway.txt /user/$USER/hdfs.txt
+   $local> (cleanup file: e.g. "rm gateway.txt")
+
+   ## Downloading an HDFS file
+   ssh -A jet-gw.blue.ygrid.yahoo.com \
+       "pkinit-user 1>&2 ; bash -l hadoop fs -cat mydir/myfile" > myfile
+
+How To get Data onto and Out of the Grid
+----------------------------------------
+
+There are a number of ways.
+Visit Bdml-guide - `GDM Cookbook <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`_
+
+Copying files Within Same HDFS Cluster
+---------------------------------------
+
+Use ``hdfs dfs`` command on the gateway machine with appropriate options mentioned below.
+For more information, see ``hdfs -h`` and visit 
 
   .. code-block:: bash
 
-     #Put a file onto the HDFS
-     nohup cat /some/big/file | ssh krygw1000 'time hadoop dfs -put -' /path/in/dfs
-     #first copy the contents of /.ssh/*.pub to /.ssh/authorized_keys
-     #Get a file from the HDFS
-     ssh krygw1000 'hadoop dfs -cat /path/in/dfs ' > /some/big/file
-     #Get many files from the HDFS merged into one file (similar to "-getmerge")
-     ssh krygw1000 'hadoop dfs -cat "/path/in/dfs/*"' > /some/big/file
+     hdfs dfs 
+           [-mv <hdfs_src> <hdfs_dst>]
+           [-cp <hdfs_src> <hdfs_dst>]
+
+A Simple HDFS Program
+---------------------
+
+  .. code-block:: bash
+
+     # Create a directory to store files for this tutorial:
+     hdfs dfs -mkdir ./hadoop_tutorial
+     # Confirm that the directory was created:
+     hdfs dfs -ls -d ./hadoop_tutorial
+     # Copy the local file, assume linux.words
+     hdfs dfs -copyFromLocal ~/linux.words
+     # an alternative to previous command is hdfs dfs -put linux.words
+     # Copy the file linux.words from your home directory on HDFS to the directory:
+     hdfs dfs -cp linux.words hadoop_tutorial
+     # Delete the copy of linux.words
+     hdfs dfs -rm linux.words
+     # You can change permissions with the DFS command
+     hdfs dfs -chmod 644 ./hadoop_tutorial/linux.words
+
+Copying Large Files between HDFS Clusters
+-----------------------------------------
+
+**Usage:**
+
+  .. code-block:: bash
+
+     hadoop distcp hdfs://<src_url> hdfs://<dest_url>
+
+**Example:**
+
+  .. code-block:: bash
+
+     hadoop distcp hdfs://clusterA-nn1.red.ygrid.yahoo.com:8020/user/$USER/hadoop_tutorial \
+            hdfs://clusterB-nn1.red.ygrid.yahoo.com:8020/user/$USER/hadoop_tutorial
 
 
-Load large data sets from a different data center on to HDFS
-------------------------------------------------------------
+Copying files between HDFS and Object Stores
+--------------------------------------------
 
-If you are going to load a large data set (terabytes) from a different data center using a map/reduce job or one of the gateways please notify us (ticket-grid-ops@yahoo-inc.com) AND prod-eng (prod-eng@yahoo-inc.com).
+`DistCp` works with Object Stores such as: Amazon S3, Azure WASB and OpenStack Swift.
 
-Provide the following information:
+.. rubric:: Prequisites
 
-* Where you are loading the data from
-* When you are loading the data
-* The size of the data set
-* Instructions for how to stop the process
-* Your contact information in case your job causes an issue
+* The JAR containing the object store implementation is on the classpath, along
+  with all of its dependencies.
+* Unless the JAR automatically registers its bundled filesystem clients, the
+  configuration may need to be modified to state the class which implements the
+  filesystem schema. All of the ASF’s own object store clients are self-registering.
+* The relevant object store access credentials must be available in the cluster
+  configuration, or be otherwise available in all cluster hosts.
 
-.. todo:: Fix email address above
+See Bdml-guide - `On Prem vs. Public Cloud <https://git.vzbuilders.com/pages/developer/Bdml-guide/#moving-data-to-and-from-public-cloud-and-on-prem>`_
+
+Copying between HDFS and User machine Without Temp
+--------------------------------------------------
+
+HDFS Proxy is the most common way of bringing data onto the grid or out of the
+grid.
+See `Bdml-guide - GDM Cookbook: When to Use HDFS Proxy <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#when-to-use-hdfs-proxy>`_
+
+Loading data between HDFS and other Products?
+=============================================
+
+Check the following resources:
+
+* Bdml-guide - `Pig script output to HDFS <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#pig-script-output-to-hdfs>`_
+* Bdml-guide - `Run HDFS via Hue <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#run-hdfs-via-hue>`_
+
+How to Reduce Storage Space for HDFS
+====================================
+
+.. sidebar:: Related Topic
+
+   Visit :ref:`mapreduce_compression`
+
+Bdml-guide - `HDFS Storage Tips <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/HDFS_Storage_Tips/#reducing-namespace-usage>`_
+describes two important tips to reduce storage:
+
+* Reducing Storage Space
+* Reducing Namespace Usage
 
 
-Is there a simple program that reads and writes to HDFS ?
-=========================================================
+Java Program to Read and Write to HDFS?
+=======================================
 
-.. todo:: Fix link  `Simple Example to read/write Hadoop DFS <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com:8080/?url=http%3A%2F%2Fwiki.apache.org%2Fhadoop%2FHadoopDfsReadWriteExample&SIG=11r05s6pr>`_
 
+  .. literalinclude:: /resources/code/hdfs/WriteFileToHDFS.java
+      :language: java
+      :caption: Java code to write file from HDFS
+      :linenos:
+
+#. The HDFS client sends a create request on `DistributedFileSystem` APIs.
+#. `DistributedFileSystem` makes an RPC call to the `namenode` to create a new
+   file in the file system’s namespace. |br|
+   The `namenode` performs various checks to make sure that the file doesn’t
+   already exist and that the client has the permissions to create the file.
+   |br| When these checks pass, then only the namenode makes a record of the
+   new file; otherwise, file creation fails and the client is thrown an
+   `IOException`.
+#. The `DistributedFileSystem` returns a `FSDataOutputStream` for the client to
+   start writing data to. |br|
+   As the client writes data, `DFSOutputStream` splits it into packets, which
+   it writes to an internal queue, called the data queue. |br|
+   The data queue is consumed by the `DataStreamer`, whichI is responsible for
+   asking the `namenode` to allocate new blocks by picking a list of suitable
+   `datanodes` to store the replicas.
+#. The list of datanodes form a pipeline, and here we’ll assume the
+   replication level is three, so there are three nodes in the pipeline. The
+   `DataStreame`r` streams the packets to the first datanode in the pipeline, which
+   stores the packet and forwards it to the second datanode in the pipeline.
+   Similarly, the second datanode stores the packet and forwards it to the third
+   (and last) datanode in the pipeline. Learn HDFS Data blocks in detail.
+#. `DFSOutputStream` also maintains an internal queue of packets that are
+   waiting to be acknowledged by datanodes, called the ack queue. A packet is
+   removed from the ack queue only when it has been acknowledged by the datanodes
+   in the pipeline. `Datanode` sends the acknowledgment once required replicas are
+   created (3 by default). Similarly, all the blocks are stored and replicated on
+   the different datanodes, the data blocks are copied in parallel.
+#. When the client has finished writing data, it calls `close()` on the stream.
+#. This action flushes all the remaining packets to the datanode pipeline and
+   waits for acknowledgments before contacting the namenode to signal that the
+   file is complete. The namenode already knows which blocks the file is made
+   up of, so it only has to wait for blocks to be minimally replicated before
+   returning successfully.      
+
+
+  .. literalinclude:: /resources/code/hdfs/ReadFileFromHDFS.java
+      :language: java
+      :caption: Java code to read file from HDFS
+      :linenos:
+
+
+#. Client opens the file it wishes to read by calling `open()`` on the
+   `FileSystem` object, which for HDFS is an instance of `DistributedFileSystem`.
+#. `DistributedFileSystem` calls the `namenode` using RPC to
+   determine the locations of the blocks for the first few blocks in the file.
+   |br| For each block, the namenode returns the addresses of the datanodes that
+   have a copy of that block and datanode are sorted according to their
+   proximity to the client.
+#. `DistributedFileSystem` returns a `FSDataInputStream` to the client for
+   it to read data from. `FSDataInputStream`, thus, wraps the `DFSInputStream`
+   which manages the datanode and namenode I/O. |br|
+   Client calls `read()` on the stream. |br|
+   `DFSInputStream` which has stored the datanode addresses then connects to the
+   closest datanode for the first block in the file.
+#. Data is streamed from the datanode back to the client, as a result client 
+   can call `read()` repeatedly on the stream. When the block ends,
+   `DFSInputStream` will close the connection to the datanode and then finds the
+   best datanode for the next block.
+#. If the `DFSInputStream` encounters an error while
+   communicating with a datanode, it will try the next closest one for that block.
+   It will also remember datanodes that have failed so that it doesn’t
+   needlessly retry them for later blocks. |br|
+   The `DFSInputStream` also verifies checksums for the data transferred to it
+   from the datanode. If it finds a corrupt block, it reports this to the
+   namenode before the `DFSInputStream` attempts to read a replica of the block
+   from another datanode.
+#. When the client has finished reading the data, it calls `close()` on the stream.
 
 
 How do I make my program's output data available to other users?
 ================================================================
 
-* By default, the files generated by map/reduce programs have permissions of 700. This means, the files that are produced are readable only to the user who ran the job. The reason for this is that, the default umask is 077.
+* By default, the files generated by map/reduce programs have permissions of 700.
+  This means, the files that are produced are readable only to the user who ran
+  the job. The reason for this is that, the default umask is 077.
   Here's how you can overwrite it. Note that hadoop option only takes decimal.
 
   .. code-block:: bash
@@ -231,135 +290,73 @@ How do I make my program's output data available to other users?
     # OR
     [knoguchi@gsgw1022 ~]$ hadoop jar <jarfile> -Ddfs.umask=18 -Dmapred.job.queue.name=___ ...
 
-.. note:: If this is to be data shared regularly, the data should really get moved to a ``/project`` directory and not stored in any particular user's home directory.
+.. note:: If this is to be data shared regularly, the data should really get moved
+   to a ``/project`` directory and not stored in any particular user's home directory.
 
-Concat Utility: Concatenate a number of small files in a directory into a single large file
-============================================================================================
-
-
-Often we have directories with lots of small files that we can concatenate into a single file (all files within a directory in order). This helps in saving the memory usage of namenode tremendously. Since, all the files in a given directory should be concatenated in order, this is a sequential process.
-However, we can carry out these concatenations for different directories in parallel. The following simple perl script when used as the mapper (``-mapper``) of a streaming job does the trick.
-
-This can also be checked out from `out local svn <svn+ssh://yst1001.yst.corp.yahoo.com/export/crawlspace/svn/yst/projects/kryptonite/TRUNK/solutions/concat_utility.pl/>`_.
-
-.. todo:: Fix link  "out local svn"
-
-.. code-block:: perl
-
-  #!/usr/bin/perl
-
-  # The concat utility - This is to be used as the mapper of the
-  # streaming job for concatenation of small files in a directory
-  # into a single Large file.
-  # No Reducers should be used.
-  # Mappers have side effects - DO NOT use speculative execution.
-
-  my $next;
-  while (defined($next=<STDIN>))
-    {
-      chomp $next;
-      my $hadoop_home = $ENV{'HADOOP_HOME'};
-      my $hcmd = $hadoop_home."/bin/hadoop";
-      my $output_dir = $ENV{'mapred_output_dir'};
-      chomp $output_dir;
-      my $tot_size = `$hcmd dfs -dus $next`;
-      if ($? != 0)
-        {
-          die "\n Error in estimating the size of the input directory: $next. Exiting!\n";
-        }
-      System("$hcmd dfs -cat $next/*");
-      my $concatenated_size = `$hcmd dfs -dus $output_dir`;
-      if ($? != 0)
-        {
-          die "\n Error in estimating the size of the concatenated file: $output_dir. Exiting!\n";
-        }
-      if ($tot_size != $concatenated_size)
-        {
-          print "\n Error in concatenating (dfs -cat)! Removing $output_dir !!\n";
-          System("$hcmd dfs -rmr $output_dir");
-          die "\n Exiting! \n";
-        }
-    }
-
-  sub System
-  {
-    system (@_) == 0 or die ("system (@_) failed: $?");
-  }
-
-Save the above script as ``concat_utility.pl`` and then use it as a mapper of the streaming job as shown below.
-
-   .. code-block:: bash
-
-      hadoop jar $HADOOP_HOME/hadoop-streaming.jar \
-                -input concat_input/input_dir_list.txt -output coutput \
-                -mapper 'perl concat_utility.pl ' -reducer NONE \
-                -file concat_utility.pl
-
-In the above example, ``input_dir_list.txt`` is the input to the streaming job containing the list of directories where we need to concatenate small files into a single large file.
-Usage of the example is shown below:
-
-   .. code-block:: bash
-
-      [foo@krygw1000 ~]$ hadoop dfs -cat /user/foo/concat_input/input_dir_list.txt
-      /user/foo/cinput
-      [foo@krygw1000 ~]$ hadoop dfs -ls /user/foo/cinput
-       Found 3 items
-      /user/foo/cinput/file1        <r 3>   6       2007-10-29 18:18
-      /user/foo/cinput/file2        <r 3>   6       2007-10-29 18:18
-      /user/foo/cinput/file3        <r 3>   6       2007-10-29 18:19
-      [foo@krygw1000 ~]$
-      [foo@krygw1000 ~]$ hadoop jar $HADOOP_HOME/hadoop-streaming.jar \
-                        -input /user/foo/concat_input/input_dir_list.txt \
-                        -mapper "perl concat_utility.pl" \
-                        -file ./concat_utility.pl -output coutput -reducer NONE
-      [foo@krygw1000 ~]$ hadoop dfs -ls coutput
-       Found 1 items
-      /user/foo/coutput/part-00000  <r 3>   21      2007-10-29 20:41
-      [foo@krygw1000 ~]$
+Concatenate Multiple Small Files into Single File
+=================================================
 
 
+In order to merge two or more files into one single file and store it in hdfs,
+you need to have a folder in the hdfs path containing the files that you want to merge.
 
-Joining data in HDFS
-====================
+  .. code-block:: bash
 
-``DataJoin`` is a package in hadoop contrib. You have to implement some Java plugin classes to combine multiple records into one.
+    hdfs dfs -cat /user/$USER/merge_files/* \
+          | hdfs dfs -put - /user/$USER/merged_files
 
-.. todo:: Fix me: Here is the `doc for the package <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/DataJoinUsingMapReduce/>`_:
-
-
-Removing thousands of empty files on HDFS
-=========================================
-
-To remove empty files on HDFS, use the following awk script.
-
-   .. code-block:: bash
-
-      hadoop dfs -lsr | awk  'BEGIN {max=255}{if(($5==0)&&(substr($1,0,1)=="-")){ if (nb%max==0) printf "hadoop dfs -rm " ; printf " "$8; nb++; if (nb%max==0) print ""}}'  > temp.sh
-
-      bash ./temp.sh
-
-.. todo:: FixME: If you have questions about this script, please contact the author, Eric Crestan.
+The merged_files folder need not be created manually. It is going to be created
+automatically to store your output when you are using the above command.
+You can view your output using the following command. |br|
+Here `merged_files` is storing my output result.          
 
 
-Pruning files and directories
+  .. code-block:: bash
+
+    hadoop fs -cat merged_files
+
+
+Removing Empty files on HDFS
+============================
+
+.. rubric:: Small number of empty files
+
+
+.. code-block:: bash
+
+   for f in $(hdfs dfs -ls -R / | awk '$1 !~ /^d/ && $5 == "0" { print $8 }'); do hdfs dfs -rm "$f"; done
+
+*  ``hdfs dfs -ls -R /`` - list all files in HDFS recursively
+*  ``awk '$1 !~ /^d/ && $5 == "0" { print $8 }')`` - print full path of those
+   being not directories and with size 0
+*  ``for f in $(...); do hdfs dfs -rm "$f"; done`` - iteratively remove
+
+.. rubric:: Thousands of empty files
+
+It will be quicker to use xargs
+
+  .. code-block:: bash
+
+     hadoop dfs -lsr | awk  'BEGIN {max=255}{if(($5==0)&&(substr($1,0,1)=="-")){ if (nb%max==0) printf "hadoop dfs -rm " ; printf " "$8; nb++; if (nb%max==0) print ""}}'  > temp.sh
+
+     bash ./temp.sh
+
+
+Pruning Files and Directories
 =============================
 
-There is no automatic purging of old user-created or user-loaded files in HDFS. If files are not purged regularly, HDFS fills up and stops functioning.
-You can use the ``dfsprune.pl`` script to purge old files on a regular basis, e.g. from a cron job: `DfsPrune <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/DfsPrune>`_.
+There is no automatic purging of old user-created or user-loaded files in HDFS.
+If files are not purged regularly, HDFS fills up and stops functioning.
 
-.. todo:: FixME: link to DfsPrune
+`GDM <https://doppler.cloud.corp.yahoo.com:4443/doppler/gdm>`_
+  Tools like `Doppler-GDM <https://doppler.cloud.corp.yahoo.com:4443/doppler/gdm>`_
+  can apply retention to your datasets to remove them after a period of time.
+`data_disposal <https://git.vzbuilders.com/vzn/data_disposal>`_
+  The Java based Data Disposal tool takes in a simple `yaml` configuration
+  specifying HDFS directories and Hive tables with customizable retention
+  windows and date parsing from a partition or file path. |br|
+  You should consider this tool if:
 
-Experiment with large memory pages
-==================================
-
-.. todo:: FixME: link to LargeMemoryPageExperiment
-
-
-`LargeMemoryPageExperiment <https://twiki.corp.yahoo.com/view/Grid/LargeMemoryPageExperiment>`_
-
-Experiment with compressed oops
-===============================
-
-.. todo:: FixME: link to CompressedOOPSExperiment
-
-`CompressedOOPSExperiment <https://twiki.corp.yahoo.com/view/Grid/CompressedOOPSExperiment>`_
+  * you have data in Hadoop HDFS that is made available with `Hive`; and
+  * you spend too much time manually cleaning old data or maintaining multiple
+    hacked scripts.

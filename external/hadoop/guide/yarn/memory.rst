@@ -10,6 +10,12 @@ Hadoop Memory Optimization
 
 -----------
 
+Computing Hadoop Job Cost
+=========================
+
+.. include:: /common/yarn/yarn-compute-job-cost.rst
+
+
 Am I wasting memory?
 =====================
 

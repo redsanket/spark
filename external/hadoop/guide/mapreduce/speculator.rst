@@ -174,7 +174,10 @@ window function assigning decreasing weights to previous data over time. This ca
 .. admonition:: Reading...
    :class: readingbox
 
-   Read more about the Exponentially Smooth Estimator in :download:`TechPulse-282'19 </resources/mapreduce/speculator/techpulse19-282.pdf>` and a quick overview to its :download:`poster </resources/mapreduce/speculator/techpulse19-282-poster.pdf>`.
+   Read more about the Exponentially Smooth Estimator in :cite:`TechPulse19:282`,
+   :download:`TechPulse-282'19 </resources/mapreduce/speculator/techpulse19-282.pdf>`
+   and a quick overview to its
+   :download:`poster </resources/mapreduce/speculator/techpulse19-282-poster.pdf>`.
 
 .. _fig-reduce-progress-limitations:
 

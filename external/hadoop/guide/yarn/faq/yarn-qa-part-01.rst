@@ -12,6 +12,10 @@ Please, refer to Bdml-guide instructions:
 * `Copy files to HDFS <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#explore-hdfs>`_
 * Finally, run your hadoop program. See the example in "`Run MapReduce Jobs <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#run-mapreduce-jobs>`_".
 
+How to Compute Hadoop Job Cost?
+===============================
+
+.. include:: /common/yarn/yarn-compute-job-cost.rst
 
 Yarn Commands
 =============

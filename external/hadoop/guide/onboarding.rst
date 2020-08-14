@@ -42,12 +42,25 @@ Onboarding the Grid
 List of Resources and Readings
 ==============================
 
-.. include:: /common/mapreduce/mapreduce-reading-resources.rst
-.. include:: /common/mapreduce/speculator-reading-resources.rst
-.. include:: /common/mapreduce/streaming-reading-resources.rst
-.. include:: /common/yarn/yarn-reading-resources.rst
-.. include:: /common/yarn/scheduler/yarn-scheduling-resources.rst
-.. include:: /common/yarn/memory/yarn-memory-resources.rst
+Yarn
+----
+
+  .. include:: /common/yarn/yarn-reading-resources.rst
+  .. include:: /common/yarn/scheduler/yarn-scheduling-resources.rst
+  .. include:: /common/yarn/memory/yarn-memory-resources.rst
+
+Mapreduce
+---------
+
+  .. include:: /common/mapreduce/mapreduce-reading-resources.rst
+  .. include:: /common/mapreduce/speculator-reading-resources.rst
+  .. include:: /common/mapreduce/streaming-reading-resources.rst
+
+HDFS
+----
+  .. include:: /common/hdfs/hdfs-reading-resources.rst
+
+-----------
 
 .. bibliography:: resources/refs.bib
    :cited:

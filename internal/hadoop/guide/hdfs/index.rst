@@ -10,8 +10,4 @@ HDFS
 
    operationals-manual/index
    encryption-manual/encryption
-
-
-
-
-
+   faq/index

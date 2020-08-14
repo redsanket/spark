@@ -4,9 +4,7 @@
 FAQ
 ***
 
-.. todo:: This section is pulled from `Archived Wiki - Grid Cook Book <https://archives.ouroath.com/twiki/twiki.corp.yahoo.com/view/Grid/CookBook.html>`_ and needs to be updated.
-
-
+.. include:: /common/hdfs/data-governance-warning.rst
 
 .. toctree::
    :caption: Table of Contents

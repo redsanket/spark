@@ -17,8 +17,6 @@ Capacity Scheduler
 
    .. include:: /common/yarn/scheduler/yarn-scheduling-resources.rst
    
-
-
 .. _yarn_scheduling_app_priorities:
 
 Application Priorities Within CS Queue

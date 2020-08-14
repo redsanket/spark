@@ -18,16 +18,42 @@ The fundamental idea of YARN is to split up the functionalities of resource mana
    .. glossary::
 
      ResourceManager
-       Is the ultimate authority that arbitrates resources among all the applications in the system. It has two main components: `Scheduler` and `ApplicationsManager`. The `ResourceManager` and the :term:`NodeManager` form the data-computation framework.
+       Is the ultimate authority that arbitrates resources among all the
+       applications in the system. It has two main components: `Scheduler` and
+       `ApplicationsManager`. The `ResourceManager` and the :term:`NodeManager`
+       form the data-computation framework.
      
      NodeManager
-       Is the per-machine framework agent who is responsible for containers, monitoring their resource usage (cpu, memory, disk, network) and reporting the same to the ResourceManager/Scheduler. See :numref:`yarn-nm` for more details.
+       Is the per-machine framework agent who is responsible for containers,
+       monitoring their resource usage (cpu, memory, disk, network) and
+       reporting the same to the ResourceManager/Scheduler. See
+       :numref:`yarn-nm` for more details.
 
      Scheduler
-        iIs responsible for allocating resources to the various running applications subject to familiar constraints of capacities, queues etc. The Scheduler is pure scheduler in the sense that it performs no monitoring or tracking of status for the application. Also, it offers *no guarantees* about restarting failed tasks either due to application failure or hardware failures. The Scheduler performs its scheduling function based on the resource requirements of the applications; it does so based on the abstract notion of a resource Container which incorporates elements such as memory, cpu, disk, network etc. The Scheduler has a pluggable policy which is responsible for partitioning the cluster resources among the various queues, applications etc (See :numref:`yarn_scheduling`). The current schedulers such as the `CapacityScheduler` and the `FairScheduler` would be some examples of plug-ins.
+       Is responsible for allocating resources to the various running
+       applications subject to familiar constraints of capacities, queues etc.
+       The Scheduler is pure scheduler in the sense that it performs no
+       monitoring or tracking of status for the application. Also, it offers
+       *no guarantees* about restarting failed tasks either due to application
+       failure or hardware failures. |br|
+       The Scheduler performs its scheduling
+       function based on the resource requirements of the applications; it does
+       so based on the abstract notion of a resource Container which
+       incorporates elements such as memory, cpu, disk, network etc. The
+       Scheduler has a pluggable policy which is responsible for partitioning
+       the cluster resources among the various queues, applications etc (See
+       :numref:`yarn_scheduling`). |br|
+       The current schedulers such as the `CapacityScheduler` and the
+       `FairScheduler` would be some examples of plug-ins.
 
      ApplicationsManager
-       Is responsible for accepting job-submissions, negotiating the first container for executing the application specific `ApplicationMaster` and provides the service for restarting the `ApplicationMaster` container on failure. The per-application `ApplicationMaster` has the responsibility of negotiating appropriate resource containers from the Scheduler, tracking their status and monitoring for progress.
+       Is responsible for accepting job-submissions, negotiating the first
+       container for executing the application specific `ApplicationMaster` and
+       provides the service for restarting the `ApplicationMaster` container on
+       failure. |br|
+       The per-application `ApplicationMaster` has the responsibility
+       of negotiating appropriate resource containers from the Scheduler,
+       tracking their status and monitoring for progress.
 
 
 .. _yarn-commands:
@@ -35,7 +61,8 @@ The fundamental idea of YARN is to split up the functionalities of resource mana
 YARN Commands
 =============
 
-YARN commands are invoked by the bin/yarn script. Running the yarn script without any arguments prints the description for all commands.
+YARN commands are invoked by the bin/yarn script. Running the yarn script
+without any arguments prints the description for all commands.
 
   .. code-block:: bash
 
@@ -166,17 +193,34 @@ YARN commands are invoked by the bin/yarn script. Running the yarn script withou
 NodeManager
 ===========
 
-NodeManager is responsible for launching and managing containers on a node. Containers execute tasks as specified by the `AppMaster`.
+NodeManager is responsible for launching and managing containers on a node.
+Containers execute tasks as specified by the `AppMaster`.
 
-The NodeManager runs services to determine the health of the node it is executing on. The services perform checks on the disk as well as any user specified tests. If any health check fails, the :term:`NodeManager` marks the node as unhealthy and communicates this to the :term:`ResourceManager`, which then stops assigning containers to the node. Communication of the node status is done as part of the `heartbeat` between the :term:`NodeManager` and the :term:`ResourceManager`. The intervals at which the disk checker and health monitor run don’t affect the `heartbeat` intervals. When the heartbeat takes place, the status of both checks is used to determine the health of the node.
+The NodeManager runs services to determine the health of the node it is
+executing on. The services perform checks on the disk as well as any user
+specified tests. If any health check fails, the :term:`NodeManager` marks the
+node as unhealthy and communicates this to the :term:`ResourceManager`, which
+then stops assigning containers to the node. Communication of the node status is
+done as part of the `heartbeat` between the :term:`NodeManager` and the
+:term:`ResourceManager`. |br|
+The intervals at which the disk checker and health
+monitor run don’t affect the `heartbeat` intervals. When the heartbeat takes
+place, the status of both checks is used to determine the health of the node.
 
 Disk Checker
 ------------
    
-The disk checker checks the state of the disks that the :term:`NodeManager` is configured to use(`local-dirs` and `log-dirs`, configured using ``yarn.nodemanager.local-dirs`` and ``yarn.nodemanager.log-dirs`` respectively). |br|
-The checks include permissions and free disk space. It also checks that the filesystem isn’t in a read-only state. The checks are run at 2 minute intervals by default but can be configured to run as often as the user desires. 
+The disk checker checks the state of the disks that the :term:`NodeManager` is
+configured to use(`local-dirs` and `log-dirs`, configured using
+``yarn.nodemanager.local-dirs`` and ``yarn.nodemanager.log-dirs`` respectively).
+|br| The checks include permissions and free disk space. It also checks that the
+filesystem isn’t in a read-only state. The checks are run at 2 minute intervals
+by default but can be configured to run as often as the user desires. 
 
-If a disk fails the check, the :term:`NodeManager` stops using that particular disk but still reports the node status as healthy. However if a number of disks fail the check, then the node is reported as unhealthy to the :term:`ResourceManager` and new containers will not be assigned to the node.
+If a disk fails the check, the :term:`NodeManager` stops using that particular
+disk but still reports the node status as healthy. However if a number of disks
+fail the check, then the node is reported as unhealthy to the
+:term:`ResourceManager` and new containers will not be assigned to the node.
 
   .. include:: /common/yarn/yarn-nm-disk-checker-conf.rst
 

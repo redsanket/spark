@@ -87,8 +87,8 @@ The key and the value classes should be in serialized manner by the framework an
       Task Attempt
         Task Attempt is a particular instance of an attempt to execute a task on a node. There is a possibility that anytime any machine can go down. For example, while processing data if any node goes down, framework reschedules the task to some other node. This rescheduling of the task cannot be infinite. There is an upper limit for that as well. The default value of task attempt is 4. If a task (Mapper or reducer) fails 4 times, then the job is considered as a failed job. For high priority job or huge job, the value of this task attempt can also be increased.
 
-      Name Node
-   	  Node that manages Hadoop Distributed File System (HDFS). This is also known as `Master`.
+      NameNode
+   	    Node that manages Hadoop Distributed File System (HDFS). This is also known as `Master`. (See :numref:`hdfs_overview_nn`)
 
-      Data Node
-        Node where data is presented in advance before any processing takes place. DataNode is responsible for storing the actual data in HDFS
+      DataNode
+        Node where data is presented in advance before any processing takes place. DataNode is responsible for storing the actual data in HDFS. (See :numref:`hdfs_overview_nn`)

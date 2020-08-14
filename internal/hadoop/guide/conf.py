@@ -196,7 +196,22 @@ rst_prolog = """
 .. |br| raw:: html
 
  <br />
+
+.. |ss| raw:: html
+
+   <strike>
+
+.. |se| raw:: html
+
+   </strike>
+
+.. |HADOOP_RELEASE_VERSION| replace:: r2.10.0
 """
 
+
+extlinks = {'hadoop_rel_doc': ('https://hadoop.apache.org/docs/r2.10.0/%s',
+                      'hadoop_rel_doc '),
+            'hadoop_github_url': ('https://github.com/apache/hadoop/blob/branch-2.10/%s', 'hadoop_github_url ')}
+            
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'HadoopUserGuide'

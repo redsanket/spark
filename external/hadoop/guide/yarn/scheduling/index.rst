@@ -4,7 +4,10 @@
 Scheduling and Queuing
 **********************
 
-.. include:: /common/yarn/scheduler/yarn-scheduling-resources.rst
+.. admonition:: Reading...
+   :class: readingbox
+
+    .. include:: /common/yarn/scheduler/yarn-scheduling-resources.rst
 
 .. toctree::
    :caption: Table of Contents
