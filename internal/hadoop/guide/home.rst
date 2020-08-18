@@ -175,6 +175,20 @@ For ideas about what you might contribute, please see the `Project Suggestions <
 Documents and Resources
 =======================
 
+Yarn
+----
+
+  .. include:: /../../../external/hadoop/guide/common/yarn/yarn-reading-resources.rst
+  .. include:: /../../../external/hadoop/guide/common/yarn/scheduler/yarn-scheduling-resources.rst
+  .. include:: /../../../external/hadoop/guide/common/yarn/memory/yarn-memory-resources.rst
+
+Mapreduce
+---------
+
+  .. include:: /../../../external/hadoop/guide/common/mapreduce/mapreduce-reading-resources.rst
+  .. include:: /../../../external/hadoop/guide/common/mapreduce/speculator-reading-resources.rst
+  .. include:: /../../../external/hadoop/guide/common/mapreduce/streaming-reading-resources.rst
+
 Internal Docs
 -------------
 
@@ -189,6 +203,8 @@ Community Resources
 YARN + MR Community Sync Up
   `Google Doc <https://docs.google.com/document/d/1GY55sXrekVd-aDyRY7uzaX0hMDPyh3T-AL1kUY2TI5M/edit#heading=h.6wgz1xgh0qde>`_ with meeting minutes and general information.
 
-.. bibliography:: resources/refs.bib
+-----------
+
+.. bibliography:: /../../../external/hadoop/guide/resources/refs.bib
    :cited:
    :all:

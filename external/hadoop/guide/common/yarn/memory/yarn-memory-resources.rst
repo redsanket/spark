@@ -1,5 +1,5 @@
 YARN Memory Resources
-  .. include:: /common/yarn/yarn-tco-reading-resources.rst
+  .. include:: /../../../external/hadoop/guide/common/yarn/yarn-tco-reading-resources.rst
 
   **Management and Tools**
 

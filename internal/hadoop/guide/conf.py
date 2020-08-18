@@ -40,6 +40,9 @@ todo_include_todos=True
 # Templates path for docs on developer.corp.yahoo.com
 templates_path = ['_templates']
 
+# enable numbering of figures and tables
+numfig=True
+
 # The suffix of source filenames.
 source_suffix = '.rst'
 

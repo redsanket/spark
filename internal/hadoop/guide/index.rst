@@ -23,12 +23,30 @@ Hadoop Documentation
    oncall/index
    releasing/index
 
+
 .. toctree::
-   :caption: Hadoop Core
+   :caption: YARN
+   :maxdepth: 4
+
+   yarn/index
+
+.. toctree::
+   :caption: HDFS
+   :maxdepth: 4
+
+   hdfs/index
+   
+.. toctree::
+   :caption: Security
+   :numbered:
+   :maxdepth: 4
+
+   security/background/index
+   security/kms/index
+
+.. toctree::
+   :caption: General
    :maxdepth: 4
 
    knowledge_center/index
-   hdfs/index
-   security/index
-   yarn/index
    faq
