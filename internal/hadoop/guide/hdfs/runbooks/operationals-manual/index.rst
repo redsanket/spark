@@ -1,6 +1,6 @@
-############################
-Run Book / Operations Manual
-############################
+#################
+Operations Manual
+#################
 
 *Internal WIP GDoc* can be accessed through: `Run Book / Operations Manual - HDFS <https://docs.google.com/document/d/1-AHk-ePioUb2tXRedQSozLoDKYSgsHoYIo6B7daU9_M>`_
 

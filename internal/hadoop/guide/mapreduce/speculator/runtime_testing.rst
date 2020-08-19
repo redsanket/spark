@@ -1,4 +1,4 @@
-..  _speculator_runtime_testing:
+..  _mapreduce_speculator_runtime_testing:
 
 ***************
 Runtime Testing

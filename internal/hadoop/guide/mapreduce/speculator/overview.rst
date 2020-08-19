@@ -1,3 +1,5 @@
+.. _mapreduce_speculator_overview:
+
 ********
 Overview
 ********

@@ -1,4 +1,4 @@
-.. _hadoop_team_yarn_algorithms:
+.. _mapreduce_speculator_algorithms:
 
 **********
 Algorithms

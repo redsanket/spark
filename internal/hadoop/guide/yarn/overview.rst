@@ -1,17 +1,4 @@
-..  _hadoop_team_core_yarn:
-
-##############
-Yarn/Mapreduce
-##############
-
-.. toctree::
-  :maxdepth: 3
-
-  containers/index
-  speculator/index
-  troubleshooting/index
-
------------
+..  _yarn_overview:
 
 *********
 Overview

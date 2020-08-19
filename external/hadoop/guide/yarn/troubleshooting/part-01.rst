@@ -1,4 +1,4 @@
-..  _yarn_troubleshooting_part-01:
+.. _yarn_troubleshooting_slow_attempts:
 
 Manage Slow or Stuck Yarn Application Attempts
 ==============================================
@@ -123,6 +123,7 @@ From the Gateway
 
     container_1466534149943_0002_01_000007  ...         N/A          RUNNING  localhost:4545  ...
 
+.. _yarn_troubleshooting_metadata_size_exceeds:
 
 Yarn job failed with Error: `Split metadata size exceeded 10000000`
 ===================================================================

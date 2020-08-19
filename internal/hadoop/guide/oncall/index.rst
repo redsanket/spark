@@ -6,7 +6,6 @@ OnCall Run Book
 
 
 .. toctree::
-   :numbered:
    :maxdepth: 3
 
    full_cycle

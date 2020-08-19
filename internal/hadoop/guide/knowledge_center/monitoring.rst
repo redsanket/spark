@@ -37,7 +37,7 @@ Hadoop offers CLI to browse the logs
 
 - **job logs:** ``mapred job [-logs <job-id> <task-attempt-id>]``
 
-.. _hadoop_team_core_logging_monitoring_and_alerting_logs_location:
+.. _logging_monitoring_and_alerting_logs_location:
 
 Logs location and content
 =========================

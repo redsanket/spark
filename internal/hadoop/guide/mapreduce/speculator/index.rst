@@ -1,4 +1,4 @@
-..  _hadoop_team_yarn_speculator:
+.. _mapreduce_speculator:
 
 ##########
 Speculator
@@ -6,8 +6,7 @@ Speculator
 
 
 .. toctree::
-  :maxdepth: 2
-  :numbered:
+  :maxdepth: 3
 
   overview
   algorithms

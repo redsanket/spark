@@ -1,65 +1,65 @@
-..  _yarn_troubleshooting_part-02:
+..  _yarn_troubleshooting_memory:
 
-ResourceManager Failover
-========================
+Memory Running on Yarn
+======================
 
-This section documents the process for failing over to a new ResourceManager node when the daemons are using the leveldb state store databases.  Each section covers the process for migrating the various daemons that normally run on RM nodes.
+There are times when a MapReduce job exceeds its memory limits. You can see the following error
 
-ResourceManager
----------------
+  .. parsed-literal::
 
-The ResourceManager is configured to store state to a leveldb database, and that state needs to be migrated to the new node, if possible.  The config property that controls the store location is ``yarn.resourcemanager.leveldb-state-store.path`` and is currently configured to ``/home/gs/var/run/mapred/yarn-resourcemanager/``.
+    Application application_1409135750325_48141 failed 2 times due to AM Container for
+    appattempt_1409135750325_48141_000002 exited with exitCode: 143 due to: Container
+    [pid=4733,containerID=container_1409135750325_48141_02_000001] is running beyond physical memory limits.
+    Current usage: 2.0 GB of 2 GB physical memory used; 6.0 GB of 4.2 GB virtual memory used. Killing containe
 
-.. rubric:: To migrate the RM:
+This means that your job has exceeded its memory limits.
 
-1. Shutdown the ``ResourceManager``, as we cannot copy the state of a "live" database
-2. Copy the RM state store contents (e.g.: ``/home/gs/var/run/mapred/yarn-resourcemanager/`` or wherever it's configured) to the same location on the new node
-3. Startup the RM on the new node, once service IP names have been moved over, etc.
+.. rubric:: Make Sure Your Job Has to Cache Data
 
-If the state cannot be preserved due to the local store of the old node is unavailable/inaccessible then the ResourceManager can be started on the new node but all applications will be told to die when they try to reconnect with the RM and the RM will not attempt to relaunch any active applications that had failed.  In other words, all jobs on the cluster will be lost.
+It possible thatr your task running out of memory usually means that data is being cached in your map or reduce tasks.
 
+Data can be cached for a number of reasons:
 
-.. rubric:: Important Note about Recover Failure:
-
-
-If the RM restarts and does not recover the prior state then we normally do *not* want to fix the state store issue and restart the RM again on the original state.  At that point we have two state stores: the original state and the new one created when the RM restarted.  |br|
-Replacing the new state with the old and restarting has two main drawbacks:
-
-#. All jobs launched in the interim period will be lost, since we clobbered the new state with the old.
-#. We could end up with duplicate jobs from the old state.
-   
-The reason we can end up with duplicate jobs is that once the RM comes up without recovering it will not have recovered any applications nor any tokens.  |br|
-Existing applications will try to heartbeat into the new RM instance and be rejected due to lack of a valid token.  That causes the application attempt to kill itself.  The RM then eventually expires the expected app attempt and launches a new attempt.  If that attempt was an `Oozie` launcher, then the Oozie launcher will re-launch its jobs again, but some of those older jobs could have also been restarted by the RM. 
-
-Now we have duplicate jobs.  Another way we can end up with duplicate jobs is that the new RM instance that did not recover will not know about the old apps.  When the `Oozie` server queries the RM about the old launcher, the RM will claim that is an unknown app ID.  The `Oozie` server will then relaunch the workflow as a new instance, but we could end up recovering the old instance.  Then we could have two independent launchers running for the same workflow.   
+* Your job is writing out Parquet data, and Parquet buffers data in memory prior to writing it out to disk
+* Your code (including library you’re using) is caching data. An example here is joining two datasets together where one dataset is being cached prior to joining it with the other.
 
 
+If your job does not really need to cache data, then it is possible to reduce memory utilization by avoiding cached data.
 
-MapReduce Job History Server
-----------------------------
+Monitoring the Memory of Your Container
+---------------------------------------
 
+:term:`NodeManager` periodically (every 3 seconds by default, which can be changed via ``yarn.nodemanager.container-monitor.interval-ms``) cycles through all the currently running containers, calculates the process tree (all child processes for each container), and for each process examines the ``/proc/<PID>/stat`` file (where `PID` is the process ID of the container) and extracts the physical memory (aka `RSS`) and the virtual memory (aka `VSZ` or `VSIZE`).
 
-The MapReduce job history server has a very similar setup to the RM in terms of migration needs.  It is also storing state to a leveldb database with the path configured by ``mapreduce.jobhistory.recovery.store.leveldb.path`` and currently set to ``/home/gs/var/run/mapred/mapred-historyserver/``.
+If virtual memory checking is enabled (configured via ``yarn.nodemanager.vmem-check-enabled``), then YARN compares the summed `VSIZE` extracted from the container process (and all child processes) with the maximum allowed virtual memory for the container. The maximum allowed virtual memory is basically the configured maximum physical memory for the container multiplied by ``yarn.nodemanager.vmem-pmem-ratio``. For example if `vmem-pmem-ratio` is set to `2.1` and your YARN container is configured to have a maximum of 2 GB of physical memory, then this number is multiplied by `2.1` which means you are allowed to use `4.2GB` of virtual memory.
 
-.. rubric:: To migrate the MapReduce job history server: 
+If physical memory checking is enabled (`true` by default, overridden via ``yarn.nodemanager.pmem-check-enabled``), then YARN compares the summed RSS extracted from the container process (and all child processes) with the maximum allowed physical memory for the container.
 
-#. Shutdown the job history server, as we cannot copy the state of a "`live`" database
-#. Copy the JHS leveldb state over to the new node in the same path
-#. Startup the JHS on the new node
-
-If the state cannot be preserved then the job history server can be started on the new node, but there will be some failures of `Oozie` jobs.  The jobs will no longer have a token that the new job history server instance recognizes and therefore will be rejected when trying to connect to the new history server instance.
-
-YARN Timeline Server
---------------------
+If either the virtual or physical utilization is higher than the maximum permitted, YARN will kill the container, as shown in the error :ref:`at the top of this article <yarn_troubleshooting_memory>`.
 
 
-The YARN timeline server is currently configured to store states in two leveldb databases, controlled by the properties ``yarn.timeline-service.leveldb-timeline-store.path`` and ``yarn.timeline-service.leveldb-state-store.path``.  These are currently configured to the same location at ``/home/gs/var/run/mapred/yarn-timeline-service``, and the code creates unique database names underneath the specified path so they won't conflict.
+  .. table:: `YARN NodeManager Configurations to Monitor Container`
+    :widths: auto
 
-.. rubric:: To migrate the YARN timeline server:
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    |                           Property                           |                                                                                                                Description                                                                                                               |
+    +==============================================================+==========================================================================================================================================================================================================================================+
+    | ``yarn.nodemanager`` |br| ``.container-monitor.enabled``     | Enable container monitor                                                                                                                                                                                                                 |
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | ``yarn.nodemanager`` |br| ``.container-monitor.interval-ms`` | How often to monitor containers. If not set, the value for `yarn.nodemanager.resource-monitor.interval-ms` will be used. If 0 or negative, container monitoring is disabled.                                                             |
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | ``yarn.nodemanager`` |br| ``.vmem-check-enabled``            | Whether virtual memory limits will be enforced for containers.                                                                                                                                                                           |
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | ``yarn.nodemanager`` |br| ``.vmem-pmem-ratio``               | Ratio between virtual memory to physical memory when setting memory limits for containers. Container allocations are expressed in terms of physical memory, and virtual memory usage is allowed to exceed this allocation by this ratio. |
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | ``yarn.nodemanager`` |br| ``.pmem-check-enabled``            | Whether physical memory limits will be enforced for containers.                                                                                                                                                                          |
+    +--------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-1. Shutdown the timeline server, as we cannot copy the state of a "`live`" database
-2. Copy the timeline server leveldb path over to the new node in the same path
-3. Startup the timeline server on the new node
+Increasing the Memory Available to Your MapReduce Job
+-----------------------------------------------------
 
+.. admonition:: Reading...
+   :class: readingbox
 
-If the state cannot be preserved then the timeline server can be started on the new node, but the previous history of events in the timeline server will be lost.  In addition there could be some failures from `Oozie` jobs as launcher clients will be running with a timeline server token that the new timeline server instance will not recognize.
+    * Check :ref:`yarn_memory`
+    * Increasing Memory for Job (:numref:`mapreduce_faq_runtime_increase_job_memory`)

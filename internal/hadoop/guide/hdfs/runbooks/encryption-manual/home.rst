@@ -1,6 +1,6 @@
-**********************************
-Run Book / Operations Manual - KMS
-**********************************
+************************
+Encryptions Manual - KMS
+************************
 
 
 HDFS Transparent Encryption

@@ -5,8 +5,7 @@ Releasing
 #########
 
 .. toctree::
-  :maxdepth: 2
-  :numbered:
+  :maxdepth: 3
 
   packaging
   ci-cd

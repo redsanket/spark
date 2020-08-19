@@ -1,4 +1,4 @@
-..  _user_guide_hadoop_troubleshooting:
+..  _yarn_troubleshooting:
 
 ***************
 Troubleshooting
@@ -10,4 +10,3 @@ Troubleshooting
 
    part-01
    part-02
-   part-03

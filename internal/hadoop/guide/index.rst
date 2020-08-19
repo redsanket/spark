@@ -16,6 +16,7 @@ Hadoop Documentation
 
 .. toctree::
    :caption: Team
+   :numbered:
    :maxdepth: 4
 
    team_organization/index
@@ -25,17 +26,31 @@ Hadoop Documentation
 
 
 .. toctree::
-   :caption: YARN
+   :caption: Mapreduce
+   :numbered:
    :maxdepth: 4
 
-   yarn/index
+   mapreduce/speculator/index
+   mapreduce/faq/index
+
+.. toctree::
+   :caption: YARN
+   :numbered:
+   :maxdepth: 4
+
+   yarn/overview
+   yarn/containers/index
+   yarn/runbook/index
+   yarn/troubleshooting/index
 
 .. toctree::
    :caption: HDFS
+   :numbered:
    :maxdepth: 4
 
-   hdfs/index
-   
+   hdfs/runbooks/index
+   hdfs/faq/index
+
 .. toctree::
    :caption: Security
    :numbered:
@@ -46,6 +61,7 @@ Hadoop Documentation
 
 .. toctree::
    :caption: General
+   :numbered:
    :maxdepth: 4
 
    knowledge_center/index
