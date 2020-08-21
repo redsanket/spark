@@ -730,13 +730,224 @@ For cross colo distcp, webhdfs URI should be specified for source name node. For
    </workflow-app>
 
 
+.. _distcp_with_s3:
+
+Distcp with S3
+**************
+Uploading or downloading data from an S3 bucket requires additional configuration and authentication.
+Since S3 is an external network, connections from grid node have to be routed through
+`external http proxies <http://yo/httpproxy>`_. So following two credentials are required in addition.
+
+   - `Temporary AWS Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html>`_ for accessing S3
+   - `Athenz oauth2 tokens <http://yo/httpproxy.auth>`_ to authenticate to Http Proxy
+
+
+Temporary AWS Credentials Setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fetching AWS Credentials requires the following setup:
+    - Configuration of an AWS IAM role with desired expiration period and external identity to access the S3 bucket.
+    - Associating an Athenz domain and role with the AWS IAM role
+    - Creating an Athenz service and adding it to the Athenz role.
+    
+The steps are detailed in :ref:`Workflow with AWS Temporary Credentials <aws_temp_credentials>` section
+
+HttpProxy Authentication Setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To connect to a s3 bucket through http proxy, Athenz OAuth2 token for the role ``access.<s3 bucket>.<s3 endpoint>`` 
+from `httpproxyauth athenz domain<https://ui.athenz.ouroath.com/domain/httpproxyauth/role>`_ should be passed in the HTTP request.
+Follow these steps, to setup the role.
+
+   - Raise a doppler request following the steps in `Http Proxy documentation <https://confluence.vzbuilders.com/display/HPROX/Use+Athenz+Auth+to+access+external+endpoints+through+HttpProxy#UseAthenzAuthtoaccessexternalendpointsthroughHttpProxy-RequestingAccesstoanExternalEndpoint>`_.
+   - The name of the endpoint in the doppler request would be the name of the s3 bucket followed by the `s3 service endpoint <https://docs.aws.amazon.com/general/latest/gr/s3.html>`_.
+     For example: datareporting-us-east.s3.amazonaws.com
+   - Add ``hadoop.oozie`` service, the headless user that the Oozie job will run as and the athenz service
+     used to fetch s3 credentials in the previous step to ``Httpproxy Allowlist Users`` in the doppler request.
+   - Once the doppler request is complete and provisioned, you can check the `httpproxyauth athenz domain <https://ui.athenz.ouroath.com/domain/httpproxyauth/role>`_
+     to verify that the ``access.<s3 bucket>.<s3 endpoint>`` role is created and ``hadoop.oozie``, ``ygrid.<headless user>`` and your athenz service are part of that role. 
+
+Distcp Configuration
+^^^^^^^^^^^^^^^^^^^^
+
+There are some additional S3 filesystem properties that you might have to configure as argument to distcp action.
+
+- ``fs.s3a.proxy.host``: Set it to one of ``httpproxy-ext.blue.ygrid.yahoo.com``, ``httpproxy-ext.tan.ygrid.yahoo.com`` or ``httpproxy-ext.red.ygrid.yahoo.com`` depending on the colo of the Hadoop cluster.
+- ``fs.s3a.proxy.port``: Set it to ``4080``
+- ``fs.s3a.server-side-encryption-algorithm``: Usually ``AES256`` or ``aws-kms`` encryption is enabled for s3 buckets and if not specified, upload will fail.
+- ``fs.s3a.server-side-encryption.key``: Name of the encryption key if ``aws-kms`` is used as encryption algorithm.
+- ``fs.s3a.endpoint``: Default is ``s3.amazonaws.com``. This should match the endpoint configured in the Http Proxy Athenz role.
+
+Example
+^^^^^^^
+
+When the workflow is run, the Http Proxy OAuth2 token (ATHENZ_ACCESS_TOKEN) and AWS credentials (AWS_SESSION_TOKEN) are passed to the job as delegation token.
+You can check for entries like below in the distcp launcher job log to verify that you have configured the credential sections correctly.
+
+.. code-block:: text
+
+   INFO [main] org.apache.hadoop.mapreduce.v2.app.MRAppMaster: Kind: AWS_SESSION_TOKEN, Service: s3://default@datareporting-us-east, ....
+   INFO [main] org.apache.hadoop.mapred.YarnChild: Kind: ATHENZ_ACCESS_TOKEN, Service: httpproxyauth:role.access.datareporting-us-east.s3.amazonaws.com, Ident:
+
+.. code-block:: xml
+
+   <workflow-app name="s3_distcp" xmlns="uri:oozie:workflow:0.4">
+      <workflow-app xmlns="uri:oozie:workflow:0.5"
+      name="java-aws-cred">
+      <credentials>
+         <!- OAuth2 token to authenticate to Http Proxy -->
+         <credential name='httpproxy_auth' type='athens'>
+            <property>
+               <name>athens.domain</name>
+               <value>httpproxyauth</value>
+            </property>
+            <property>
+               <name>athens.role</name>
+               <value>access.datareporting-us-east.s3.amazonaws.com</value>
+            </property>
+            <property>
+               <name>athens.min.expiry</name>
+               <value>10800</value>
+            </property>
+            <property>
+               <name>athens.token.type</name>
+               <value>oauth2</value>
+            </property>
+         </credential>
+   
+         <!-- Temporary AWS Credentials to access the s3 bucket -->
+         <credential name='s3_bucket_auth' type='aws'>
+   
+            <!-- Name of the S3 bucket for distcp -->
+            <property>
+               <name>aws.s3.bucket</name>
+               <value>datareporting-us-east</value>
+            </property>
+   
+            <!-- Properties for ykeykey which is in on-prem CKMS -->
+            <property>
+               <name>ykeykey.group</name>
+               <value>testservice.keygroup</value>
+            </property>
+            <property>
+               <name>ykeykey.key</name>
+               <value>testkey</value>
+            </property>
+            <property>
+               <name>ykeykey.version</name>
+               <value>0</value>
+            </property>
+            <property>
+               <name>ykeykey.athens.domain</name>
+               <value>datareporting</value>
+            </property>
+   
+            <!-- Properties for athens service which is on-prem and contains public 
+               key corresponding to the private key specified in ykeykey -->
+            <property>
+               <name>athens.service</name>
+               <value>oozie-s3-service</value>
+            </property>
+            <property>
+               <name>athens.service.domain</name>
+               <value>datareporting</value>
+            </property>
+            <property>
+               <name>athens.service.public.key.id</name>
+               <value>0</value>
+            </property>
+   
+            <!-- Properties for IAM role -->
+            <property>
+               <name>aws.athens.domain</name>
+               <value>datareporting</value>
+            </property>
+            <property>
+               <name>aws.iam.role</name>
+               <value>iam.test.role</value>
+            </property>
+   
+            <!-- Optional Property -->
+   
+            <property>
+               <name>aws.credential.expiry.minutes</name>
+               <value>70</value>
+            </property>
+   
+            <!-- Since iam.test.role is configured with external id, we need to specify 
+               ykeykey containing the external id -->
+            <property>
+               <name>aws.external.id.ykeykey.key</name>
+               <value>aws.externalid.key</value>
+            </property>
+   
+            <property>
+               <name>aws.external.id.ykeykey.version</name>
+               <value>0</value>
+            </property>
+         </credential>
+   
+         <start to="s3-upload" />
+         <action name="s3-upload" cred="httpproxy_auth,s3_bucket_auth">
+            <distcp xmlns="uri:oozie:distcp-action:0.2">
+               <job-tracker>${jobTracker}</job-tracker>
+               <name-node>${nameNode}</name-node>
+               <prepare>
+                  <delete path="s3a://s3-manifest-test/project-foo/oozie-test" />
+               </prepare>
+               <configuration>
+                  <property>
+                     <name>mapred.job.queue.name</name>
+                     <value>${queueName}</value>
+                  </property>
+               </configuration>
+               <arg>-Dfs.s3a.proxy.host=httpproxy-ext.blue.ygrid.yahoo.com</arg>
+               <arg>-Dfs.s3a.proxy.port=4080</arg>
+               <arg>hdfs:///projects/project-foo/dataset1</arg>
+               <arg>s3a://datareporting-us-east/project-foo</arg>
+            </distcp>
+            <ok to="s3-download" />
+            <error to="fail" />
+         </action>
+   
+         <action name="s3-download" cred="httpproxy_auth,s3_bucket_auth">
+            <distcp xmlns="uri:oozie:distcp-action:0.2">
+               <job-tracker>${jobTracker}</job-tracker>
+               <name-node>${nameNode}</name-node>
+               <prepare>
+                  <delete path="hdfs:///tmp/oozie-s3output" />
+               </prepare>
+               <configuration>
+                  <property>
+                     <name>mapred.job.queue.name</name>
+                     <value>${queueName}</value>
+                  </property>
+               </configuration>
+               <arg>-Dfs.s3a.proxy.host=httpproxy-ext.blue.ygrid.yahoo.com</arg>
+               <arg>-Dfs.s3a.proxy.port=4080</arg>
+               <arg>s3a://datareporting-us-east/project-foo/dataset2</arg>
+               <arg>hdfs:///projects/project-foo</arg>
+            </distcp>
+            <ok to="end" />
+            <error to="fail" />
+         </action>
+   
+         <kill name="fail">
+            <message>Java failed, error
+               message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+         </kill>
+         <end name="end" />
+
+   </workflow-app>
+
+
 .. _action-spark:
 
 Spark Action
 ~~~~~~~~~~~~
 
 - See the `Spark Action <https://kryptonitered-oozie.red.ygrid.yahoo.com:4443/oozie/docs/DG_SparkActionExtension.html>`_ in the Apache documentation.
-- To pick up spark-assembly.jar along with some standard jars/files, use: 
+- For more detailed examples, you can refer to `Spark Action <https://git.vzbuilders.com/pages/hadoop/docs/spark/spark_from_oozie.html>`_ in the internal Spark documentation.
+- To pick up spark-assembly.jar along with some standard jars/files, use:
 
 .. code-block:: xml
 

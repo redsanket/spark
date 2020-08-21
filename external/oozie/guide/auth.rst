@@ -53,7 +53,7 @@ To invoke Oozie using Kerberos authentication::
 
 
 cURL
-+++++++++
+++++
 To test Kerberos using cURL:
 
    - Authenticate using Kerberos negotiate and store the received auth cookie in a file::
@@ -677,6 +677,10 @@ Note:
 Currently role certificate is supported for only one role. So ``athens.role``
 can have only one role name and not a comma separated list.
 
+Optional properties
+
+- ``athens.spiffe.uri`` : If set to ``true``, the generated role certificate will have additional URI field with the spiffe URI.
+   The format will be ``URI:spiffe://<athens.domain>/ra/<athens.role>``. The default value is ``false``.
 
 The cert and key are passed in json format as a secret in the job ``Credentials``.
 The json also contains a keystore which has the cert and key imported into it for ease of use. Example:
@@ -859,23 +863,23 @@ Example Workflow XML
             </property>
             <property>
                 <name>ykeykey.athens.domain</name>
-                <value>yby.saley.subdomain</value>
+                <value>home.saley.subdomain</value>
             </property>
 
             <!-- Name and domain of the athens service and id of the public key corresponding to the private key specified in
             ykeykey.key -->
             <property>
-                <name>ykeykey.athens.service</name>
+                <name>athens.service</name>
                 <value>testservice</value>
             </property>
 
             <property>
-                <name>ykeykey.athens.service.domain</name>
-                <value>yby.saley</value>
+                <name>athens.service.domain</name>
+                <value>home.saley</value>
             </property>
 
             <property>
-                <name>ykeykey.athens.service.public.key.id</name>
+                <name>athens.service.public.key.id</name>
                 <value>0</value>
             </property>
         </credential>
@@ -1176,23 +1180,23 @@ Optional properties
         </property>
         <property>
             <name>ykeykey.athens.domain</name>
-            <value>yby.saley.subdomain</value>
+            <value>home.saley.subdomain</value>
         </property>
 
         <!-- Properties for athens service which is on-prem and contains public key corresponding to the private key specified in
         ykeykey.key -->
         <property>
-            <name>ykeykey.athens.service</name>
+            <name>athens.service</name>
             <value>testservice</value>
         </property>
 
         <property>
-            <name>ykeykey.athens.service.domain</name>
-            <value>yby.saley</value>
+            <name>athens.service.domain</name>
+            <value>home.saley</value>
         </property>
 
         <property>
-            <name>ykeykey.athens.service.public.key.id</name>
+            <name>athens.service.public.key.id</name>
             <value>0</value>
         </property>
 
@@ -1214,6 +1218,7 @@ Optional properties
 
 Retrieving secret is explained :ref:`above <retrieving_ykeykey_secret>`
 
+.. _aws_temp_credentials:
 
 Workflow with AWS Temporary Credentials
 ---------------------------------------
@@ -1232,7 +1237,7 @@ Prerequisites:
 - There will be a corresponding role in associated athens domain of the format ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access`` .
   To allow Oozie to fetch Athens token, users will have to add ``hadoop.oozie`` and the username
   used to run the Oozie workflow as members of the newly created paranoid role ``paranoids.ppse.ckms.ykeykey_prod.res_group.<ykeykey.keygroup>.access``.
-  The username will be either be ``user.<Oath user>`` for normal users or ``ygrid.<headless user>`` for headless users. :ref:`Refer above screenshot<add_oozie_and_user_to_role>`.
+  The username will be either be ``user.<Verizon Media user>`` for normal users or ``ygrid.<headless user>`` for headless users. :ref:`Refer above screenshot<add_oozie_and_user_to_role>`.
 - Create a service in on-prem athens using the public key. :ref:`Refer above screenshot<create_athens_service_on_prem>`.
 - The role specified while creating policy (`in this step <https://git.ouroath.com/pages/athens/athenz-guide/aws_temp_creds/#athenz-aws-assume-role-configuration-setup>`_ in AWS athens should contain on-prem
   athens service as member.
@@ -1249,8 +1254,10 @@ Properties:
 - ``aws.athens.domain``: The Athens domain in AWS.
 - ``aws.iam.role``: IAM role name for which temporary credentials are required.
 
+
 Optional properties:
 
+- ``aws.s3.bucket``: The S3 bucket which will be accessed using this credentials. This is required for distcp action. 
 - ``ykeykey.version``: Oozie will fetch secret of all versions, if no version is specified. Oozie will take private key from
   current version.
 - ``athens.user.domain``: The domain in which user resides. The default value is ygrid. If you are running as yourself and not a headless user, set value for this as ``user``.
@@ -1286,18 +1293,18 @@ Optional properties:
         </property>
         <property>
             <name>ykeykey.athens.domain</name>
-            <value>yby.saley.subdomain</value>
+            <value>home.saley</value>
         </property>
 
         <!-- Properties for athens service which is on-prem and contains public key corresponding to the private key specified in
         ykeykey -->
         <property>
             <name>athens.service</name>
-            <value>testservice</value>
+            <value>oozie-s3-service</value>
         </property>
         <property>
             <name>athens.service.domain</name>
-            <value>yby.saley</value>
+            <value>home.saley</value>
         </property>
         <property>
             <name>athens.service.public.key.id</name>
@@ -1311,7 +1318,13 @@ Optional properties:
         </property>
         <property>
             <name>aws.iam.role</name>
-            <value>iam.test.role.ec2</value>
+            <value>iam.test.role</value>
+        </property>
+        
+        <!-- Name of the S3 bucket for distcp action -->
+        <property>
+            <name>aws.s3.bucket</name>
+            <value>s3-project-test</value>
         </property>
 
         <!-- Optional Property -->
@@ -1333,7 +1346,11 @@ Optional properties:
         </property>
     </credential>
 
-Oozie retrieves the AWS temporary credentials and sends it to the launcher job.
+Oozie retrieves the AWS temporary credentials and sends it to the launcher job as a secret that can
+be retrieved from UserGroupInformation. If ``aws.s3.bucket`` is specified, it also adds a ``AWS_SESSION_TOKEN``
+delegation token that the S3FileSystem will use to talk to the s3 bucket. Refer :ref:`Distcp Action <distcp_with_s3>`
+for setting up distcp action with S3. 
+
 
 Retrieving AWS temporary credentials using UGI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

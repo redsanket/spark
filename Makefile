@@ -43,6 +43,18 @@ hadoop_internal: prebuild
 	mkdir -p $(INTERNAL_DOCS_PATH)
 	. $(ACTIVATE) && $(SPHINXBUILD) $(HADOOP_INTERNAL_SRC) $(INTERNAL_DOCS_PATH)/hadoop
 
+hive: prebuild
+	@echo "running $(SPHINXBUILD) to generate Hive documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(HIVE) $(EXTERNAL_DOCS_PATH)/hive
+
+oozie: prebuild
+	@echo "running $(SPHINXBUILD) to generate Oozie documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(OOZIE) $(EXTERNAL_DOCS_PATH)/oozie
+
+presto: prebuild
+	@echo "running $(SPHINXBUILD) to generate Presto documentation locally..."
+	. $(ACTIVATE) && $(SPHINXBUILD) $(PRESTO) $(EXTERNAL_DOCS_PATH)/presto
+
 prebuild:
 	@echo '****** Start Prebuilding Steps ******'
 	@echo 'Creating temp dir $(TMP_ENV)'
