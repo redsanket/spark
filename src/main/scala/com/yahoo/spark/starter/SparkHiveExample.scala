@@ -9,13 +9,14 @@ case class Record(key: Int, value: String)
 object SparkHiveExample {
   def main(args: Array[String]) {
 
-    if (args.length < 2) {
-      System.err.println("Usage: SparkHiveExample <databaseDir> <inputFile>")
+    if (args.length < 3) {
+      System.err.println("Usage: SparkHiveExample <databaseDir> <inputFile> <database>")
       System.exit(1)
     }
 
     val databaseDir = args(0)
     val inputFile = args(1)
+    val database = args(2)
 
     val spark = SparkSession
       .builder()
@@ -27,9 +28,9 @@ object SparkHiveExample {
     import spark.sql
 
     // Create a database under hdfs home directory for testing purpose
-    sql(s"CREATE DATABASE IF NOT EXISTS spark_hive_test LOCATION '$databaseDir'")
+    sql(s"CREATE DATABASE IF NOT EXISTS $database LOCATION '$databaseDir'")
 
-    sql("USE spark_hive_test")
+    sql(s"USE $database")
 
     // Create the table and load data from a text file on hdfs
     sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
@@ -113,7 +114,7 @@ object SparkHiveExample {
     // ...
 
     // Drop the database
-    sql("DROP DATABASE IF EXISTS spark_hive_test CASCADE")
+    sql(s"DROP DATABASE IF EXISTS $database CASCADE")
 
     spark.stop()
   }

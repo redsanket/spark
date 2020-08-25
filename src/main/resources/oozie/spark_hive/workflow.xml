@@ -36,6 +36,7 @@
             <spark-opts>--num-executors 3 --executor-memory 2g --executor-cores 1 --queue default --conf spark.yarn.security.tokens.hive.enabled=false</spark-opts>
             <arg>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/output/hive_location</arg>
             <arg>hdfs:///user/${wf:conf('user.name')}/${wfRoot}/output/kv1.txt</arg>
+            <arg>${sparkTag}_hive_test</arg>
         </spark>
         <ok to="end" />
         <error to="fail" />
