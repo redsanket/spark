@@ -1,0 +1,21 @@
+type InstanceIdentity Struct {
+  ServiceName provider;                     //the provider service name
+                                            //(i.e. "aws.us-west-2")
+  ServiceName name;                         //name of the identity, fully
+                                            //qualified, e.g weather.api
+  PathElement instanceId;                   //unique instance id within
+                                            //provider’s namespace
+  String x509Certificate (optional);        //an X.509 certificate usable for
+                                            //both client and server in
+                                            //TLS connections
+  String x509CertificateSigner (optional);  //the CA certificate chain to
+                                            //verify all generated X.509 certs
+  String sshCertificate (optional);         //the SSH certificate, signed by
+                                            //the CA (user or host)
+  String sshCertificateSigner (optional);   //the SSH CA's public key
+                                            //for the sshCertificate (user or host)
+  SignedToken serviceToken (optional);      //service token instead of TLS
+                                            //certificate
+  Map<String,String> attributes (optional); //other config-like attributes
+                                            //determined at boot time
+}

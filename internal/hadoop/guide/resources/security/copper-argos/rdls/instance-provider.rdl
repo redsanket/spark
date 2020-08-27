@@ -1,0 +1,14 @@
+type InstanceConfirmation Struct {
+  ServiceName provider;                     //the provider service name
+  DomainName domain;                        //the domain of the instance
+  SimpleName service;                       //the service this instance is
+                                            //supposed to run
+  String attestationData;                   //signed identity document
+                                            //containing attributes
+                                            //like IP address, instance-id,
+                                            //account#, signature, etc.
+  Map<String,String> attributes (optional); //additional non-signed attributes
+                                            //that assist in attestation. I.e.
+                                            //"instanceId”, keyId",
+                                            //"accessKey", etc
+}

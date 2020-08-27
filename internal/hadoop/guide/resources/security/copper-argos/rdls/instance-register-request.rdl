@@ -1,0 +1,26 @@
+type InstanceRegisterInformation Struct {
+  ServiceName provider;  //the provider service name (i.e. "aws.us-west-2")
+  DomainName domain;     //the domain of the instance
+  SimpleName service;    //the service this instance is supposed to run
+  String attestationData;//signed identity document containing attributes 
+                         //like IP address, instance-id, account#, signature, etc
+  String csr;            //the Certificate Signing Request for the expected
+                         //X.509 certificate in the response
+  String ssh (optional); //if present, return an SSH host certificate.
+                         //Format is JSON.
+  Bool token (optional); // if true, return a service token signed by
+                         //ZTS for this service
+}
+
+resource InstanceIdentity POST "/instance" {
+  InstanceRegisterInformation info;
+  String location (header="Location", out); //return location for subsequent
+                                            //operations
+  expected CREATED;
+  exceptions {
+      ResourceError BAD_REQUEST;
+      ResourceError FORBIDDEN;
+      ResourceError UNAUTHORIZED;
+      ResourceError INTERNAL_SERVER_ERROR;
+  }
+}

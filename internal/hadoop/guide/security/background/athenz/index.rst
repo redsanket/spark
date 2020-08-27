@@ -9,5 +9,5 @@ Athenz
    :maxdepth: 4
 
    overview
-   client-side-x509-credentials
-   server_side_x509_credentials
+   guide/index
+   environments

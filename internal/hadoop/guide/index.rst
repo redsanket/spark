@@ -54,7 +54,7 @@ Hadoop Documentation
 .. toctree::
    :caption: Security
    :numbered:
-   :maxdepth: 4
+   :maxdepth: 5
 
    security/background/index
    security/kms/index

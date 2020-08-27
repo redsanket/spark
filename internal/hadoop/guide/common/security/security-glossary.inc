@@ -80,6 +80,9 @@
          In Athenz, a role can be thought of as a group, anyone in the group can 
          *assume* the role that takes a particular action. Every policy assertion
          describes what can be done by a role.
+
+       RDL
+         Resource Description Language  
        
        CSR
          Certificate Signing Request

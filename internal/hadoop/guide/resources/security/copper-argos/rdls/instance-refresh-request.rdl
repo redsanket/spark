@@ -1,0 +1,31 @@
+type InstanceRefreshInformation Struct {
+  String attestationData (optional); //identity attestation data including 
+                                     //document with its signature containing
+                                     //attributes like IP
+                                     //address, instance-id, account#, etc.
+  String csr (optional);             //the Certificate Signing Request for the
+                                     //expected X.509 certificate in the response
+  String ssh (optional);             //if present, return an SSH host certificate.
+                                     //Format is JSON.
+  Bool token (optional);             // if true, return a service token signed by
+                                     //ZTS for this service
+}
+
+resource InstanceIdentity
+         POST "/instance/{provider}/{domain}/{service}/{instanceId}" {
+  ServiceName provider;            //the provider service name (i.e. "aws.us-west-2")
+  DomainName domain;               //the domain of the instance
+  SimpleName service;              //the service this instance is supposed to run
+  PathElement instanceId;          //the instance id that’s unique within this
+                                   //provider
+  InstanceRefreshInformation info; //the refresh request
+  authenticate;                    //only TLS Certificate authentication is allowed
+  expected OK;
+  exceptions {
+      ResourceError BAD_REQUEST;
+      ResourceError FORBIDDEN;
+      ResourceError NOT_FOUND;
+      ResourceError UNAUTHORIZED;
+      ResourceError INTERNAL_SERVER_ERROR;
+  }
+}

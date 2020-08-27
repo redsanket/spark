@@ -1,0 +1,22 @@
+resource InstanceConfirmation POST "/instance" {
+  InstanceConfirmation confirmation;
+  authenticate;
+  expected OK;
+  exceptions {
+    ResourceError BAD_REQUEST;
+    ResourceError FORBIDDEN;
+    ResourceError UNAUTHORIZED;
+  }
+}
+
+resource InstanceConfirmation
+         POST "/refresh" (name=PostRefreshConfirmation) {
+  InstanceConfirmation confirmation;
+  Authenticate;
+  expected OK;
+  exceptions {
+    ResourceError BAD_REQUEST;
+    ResourceError FORBIDDEN;
+    ResourceError UNAUTHORIZED;
+  }
+}

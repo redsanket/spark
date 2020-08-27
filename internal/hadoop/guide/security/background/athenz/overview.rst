@@ -82,7 +82,7 @@ Concepts
   Athenz architecture, service authentication support, the flow for both
   centralized and decentralized authorization, and how to set up role-based
   authorization. Full details are in internal Athenz -
-  `Guide: Athenz Concepts <https://git.vzbuilders.com/pages/athens/athenz-guide/concepts/>`_ 
+  vzbuilders Github - `Athenz Guide: Concepts <https://git.vzbuilders.com/pages/athens/athenz-guide/concepts/>`_ 
   
 .. _security_background_athenz_concepts_domains:
 
@@ -500,13 +500,13 @@ Athenz, you can file a JIRA ticket in the Jira
 `ATHENS project <https://jira.vzbuilders.com/secure/CreateIssue.jspa?pid=10388&issuetype=10100>`_.
 Please provide:
 
--  a short and descriptive domain name for your product
--  list of administrators identified by their Okta Short IDs
--  `Verizon Media Product Id <https://productmaster.vzbuilders.com/engineering/product>`_
+* a short and descriptive domain name for your product
+* list of administrators identified by their Okta Short IDs
+* `Verizon Media Product Id <https://productmaster.vzbuilders.com/engineering/product>`_
 
-**Important** Verizon Media Product Id is required for all Athenz Top
-Level Domains. Each registered product in Product Master can only have 1
-associated Athenz Top level domain.
+.. note:: Verizon Media Product Id is required for all Athenz Top
+  Level Domains. Each registered product in Product Master can only have one
+  associated Athenz Top level domain.
 
 Subdomains
 ----------
