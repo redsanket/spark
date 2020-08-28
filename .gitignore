@@ -18,6 +18,8 @@ _build/
 # svn
 .svn
 
+# VS Code
+.vscode
 
 # Mac desktop service store files
 .DS_Store

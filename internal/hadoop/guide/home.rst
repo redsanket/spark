@@ -2,12 +2,12 @@
 Contributing to the Doc
 ***********************
 
-This guide (|version|) is built using `Sphinx-doc <https://www.sphinx-doc.org/en/master/index.html/>`_
+This guide (|version|) is built using `Sphinx-doc <https://www.sphinx-doc.org/en/master/index.html>`_
 
 Setting-up Environment
 ======================
 
-See `installing sphinx page <https://www.sphinx-doc.org/en/master/usage/installation.html/>`_
+See `installing sphinx page <https://www.sphinx-doc.org/en/master/usage/installation.html>`_
 
 - **prerequisite**: Install ``python`` and ``pip``.
 - **Linux**: ``apt-get install python-sphinx``
@@ -73,13 +73,13 @@ Code Helpers
 Sphinx Guides
 -------------
 
-- `CheatSheet <http://openalea.gforge.inria.fr/doc/openalea/doc/_build/html/source/sphinx/rest_syntax.html/>`_
-- `Configuration <https://www.sphinx-doc.org/en/master/usage/configuration.html/>`_
-- `Online Sphinx rtd-theme demo <https://sphinx-rtd-theme.readthedocs.io/en/stable/demo/demo.html/>`_
-- `Using inline labels <https://docs.typo3.org/m/typo3/docs-how-to-document/master/en-us/WritingReST/InlineCode.html/>`_
-- `TOC guide <https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents/>`_
+- `CheatSheet <http://openalea.gforge.inria.fr/doc/openalea/doc/_build/html/source/sphinx/rest_syntax.html>`_
+- `Configuration <https://www.sphinx-doc.org/en/master/usage/configuration.html>`_
+- `Online Sphinx rtd-theme demo <https://sphinx-rtd-theme.readthedocs.io/en/stable/demo/demo.html>`_
+- `Using inline labels <https://docs.typo3.org/m/typo3/docs-how-to-document/master/en-us/WritingReST/InlineCode.html>`_
+- `TOC guide <https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents>`_
 - `Writing Code Blocks <https://docs.typo3.org/m/typo3/docs-how-to-document/master/en-us/WritingReST/Codeblocks.html>`_
-- `Restructured Text and Sphinx CheatSheet <https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#inline-markup-and-special-characters-e-g-bold-italic-verbatim/>`_
+- `Restructured Text and Sphinx CheatSheet <https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#inline-markup-and-special-characters-e-g-bold-italic-verbatim>`_
 - `Roles guide <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html>`_
 - `Directives Guide <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html>`_
 - Headers style:
