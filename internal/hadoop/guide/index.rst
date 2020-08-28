@@ -23,6 +23,7 @@ Hadoop Documentation
    getting_started/index
    oncall/index
    releasing/index
+   projects/index
 
 
 .. toctree::

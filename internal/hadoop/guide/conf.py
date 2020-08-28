@@ -209,6 +209,22 @@ rst_prolog = """
    </strike>
 
 .. |HADOOP_RELEASE_VERSION| replace:: r2.10.0
+
+.. |check| raw:: html
+
+    <input checked=""  type="checkbox">
+
+.. |check_| raw:: html
+
+    <input checked=""  disabled="" type="checkbox">
+
+.. |uncheck| raw:: html
+
+    <input type="checkbox">
+
+.. |uncheck_| raw:: html
+
+    <input disabled="" type="checkbox">
 """
 
 
