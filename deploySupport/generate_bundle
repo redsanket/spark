@@ -108,16 +108,16 @@ fi
 if [[ -n $release_id ]]; then
   cd ../
   component_repo="git@git.ouroath.com:hadoop-deployments/${component}_deploy.git"
-  echo "Update ${component_repo}/${component}.yaml with new serial number '$serial' and release_id '$release'"
+  echo "Update ${component_repo}/${component}.yaml with new serial number '$serial' and release_id '$release_id'"
   echo "Cloning $component_repo..."
   git clone $component_repo $component_repo.$serial
   cd $component_repo.$serial
   pwd
-  echo "--> Commit the new bundle '$serial' and release_id '$release' to 'conf/$component.yaml'"
-  sed -i "s/^\( *\)release_id:.*/\1release_id: $release/" conf/$component.yaml
+  echo "--> Commit the new bundle '$serial' and release_id '$release_id' to 'conf/$component.yaml'"
+  sed -i "s/^\( *\)release_id:.*/\1release_id: $release_id/" conf/$component.yaml
   sed -i "s/^\( *\)bundle_id:.*/\1bundle_id: $serial/" conf/$component.yaml
   git diff && git status && git remote -v
-  git commit -a -m "Update ${component}.yaml with new $serial and release_id $release"
+  git commit -a -m "Update ${component}.yaml with new $serial and release_id $release_id"
   git push origin master
   RC=$?
   if [ $RC -ne 0 ]; then
