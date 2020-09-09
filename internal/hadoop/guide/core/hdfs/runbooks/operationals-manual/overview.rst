@@ -16,7 +16,6 @@ Documents and Resources
 * `design specification: Append, Hflush, and Read <https://issues.apache.org/jira/secure/attachment/12445209/appendDesign3.pdf/>`_. :download:`Download link </resources/appendDesign3.pdf>`
 * `Roadmap to Support Significantly Larger Storage Namespace <https://docs.google.com/document/d/1tGvNhJb43kQpdPbf26cSu5Md4UZgPCkEb0Y1XMe8QlY/>`_
 * `Run Book / Operations Manual - HDFS <https://docs.google.com/document/d/1-AHk-ePioUb2tXRedQSozLoDKYSgsHoYIo6B7daU9_M/>`_
-* Consider looking at KMS documentation :ref:`Sec. <hadoop_team_kms_resources>`
 
 
 Service Introduction - Infrastructure and Network Design

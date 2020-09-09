@@ -1,4 +1,4 @@
-.. _hadoop_team_getting_started_development:
+.. _getting_started_development:
 
 ###################
 Development
@@ -14,7 +14,7 @@ Development
 Machine Setup
 *********************
 
-..  _on_boarding_mac_env_setup:
+..  _getting_started_on_boarding_mac_env_setup:
 
 Mac Environment Setup
 =====================
@@ -98,7 +98,7 @@ Add the new script to the path by modifying ``~/.bash_profile``
     # bypass ssh on localhost
     export PATH=~/bin:$PATH
 
-..  _on_boarding_set_opehouse:
+..  _getting_started_on_boarding_set_opehouse:
 
 Setting VM on Openhouse
 ========================
@@ -116,7 +116,7 @@ This will be the ID used to log on the VM.
 Setup your access to the VM.
 
 - Wait for 15 minutes allowing the ID to be propagated through the system.
-- Refresh your ubkey as explained :ref:`Sec. <hadoop_team_getting_started_onboarding_checklist>`.
+- Refresh your ubkey as explained :numref:`getting_started_onboarding_checklist`.
 - Append the VM name to your ``~/.ssh/config`` as follows:
 
 
@@ -412,7 +412,7 @@ Pushing Changes and Pull Requests (PRs)
 =======================================
 
 - Remember to test your changes before creating a PR.
-  See Sec. :ref:`hadoop_team_core_code_testing` for a full guide on running
+  See :numref:`knowledge_testing` for a full guide on running
   Unit tests andtesting patches.
 
 - After you make your changes, it is recommended that you ``rebase`` (see below).
@@ -475,7 +475,7 @@ line to skip the slow signature checking.
 Making Changes on local Machine
 ================================
 
-.. _hadoop_team_getting_started_development_importing_into_ide:
+.. _getting_started_development_importing_into_ide:
 
 Importing Project into IDE
 --------------------------
@@ -584,7 +584,7 @@ Running test cases from IDE
 ---------------------------
 
 It is possible tun test cases from the IDE. However, this may not work all the time.
-Refer to :ref:`hadoop_team_general_testiong_code_run_in_ide`
+Refer to :numref:`knowledge_testing_code_run_in_ide`
 
 
 Running YHadoop (Single Node)
@@ -592,7 +592,7 @@ Running YHadoop (Single Node)
 
 The following steps works for both Linux and OS X.
 For OS X, make sure that you followed the steps of setting ``ssh localhost``
-in :ref:`on_boarding_mac_env_setup`.
+in :numref:`getting_started_on_boarding_mac_env_setup`.
 
 **Step1:**
 

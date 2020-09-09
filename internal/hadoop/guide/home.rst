@@ -153,8 +153,8 @@ Onboarding the Grid
 
 New team members
 	* Make sure you visit the links above first.
-	* visit the :ref:`New Members page <hadoop_team_getting_started_onboarding>` to get all the information about verizonmedia environment and the initial steps to set up your development machine.
-	* To start on yHadoop (internal hadoop development), visit :ref:`On-Boarding page <hadoop_team_getting_started_development>` and :ref:`Getting Started <hadoop_team_getting_started_development>`.
+	* visit the :ref:`New Members page <getting_started_onboarding>` to get all the information about verizonmedia environment and the initial steps to set up your development machine.
+	* To start on yHadoop (internal hadoop development), visit :ref:`On-Boarding page <getting_started_development>` and :ref:`Getting Started <getting_started_development>`.
 
 .. _community_hadoop:
 

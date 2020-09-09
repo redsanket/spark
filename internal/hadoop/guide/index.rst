@@ -14,56 +14,43 @@ Hadoop Documentation
 
    home
 
+
+-----------
+
 .. toctree::
    :caption: Team
    :numbered:
    :maxdepth: 4
 
-   team_organization/index
-   getting_started/index
-   oncall/index
-   releasing/index
-   projects/index
+   team/team_organization/index
+   team/getting_started/index
+   team/oncall/index
+   team/releasing/index
+   team/projects/index
 
+
+-----------
 
 .. toctree::
-   :caption: Mapreduce
+   :caption: Core
+   :maxdepth: 4
+
+   core/mapreduce/index
+   core/yarn/index
+   core/hdfs/index
+   core/security/index
+
+
+-----------
+
+.. toctree::
+   :caption: Knowledge Center
    :numbered:
    :maxdepth: 4
 
-   mapreduce/speculator/index
-   mapreduce/faq/index
-
-.. toctree::
-   :caption: YARN
-   :numbered:
-   :maxdepth: 4
-
-   yarn/overview
-   yarn/containers/index
-   yarn/runbook/index
-   yarn/troubleshooting/index
-
-.. toctree::
-   :caption: HDFS
-   :numbered:
-   :maxdepth: 4
-
-   hdfs/runbooks/index
-   hdfs/faq/index
-
-.. toctree::
-   :caption: Security
-   :numbered:
-   :maxdepth: 5
-
-   security/background/index
-   security/kms/index
-
-.. toctree::
-   :caption: General
-   :numbered:
-   :maxdepth: 4
-
-   knowledge_center/index
-   faq
+   knowledge_center/testing
+   knowledge_center/commands
+   knowledge_center/configurations
+   knowledge_center/metrics/index
+   knowledge_center/monitoring
+   knowledge_center/faq

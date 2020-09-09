@@ -1,4 +1,4 @@
-.. _hadoop_team_getting_started_onboarding:
+.. _getting_started_onboarding:
 
 ##########
 Onboarding
@@ -20,7 +20,7 @@ should have the following:
 3. a ``ubkey`` that you attach to the USB port
 4. Duo Mobile app installed on your phone
 
-.. _hadoop_team_getting_started_onboarding_resources:
+.. _getting_started_onboarding_resources:
 
 *********************
 Resources and Tools
@@ -138,7 +138,7 @@ Resources and Tools
 
       * CI/CD: `Grid CI Screwdriver V4 Cookbook <http://yo/gridci-sdv4-cookbook/>`_
 
-.. _hadoop_team_getting_started_onboarding_checklist:
+.. _getting_started_onboarding_checklist:
 
 *********************
 New-Members Checklist
@@ -277,7 +277,7 @@ Build and Run Hadoop
 Environment Setup
 -----------------
 
-Follow the steps in :ref:`hadoop_team_getting_started_development` to achieve the following goals.
+Follow the steps in :numref:`getting_started_development` to achieve the following goals.
 
 #. Setup machine for development (VM and OS X)
 #. Get Yahoo Hadoop code

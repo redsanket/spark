@@ -1,13 +1,20 @@
-.. _hadoop_team_kms_development:
+***********
+Development
+***********
 
-#########################################################
+
+Testing
+=======
+
+.. _security_kms_development_qe_testing:
+
 KMS QE Cluster Development Testing
-#########################################################
+----------------------------------
 
 Last Modified Date: Augest 28, 2020
 
 Steps:
----------------
+------
 0. Make sure KMS is deployed from y-branch-2.8 into QE clusters, or the deployment may cause conflicting dependency issues.
 1. In the node that runs namenode, find which node runs KMS by searching ``hadoop.security.key.provider.uris`` in ``/home/gs/conf/current/hdfs-server-site.xml``.
 2. In the node that runs KMS, run ``yinst ls yahoo_kms -files`` to find where KMS is installed in the cluster. In openqe178blue, configs are placed in ``/home/y/conf/kms``, jars (like kms.war) are placed in ``/home/y/libexec/webapps``, and logs are stored in ``/home/y/logs/yjava_jetty``, which includes:

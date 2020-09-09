@@ -1,8 +1,8 @@
-*************************************
-Testing, Debugging, & Troubleshooting
-*************************************
+************************************
+Testing, Debugging & Troubleshooting
+************************************
 
-.. _hadoop_team_core_code_testing:
+.. _knowledge_testing:
 
 Code Testing
 ============
@@ -78,18 +78,18 @@ git tree so stash changes using ``git stash`` before using ``test-patch``:
   in a txt file printed at the output.
 
 
-.. _hadoop_team_general_testiong_code_run_in_ide:
+.. _knowledge_testing_code_run_in_ide:
 
 Run tests from IDE
 ------------------
 
-If you have followed the instructions to import the project into the IDE (see :ref:`hadoop_team_getting_started_development_importing_into_ide`), then you should be also to debug and run test cases from the IDE.
+If you have followed the instructions to import the project into the IDE (see :ref:`getting_started_development_importing_into_ide`), then you should be also to debug and run test cases from the IDE.
 
-* Make sure that you build hadoop enabling ``shading``
+* Make sure that you build Hadoop enabling ``shading``
 * Run the UT at least once from the command line as described in previous section.
 * You can navigate recursively in modules to run the UT from the command line.
 * Run/Debug the UT from the IDE. If all the dependencies are available, the IDE will successfully debug and run the test.
-* If the IDE cannot find depencies, it will show an error `“package does not exist...``
+* If the IDE cannot find dependencies, it will show an error `"package does not exist..."`
 
 DeFlaker
 --------
