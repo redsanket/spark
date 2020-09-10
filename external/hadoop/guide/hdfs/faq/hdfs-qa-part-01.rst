@@ -16,7 +16,8 @@ specified in the source list.
 
     hadoop distcp
 
-For detailed desciption of usage and command line options, visit Apache Docs - :hadoop_rel_doc:`DistCp Guide <https://hadoop.apache.org/docs/r2.10.0/hadoop-distcp/DistCp.html>`.
+For detailed desciption of usage and command line options,
+visit Apache Docs - :hadoop_rel_doc:`DistCp Guide <hadoop-distcp/DistCp.html>`.
 
 .. important::
    
@@ -25,7 +26,7 @@ For detailed desciption of usage and command line options, visit Apache Docs - :
      may experience I/O bottlenecks.
    * You should no longer use ``hadoop -fs`` to access HDFS.
      Instead use ``hdfs dfs``.
-     See Apach Docs - :hadoop_rel_doc:`HDFS Commands Guide <hadoop-project-dist/hadoop-hdfs/HDFSCommands.html>`.
+     See Apache Docs - :hadoop_rel_doc:`HDFS Commands Guide <hadoop-project-dist/hadoop-hdfs/HDFSCommands.html>`.
    * When copying between same major versions of Hadoop cluster, use `hdfs`
      protocol. |br| For copying between two different major versions of Hadoop, one will
      usually use `WebHdfsFileSystem`.
@@ -36,7 +37,7 @@ a re-execution will be marked as “`skipped`”. |br|
 If a map fails "`mapreduce.map.maxattempts`" times, the remaining map tasks will be
 killed (unless `-i` is set). |br|
 If "`mapreduce.map.speculative`" is set to `final` and `true`, the result of the
-copy is `undefined`.
+copy is `unspecified`.
 
 
 .. rubric:: dfs command
@@ -59,8 +60,9 @@ The list of `COMMAND_OPTIONS` is defined in
 Apache Docs - :hadoop_rel_doc:`File System (FS) shell <hadoop-project-dist/hadoop-common/FileSystemShell.html>`
 
 
-How To Move Data In And Out of Hadoop
--------------------------------------
+How To Move Data In/Out of Hadoop
+---------------------------------
+
 .. code-block:: bash
 
    ## for VCG
@@ -84,8 +86,8 @@ How To Move Data In And Out of Hadoop
    ssh -A jet-gw.blue.ygrid.yahoo.com \
        "pkinit-user 1>&2 ; bash -l hadoop fs -cat mydir/myfile" > myfile
 
-How To get Data onto and Out of the Grid
-----------------------------------------
+How To Get Data Onto/Out-of The Grid
+------------------------------------
 
 There are a number of ways.
 Visit Bdml-guide - `GDM Cookbook <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`_
@@ -94,7 +96,7 @@ Copying files Within Same HDFS Cluster
 ---------------------------------------
 
 Use ``hdfs dfs`` command on the gateway machine with appropriate options mentioned below.
-For more information, see ``hdfs -h`` and visit 
+For more information, see ``hdfs -h``.
 
   .. code-block:: bash
 
@@ -121,7 +123,7 @@ A Simple HDFS Program
      # You can change permissions with the DFS command
      hdfs dfs -chmod 644 ./hadoop_tutorial/linux.words
 
-Copying Large Files between HDFS Clusters
+Copying Large Files Between HDFS Clusters
 -----------------------------------------
 
 **Usage:**
@@ -138,7 +140,7 @@ Copying Large Files between HDFS Clusters
             hdfs://clusterB-nn1.red.ygrid.yahoo.com:8020/user/$USER/hadoop_tutorial
 
 
-Copying files between HDFS and Object Stores
+Copying Files Between HDFS and Object Stores
 --------------------------------------------
 
 `DistCp` works with Object Stores such as: Amazon S3, Azure WASB and OpenStack Swift.
@@ -155,14 +157,14 @@ Copying files between HDFS and Object Stores
 
 See Bdml-guide - `On Prem vs. Public Cloud <https://git.vzbuilders.com/pages/developer/Bdml-guide/#moving-data-to-and-from-public-cloud-and-on-prem>`_
 
-Copying between HDFS and User machine Without Temp
+Copying Between HDFS and User Machine Without Temp
 --------------------------------------------------
 
 HDFS Proxy is the most common way of bringing data onto the grid or out of the
 grid.
 See `Bdml-guide - GDM Cookbook: When to Use HDFS Proxy <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#when-to-use-hdfs-proxy>`_
 
-Loading data between HDFS and other Products?
+Loading data between HDFS and other products?
 =============================================
 
 Check the following resources:
@@ -205,26 +207,27 @@ Java Program to Read and Write to HDFS?
    start writing data to. |br|
    As the client writes data, `DFSOutputStream` splits it into packets, which
    it writes to an internal queue, called the data queue. |br|
-   The data queue is consumed by the `DataStreamer`, whichI is responsible for
+   The data queue is consumed by the `DataStreamer`, which is responsible for
    asking the `namenode` to allocate new blocks by picking a list of suitable
    `datanodes` to store the replicas.
 #. The list of datanodes form a pipeline, and here we’ll assume the
    replication level is three, so there are three nodes in the pipeline. The
-   `DataStreame`r` streams the packets to the first datanode in the pipeline, which
+   `DataStreamer` streams the packets to the first datanode in the pipeline, which
    stores the packet and forwards it to the second datanode in the pipeline.
    Similarly, the second datanode stores the packet and forwards it to the third
-   (and last) datanode in the pipeline. Learn HDFS Data blocks in detail.
+   (and last) datanode in the pipeline.
+   (Learn :hadoop_rel_doc:`HDFS Data blocks in detail <hadoop-project-dist/hadoop-hdfs/HdfsDesign.html#Data_Blocks>`).
 #. `DFSOutputStream` also maintains an internal queue of packets that are
    waiting to be acknowledged by datanodes, called the ack queue. A packet is
    removed from the ack queue only when it has been acknowledged by the datanodes
    in the pipeline. `Datanode` sends the acknowledgment once required replicas are
    created (3 by default). Similarly, all the blocks are stored and replicated on
-   the different datanodes, the data blocks are copied in parallel.
+   the different datanodes; the data blocks are copied in parallel.
 #. When the client has finished writing data, it calls `close()` on the stream.
 #. This action flushes all the remaining packets to the datanode pipeline and
    waits for acknowledgments before contacting the namenode to signal that the
-   file is complete. The namenode already knows which blocks the file is made
-   up of, so it only has to wait for blocks to be minimally replicated before
+   file is complete. The namenode already knows which blocks compose the file,
+   so it only has to wait for blocks to be minimally replicated before
    returning successfully.      
 
 
@@ -234,15 +237,15 @@ Java Program to Read and Write to HDFS?
       :linenos:
 
 
-#. Client opens the file it wishes to read by calling `open()`` on the
+#. Client opens the file it wishes to read by calling `open()` on the
    `FileSystem` object, which for HDFS is an instance of `DistributedFileSystem`.
 #. `DistributedFileSystem` calls the `namenode` using RPC to
    determine the locations of the blocks for the first few blocks in the file.
    |br| For each block, the namenode returns the addresses of the datanodes that
-   have a copy of that block and datanode are sorted according to their
-   proximity to the client.
-#. `DistributedFileSystem` returns a `FSDataInputStream` to the client for
-   it to read data from. `FSDataInputStream`, thus, wraps the `DFSInputStream`
+   have a copy of that block and the datanode addresses are sorted according to
+   their proximity to the client.
+#. `DistributedFileSystem` returns a `FSDataInputStream` from which the
+   client may read data. `FSDataInputStream`, thus, wraps the `DFSInputStream`
    which manages the datanode and namenode I/O. |br|
    Client calls `read()` on the stream. |br|
    `DFSInputStream` which has stored the datanode addresses then connects to the
@@ -253,13 +256,13 @@ Java Program to Read and Write to HDFS?
    best datanode for the next block.
 #. If the `DFSInputStream` encounters an error while
    communicating with a datanode, it will try the next closest one for that block.
-   It will also remember datanodes that have failed so that it doesn’t
+   `DFSInputStream` will also remember datanodes that have failed so that it doesn't
    needlessly retry them for later blocks. |br|
-   The `DFSInputStream` also verifies checksums for the data transferred to it
-   from the datanode. If it finds a corrupt block, it reports this to the
-   namenode before the `DFSInputStream` attempts to read a replica of the block
-   from another datanode.
-#. When the client has finished reading the data, it calls `close()` on the stream.
+   The `DFSInputStream` also verifies checksums for the data received from
+   from the datanode. When a corrupt block is found, the `DFSInputStream` reports
+   this to the namenode before the `DFSInputStream` attempts to read a replica of
+   the block from another datanode.
+#. The client calls ``close()`` on the stream after finishing reading the data.
 
 
 How do I make my program's output data available to other users?
@@ -268,27 +271,28 @@ How do I make my program's output data available to other users?
 * By default, the files generated by map/reduce programs have permissions of 700.
   This means, the files that are produced are readable only to the user who ran
   the job. The reason for this is that, the default umask is 077.
-  Here's how you can overwrite it. Note that hadoop option only takes decimal.
+  The following example shows how to overwrite the default umask.
+  Note that the hadoop option only takes decimal.
 
   .. code-block:: bash
 
-    [knoguchi@gsgw1022 ~]$ printf "%d\n" 022
+    [u1@gsgw1022 ~]$ printf "%d\n" 022
      18
-    [knoguchi@gsgw1022 ~]$ hadoop dfs -D dfs.umask=18 -put test.txt /user/knoguchi
-    [knoguchi@gsgw1022 ~]$ hadoop dfs -ls /user/knoguchi/test.txt
+    [u1@gsgw1022 ~]$ hadoop dfs -D dfs.umask=18 -put test.txt /user/u1
+    [u1@gsgw1022 ~]$ hadoop dfs -ls /user/u1/test.txt
      Found 1 items
-    /user/knoguchi/test.txt <r 3>   524     2008-03-26 21:06        rw-r--r--       knoguchi        users
-    [knoguchi@gsgw1022 ~]$ hadoop dfs -D dfs.umask=18 -mkdir /user/knoguchi/testdir
-    [knoguchi@gsgw1022 ~]$ hadoop dfs -ls /user/knoguchi/ | grep testdir
-    /user/knoguchi/testdir  <dir>           2008-03-26 21:07        rwxr-xr-x       knoguchi        users
+    /user/u1/test.txt <r 3>   524     2008-03-26 21:06        rw-r--r--       u1        users
+    [u1@gsgw1022 ~]$ hadoop dfs -D dfs.umask=18 -mkdir /user/u1/testdir
+    [u1@gsgw1022 ~]$ hadoop dfs -ls /user/u1/ | grep testdir
+    /user/u1/testdir  <dir>           2008-03-26 21:07        rwxr-xr-x       u1        users
 
 * For mapred job,
 
   .. code-block:: bash
 
-    [knoguchi@gsgw1022 ~]$ hadoop --config confdir job -D dfs.umask=18 submit ...
+    [u1@gsgw1022 ~]$ hadoop --config confdir job -D dfs.umask=18 submit ...
     # OR
-    [knoguchi@gsgw1022 ~]$ hadoop jar <jarfile> -Ddfs.umask=18 -Dmapred.job.queue.name=___ ...
+    [u1@gsgw1022 ~]$ hadoop jar <jarfile> -Ddfs.umask=18 -Dmapred.job.queue.name=___ ...
 
 .. note:: If this is to be data shared regularly, the data should really get moved
    to a ``/project`` directory and not stored in any particular user's home directory.

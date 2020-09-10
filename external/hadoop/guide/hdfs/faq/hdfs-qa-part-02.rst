@@ -80,3 +80,32 @@ following configuration ``fs.permissions.umask-mode`` makes all files readable
 and writeable.
 
 For more details, see Apache Docs - :hadoop_rel_doc:`HDFS Permissions Guide <hadoop-project-dist/hadoop-hdfs/HdfsPermissionsGuide.html>`
+
+
+Encryption Zones
+================
+
+How do encryptions zones affect GDM copies?
+-------------------------------------------
+
+* GDM understands encryption zones and for the most part makes it completely
+  transparent to users. 
+* Copying data from EZA to EZB is possible but required paranoid approval.
+  This should be extremely rare and should only be utilized when absolutely required.
+* GDM cannot copy from an encrypted directory to an unencrypted directory.
+  Always encrypt the leaves of any GDM copies first.
+* If you have questions regarding GDM and EZs, please contact `#gdm-users` during
+  business hours US Central time.
+
+How do encryption zones affect distcp?
+-------------------------------------------
+
+* Because data encryption keys are generated when a file is being created,
+  copying the same file from one location to another will result in two files
+  that are NOT comparable in their encrypted form.
+  Their HDFS checksums are different, and they would fail to cmp.
+* So, when copying files using `distcp`,
+  add the following option ``-skipcrccheck -update``. This will instruct distcp
+  to NOT perform a crc check after copying files. 
+  
+

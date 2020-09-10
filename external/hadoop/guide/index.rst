@@ -45,6 +45,7 @@ Hadoop User Guide
    :maxdepth: 4
 
    hdfs/home
+   hdfs/encryption-zones.rst
    hdfs/faq/index
 
 .. toctree::
