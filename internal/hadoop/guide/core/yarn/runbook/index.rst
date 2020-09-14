@@ -13,3 +13,4 @@ need to carry-out. A good resource for the How-Tos.
   :maxdepth: 2
   
   rm-failover
+  queue-operations
