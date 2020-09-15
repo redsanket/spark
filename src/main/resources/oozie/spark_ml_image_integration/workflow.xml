@@ -18,7 +18,7 @@
             <mode>cluster</mode>
             <name>SparkRhel7MLImageIntegration</name>
             <jar>test_mlbundle_cpu_image.py</jar>
-            <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=ml/rhel7_mlbundle:current</spark-opts>
+	    <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=${rhel7_mlbundle}</spark-opts>
         </spark>
         <ok to="SparkRhel8MLImageIntegration" />
         <error to="fail" />
@@ -36,7 +36,7 @@
             <mode>cluster</mode>
             <name>SparkRhel8MLImageIntegration</name>
             <jar>test_mlbundle_cpu_image.py</jar>
-            <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=ml/rhel8_mlbundle:test --conf spark.driver.extraClassPath=${extraClassPath} --conf spark.executor.extraClassPath=${extraClassPath}</spark-opts>
+	    <spark-opts>--driver-memory 20g --executor-memory 3g --executor-cores 1 --queue default --conf spark.oath.dockerImage=${rhel8_mlbundle} --conf spark.driver.extraClassPath=${extraClassPath} --conf spark.executor.extraClassPath=${extraClassPath}</spark-opts>
         </spark>
         <ok to="end" />
         <error to="fail" />
