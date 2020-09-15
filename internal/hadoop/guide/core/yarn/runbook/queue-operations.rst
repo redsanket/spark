@@ -1,18 +1,23 @@
 ..  _yarn_runbook_queue-operations:
 
-Deleting, Renaming, and Moving Queues
-=====================================
+Deleting, Renaming, and Moving Queues |nbsp| |green-badge|
+==========================================================
 
 In Hadoop 2.10, you can `rename`, `delete`, or `move` a queue *without*
 restarting the resource manager.
 
 
-All of these procedures requires first putting the specified queue in the
+Each of these procedures require first putting the specified queue in the
 ``STOPPED`` state:
 
 - Edit the `capacity-scheduler` xml file that contains the queue configs for the
   specified queue and change the value of
   ``yarn.scheduler.capacity.<QUEUEPATH>.state`` to ``STOPPED``.
+
+  .. code-block:: bash
+  
+     yarn rmadmin -refreshQueues
+     
 - Wait for the queue to drain.
   
   - While the queue is draining, it will be in the ``DRAINING`` state in the UI.
@@ -23,7 +28,7 @@ Rename
 ------
 
 - Put the queue in the ``STOPPPED`` state (see above).
-- In the capacity scheduler xml file that contains the queue configs for the
+- In the `capacity-scheduler` xml file that contains the queue configs for the
   specified queue, rename every instance of the queue to the new name.
 - Refresh the capacity scheduler queues:
   
@@ -31,12 +36,14 @@ Rename
   
      yarn rmadmin -refreshQueues
 
+see :ref:`yarn_runbook_queue-operations`
+
 
 Delete
 ------
 
 - Put the queue in the ``STOPPPED`` state (see above).
-- In the capacity scheduler xml file that contains the queue configs for the
+- In the `capacity-scheduler` xml file that contains the queue configs for the
   specified queue, delete all properties with ``<QUEUEPATH>`` in the name.
 - Delete the queue name from the list in the
   ``yarn.scheduler.capacity.<PARENTQUEUEPATH>.queues`` property.

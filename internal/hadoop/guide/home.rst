@@ -82,6 +82,7 @@ Sphinx Guides
 - `Restructured Text and Sphinx CheatSheet <https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#inline-markup-and-special-characters-e-g-bold-italic-verbatim>`_
 - `Roles guide <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html>`_
 - `Directives Guide <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html>`_
+- `Read the Docs: Documentation Simplified <https://docs.readthedocs.io/en/stable/>`_
 - Headers style:
 
   .. code-block:: rst

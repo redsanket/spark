@@ -1,7 +1,7 @@
 ..  _yarn_troubleshooting_rm-failover:
 
-ResourceManager Failover
-========================
+ResourceManager Failover |nbsp| |green-badge|
+=============================================
 
 This section documents the process for failing over to a new ResourceManager
 node when the daemons are using the leveldb state store databases.  Each section

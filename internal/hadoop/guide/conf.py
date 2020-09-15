@@ -225,6 +225,12 @@ rst_prolog = """
 .. |uncheck_| raw:: html
 
     <input disabled="" type="checkbox">
+
+.. |green-badge| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
+.. |red-badge| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg
+.. |yellow-badge| image:: https://assets.readthedocs.org/static/projects/badges/unknown-flat.svg
+.. |nbsp| unicode:: 0xA0
+   :trim:
 """
 
 
