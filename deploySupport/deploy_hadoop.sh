@@ -231,6 +231,7 @@ rm -f *.tgz > /dev/null 2>&1
 banner "Make sure there is sufficient disk space before installation"
 set -x
 DU_THRESHOLD=${DU_THRESHOLD:=80}
+set +x
 # Proceed only if DU_THRESHOLD is a number between 0 and 100
 if [[ "$DU_THRESHOLD" =~ ^[0-9]+$ ]] && [[ $DU_THRESHOLD -lt 100 ]] && [[ $DU_THRESHOLD -gt 0 ]] ; then
     banner "Make sure there is sufficient disk space before installation: Use% should be less than threshold of ${DU_THRESHOLD}% "
@@ -250,6 +251,8 @@ fi
 # Make sure rocl is installed on all nodes
 banner "Make sure rocl is installed on all the nodes"
 set -x
+whoami
+env|grep SSH_AUTH_SOCK
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
 /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'if [ ! -x /home/y/bin/rocl ]; then yinst install -br test -yes rocl; fi'
 RC=$?
