@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# hudson startslave script
-# 	The first script called by Hudson. It massages the arguments
-# 	given, then creates a yinst-package of the scripts needed (by
-# 	calling yinstify.sh), then copies that package to the destination
-# 	machine and runs it, which runs installgrid.sh on ADMIN_HOST.
+# This is the top level script called by the Jenkin's job for hadoop deployment.
 
 # Set the CLUSTER value using the first command line argument if it is passed in.
 # Otherwise, CLUSTER will default to the environment variable value.
@@ -16,31 +12,29 @@ fi
 # Remove spaces in cluster name
 CLUSTER=`echo $CLUSTER|tr -d ' '`
 
+# Set DEBUG to 0 if not defined via the environment
+DEBUG=${DEBUG:=0}
+
 case "$CLUSTER" in
    *Fill*in*your*cluster*)
-      echo ====================================================
-      echo ERROR: CLUSTER was not defined.  Exiting.
-      echo Please make sure you specify CLUSTER from hudson UI
-      echo ====================================================
+      echo "ERROR: Required CLUSTER value is not defined.  Exiting!!!"
       exit 1
       ;;
    open*)
-      export scriptnames=openstacklargedisk
-      export confpkg=HadoopConfig${scriptnames}
+      export confpkg=HadoopConfigopenstacklargedisk
       export localconfpkg=hadooplocalconfigsopenstacklarge
       ;;
-   dense*)
-      export scriptnames=generic10node12disk
-      export confpkg=HadoopConfig${scriptnames}blue
-      export localnames=12disk
-      export localconfpkg=hadooplocalconfigs
-      ;;
    *)
-      export scriptnames=generic10node
-      export confpkg=HadoopConfig${scriptnames}blue
+      export confpkg=HadoopConfiggeneric10nodeblue
       export localconfpkg=hadooplocalconfigs
       ;;
 esac
+
+# Check for other required parameters
+if [ -z "$HADOOP_RELEASE_TAG" ]; then
+    echo "ERROR: Required HADOOP_RELEASE_TAG value is not defined.  Exiting!!!"
+    exit 1
+fi
 
 export PATH=$PATH:/home/y/bin64:/home/y/bin:/usr/bin:/usr/local/bin:/bin:/sroot:/sbin
 export DATESTRING=`date +%y%m%d%H%M`
@@ -49,23 +43,18 @@ set -o pipefail
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 source $SCRIPT_DIR/setenv.sh
 
-banner "Starting Hudson-driven deployment job for cluster '$CLUSTER' from `hostname`"
+banner "Starting Hadoop deployment job for cluster '$CLUSTER' from `hostname`"
 echo "PATH = '$PATH'"
 
-# Setup and cleanup artifacts directory
+# show environment variables
+[ $DEBUG ] && /bin/env
+
+# Setup a new artifacts directory
 artifacts_dir="${WORKSPACE}/artifacts"
-if [[ -d $artifacts_dir ]]; then
-    rm -rf $artifacts_dir
-fi
+[ -d $artifacts_dir ] && rm -rf $artifacts_dir
 mkdir -p $artifacts_dir
 
-# echo environment follows:
-# /bin/env
 cd deploySupport
-
-# 	From above:  "It massages the arguments given"
-#
-# Note that we might add one additional thing: a choice-list.
 
 [ -z "$LOCAL_CONFIG_PKG_NAME" ] && export LOCAL_CONFIG_PKG_NAME=$localconfpkg
 
@@ -76,13 +65,10 @@ cd deploySupport
 # The '&ls=1' is the part that takes a very long time.
 # So we will curl the content directly ourselves.
 
-#cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
-#note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
-#DIST_TAG_LIST=`eval "$cmd"`
+# cmd="dist_tag list $HADOOP_RELEASE_TAG -timeout 300 -os rhel"
 cmd="curl \"http://edge.dist.corp.yahoo.com:8000/dist_get_tag?t=${HADOOP_RELEASE_TAG}&os=rhel&q=1\"|cut -d' ' -f2- | sed 's/ /-/'"
 note "Process dist tag '$HADOOP_RELEASE_TAG': $cmd"
 DIST_TAG_LIST=`eval "$cmd"`
-sleep 60
 if [[ $? != "0" ]] || [[ -z $DIST_TAG_LIST ]]; then
     echo "ERROR: dist_tag list '$HADOOP_RELEASE_TAG' failed: '$DIST_TAG_LIST'; Exiting!!!"
     exit 1;
@@ -108,8 +94,7 @@ HADOOP_CORE_PKGS="hadoopgplcompression ytez_yarn_shuffle"
 # For stack component deploys, make sure we have tools to talk to artifactory.
 # We also dertermine the yspark_yarn_shuffle version using artifactory.
 yinst i hadoop_releases_utils
-RC=$?
-if [ $RC -ne 0 ]; then
+if [ $? -ne 0 ]; then
   echo "Error: failed to install hadoop_releases_utils!"
   exit 1
 fi
@@ -148,112 +133,57 @@ HADOOP_MVN_INSTALL_STRING_PKG=''
 # need rhel7 compatible flavor of jdk
 JDK_QEDEFAULT=yjava_jdk-8.0_8u232b09.2641196
 
-if [ -n "$HADOOP_RELEASE_TAG" ]; then
-    for i in $HADOOP_CORE_PKGS; do
+for i in $HADOOP_CORE_PKGS; do
+    HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
+    HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
+done
 
-        HADOOP_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
-        HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
-
-    done
-
-    # gridci-1557, make jdk8 u102 the 'qedefault', so changing YJAVA_JDK_VERSION behavior to be:
-    #              if param empty OR 'qedefault', use u102
-    #              elif param has 'disttag', use Dist tagged pkg
-    #              else use the version sent in from jenkins
-    # gridci-1465, allow testing yjava_jdk version 8u102
-    if [[ $YJAVA_JDK_VERSION == "qedefault"  ]]; then
-      echo "Using yjava_jdk $JDK_QEDEFAULT"
-      HADOOP_INSTALL_STRING+=" $JDK_QEDEFAULT"
-    elif [[ $YJAVA_JDK_VERSION != "disttag" ]]; then 
-      # use arbitrary jdk version sent in from jenkins
-      echo "Using yjava_jdk $YJAVA_JDK_VERSION"
-      # note: can't use '^', jenkins is inserting some chars in front of the choice list item
-      if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-8" ]]; then
-        HADOOP_INSTALL_STRING+=" $YJAVA_JDK_VERSION"
-      else
-        echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-8, got: $YJAVA_JDK_VERSION"
-        exit 1
-      fi
-    # if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
-    # set earlier and has already been added to HADOOP_CORE_PKGS
-    fi
-  
-    # explicitly set coretree and hadoopCommonsDaemon for rhel7
-    # must do this to get the rhel7 compat version on test branch
-    # Again, rhel6 installs should be good with this
-    HADOOP_INSTALL_STRING+=" hadoopcoretree-$FULLHADOOPVERSION hadoopCommonsDaemon "
-
-    if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
-        HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
-    fi
-
-    # gridci-1566, remove the unneeded "|sed 's/ *//'" from below 'echo', this does 
-    # nothing and 'echo' itself reduces whitespace
-    HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
-    export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
-
-    for i in $HADOOP_MVN_PKGS; do
-        HADOOP_MVN_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
-        HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
-    done
-    HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING`
-    export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
-
-    export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
-    export HADOOP_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $confpkg-[^\ ]*`
-    export LOCAL_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $LOCAL_CONFIG_PKG_NAME-[^\ ]*`
-else
-    if [ -n "$HIT_DEPLOYMENT_TAG" ]; then
-        echo "Error: You have to select a dist tag for deployment!!"
-        exit 1
-    else
-        # if HIT_DEPLOYMENT_TAG is provided from hudson UI, we will install all the following pkgs
-        # included in the $HIT_DEPLOYMENT_TAG
-        # - gridjdk
-        # - gridjdk64
-        # - hadoopcoretree
-        # - HadoopConfiggeneric10nodeblue
-        # - HadoopConfiggeneric500nodeblue
-        cmd="dist_tag list $HIT_DEPLOYMENT_TAG"
-        echo "`date +%H:%M:%S`: $cmd"
-        HIT_DIST_TAG_LIST=`eval "$cmd"`
-        if [[ $? != "0" ]];then
-            echo "ERROR: dist_tag list '$HIT_DEPLOYMENT_TAG' failed: '$HIT_DIST_TAG_LIST'; Exiting!!!"
-            exit 1;
-        fi
-
-        export HADOOP_CONFIG_INSTALL_STRING=`/home/y/bin/dist_tag list $HIT_DEPLOYMENT_TAG |grep $confpkg-`
-        for i in $HADOOP_CORE_PKGS; do
-            HADOOP_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
-            HADOOP_INSTALL_STRING+=" $HADOOP_INSTALL_STRING_PKG"
-        done
-
-        if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
-            HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
-        fi
-
-        HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
-        export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
-
-        for i in $HADOOP_MVN_PKGS; do
-            HADOOP_MVN_INSTALL_STRING_PKG=`echo $HIT_DIST_TAG_LIST|grep -o $i-[^\ ]*`
-            HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
-        done
-        HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING`
-        export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
-
-        export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
-        export LOCAL_CONFIG_INSTALL_STRING=`echo $HIT_DIST_TAG_LIST | grep -o $LOCAL_CONFIG_PKG_NAME-[^\ ]*`
-
-        # now constructing the following variables based on HIT_DEPLOYMENT_TAG
-        perl retrieveHitPkgFromTag.pl
-        if [ $? = 0 ]; then
-            . exportHITpkgs.sh
-        else
-            echo "Error: cannot construct hadoop service pkg string from HIT_DEPLOYMENT_TAG=$HIT_DEPLOYMENT_TAG"
-        fi
-    fi
+# gridci-1557, make jdk8 u102 the 'qedefault', so changing YJAVA_JDK_VERSION behavior to be:
+#              if param empty OR 'qedefault', use u102
+#              elif param has 'disttag', use Dist tagged pkg
+#              else use the version sent in from jenkins
+# gridci-1465, allow testing yjava_jdk version 8u102
+if [[ $YJAVA_JDK_VERSION == "qedefault"  ]]; then
+  echo "Using yjava_jdk $JDK_QEDEFAULT"
+  HADOOP_INSTALL_STRING+=" $JDK_QEDEFAULT"
+elif [[ $YJAVA_JDK_VERSION != "disttag" ]]; then 
+  # use arbitrary jdk version sent in from jenkins
+  echo "Using yjava_jdk $YJAVA_JDK_VERSION"
+  # note: can't use '^', jenkins is inserting some chars in front of the choice list item
+  if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-8" ]]; then
+    HADOOP_INSTALL_STRING+=" $YJAVA_JDK_VERSION"
+  else
+    echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-8, got: $YJAVA_JDK_VERSION"
+    exit 1
+  fi
+# if neither qedefault or an arbitrary jdk was sent in, the base pkg 'yjava_jdk' was
+# set earlier and has already been added to HADOOP_CORE_PKGS
 fi
+
+# explicitly set coretree and hadoopCommonsDaemon for rhel7
+# must do this to get the rhel7 compat version on test branch
+# Again, rhel6 installs should be good with this
+HADOOP_INSTALL_STRING+=" hadoopcoretree-$FULLHADOOPVERSION hadoopCommonsDaemon "
+
+if [ -n "$SPARK_SHUFFLE_VERSION" ]; then
+    HADOOP_INSTALL_STRING+=" yspark_yarn_shuffle-$SPARK_SHUFFLE_VERSION"
+fi
+
+# gridci-1566, remove the unneeded "|sed 's/ *//'" from below 'echo', this does 
+# nothing and 'echo' itself reduces whitespace
+HADOOP_INSTALL_STRING=`echo $HADOOP_INSTALL_STRING`
+export HADOOP_INSTALL_STRING=$HADOOP_INSTALL_STRING
+
+for i in $HADOOP_MVN_PKGS; do
+    HADOOP_MVN_INSTALL_STRING_PKG=`echo $DIST_TAG_LIST|grep -o $i-[^\ ]*`
+    HADOOP_MVN_INSTALL_STRING+=" $HADOOP_MVN_INSTALL_STRING_PKG"
+done
+HADOOP_MVN_INSTALL_STRING=`echo $HADOOP_MVN_INSTALL_STRING`
+export HADOOP_MVN_INSTALL_STRING=$HADOOP_MVN_INSTALL_STRING
+
+export HADOOP_CORETREE_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]*`
+export HADOOP_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $confpkg-[^\ ]*`
+export LOCAL_CONFIG_INSTALL_STRING=`echo $DIST_TAG_LIST | grep -o $LOCAL_CONFIG_PKG_NAME-[^\ ]*`
 
 note "Process dist tags for any applicable components..."
 if [ -n "$TEZ_DIST_TAG" ]; then
@@ -294,8 +224,7 @@ echo "===  Requested MVN pkgs='$HADOOP_MVN_INSTALL_STRING'"
 echo "==="
 export RUNSIMPLETEST=true
 
-#		side note: this removes any leftover cruft from a previous run. Hudson does not start 'clean'.
-
+# side note: this removes any leftover cruft from a previous run. Hudson does not start 'clean'.
 rm -f *.tgz > /dev/null 2>&1
 
 # Make sure there is sufficient disk space before we install
@@ -330,7 +259,7 @@ if [[ $RC -ne 0 ]]; then
     exit 1
 fi
 
-#		default values, if not set by a Hudson/user environment variable.
+# Default values, if not set by a Hudson/user environment variable.
 [ -z "$ADMIN_HOST" ] && export ADMIN_HOST=devadm102.blue.ygrid.yahoo.com
 [ -z "$CLUSTER" ] && export CLUSTER=none
 [ -z "$JOB_NAME" ] && export JOB_NAME=none
@@ -357,8 +286,7 @@ fi
 [ -z "$STARTYARN" ] && export STARTYARN=true
 [ -z "$CONFIGUREJOBTRACKER" ] && export CONFIGUREJOBTRACKER=true
 CLUSTER_LIST="monsters hbasedev"
-for i in $CLUSTER_LIST
-do
+for i in $CLUSTER_LIST; do
     if [ $i = $CLUSTER ]; then
         export CONFIGUREJOBTRACKER=false
         export STARTYARN=false
@@ -369,16 +297,13 @@ done
 [ -z "$USE_DEFAULT_QUEUE_CONFIG" ] && export USE_DEFAULT_QUEUE_CONFIG=true
 [ -z "$ENABLE_HA" ] && export ENABLE_HA=false
 [ -z "$ENABLE_KMS" ] && export ENABLE_KMS=true
-
 [ -z "$STARTNAMENODE" ] && export STARTNAMENODE=true
 [ -z "$INSTALLLOCALSAVE" ] && export INSTALLLOCALSAVE=true
-
 [ -z "HIT_DEPLOY" ] && export HIT_DEPLOY=false
 [ -z "KEEP_HIT_YROOT" ] && export KEEP_HIT_YROOT=false
 [ -z "$HITVERSION" ] && export HITVERSION=none
 [ -z "$INSTALL_HIT_TEST_PACKAGES" ] && export INSTALL_HIT_TEST_PACKAGES=false
 [ -z "$EXCLUDE_HIT_TESTS" ] && export EXCLUDE_HIT_TESTS=none
-[ -z "$RUN_HIT_TESTS" ] && export RUN_HIT_TESTS=false
 [ -z "$INSTALL_TEZ" ] && export INSTALL_TEZ=false
 [ -z "$TEZ_QUEUE" ] && export TEZ_QUEUE=default
 [ -z "$TEZVERSION" ] && export TEZVERSION=none
@@ -518,48 +443,7 @@ echo "$BUILD_DESC"
 # RUN THE INSTALL SCRIPT ON THE ADM HOST
 # From above: "then copies that package to the destination machine and runs it..."
 #################################################################################
-banner "Create and setup Hadoop Grid Rollout package hadoopgridrollout"
-export DATESTRING=`date +%y%m%d%H%M`
-# GRIDCI-426: component name cannot exceed 10 characters.
-component=${CLUSTER:0:10}
-set -x
-sh yinstify.sh  -v 0.0.1.${component}.$DATESTRING
-set +x
-filelist=`ls  *.${component}.*.tgz`
-set -x
-$SCP $filelist  $ADMIN_HOST:/tmp/
-set +x
-
-banner "Install and start the Hadoop Grid Rollout package hadoopgridrollout on the admin box to commence deployment as root"
-# Install and start the deployment package on the adm admin box to commence
-# deployment as root.
-#
-# adding 'force' to workaround yinst auto adding os requires directive for rhel-6
-
-ADMIN_WORKSPACE="/tmp/deployjobs/deploys.$CLUSTER/yroot.$DATESTRING"
-set -x
-$SSH $ADMIN_HOST "\
-cd /tmp/ && /usr/local/bin/yinst install  -br test  -root $ADMIN_WORKSPACE -yes /tmp/$filelist; \
-yinst set -root $ADMIN_WORKSPACE root.propagate_start_failures=1; \
-/usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout \
-"
-st=$?
-set +x
-echo "Running ssh $ADMIN_HOST /usr/local/bin/yinst start -root $ADMIN_WORKSPACE hadoopgridrollout status: $st"
-if [ $st -ne 0 ]
-then
-    echo "Exit on non-zero yinst exit status: $st"
-    exit $st
-fi
-
-# Clean up hadoopgridrollout
-CLEANUP_ON_EXIT=${CLEANUP_ON_EXIT:="true"}
-if [ "$CLEANUP_ON_EXIT" = "true" ]; then
-    (
-        echo "/usr/local/bin/yinst  remove -all -live -root $ADMIN_WORKSPACE hadoopgridrollout"
-        echo "cd /tmp && rm -rf $filelist"
-    )| ssh $ADMIN_HOST
-fi
+exit
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
@@ -679,28 +563,6 @@ deploy_spark
 deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 
 fetch_artifacts
-
-# Copy HIT test results back if there is any
-if [ $RUN_HIT_TESTS = "true" ]; then
-    echo "Clean up workspace and remove old HIT test results from previous runs.."
-    set -e
-    set -x
-    rm -rf ${WORKSPACE}/hit_results
-    mkdir -p ${WORKSPACE}/hit_results
-    $SCP -r $ADMIN_HOST:/grid/0/tmp/${CLUSTER}.${DATESTRING} ${WORKSPACE}/hit_results/
-    case "$MAILTO" in
-        none)
-            echo "Skip HIT deployment notification email..."
-            ;;
-        *yahoo-inc*)
-            echo "Sending HIT deployment notification email to $MAILTO now ..."
-            perl HITEmailReport.pl --mailto="$MAILTO"
-            ;;
-        *)
-            echo "Ignore HIT deployment notification because $MAILTO does not seem to be valid...."
-            ;;
-    esac
-fi
 
 # Review: note that the exit-status of the deploy is indeterminate, and seems to reflect the success of that final 'yinst-remove'.
 exit $?

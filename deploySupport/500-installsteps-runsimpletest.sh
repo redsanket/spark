@@ -38,7 +38,6 @@ set -x
 ssh $gateway "su - hadoopqa -c '\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome && \
-export HADOOP_27=$HADOOP_27 && \
 export HOMEDIR=$HOMEDIR && \
 set -o pipefail && \
 sh /tmp/${cluster}-${testname} \

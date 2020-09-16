@@ -11,11 +11,7 @@ export TEZ_HOME=/home/gs/tez/current
 # workaround for OpenStack
 export PATH=$PATH:/home/gs/current/bin
 
-if [[ "$HADOOP_27" == "true" ]]; then
-    JAVA_HOME="$GSHOME/java/jdk64/current"
-else
-    JAVA_HOME="$GSHOME/java/jdk"
-fi
+JAVA_HOME="$GSHOME/java/jdk64/current"
 
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
      export TEZ_HOME=/home/gs/tez/current ; \

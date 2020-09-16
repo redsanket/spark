@@ -55,9 +55,7 @@ if [ $CMD == "start" ]; then
            # "-nonInteractive" will make it bail out if there is existing data in the shared dir.
            $HADOOP_HDFS_HOME/bin/hdfs namenode -initializeSharedEdits -nonInteractive
     fi
-    if [[ "$HADOOP_27" == "true" ]]; then
-        nameStartOpt="-upgrade $nameStartOpt"
-    fi
+    nameStartOpt="-upgrade $nameStartOpt"
 
 
     if [[ "$HADOOPVERSION" =~ ^3. ]]; then

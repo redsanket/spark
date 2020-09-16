@@ -87,7 +87,6 @@ GDM_TEST_PKG \
 GRIDJDK_VERSION \
 HADOOPCORE_TEST_PKG \
 HADOOPVERSION \
-HADOOP_27 \
 HADOOP_CONFIG_INSTALL_STRING \
 HADOOP_CORETREE_INSTALL_STRING \
 HADOOP_INSTALL_STRING \
@@ -164,14 +163,12 @@ YINSTSELFUPDATE \
 ZOOKEEPERVERSION \
 "
 
-        if [[ "$HADOOP_27" == "true" ]]; then
-            allfields="$allfields \
+        allfields="$allfields \
 GDM_PKG_NAME \
 HIT_DEPLOY \
 KEEP_HIT_YROOT \
 TEZ_QUEUE \
 "
-        fi
 
 	for i in $allfields
 	do
