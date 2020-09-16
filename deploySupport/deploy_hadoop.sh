@@ -255,10 +255,9 @@ whoami
 env|grep SSH_AUTH_SOCK
 set +x
 
-set -x
 # TODO: Not sure hadoopqa doesn't pick this up automatically from its shell
+echo "source /home/hadoopqa/.bashrc"
 source /home/hadoopqa/.bashrc
-set +x
 
 set -x
 env|grep SSH_AUTH_SOCK
@@ -458,7 +457,8 @@ echo "$BUILD_DESC" > $artifacts_dir/timeline.log
 #################################################################################
 # From installgrid.sh
 #################################################################################
-base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
+# base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
+base=$SCRIPT_DIR
 .  ${base}/000-shellfunctions.sh
 
 # Install Tez if enabled
