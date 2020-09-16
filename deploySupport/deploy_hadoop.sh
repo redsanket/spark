@@ -253,6 +253,8 @@ banner "Make sure rocl is installed on all the nodes"
 set -x
 whoami
 env|grep SSH_AUTH_SOCK
+source /home/hadoopqa/.bashrc
+env|grep SSH_AUTH_SOCK
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
 /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'if [ ! -x /home/y/bin/rocl ]; then yinst install -br test -yes rocl; fi'
 RC=$?
