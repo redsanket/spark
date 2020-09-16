@@ -253,7 +253,10 @@ banner "Make sure rocl is installed on all the nodes"
 set -x
 whoami
 env|grep SSH_AUTH_SOCK
+set +x
+
 source /home/hadoopqa/.bashrc
+set -x
 env|grep SSH_AUTH_SOCK
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
 /home/y/bin/pdsh -S -r @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway 'if [ ! -x /home/y/bin/rocl ]; then yinst install -br test -yes rocl; fi'
@@ -441,13 +444,12 @@ function error_handler {
 }
 trap 'error_handler ${LINENO}' ERR
 
+#################################################################################
+# Deploy Hadoop
+#################################################################################
 export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
 echo "$BUILD_DESC"
-
-#################################################################################
-# RUN THE INSTALL SCRIPT ON THE ADM HOST
-# From above: "then copies that package to the destination machine and runs it..."
-#################################################################################
+echo "$BUILD_DESC" > $artifacts_dir/timeline.log
 exit
 
 #################################################################################
