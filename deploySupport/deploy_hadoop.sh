@@ -255,7 +255,11 @@ whoami
 env|grep SSH_AUTH_SOCK
 set +x
 
+set -x
+# TODO: Not sure hadoopqa doesn't pick this up automatically from its shell
 source /home/hadoopqa/.bashrc
+set +x
+
 set -x
 env|grep SSH_AUTH_SOCK
 PDSH_SSH_ARGS_APPEND="$SSH_OPT" \
@@ -450,7 +454,113 @@ trap 'error_handler ${LINENO}' ERR
 export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
 echo "$BUILD_DESC"
 echo "$BUILD_DESC" > $artifacts_dir/timeline.log
-exit
+
+#################################################################################
+# From installgrid.sh
+#################################################################################
+base=${YINST_ROOT}/conf/hadoop/hadoopAutomation
+.  ${base}/000-shellfunctions.sh
+
+# Install Tez if enabled
+if [[ "${INSTALL_TEZ}" == only ]]; then
+    file=${base}/229-installsteps-installTez.sh
+    banner running $file
+    . "$file"
+    st=$?
+    echo "Running $file Status: $st"
+    if [ "$EXIT_ON_ERROR" = "true" ]; then
+        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $file "': Exit $st <<<<<<<<<<" && exit $st
+    else
+       [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $file "' <<<<<<<<<<"
+    fi
+    ## After successful Tez installation, run wordcount for sanity test
+    f=${base}/258-installsteps-runTezWordCount.sh
+    banner running $file
+    . "$file"
+    st=$?
+    echo "Running $file Status: $st"
+    [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running Tez Wordcount example '" $file "' <<<<<<<<<<"
+    exit $st
+fi
+
+# Be careful not to name any variable in any downstream scripts with the name
+# $script because it will override the $script variable here.
+# for script in ${base}/[0-9][0-9]*-installsteps-*.sh
+# Skip over HIT tests. HIT tests are not being run anymore.
+for script in ${base}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
+  if [[  -e $script ]]; then
+    script_basename=`basename $script`
+    current_step=`echo $script_basename|cut -d'-' -f1|bc`
+    if [[ $current_step -lt $START_STEP ]];then
+       echo "SKIP deploy script: ${script_basename}: less than starting step '$START_STEP'"
+       continue;
+    fi
+
+    # HIT tests are not being run anymore.
+    # if [[ $script_basename =~ "-HIT-" ]]; then
+    #     if ([[ $RUN_HIT_TESTS == "false" ]] && [[ $INSTALL_HIT_TEST_PACKAGES == "false" ]]); then
+    #         echo "RUN_HIT_TESTS and INSTALL_HIT_TEST_PACKAGES are false: SKIP HIT deployment script: $script"
+    #         continue
+    #     fi
+    # fi
+
+    #banner running $f
+    set +x
+    sleep 1
+    banner2 "START INSTALL STEP #$index: $script_basename" "Called from $hostname:$pwd/installgrid.sh as $whoami"
+
+    start=`date +%s`
+    h_start=`date +%Y/%m/%d-%H:%M:%S`
+
+    # For general shutdown and cleanup scripts, temporarily disable exit on failure.
+    # also skip error on 170 since it returns nonzero on GW ssl cert update for kms
+    # unfortunately +/-e in the step still propogated fail out
+    SKIP_ERROR_ON_STEP="false"
+    if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]] || [[ $script =~ "170-" ]]); then
+        SKIP_ERROR_ON_STEP="true"
+        set +e
+    fi
+
+    echo "Running $script"
+    # debug
+    # time . "$script"
+    st=$?
+    end=`date +%s`
+    h_end=`date +%Y/%m/%d-%H:%M:%S`
+    runtime=$((end-start))
+
+    if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
+        set -e
+    fi
+
+    if [ "$st" -eq 0 ]; then
+        status='PASSED'
+    else
+        status='FAILED'
+    fi
+
+    echo
+    banner "END INSTALL STEP #$index: $status: $script_basename: status=$st"
+    echo
+
+    banner "CURRENT COMPLETED EXECUTION STEPS:"
+    printf "# %-2s %-7s %-43s : %.0f min (%3.0f sec) : %s : %s : %s\n" \
+$index $status $script_basename $(echo "scale=2;$runtime/60" | bc) $runtime $h_start $h_end $st >> $timeline
+    cat $timeline
+    echo
+
+    if [ "$st" -ne 0 ]; then
+        echo "EXIT_ON_ERROR=$EXIT_ON_ERROR"
+        if [ "$EXIT_ON_ERROR" = "true" ]; then
+            echo ">>>>>>>> EXIT ON ERROR <<<<<<<<<<" && exit $st
+        fi
+    fi
+    index=$((index+1))
+  else
+    echo "WARNING!!! deploy script $script not found!!!"
+  fi
+done
+echo FinalStatus: $st
 
 #################################################################################
 # CHECK IF WE NEED TO INSTALL STACK COMPONENTS
