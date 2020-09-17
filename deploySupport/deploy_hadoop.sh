@@ -75,11 +75,13 @@ if [[ $? != "0" ]] || [[ -z $DIST_TAG_LIST ]]; then
 fi
 
 # Parse the hadoop version
+set -x
 export FULLHADOOPVERSION=`echo $DIST_TAG_LIST | grep -o hadoopcoretree-[^\ ]* | cut -d'-' -f2`
 if [ -z "$FULLHADOOPVERSION" ]; then
     echo "ERROR: Cannot determine hadoop version!!! Exiting!!!"
     exit 1
 fi
+set +x
 
 # Parse the hadoop short version: e.g 2.6
 export HADOOPVERSION=`echo $FULLHADOOPVERSION|cut -d. -f1,2`
