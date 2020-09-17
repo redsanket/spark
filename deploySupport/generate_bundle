@@ -52,7 +52,7 @@ if [ $? -eq 1 ]; then
 fi
 
 release_id=`cat ${dist_tag_output} | grep hadoopcoretree | cut -d ' ' -f1 | cut -d'-' -f2`
-if [[ -n "$release_id" ]]; then
+if ! [[ -n "$release_id" ]]; then
    echo "$0 - Error \$release_id not set or NULL" >&2; exit 1
 fi
 bundle_file="$component/$component-$serial.yaml"
