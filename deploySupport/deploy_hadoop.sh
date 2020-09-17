@@ -390,15 +390,12 @@ historyserver-test"
 [ -z "$HADOOPCORE_TEST_PKG" ] && export HADOOPCORE_TEST_PKG=none
 ## HIT test pkg
 
-# Fetch build artifacts from the admin box
-function fetch_artifacts() {
-    banner "FETCH ARTIFACTS"
+# Process build artifacts
+function process_artifacts() {
+    banner "PROCESS ARTIFACTS"
     set -x
-    $SCP $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
+    ls -l $artifacts_dir
     cat $artifacts_dir/manifest.txt
-    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
-    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
-    $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -443,7 +440,7 @@ set -e
 function error_handler {
    LASTLINE="$1"
    echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
-   fetch_artifacts
+   process_artifacts
 }
 trap 'error_handler ${LINENO}' ERR
 
@@ -679,7 +676,7 @@ deploy_spark
 #oozie should be installed after installing other stack components as it relies on them.
 deploy_stack oozie $STACK_COMP_VERSION_OOZIE oozie-install-check.sh
 
-fetch_artifacts
+process_artifacts
 
 # Review: note that the exit-status of the deploy is indeterminate, and seems to reflect the success of that final 'yinst-remove'.
 exit $?
