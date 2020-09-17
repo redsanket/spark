@@ -447,7 +447,7 @@ trap 'error_handler ${LINENO}' ERR
 #################################################################################
 # Deploy Hadoop
 #################################################################################
-export BUILD_DESC="Deploy Hadoop version $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG) to $CLUSTER "
+export BUILD_DESC="Deploy to $CLUSTER with Hadoop version $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
 echo "$BUILD_DESC"
 echo "$BUILD_DESC" > $artifacts_dir/timeline.log
 
