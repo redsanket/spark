@@ -395,7 +395,7 @@ function process_artifacts() {
     banner "PROCESS ARTIFACTS"
     set -x
     ls -l $artifacts_dir
-    cat $artifacts_dir/manifest.txt
+    set +x
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"
@@ -447,7 +447,7 @@ trap 'error_handler ${LINENO}' ERR
 #################################################################################
 # Deploy Hadoop
 #################################################################################
-export BUILD_DESC="Deploy to $CLUSTER $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG)"
+export BUILD_DESC="Deploy Hadoop version $FULLHADOOPVERSION ($HADOOP_RELEASE_TAG) to $CLUSTER "
 echo "$BUILD_DESC"
 echo "$BUILD_DESC" > $artifacts_dir/timeline.log
 
