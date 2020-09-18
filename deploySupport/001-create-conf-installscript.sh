@@ -4,14 +4,15 @@ t=/grid/0/tmp/deploy.$cluster.hdfsinfo
 set -x
 mkdir -p $t
 
-cp namenodes.$cluster.txt /grid/0/tmp/
-cp secondarynamenodes.$cluster.txt /grid/0/tmp/
-cp namenodehaalias.$cluster.txt /grid/0/tmp/
-cp ${base}/setup_docker_hdfs.sh /grid/0/tmp/
-cp ${base}/processNameNodeEntries.py    /grid/0/tmp/
+tmpdir="/grid/0/tmp"
+cp $nn_list                               $tmpdir
+cp $sn_list                               $tmpdir
+cp $nn_haalias_list                       $tmpdir
+cp ${ROOT_DIR}/setup_docker_hdfs.sh       $tmpdir
+cp ${ROOT_DIR}/processNameNodeEntries.py  $tmpdir
 set +x
 
-filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
+filename="$tmpdir/deploy.$cluster.confoptions.sh"
 (
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
@@ -46,7 +47,9 @@ filename="/grid/0/tmp/deploy.$cluster.confoptions.sh"
     if [ "$ENABLE_HA" = true ]; then
         echo export namenodeXML="'<xi:include href=\"${yroothome}/conf/hadoop/hdfs-ha.xml\" />'"
     else
-        echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml   -1 /tmp/namenodes.$cluster.txt -2 /tmp/secondarynamenodes.$cluster.txt
+        echo python /tmp/processNameNodeEntries.py -o /tmp/${cluster}.namenodeconfigs.xml \
+  -1 /tmp/namenodes.$cluster.txt \
+  -2 /tmp/secondarynamenodes.$cluster.txt
 
         #
         # based on docker containers being used, use correct include directive 
