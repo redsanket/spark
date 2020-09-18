@@ -5,20 +5,6 @@
 ##
 ##
 
-banner() {
-    echo "#################################################################################"
-    echo "# `date -u +'%a %b %d %Y'` `date -u +'%I:%M:%S %p %Z |'` `TZ=CST6CDT date +'%I:%M:%S %p %Z |'` `TZ=PST8PDT date +'%I:%M:%S %p %Z'`"
-    echo "# $*"
-    echo "#################################################################################"
-}
-banner2() {
-    echo "#################################################################################"
-    echo "# `date -u +'%a %b %d %Y'` `date -u +'%I:%M:%S %p %Z |'` `TZ=CST6CDT date +'%I:%M:%S %p %Z |'` `TZ=PST8PDT date +'%I:%M:%S %p %Z'`"
-    echo "# $1"
-    echo "# $2"
-    echo "#################################################################################"
-}
-
 #
 # initRoleList: cache away a list of IGOR roles for later searching.
 # "dumpAllRoles.sh" is an API equivalent of
@@ -27,15 +13,13 @@ banner2() {
 
 initRoleList()
 {
-	export base=conf/hadoop/hadoopAutomation
-	export roleList=$base/$cluster.rolelist.txt
-        # If Hbase is not being installed, remove the hbase related roles which
-        # are not needed. Otherwise, if these roles exists but are empty, they
-        # will cause the deployment to fail.
-        if [ -n "$HBASEVERSION" ]; then
-            cat $roleList|grep -v regionserver|grep -v master|grep -v zookeeper > ${roleList}.new
-            mv -f ${roleList}.new $roleList
-        fi
+    # If Hbase is not being installed, remove the hbase related roles which
+    # are not needed. Otherwise, if these roles exists but are empty, they
+    # will cause the deployment to fail.
+    if [ -n "$HBASEVERSION" ]; then
+        cat $role_list|grep -v regionserver|grep -v master|grep -v zookeeper > ${role_list}.new
+        mv -f ${role_list}.new $role_list
+    fi
 }
 
 #
@@ -46,12 +30,12 @@ initRoleList()
 # the cached output of "dumpAllRoles.sh" (which, itself, is the output of
 # the API equivalent of `igor list -roles 'grid_re.clusters.*'`
 
-# input:      $roleList - assumes someone's already set the cache-file name
+# input:      $role_list - assumes someone's already set the cache-file name
 # argument:   cluster-name or cluster-subrole-name
 #
 #
 roleExists() {
-  egrep -q "^grid_re.clusters.$1\$"  $roleList
+    egrep -q "^grid_re.clusters.$1\$"  $role_list
 }
 
 # "setGridParameters  ankh"            -  set variables/files to install onto ankh
@@ -73,12 +57,12 @@ roleExists() {
 #				$teznode
 #				$kmsnode
 #				$zknode
-#				$cluster
+#				$CLUSTER
 #				$scriptnames
 #				$confpkg
 # output:     file contents
-#        hostlist.$cluster.txt  - all machines that will be updated with software
-#        slaves.$cluster.txt    - that list, with the specialty-machines removed
+#        hostlist.$CLUSTER.txt  - all machines that will be updated with software
+#        slaves.$CLUSTER.txt    - that list, with the specialty-machines removed
 #                                 (no oozie/namenode (etc)/hdfsproxy/hcatserver/daq)
 #
 # Note: THE FAILURE CASE EXITS THE PROGRAM.
@@ -86,28 +70,22 @@ roleExists() {
 
 # dumpMembershipList.sh and dumpAllRoles.sh scripts is deprecated after GRIDCI-2332
 
-SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-SSH="ssh $SSH_OPT"
-
 setGridParameters() {
-    export cluster=`echo $1 | tr   A-Z   a-z`
-
-# step 1: make sure that we have a list-of-roles to work from.
+    # step 1: make sure that we have a list-of-roles to work from.
     initRoleList
 
-# step 2: pry basic information out of IGOR for this cluster:
-    if roleExists $cluster
-    then
+    # step 2: pry basic information out of IGOR for this cluster:
+    if roleExists $CLUSTER; then
         # step 2a: the machine-list itself
-        echo cluster $cluster exists according to rolesdb
+        echo cluster $CLUSTER exists according to rolesdb
 
-        /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway)" > hostlist.$cluster.txt
+        /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway)" > $cluster_list
 
         # step 2b: use certain defaults if not provided
-        export namenode=`tail -1 hostlist.$cluster.txt`
-        export jobtrackernode=`tail -2 hostlist.$cluster.txt | sed -n 1p`
-        export secondarynamenode=`tail -3 hostlist.$cluster.txt | sed -n 1p`
-        ## export namenodehaalias=`tail -1 hostlist.$cluster.txt`
+        export namenode=`tail -1 $cluster_list`
+        export jobtrackernode=`tail -2 $cluster_list | sed -n 1p`
+        export secondarynamenode=`tail -3 $cluster_list | sed -n 1p`
+        ## export namenodehaalias=`tail -1 $cluster_list`
         export gateway=gwbl2003.blue.ygrid.yahoo.com
         export hdfsproxynode=
         export hcatservernode=
@@ -118,96 +96,93 @@ setGridParameters() {
         export zknode=
         
         # step 2c: Look for specific overrides via IGOR roles
-#
-#
-#  Beginning of federated/striping support.
-#
-#
-#  Igor roles usage:
-#  use case 1
-#  	grid_re.clusters.ankh - if only this exists, it's assumed to be a list
-#  	                        of machines with NN/JT/2nd-NN, counting from
-#  	                        highest-numbered machine.
-#  use case 2
-#  	grid_re.clusters.ankh.namenode - if specified, this will be the default
-#  	                        namenode for the machines specified in grid_re.clusters.ankh
-#  	grid_re.clusters.ankh.namenode2 - Must also be given if .namenode is given
-#
-        if roleExists $cluster.namenode
+	#
+	#
+	#  Beginning of federated/striping support.
+	#
+	#
+	#  Igor roles usage:
+	#  use case 1
+	#  	grid_re.clusters.ankh - if only this exists, it's assumed to be a list
+	#  	                        of machines with NN/JT/2nd-NN, counting from
+	#  	                        highest-numbered machine.
+	#  use case 2
+	#  	grid_re.clusters.ankh.namenode - if specified, this will be the default
+	#  	                        namenode for the machines specified in grid_re.clusters.ankh
+	#  	grid_re.clusters.ankh.namenode2 - Must also be given if .namenode is given
+	#
+        if roleExists $CLUSTER.namenode
         then
-              if roleExists $cluster.namenode2 
-              then
-                  /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode)" > nn.$cluster.txt
-                  /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode2)" > sn.$cluster.txt
-                  if roleExists $cluster.namenode_alias 
-                  then
-                    /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.namenode_alias)" > namenodehaalias.$cluster.txt
-                  else
-                    touch namenodehaalias.$cluster.txt
-                  fi 
-                  # Ignore Federation setting when HA is enabled. They can coexist if Federation 
-                  # was properly supported in config and deployment. Currently the federation
-                  # config is generated during deployment using a script.
-                  if [ "$ENABLE_HA" = true ]; then
-                      echo Using only one set of namenodes since HA is enabled.
-                      head -n 1 nn.$cluster.txt > namenodes.$cluster.txt
-                      head -n 1 sn.$cluster.txt > secondarynamenodes.$cluster.txt
-                      #head -n 1 nnalias.$cluster.txt > namenodehaalias.$cluster.txt
-                      rm -f nn.$cluster.txt sn.$cluster.txt
-                  else
-                      mv nn.$cluster.txt namenodes.$cluster.txt
-                      mv sn.$cluster.txt secondarynamenodes.$cluster.txt
-                  fi
-                  export namenode=`cat  namenodes.$cluster.txt`
-                  export secondarynamenode=`cat secondarynamenodes.$cluster.txt`
-                  export namenodehaalias=`cat namenodehaalias.$cluster.txt`
-                  echo "DEBUG: namenodehaalias is: `cat namenodehaalias.$cluster.txt`"
-              else
-                  echo "Config error: namenode for $cluster exists, but no .namenode2 role." && \
-                  exit 1
-              fi
+            if roleExists $CLUSTER.namenode2
+            then
+                /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode)" > $nns_list
+                /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode2)" > $sns_list
+                if roleExists $CLUSTER.namenode_alias
+                then
+                    /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.namenode_alias)" > $nn_haalias_list
+                else
+                    touch $nn_haalias_list
+                fi
+                # Ignore Federation setting when HA is enabled. They can coexist if Federation
+                # was properly supported in config and deployment. Currently the federation
+                # config is generated during deployment using a script.
+                if [ "$ENABLE_HA" = true ]; then
+                    echo Using only one set of namenodes since HA is enabled.
+                    head -n 1 $nns_list > $nn_list
+                    head -n 1 $sns_list > $sn_list
+                    #head -n 1 nnalias.$CLUSTER.txt > $nn_haalias_list
+                    rm -f $nns_list $sns_list
+                else
+                    mv $nns_list $nn_list
+                    mv $sns_list $sn_list
+                fi
+                export namenode=`cat $nn_list`
+                export secondarynamenode=`cat $sn_list`
+                export namenodehaalias=`cat $nn_haalias_list`
+            else
+                echo "Config error: namenode for $CLUSTER exists, but no .namenode2 role." && \
+                    exit 1
+            fi
         else
-              echo $namenode > namenodes.$cluster.txt
-              echo $secondarynamenode > secondarynamenodes.$cluster.txt
+            echo $namenode > $nn_list
+            echo $secondarynamenode > $sn_list
         fi
-        cat secondarynamenodes.$cluster.txt namenodes.$cluster.txt \
-                                    > allnamenodes.$cluster.txt
+        cat $sn_list $nn_list > $all_nn_list
 
-        if roleExists $cluster.regionserver
+        if roleExists $CLUSTER.regionserver
         then
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.regionserver)" > regionservernodes.$cluster.txt
+            /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.regionserver)" > $hbase_region_list
         fi
 
-        if roleExists $cluster.master
+        if roleExists $CLUSTER.master
         then
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.master)" > hbasemasternodes.$cluster.txt
+            /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.master)" > $hbase_list
         fi
 
-        if roleExists $cluster.zookeeper
+        if roleExists $CLUSTER.zookeeper
         then
-            /usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.zookeeper)" > hbasezookeepernodes.$cluster.txt
+            /usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.zookeeper)" > $hbase_zk_list
         fi
 
-
-        roleExists $cluster.jobtracker && \
-             export jobtrackernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.jobtracker)"`
-        roleExists $cluster.gateway && \
-             export gateway=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateway)"`
-        roleExists $cluster.hdfsproxy && \
-             export hdfsproxynode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hdfsproxy)"`
-        roleExists $cluster.hcat&& \
-             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hcat)"`
-        roleExists $cluster.hive&& \
-             export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hive)"`
-        roleExists $cluster.daq&& \
-             export daqnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.daq)"`
-        roleExists $cluster.oozie && \
-             export oozienode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.oozie)"`
-	if roleExists $cluster; then
-            roles="@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway"
-            roleExists $cluster.hive  && roles+=",@grid_re.clusters.${cluster}.hive"
-            roleExists $cluster.oozie && roles+=",@grid_re.clusters.${cluster}.oozie"
-            # teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster},@grid_re.clusters.${cluster}.gateway,@grid_re.clusters.${cluster}.hive,@grid_re.clusters.${cluster}.oozie)"`
+        roleExists $CLUSTER.jobtracker && \
+            export jobtrackernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.jobtracker)"`
+        roleExists $CLUSTER.gateway && \
+            export gateway=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.gateway)"`
+        roleExists $CLUSTER.hdfsproxy && \
+            export hdfsproxynode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hdfsproxy)"`
+        roleExists $CLUSTER.hcat&& \
+            export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hcat)"`
+        roleExists $CLUSTER.hive&& \
+            export hcatservernode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hive)"`
+        roleExists $CLUSTER.daq&& \
+            export daqnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.daq)"`
+        roleExists $CLUSTER.oozie && \
+            export oozienode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.oozie)"`
+	if roleExists $CLUSTER; then
+            roles="@grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway"
+            roleExists $CLUSTER.hive  && roles+=",@grid_re.clusters.$CLUSTER.hive"
+            roleExists $CLUSTER.oozie && roles+=",@grid_re.clusters.$CLUSTER.oozie"
+            # teznode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway,@grid_re.clusters.$CLUSTER.hive,@grid_re.clusters.$CLUSTER.oozie)"`
             teznode=`/usr/local/bin/yinst range -ir "(${roles})"`
             if [[ -n $gateway ]]; then
                 teznode+="\n$gateway"
@@ -215,204 +190,206 @@ setGridParameters() {
             teznode=`echo -e "$teznode"|sort -u`
             export teznode=$teznode
 	fi
-        roleExists $cluster.yroots && \
-             export yroots=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.yroots)"`
-        roleExists $cluster.gateways && \
-             export gateways=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.gateways)"`
-        roleExists $cluster.kms&& \
-             # KMS node also hosts ZK service on flubber
-             # only support single KMS node in Flubber
-             export kmsnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.kms)" | head -n 1`
-        roleExists $cluster.zookeeper && \
-             export zookeepernodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.zookeeper)"`
-        roleExists $cluster.hit-yroots && \
-             export hitnodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hit-yroots)"`
-        roleExists $cluster.hs2 && \
-             export hs2_nodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2)"`
-        roleExists $cluster.server && \
-             export hcat_server=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.server)"`
-        roleExists $cluster.jdbc && \
-             export jdbc_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.jdbc)"`
-        roleExists $cluster.hs2.masters && \
-             export hs2_masters=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2_masters)"`
-        roleExists $cluster.hs2.slaves && \
-             export hs2_slaves=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.hs2_slaves)"`
-        roleExists $cluster.client && \
-             export hive_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.client)"`
-        roleExists $cluster.database && \
-             export hive_mysql=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.${cluster}.database)"`
+        roleExists $CLUSTER.yroots && \
+            export yroots=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.yroots)"`
+        roleExists $CLUSTER.gateways && \
+            export gateways=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.gateways)"`
+        roleExists $CLUSTER.kms&& \
+            # KMS node also hosts ZK service on flubber
+        # only support single KMS node in Flubber
+        export kmsnode=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.kms)" | head -n 1`
+        roleExists $CLUSTER.zookeeper && \
+            export zookeepernodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.zookeeper)"`
+        roleExists $CLUSTER.hit-yroots && \
+            export hitnodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hit-yroots)"`
+        roleExists $CLUSTER.hs2 && \
+            export hs2_nodes=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hs2)"`
+        roleExists $CLUSTER.server && \
+            export hcat_server=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.server)"`
+        roleExists $CLUSTER.jdbc && \
+            export jdbc_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.jdbc)"`
+        roleExists $CLUSTER.hs2.masters && \
+            export hs2_masters=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hs2_masters)"`
+        roleExists $CLUSTER.hs2.slaves && \
+            export hs2_slaves=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.hs2_slaves)"`
+        roleExists $CLUSTER.client && \
+            export hive_client=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.client)"`
+        roleExists $CLUSTER.database && \
+            export hive_mysql=`/usr/local/bin/yinst range -ir "(@grid_re.clusters.$CLUSTER.database)"`
 
-       echo "=============INSTALL_GW_IN_YROOT=$INSTALL_GW_IN_YROOT ============"
-       if [ "$INSTALL_GW_IN_YROOT" == "true" ]
-       then
+        echo "INSTALL_GW_IN_YROOT=$INSTALL_GW_IN_YROOT"
+        if [ "$INSTALL_GW_IN_YROOT" == "true" ]; then
             if [ -n "$gateways" ]
             then
                 echo " gateways/yroot info already defined in igor"
                 echo " ===== gateways: $gateways"
             else
-                export gateways=$gateway":"$cluster
+                export gateways=$gateway":"$CLUSTER
                 echo " ===== gateways: $gateways"
             fi
-       fi
+        fi
 
-       
-       echo "namenode='$namenode'"
-       echo "secondarynamenode='$secondarynamenode'"
-       echo "namenodehaalias='$namenodehaalias'"
-       echo "jobtrackernode='$jobtrackernode'"
-       echo "gateway='$gateway'"
-       [ -n "$oozienode" ] && echo "oozienode='$oozienode'"
-       [ -n "$teznode" ] && echo "teznode='$teznode'"
-       [ -n "$kmsnode" ] && echo "kmsnode='$kmsnode'"
-       [ -n "$zookeepernodes" ] && echo "zookeepernodes='$zookeepernodes'"
-       [ -n "$hdfsproxynode" ] && echo "hdfsproxynode='$hdfsproxynode'"
-       [ -n "$hcatservernode" ] && echo "hcatservernode='$hcatservernode'"
-       [ -n "$daqnode" ] && echo "daqnode='$daqnode'"
-       
-       if [ -n "$yroots" ]; then
-          export yroots="$yroots $hitnodes"
-       else
-          export yroots="$hitnodes"
-       fi
-       [ -n "$yroots" ] && echo "yroots='$yroots'"
-       [ -n "$hitnodes" ] && echo "hitnodes='$hitnodes'"
-      
+        indent=30
+        printf "%-${indent}s %s\n" "===  namenode" $namenode
+        printf "%-${indent}s %s\n" "===  secondary namenodes" $secondarynamenode
+        printf "%-${indent}s %s\n" "===  namenodehaalias" $namenodehaalias
+        printf "%-${indent}s %s\n" "===  jobtrackernode" $jobtrackernode
+        printf "%-${indent}s %s\n" "===  gateway" $gateway
+        [ -n "$oozienode" ]      && printf "%-${indent}s %s\n" "===  oozienode" $oozienode
+        [ -n "$kmsnode" ]        && printf "%-${indent}s %s\n" "===  kmsnode" $kmsnode
+        [ -n "$zookeepernode" ]  && printf "%-${indent}s %s\n" "===  zookeepernode" $zookeepernode
+        [ -n "$hdfsproxynode" ]  && printf "%-${indent}s %s\n" "===  hdfsproxynode" $hdfsproxynode
+        [ -n "$hcatservernode" ] && printf "%-${indent}s %s\n" "===  hcatservernode" $hcatservernode
+        [ -n "$daqnode" ]        && printf "%-${indent}s %s\n" "===  daqnode" $daqnode
+        [ -n "$teznode" ]        && printf "%-${indent}s %s\n" "===  teznode" $teznode
+
+	if [ -n "$yroots" ]; then
+            export yroots="$yroots $hitnodes"
+	else
+            export yroots="$hitnodes"
+	fi
+	[ -n "$yroots" ]   && printf "%-${indent}s %s\n" "===  yroots" $yroots
+	[ -n "$hitnodes" ] && printf "%-${indent}s %s\n" "===  hitnodes" $hitnodes
+
         # step 2d: Now, set up variables that the deploy-script needs.
-       export gridname=$cluster
-       case $gridname in
-                    open*)
-                        export scriptnames=openstacklargedisk
-                        export cfgscriptnames=${scriptnames}
-                        export confpkg=HadoopConfig${scriptnames}
-                        export localconfpkg=hadooplocalconfigs_openstack_large
-                        ;;
-                    dense*)
-                        export scriptnames=generic10node12disk
-                        export cfgscriptnames=${scriptnames}blue
-                        export confpkg=HadoopConfig${scriptnames}blue
-                        export localnames=12disk
-                        export localconfpkg=hadooplocalconfigs
-                        ;;
-                    *)
-                        export scriptnames=generic10node
-                        export cfgscriptnames=${scriptnames}blue
-                        export confpkg=HadoopConfig${scriptnames}blue
-                        export localconfpkg=hadooplocalconfigs
-                        ;;
-       esac
+	export gridname=$CLUSTER
+	case $gridname in
+            open*)
+                export scriptnames=openstacklargedisk
+                export cfgscriptnames=${scriptnames}
+                export confpkg=HadoopConfig${scriptnames}
+                export localconfpkg=hadooplocalconfigs_openstack_large
+                ;;
+            dense*)
+                export scriptnames=generic10node12disk
+                export cfgscriptnames=${scriptnames}blue
+                export confpkg=HadoopConfig${scriptnames}blue
+                export localnames=12disk
+                export localconfpkg=hadooplocalconfigs
+                ;;
+            *)
+                export scriptnames=generic10node
+                export cfgscriptnames=${scriptnames}blue
+                export confpkg=HadoopConfig${scriptnames}blue
+                export localconfpkg=hadooplocalconfigs
+                ;;
+	esac
 
-       # Just because stack component roles/nodes exist, it shouldn't
-       # automatically be added for deployment in the hostlist.
-       # They should only be added only if the stack component is being deployed.
-       # We should also let users if stack component nodes are being added to the
-       # hostlist from these stack component roles such as zookeeper, etc.
-       stack_comp_nodes=''
-       if [ -n "$GDMVERSION" ]; then
-           if [ -n "$daqnode" ]; then
-               echo "Adding daq node '$daqnode' to HOSTLIST"
-               stack_comp_nodes+="$daqnode "
-           fi
-       fi
-       if [ -n "$HBASEVERSION" ]; then
-           if [ -n "$zookeepernodes" ]; then
-               echo "Adding zookeeper nodes '$zookeepernodes' to HOSTLIST"
-               stack_comp_nodes+="$zookeepernodes "
-           fi
-       fi
-       # HCATVERSION is not being passed in, see TODO in installgrid.sh 
-       if [ -n "$HCATVERSION" ]; then
-           if [ -n "$hcatservernode" ]; then
-               echo "Adding hcat server node '$hcatservernode' to HOSTLIST"
-               stack_comp_nodes+="$hcatservernode "
-           fi
-       fi
-       # HDFSPROXYVERSION is not being passed in, see TODO in installgrid.sh 
-       if [ -n "$HDFSPROXYVERSION" ]; then
-           if [ -n "$hdfsproxynode" ]; then
-               echo "Adding hdfsproxy node '$hdfsproxynode' to HOSTLIST"
-               stack_comp_nodes+="$hdfsproxynode "
-           fi
-       fi
-       # OOZIEVERSION is not being passed in, see TODO in installgrid.sh 
-       if [ -n "$OOZIEVERSION" ]; then
-           if [ -n "$oozienode" ]; then
-               echo "NOT NOT oozie node '$oozienode' and hive node $hcatservernode to HOSTLIST"
-               stack_comp_nodes+="$oozienode $hcatservernode "
-           fi
-       fi
-       # step 2e: Set up file-contents that the deploy-script needs.
-       (
-			cat  allnamenodes.$cluster.txt
-			echo $jobtrackernode 
-			echo $gateway 
-			[ -n "$stack_comp_nodes" ] && echo $stack_comp_nodes | tr ' ' '\n' | sed '/^s*$/d'
-			cat hostlist.$cluster.txt
-       ) | sort | uniq >  hostlist.$cluster.txt.1
-       mv hostlist.$cluster.txt.1 hostlist.$cluster.txt
-       
-       nmachines=`wc -l hostlist.$cluster.txt | cut -f1 -d' '`
-       echo "**** " ; echo "**** $nmachines node cluster" ; echo "**** "
+	# Just because stack component roles/nodes exist, it shouldn't
+	# automatically be added for deployment in the hostlist.
+	# They should only be added only if the stack component is being deployed.
+	# We should also let users if stack component nodes are being added to the
+	# hostlist from these stack component roles such as zookeeper, etc.
+	stack_comp_nodes=''
+	if [ -n "$GDMVERSION" ]; then
+            if [ -n "$daqnode" ]; then
+		echo "Adding daq node '$daqnode' to HOSTLIST"
+		stack_comp_nodes+="$daqnode "
+            fi
+	fi
+	if [ -n "$HBASEVERSION" ]; then
+            if [ -n "$zookeepernodes" ]; then
+		echo "Adding zookeeper nodes '$zookeepernodes' to HOSTLIST"
+		stack_comp_nodes+="$zookeepernodes "
+            fi
+	fi
+	# HCATVERSION is not being passed in, see TODO in installgrid.sh
+	if [ -n "$HCATVERSION" ]; then
+            if [ -n "$hcatservernode" ]; then
+		echo "Adding hcat server node '$hcatservernode' to HOSTLIST"
+		stack_comp_nodes+="$hcatservernode "
+            fi
+	fi
+	# HDFSPROXYVERSION is not being passed in, see TODO in installgrid.sh
+	if [ -n "$HDFSPROXYVERSION" ]; then
+            if [ -n "$hdfsproxynode" ]; then
+		echo "Adding hdfsproxy node '$hdfsproxynode' to HOSTLIST"
+		stack_comp_nodes+="$hdfsproxynode "
+            fi
+	fi
+	# OOZIEVERSION is not being passed in, see TODO in installgrid.sh
+	if [ -n "$OOZIEVERSION" ]; then
+            if [ -n "$oozienode" ]; then
+		echo "Adding oozie node '$oozienode' and hive node $hcatservernode to HOSTLIST"
+		stack_comp_nodes+="$oozienode $hcatservernode "
+            fi
+	fi
 
-       # Construct space separated non slave node list to filter out nodes from
-       # the host list
-       nonslave_nodes="$daqnode $gateway $hcat_server \
+	# step 2e: Set up file-contents that the deploy-script needs.
+	(
+	    cat  $all_nn_list
+	    echo $jobtrackernode
+	    echo $gateway
+	    [ -n "$stack_comp_nodes" ] && echo $stack_comp_nodes | tr ' ' '\n' | sed '/^s*$/d'
+	    cat $cluster_list
+	) | sort | uniq >  $cluster_list_tmp
+	mv $cluster_list_tmp $cluster_list
+
+	nmachines=`wc -l $cluster_list | cut -f1 -d' '`
+	echo "**** $nmachines node cluster ****"
+
+	# Construct space separated non slave node list to filter out nodes from
+	# the host list
+	nonslave_nodes="$daqnode $gateway $hcat_server \
                        $hive_client $hs2_masters $hs2_nodes $hs2_slaves \
                        $jobtrackernode $namenode $secondarynamenode \
                        $zookeepernodes "
-       # use the hdfsproxy node as a Core worker
-       # [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
+	# use the hdfsproxy node as a Core worker
+	# [ -n "$hdfsproxynode" ] && nonslave_nodes+=" $hdfsproxynode"
 
-       # For Verizon case we need to exclude oozie and hive nodes from running Core 
-       # workers as long as Oozie is running on rhel6, check if oozienode's OS is 
-       # rhel7 and if Docker use is disabled (Oath case will also be rhel7 but will
-       # enable Docker)
-       OOZIE_ROLE_MEMBER_COUNT=`echo $oozienode | tr ' ' '\n' | wc -l`
+	# For Verizon case we need to exclude oozie and hive nodes from running Core
+	# workers as long as Oozie is running on rhel6, check if oozienode's OS is
+	# rhel7 and if Docker use is disabled (Oath case will also be rhel7 but will
+	# enable Docker)
+	OOZIE_ROLE_MEMBER_COUNT=`echo $oozienode | tr ' ' '\n' | wc -l`
 
-       OOZIE_HIVE_OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
+	OOZIE_HIVE_OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
 
-       if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "false" ]] && [[ "$IS_INTEGRATION_CLUSTER" =~ "true" ]]; then
-           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER so adding oozie, hdfsproxy and hive nodes to nonslave_nodes in order to only allow rhel7 Core workers"
-           nonslave_nodes+=" $oozienode $hcatservernode $hdfsproxynode"
-       else
-           echo "INFO: OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER so NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes"
-       fi
+	if [[ "$OOZIE_HIVE_OS_VER" =~ ^7. ]] && [[ "$RHEL7_DOCKER_DISABLED" =~ "false" ]] && [[ "$IS_INTEGRATION_CLUSTER" =~ "true" ]]; then
+            echo "Adding oozie, hdfsproxy and hive nodes to nonslave_nodes in order to only allow rhel7 Core workers because:"
+            echo "OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER"
+            nonslave_nodes+=" $oozienode $hcatservernode $hdfsproxynode"
+	else
+            echo "NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes because:"
+            echo "OOZIE_HIVE_OS_VER is $OOZIE_HIVE_OS_VER, RHEL7_DOCKER_DISABLED is $RHEL7_DOCKER_DISABLED and IS_INTEGRATION_CLUSTER is $IS_INTEGRATION_CLUSTER so NOT adding oozie, hdfsproxy and hive nodes to nonslave_nodes"
+	fi
 
-       # Construct out pipe separated nodes to filter out from the host list from
-       # space separated non slave node list
-       # First sed removes spaces from end of the variable
-       # Second sed replaces one or more spaces with '|'
-       re=`echo $nonslave_nodes|sed 's/ *$//'|sed 's/  */\|/g'`
-       echo "re='$re'"
+	# Construct out pipe separated nodes to filter out from the host list from
+	# space separated non slave node list
+	# First sed removes spaces from end of the variable
+	# Second sed replaces one or more spaces with '|'
+	re=`echo $nonslave_nodes|sed 's/ *$//'|sed 's/  */\|/g'`
+	echo "re='$re'"
 
-       # Filter out pipe separated nodes in $re from the host list
-       egrep -v "$re" < hostlist.$cluster.txt > slaves.$cluster.txt
+	# Filter out pipe separated nodes in $re from the host list
+	egrep -v "$re" < $cluster_list > $worker_list
 
 
-       # sort -o slaves.$cluster.txt slaves.$cluster.txt
-       # step 2f: final dusting-off. Note that we have package-name hard-coded - a last bit of ugliness we should formalize and make go away.
-#
-#
-#
-       echo "** ** ** possible incompatibility for large clusters - see scripts - might hit kerberos issues if you are not using generic-10-node. (Nov 2 2010)"
-#
-#  note  -- note -- note -- the config-package that is not $confpkg, via some other default, will need to set two kerberos-values explicitly:
-#          confpkginstalloptions="$confpkginstalloptions -set $confpkg.TODO_KERBEROS_DOMAIN=DEV.YGRID.YAHOO.COM  -set $confpkg.TODO_KERBEROS_ZONE=dev"
-#
-#
-#
-#
-       confpkginstalloptions="$confpkginstalloptions -set $confpkg.TODO_KERBEROS_DOMAIN=DEV.YGRID.YAHOO.COM  -set $confpkg.TODO_KERBEROS_ZONE=dev"
+	# sort -o $worker_list $worker_list
+	# step 2f: final dusting-off. Note that we have package-name hard-coded - a last bit of ugliness we should formalize and make go away.
+	#
+	#
+	#
+	echo "*** WARNING *** possible incompatibility for large clusters - see scripts - might hit kerberos issues if you are not using generic-10-node. (Nov 2 2010)"
+	#
+	#  note  -- note -- note -- the config-package that is not $confpkg, via some other default, will need to set two kerberos-values explicitly:
+	#          confpkginstalloptions="$confpkginstalloptions -set $confpkg.TODO_KERBEROS_DOMAIN=DEV.YGRID.YAHOO.COM  -set $confpkg.TODO_KERBEROS_ZONE=dev"
+	#
+	#
+	#
+	#
+	confpkginstalloptions="$confpkginstalloptions -set $confpkg.TODO_KERBEROS_DOMAIN=DEV.YGRID.YAHOO.COM  -set $confpkg.TODO_KERBEROS_ZONE=dev"
 
-       return 0
+	return 0
     else
-       echo cluster $cluster does not exist according to rolesdb
-       echo "**********"
-       echo "**********" Cannot find igor ROLE for: $cluster
-       echo "**********"
-       echo "**********"
-       echo "**********   Look at http://twiki.corp.yahoo.com/view/Grid/HowToAddAClusterToThe022DeployMechanism%28s%29 for examples of creating the roles."
-       echo "**********"
-       exit 1
-   fi
+	echo cluster $CLUSTER does not exist according to rolesdb
+	echo "**********"
+	echo "**********" Cannot find igor ROLE for: $CLUSTER
+	echo "**********"
+	echo "**********"
+	echo "**********   Look at http://twiki.corp.yahoo.com/view/Grid/HowToAddAClusterToThe022DeployMechanism%28s%29 for examples of creating the roles."
+	echo "**********"
+	exit 1
+    fi
 }
 
