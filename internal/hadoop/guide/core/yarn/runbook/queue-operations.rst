@@ -36,8 +36,6 @@ Rename
   
      yarn rmadmin -refreshQueues
 
-see :ref:`yarn_runbook_queue-operations`
-
 
 Delete
 ------

@@ -176,15 +176,15 @@ Check the following resources:
 What is the right way to ftp a file on hadoop?
 ----------------------------------------------
 
-*Is there any example/recommendations for downloading a file from external
+*Are there any example/recommendations for downloading a file from external
 customer ftp server to grid?*
 
 **Ans:**
 
-For one time upload, it is more of a manual process where you load the data from
-your laptop to a gateway and then to HDFS.
+For a one-time upload, manually copy the data from your laptop to a gateway and
+then copy to HDFS.
 
-.. sidebar:: Chec the following discussion...
+.. sidebar:: Check the following discussion...
 
    See :yahoo_jira:`HADOOPPF-51331 - Right way to ftp a file on hadoop <HADOOPPF-51331>`
 
@@ -192,9 +192,8 @@ For accessing a job, then you can take a look at `Apollo`.
 Apollo uses the internal FTP dropbox, not an external customer FTP because the
 latter would have required special approval from paranoids. |br|
 
-* The dropbox documentation is at `yo/dropbox <https://yo/dropbox>`_
-* slack chanel support `#dropbox_ftps <https://vzbuilders.slack.com/archives/C6NJDANQ3>`_ .
-  The chanel used by many teams (just not many on grid).
+* The internal FTP dropbox documentation `yo/dropbox <https://yo/dropbox>`_
+* slack chanel support :slack:`dropbox_ftps <C6NJDANQ3>` 
 * Apollo runs a java grid job that downloads data from the internal dropbox.
   See :yahoo_github:`BpmDownloader.java <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java>`
 

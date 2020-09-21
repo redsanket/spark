@@ -238,6 +238,7 @@ extlinks = {'hadoop_rel_doc': ('https://hadoop.apache.org/docs/r2.10.0/%s',
                       'hadoop_rel_doc '),
             'yahoo_github': ('https://git.vzbuilders.com/%s', 'yahoo_github '),
             'yahoo_jira': ('https://jira.vzbuilders.com/browse/%s', 'yahoo_jira '),
+            'slack': ('https://vzbuilders.slack.com/archives/%s', 'slack '),
             'hadoop_github_url': ('https://github.com/apache/hadoop/blob/branch-2.10/%s', 'hadoop_github_url ')}
             
 # Output file base name for HTML help builder.
