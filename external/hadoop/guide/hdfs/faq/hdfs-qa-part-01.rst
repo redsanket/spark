@@ -188,14 +188,16 @@ then copy to HDFS.
 
    See :yahoo_jira:`HADOOPPF-51331 - Right way to ftp a file on hadoop <HADOOPPF-51331>`
 
-For accessing a job, then you can take a look at `Apollo`.
-Apollo uses the internal FTP dropbox, not an external customer FTP because the
-latter would have required special approval from paranoids. |br|
+Accessing an external customer FTP from a grid job is not permitted without
+special approval from paranoids. |br|
+A better solution is to have the external customer use our internal FTP dropbox
+and then use a grid job to copy from our internal FTP dropbox to HDFS.
 
 * The internal FTP dropbox documentation `yo/dropbox <https://yo/dropbox>`_
-* slack chanel support :slack:`dropbox_ftps <C6NJDANQ3>` 
-* Apollo runs a java grid job that downloads data from the internal dropbox.
-  See :yahoo_github:`BpmDownloader.java <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java>`
+* Slack channel :slack:`dropbox_ftps <C6NJDANQ3>` 
+* The Apollo team runs a job on the grid that downloads data from the internal
+  FTP dropbox and copies it to HDFS
+  (See :yahoo_github:`BpmDownloader.java <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java>`)
 
   .. literalinclude:: /resources/code/hdfs/BpmDownloader.java
     :language: java
