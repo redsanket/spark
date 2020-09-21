@@ -210,10 +210,34 @@ rst_prolog = """
    </strike>
 
 .. |HADOOP_RELEASE_VERSION| replace:: r2.10.0
+
+.. |check| raw:: html
+
+    <input checked=""  type="checkbox">
+
+.. |check_| raw:: html
+
+    <input checked=""  disabled="" type="checkbox">
+
+.. |uncheck| raw:: html
+
+    <input type="checkbox">
+
+.. |uncheck_| raw:: html
+
+    <input disabled="" type="checkbox">
+
+.. |green-badge| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
+.. |red-badge| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg
+.. |yellow-badge| image:: https://assets.readthedocs.org/static/projects/badges/unknown-flat.svg
+.. |nbsp| unicode:: 0xA0
+   :trim:
 """
 
 extlinks = {'hadoop_rel_doc': ('https://hadoop.apache.org/docs/r2.10.0/%s',
                       'hadoop_rel_doc '),
+            'yahoo_jira': ('https://jira.vzbuilders.com/browse/%s', 'yahoo_jira '),
+            'yahoo_github': ('https://git.vzbuilders.com/%s', 'yahoo_github '),
 						'hadoop_github_url': ('https://github.com/apache/hadoop/blob/branch-2.10/%s', 'hadoop_github_url ')}
 
 

@@ -13,10 +13,10 @@
    }
 
    .rst-content .readingbox .admonition-title {
-   		background: #1abc9c
-	 }
+   	background: #1abc9c
+	}
 
-	 .rst-content .readingbox {
+	.rst-content .readingbox {
       background: #dbfaf4
    }
 
@@ -36,5 +36,16 @@
       padding: 24px;
       background: #f3f6f6;
       border: 1px solid #e1e4e5;
+   }
+
+   div.leftside {
+     width: 43%;
+     padding: 0px 3px 0px 0px;
+     float: left;
+   }
+
+   div.rightside {
+     margin-left: 45%;
+     /* float: right; */
    }
 }

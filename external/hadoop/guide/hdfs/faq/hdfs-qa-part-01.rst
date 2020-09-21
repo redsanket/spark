@@ -165,12 +165,62 @@ grid.
 See `Bdml-guide - GDM Cookbook: When to Use HDFS Proxy <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#when-to-use-hdfs-proxy>`_
 
 Loading data between HDFS and other products?
-=============================================
+---------------------------------------------
 
 Check the following resources:
 
 * Bdml-guide - `Pig script output to HDFS <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#pig-script-output-to-hdfs>`_
 * Bdml-guide - `Run HDFS via Hue <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#run-hdfs-via-hue>`_
+  
+
+What is the right way to ftp a file on hadoop?
+----------------------------------------------
+
+*Is there any example/recommendations for downloading a file from external
+customer ftp server to grid?*
+
+**Ans:**
+
+For one time upload, it is more of a manual process where you load the data from
+your laptop to a gateway and then to HDFS.
+
+.. sidebar:: Chec the following discussion...
+
+   See :yahoo_jira:`HADOOPPF-51331 - Right way to ftp a file on hadoop <HADOOPPF-51331>`
+
+For accessing a job, then you can take a look at `Apollo`.
+Apollo uses the internal FTP dropbox, not an external customer FTP because the
+latter would have required special approval from paranoids. |br|
+
+* The dropbox documentation is at `yo/dropbox <https://yo/dropbox>`_
+* slack chanel support `#dropbox_ftps <https://vzbuilders.slack.com/archives/C6NJDANQ3>`_ .
+  The chanel used by many teams (just not many on grid).
+* Apollo runs a java grid job that downloads data from the internal dropbox.
+  See :yahoo_github:`BpmDownloader.java <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java>`
+
+  .. literalinclude:: /resources/code/hdfs/BpmDownloader.java
+    :language: java
+    :caption: Get the ftp file - :yahoo_github:`BpmDownloader.java#L170-L175 <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java#L170-L175>`
+    :lines: 170-175
+    :lineno-start: 170
+    :linenos:
+    :dedent: 12
+
+  .. literalinclude:: /resources/code/hdfs/BpmDownloader.java
+    :language: java
+    :caption: Upload files to HDFS: :yahoo_github:`BpmDownloader.java-#L205-L211 <apollo/apollo_bpm_client/blob/6cd396515b6956a7c113d03fe6a3914122c5d098/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java#L205-L211>`
+    :lines: 205-211
+    :lineno-start: 205
+    :linenos:
+    :dedent: 6
+
+  .. literalinclude:: /resources/code/hdfs/BpmDownloader.java
+    :language: java
+    :caption: Entry point for oozie java action - :yahoo_github:`BpmDownloader.java#L345-351 <apollo/apollo_bpm_client/blob/master/src/main/java/com/yahoo/apollo/bpm_client/BpmDownloader.java#L345-351>`
+    :lines: 345-351
+    :lineno-start: 345
+    :linenos:
+    :dedent: 2
 
 How to Reduce Storage Space for HDFS
 ====================================
@@ -179,7 +229,7 @@ How to Reduce Storage Space for HDFS
 
    Visit :ref:`mapreduce_compression`
 
-Bdml-guide - `HDFS Storage Tips <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/HDFS_Storage_Tips/#reducing-namespace-usage>`_
+Bdml-guide - :yahoo_github:`HDFS Storage Tips <pages/developer/Bdml-guide/migrated-pages/HDFS_Storage_Tips/#reducing-namespace-usage>`
 describes two important tips to reduce storage:
 
 * Reducing Storage Space
@@ -188,7 +238,6 @@ describes two important tips to reduce storage:
 
 Java Program to Read and Write to HDFS?
 =======================================
-
 
   .. literalinclude:: /resources/code/hdfs/WriteFileToHDFS.java
       :language: java
