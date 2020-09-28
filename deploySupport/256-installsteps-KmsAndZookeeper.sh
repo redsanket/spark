@@ -50,7 +50,6 @@ echo "================= Install KeyManagementService (KMS) and ZooKeeper =======
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SSH="ssh $SSH_OPT"
 SCP="scp $SSH_OPT"
-ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
 
 kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 
@@ -89,23 +88,27 @@ fi
 # conflicting deps on this pkg 
 set -x
 # this is a workaround for ykeyked issues mentioned in YHADOOP-3257
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"touch /dev/shm/.skip_ykeykey_restart \""
+$SSH $kmsnode "sudo bash -c \"touch /dev/shm/.skip_ykeykey_restart \""
+
 # CM3 circus to get around GRIDCI-4719 / CM-904
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo systemctl stop cm3-client-sync.service \""
+$SSH $kmsnode "sudo bash -c \"systemctl stop cm3-client-sync.service\""
+
 # Installing jdk should no longer be needed. Check for few days then remove it.
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade \""
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"yinst i -br test hadoopqa_headless_keys \""
+$SSH $kmsnode "sudo bash -c \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade\""
+
+$SSH $kmsnode "sudo bash -c \"yinst i -br test hadoopqa_headless_keys\""
+
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
     echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
     exit 1
 fi
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"sudo systemctl start cm3-client-sync.service \""
+$SSH $kmsnode "sudo bash -c \"systemctl start cm3-client-sync.service\""
 
 # create and make accessible conf dir for kms
 set -x
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"mkdir -p $CONF_KMS; chown hadoop8:users $CONF_KMS; chmod 777 $CONF_KMS\""
+$SSH $kmsnode "sudo bash -c \"mkdir -p $CONF_KMS; chown hadoop8:users $CONF_KMS; chmod 777 $CONF_KMS\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -115,7 +118,7 @@ fi
 
 # need to create the zk path for jaas.conf in order to have zk start in kerb mode
 set -x
-$SSH $ADM_HOST "sudo $SSH $kmsnode \"mkdir -p $CONF_ZK; chown hadoopqa:users $CONF_ZK; chmod 755 $CONF_ZK\""
+$SSH $kmsnode "sudo bash -c \"mkdir -p $CONF_ZK; chown hadoopqa:users $CONF_ZK; chmod 755 $CONF_ZK\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -127,19 +130,19 @@ fi
 #
 # configure the namenode for KMS support, set the key provider property and restart NN
 #
-cmd_nnconfig="yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_PATH=\"kms://https@$kmsnode:4443/kms\" ; \
-  yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_URIS=\"kms:srpc://$kmsnode:9999\" ; \
-  yinst set -root ${yroothome} $confpkg.TODO-KMS-SPN-WHITELIST=\"kms/openqe*.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM\" ; \
-  export JAVA_HOME=/home/gs/java/jdk; yinst restart namenode -root ${yroothome}"
+cmd_nnconfig="yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_PATH=\\\"kms://https@$kmsnode:4443/kms\\\";\
+yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_URIS=\\\"kms:srpc://$kmsnode:9999\\\";\
+yinst set -root ${yroothome} $confpkg.TODO_KMS_SPN_WHITELIST=\\\"kms/open*.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM\\\";\
+export JAVA_HOME=/home/gs/java/jdk;yinst restart namenode -root ${yroothome}"
 
 set -x
-fanoutNN $cmd_nnconfig
+fanoutNN "$cmd_nnconfig"
 RC=$?
 set +x
 if [ $? -ne 0 ]; then
-    echo "Failed to setup NN key provider!"
+    echo "Failed to setup NN kms key provider!"
 else
-    echo "INFO: setup NN key provider and restarted"
+    echo "INFO: setup NN kms key provider and restarted"
 fi
 
 # wait for few seconds here as the process is still running
@@ -162,28 +165,36 @@ sleep 30
 
 cluster_oozie=`yinst range -ir "(@grid_re.clusters.$cluster.oozie)" | cut -d- -f1`
 #cluster="openqe86blue"
-echo "INFO: Reset Oozie node cluster name to: $cluster_oozie"
+echo "INFO: Reset Oozie node cluster name to '$cluster_oozie'"
 
 #
 # place the jaas.conf for ZK kerb support, on ZK node at /home/y/conf/zookeeper
-# NOTE: the jaas.conf parsing is *really* touchy, the double quotes on 'keyTab' and 'principal' must
-# be there else ZK reports a useless error about the jaas not having a Server section
+# NOTE: the jaas.conf parsing is *really* touchy, the double quotes on 'keyTab'
+# and 'principal' must be there else ZK reports a useless error about the jaas
+# not having a Server section
 #
-JAASFILE=" /home/y/conf/zookeeper/jaas.conf"
+# $ cat /home/y/conf/zookeeper/jaas.conf
+# Server {
+#  com.sun.security.auth.module.Krb5LoginModule required
+#  useKeyTab=true
+#  keyTab="/etc/grid-keytabs/zookeeper.openqe115blue-n7.dev.service.keytab"
+#  storeKey=true
+#  useTicketCache=false
+#  principal="zookeeper/openqe115blue-n7.blue.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM";
+# }
+(
+echo "Server {"
+echo " com.sun.security.auth.module.Krb5LoginModule required"
+echo " useKeyTab=true"
+echo " keyTab=\"/etc/grid-keytabs/zookeeper.$kmsnodeshort.dev.service.keytab\""
+echo " storeKey=true"
+echo " useTicketCache=false"
+echo " principal=\"zookeeper/$kmsnode@DEV.YGRID.YAHOO.COM\";"
+echo "};"
+) > $scripttmp/$cluster.jaas.conf
 
-cmd_zk_jaas="echo \"Server {\" > $JAASFILE; \
-echo \"  com.sun.security.auth.module.Krb5LoginModule required\" >> $JAASFILE;
-echo \"  useKeyTab=true\" >> $JAASFILE; \
-echo \"  keyTab=\\\"/etc/grid-keytabs/zookeeper.$kmsnodeshort.dev.service.keytab\\\"\" >> $JAASFILE; \
-echo \"  storeKey=true\" >> $JAASFILE; \
-echo \"  useTicketCache=false\" >> $JAASFILE; \
-echo \"  principal=\\\"zookeeper/$kmsnode@DEV.YGRID.YAHOO.COM\\\";\" >> $JAASFILE; \
-echo \"};\" >> $JAASFILE"
-
-set -x
-$SSH $kmsnode $cmd_zk_jaas
-RC=$?
-set +x
+JAASFILE="/home/y/conf/zookeeper/jaas.conf"
+fanoutscp "$scripttmp/$cluster.jaas.conf" "$JAASFILE" "$kmsnode" "root:root"
 if [ $? -ne 0 ]; then
     echo "Failed to setup JAAS file for ZooKeeper!"
 else
@@ -281,7 +292,7 @@ else
 fi
 
 set -x
-$SSH $kmsnode $cmd_jetty
+$SSH $kmsnode "sudo bash -c \"$cmd_jetty\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -307,8 +318,8 @@ elif [[ "$OS_VER" =~ ^7. ]]; then
     # gridci-4245 ykeykey got real flaky around April 2019, clear the cache and refresh certs 
     # before the daemontools and yekyekyd restart
     echo "INFO: clear ykeykeyd cache and refresh certs, for ykeykeyd restart stability"
-    $SSH $kmsnode "rm -rf  /home/y/var/db/ykeykeyd/*"
-    $SSH $kmsnode "yinst restart ykeykeyd_cert_mgmt"
+    $SSH $kmsnode "sudo bash -c \"rm -rf  /home/y/var/db/ykeykeyd/*\""
+    $SSH $kmsnode "sudo bash -c \"yinst restart ykeykeyd_cert_mgmt\""
 
     # have to spec zookeeper_core-3.4.10.y.2 because zookeeper_server requires this ver range of dep
     # and only thing on branches is 3.4.13... something
@@ -323,7 +334,7 @@ else
 fi
 
 set -x
-$SSH $kmsnode $cmd_zk
+$SSH $kmsnode "sudo bash -c \"$cmd_zk\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -334,7 +345,9 @@ fi
 
 echo "Resending yinst set zookeeper_server.jvm_args since the earlier set attempt using pdsh does not work!"
 set -x
-$SSH $kmsnode "yinst set zookeeper_server.jvm_args=\"  -Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\""
+$SSH $kmsnode "sudo bash -c \
+\"yinst set zookeeper_server.jvm_args=\\\"-Djava.security.auth.login.config=/home/y/conf/zookeeper/jaas.conf -Dzookeeper.superUser=zookeeper -Dsun.security.krb5.debug=true\\\"\" \
+"
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -363,7 +376,7 @@ yinst install  yahoo_kms -same -live -downgrade -br test \
  -set yahoo_kms.TODO_RPC_PORT=9999"
 
 set -x
-$SSH $kmsnode $cmd_kms
+$SSH $kmsnode "sudo bash -c \"$cmd_kms\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -374,15 +387,25 @@ fi
 
 set -x
 # set the correct kms keytab
-$SSH $kmsnode "sudo sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml"
+$SSH $kmsnode "sudo bash -c \"sed -i s/$DEFAULT_KMS_KEYTAB/$DEV_KMS_KEYTAB/g /home/y/conf/kms/kms-site.xml\""
 # gridci-2904, fix the oozie user we run as in kms-site 
-$SSH $kmsnode "sudo sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml"
+$SSH $kmsnode "sudo bash -c \"sed -i s/wrkflow/oozie/g /home/y/conf/kms/kms-site.xml\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
    echo "Failed to install correct KMS kettab!"
 else
    echo "INFO: Updated KMS keytab"
+fi
+
+# This is needed in order for the tests to run properly if KMS is enabled
+$SSH $gateway "sudo bash -c \"yinst set -root ${yroothome} $confpkg.TODO_KMS_SPN_WHITELIST=\\\"kms/open*.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM\\\"\""
+RC=$?
+set +x
+if [ $? -ne 0 ]; then
+    echo "Failed to setup gateway kms key provider!"
+else
+    echo "INFO: setup gateway kms key provider"
 fi
 
 #
@@ -393,7 +416,7 @@ fi
 set -x
 # wait till the previous yinst process is finished
 sleep 30
-$SSH $kmsnode "yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE"
+$SSH $kmsnode "sudo bash -c \"yinst set ykeydb.run_mode=YKEYKEY_HYBRID_MODE\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -421,7 +444,7 @@ fi
 
 # gridci-4245 split the restart of KMS and ZK servers, this seems to expose the ykeykeyd
 # flakyness consistently now
-$SSH $kmsnode "yinst restart zookeeper_server "
+$SSH $kmsnode "sudo bash -c \"yinst restart zookeeper_server \""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -436,7 +459,7 @@ sleep 60
 # flakyness consistently now
 sleep 30
 echo "INFO: restarting yahoo_kms..."
-$SSH $kmsnode "yinst restart daemontools_y; yinst restart yahoo_kms"
+$SSH $kmsnode "sudo bash -c \"yinst restart daemontools_y; yinst restart yahoo_kms\""
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
@@ -463,15 +486,15 @@ sleep 60
 # working KMS install despite the error report, but need to look for both since some clusters
 # do not exhibit the 'incomplete groups' problem
 #
-set -x
-CURL_KEY=`$SSH $kmsnode  "kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
-curl --tlsv1.2 --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"`
-set +x
+echo "$SSH $kmsnode \"sudo bash -c \\\"kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
+curl --tlsv1.2 -s --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata\\\"\""
+CURL_KEY=`$SSH $kmsnode "sudo bash -c \"kinit -kt /etc/grid-keytabs/$kmsnodeshort.dev.service.keytab hdfs/$kmsnode; \
+curl --tlsv1.2 -s --negotiate -u: -k https://$kmsnode:4443/kms/v1/key/hitusr_4/_metadata"\"`
+echo "CURL_KEY=$CURL_KEY"
 if [[ ! "$CURL_KEY" =~ "AES/CTR/NoPadding" ]]; then
     echo "Failed to get key info, KMS or ZK service may not be running!"
     exit 1
 fi
 echo "Got KMS key info successfully!"
-echo "$CURL_KEY"
 
 echo "KMS and ZK service install completed"
