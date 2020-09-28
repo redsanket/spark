@@ -56,7 +56,7 @@ done
 echo \$cnt namenodes up.
 zz
 
-fanoutcmd "scp $scripttmp/$cluster.testNNdeploy.sh __HOSTNAME__:/tmp/" "$gateway"
+fanoutscp "$scripttmp/$cluster.testNNdeploy.sh" "/tmp/" "$gateway"
 set -x
 fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
 set +x
