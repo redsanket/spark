@@ -7,7 +7,7 @@ filename="/grid/0/tmp/deploy.$cluster.processes.to.kill.sh"
     echo 'echo user=`whoami` '
     echo 'for sig in 15 1 9'
     echo 'do'
-    echo '   for u in hdfs mapred hadoop1 hadoop2 hadoop3 root mapredqa hdfsqa hadoopqa strat_ci hitusr_1'
+    echo '   for u in hdfs mapred hadoop1 hadoop2 hadoop3 root mapredqa hdfsqa hadoopqa hitusr_1'
     echo '   do'
     echo '        for app in java jsvc'
     echo '        do'
