@@ -7,13 +7,13 @@ fi
 
 echo "Running tests for ${cluster}."
 if [ "$RUNSIMPLETEST" = true ] ; then
-    testfile="$base/shorttest-rw.sh"
+    testfile="$scripttmp/shorttest-rw.sh"
     testname=shorttest-rw.sh
 elif [ -f "$RUNSIMPLETEST" ] ; then
     testfile=${RUNSIMPLETEST}
     testname=${RUNSIMPLETEST}
-elif [ -f "$base/$RUNSIMPLETEST" ] ; then
-    testfile="$base/$RUNSIMPLETEST"
+elif [ -f "$scripttmp/$RUNSIMPLETEST" ] ; then
+    testfile="$scripttmp/$RUNSIMPLETEST"
     testname=${RUNSIMPLETEST}
 fi
 
@@ -35,7 +35,7 @@ set +x
 logfile="deploy_${cluster}_test.log"
 set -x
 # echo  GSHOME=$GSHOME yroothome=$yroothome sh /tmp/${cluster}-${testname} -c $cluster -N "'$namenode'" ${writeenabledflag} -P "${yarnProcessor}" -u "${MAPREDUSER}" | ssh $gateway su - hadoopqa
-ssh $gateway "su - hadoopqa -c '\
+ssh $gateway "bash -c '\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome && \
 export HOMEDIR=$HOMEDIR && \
