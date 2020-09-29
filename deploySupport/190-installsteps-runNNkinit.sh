@@ -15,22 +15,26 @@ if [ "$RUNKINIT" != true ]; then
     return 0
 fi
 
-for n in $namenode; do
-    shortname=`expr  $n : '(' '\([^\.]*\)\..*$' ')'`
-    echo name=$n shortname=$shortname
+# /etc/grid-keytabs/<cluster shortname>.dev.service.keytab needs to be readable
+# to hdfsqa
+for node in $namenode; do
+    shortname=`expr  $node : '(' '\([^\.]*\)\..*$' ')'`
+    echo "name=$node shortname=$shortname"
     ktabfile=/etc/grid-keytabs/${shortname}.dev.service.keytab
+
+(
+echo 'export PATH=/usr/kerberos/bin:$PATH'
+echo echo ======= NEED TO RUN kinit to deal with keytab on ${node} as ${HDFSUSER}
+echo "if [  -f $ktabfile ]; then"
+    echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${node}@DEV.YGRID.YAHOO.COM
+echo else
+    echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+echo fi
+echo klist
+) > $scripttmp/$cluster.nninit.sh
+
     set -x
-    (
-    echo 'export PATH=/usr/kerberos/bin:$PATH'
-    echo echo ======= NEED TO RUN kinit to deal with keytab on ${n} as ${HDFSUSER}
-    echo "if [  -f $ktabfile ] "
-    echo "then "
-        echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${n}@DEV.YGRID.YAHOO.COM
-    echo else
-        echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
-    echo fi 
-    #echo klist
-    )| ssh $n su - $HDFSUSER
+    scp $scripttmp/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
+    ssh $node "sudo -su $HDFSUSER bash -c \"sh -x /tmp/$cluster.nninit.sh\""
     set +x
 done
-
