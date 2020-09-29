@@ -8,16 +8,16 @@ if [ "$REMOVEEXISTINGDATA" == "true" ]; then
         rm -rf $SHARED_DIR
     done
     set -x
-    cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/cleangrid.sh  $scripttmp/cleangrid.sh
-    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/cleangrid.sh __HOSTNAME__:/tmp/cleangrid.sh" "$HOSTLIST"
-    fanout "export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER &&  sh /tmp/cleangrid.sh && rm /tmp/cleangrid.sh "
+    fanoutscp "$scripttmp/cleangrid.sh" "/tmp/cleangrid.sh" "$HOSTLIST"
+    fanout "export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER &&  sh /tmp/cleangrid.sh && rm /tmp/cleangrid.sh"
     set +x
 elif [ "$REMOVE_YARN_DATA" == "true" ]; then
     echo == removing existing yarn data on grid.
+    # YINST root is where the deployment yinst package is installed on devadm102
+    # ROOT_DIR vs scripttmp...
     set -x
-    cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/cleangrid.sh  $scripttmp/cleangrid.sh
-    fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/cleangrid.sh __HOSTNAME__:/tmp/cleangrid.sh" "$HOSTLIST"
-    fanout "export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER && sh /tmp/cleangrid.sh yarn && rm /tmp/cleangrid.sh "
+    fanoutscp "$scripttmp/cleangrid.sh" "/tmp/cleangrid.sh" "$HOSTLIST"
+    fanout "export GSHOME=$GSHOME && export HDFSUSER=$HDFSUSER && export MAPREDUSER=$MAPREDUSER && sh /tmp/cleangrid.sh yarn && rm /tmp/cleangrid.sh"
     set +x
 else
     echo "== Not removing existing data on grid."
