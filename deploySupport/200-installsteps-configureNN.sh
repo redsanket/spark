@@ -15,7 +15,7 @@ set +x
 if [ "$CONFIGURENAMENODE" = true ]  && [ "$ENABLE_HA" = false ]; then
     echo "== Copying namenode-start scripts to namenodes."
     set -x
-    fanoutcmd "scp $scripttmp/nameno*.sh $scripttmp/getclusterid.pl __HOSTNAME__:/tmp/" "$ALLNAMENODESLIST"
+    fanoutscp "$scripttmp/nameno*.sh $scripttmp/getclusterid.pl" "/tmp/" "$ALLNAMENODESLIST"
     set +x
 
     echo "== Running namenode-configure script"
