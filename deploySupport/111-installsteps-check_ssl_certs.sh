@@ -22,22 +22,19 @@ CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 echo "== verify Core SSL certs are in place"
 
 set -x
-fanout "if [ ! -d ${CERT_HOME} ] ; then 
-           echo \"Going to create ${CERT_HOME}\";
-           mkdir -p ${CERT_HOME};
-           chmod 755 ${CERT_HOME};
-        fi"
+fanout "if [ ! -d ${CERT_HOME} ] ; then \
+echo "Going to create ${CERT_HOME}"; \
+mkdir -p ${CERT_HOME}; \
+chmod 755 ${CERT_HOME}; \
+fi"
 set +x
 
 NODES=`yinst range -ir @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway`
-for NODE in $NODES; do
-    echo "$SSH $ADM_HOST \"sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME\""
-    $SSH $ADM_HOST "sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
-    if [ $? -ne 0 ]; then
-        echo "Error: node $NODE failed to scp JKS files!"
-        exit 1
-    fi
-done
+transport_files_from_admin $ADM_HOST $CERT_REFERENCE_PATH "$NODES" $CERT_HOME "root:root"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to transport JKS files to cluster nodes!"
+    exit 1
+fi
 
 ###### TODO - pdcp would be more efficient because it will parallel scp instead
 # of iterate like the while loop, but there's no support for '-S' in pdcp command
