@@ -7,6 +7,6 @@ fi
 
 echo "Run yinst self-update"
 set -x
-fanout "yinst self-update -branch rhel6stable -yes "
-fanoutGW "yinst self-update -branch rhel6stable -yes "
+fanout "yinst self-update -branch rhel6stable -yes"
+fanoutGW "yinst self-update -branch rhel6stable -yes"
 set +x
