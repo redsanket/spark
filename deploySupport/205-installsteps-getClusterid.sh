@@ -28,13 +28,11 @@ if [ -z "$NAMENODE_Primary" ]; then
     exit 1
 fi
 
-nn=$NAMENODE_Primary
 JAVA_HOME="$GSHOME/java/jdk64/current"
-(
-    set -x
-    echo "cd ${yroothome}"
-    echo "JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
-) | ssh $nn su - $HDFSUSER
+exec_nn_hdfsuser \
+"set -x && cd ${yroothome} && \
+JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop \
+perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
 st=$?
 echo "Exit status of ssh for getclusterid was $st"
 
@@ -46,5 +44,4 @@ if [ $st -eq 0 ]; then
     set +x
 fi
 
-ssh $nn  rm  -f  /tmp/$cluster.clusterid.txt
-[ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
+exec_nn_root "rm -f /tmp/$cluster.clusterid.txt"
