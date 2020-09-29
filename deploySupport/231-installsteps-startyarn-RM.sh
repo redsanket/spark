@@ -24,15 +24,18 @@ set -x
 
 # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
 # in order to create known_hosts, else RM access fails
-( echo "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' $PDSH -w $SLAVELIST hostname" ) |\
-ssh  $jobtrackernode su - $MAPREDUSER
+# Load the mapredqa credentials
+ssh $jobtrackernode "sudo bash -c \"sshca-creds -u mapredqa load\""
+ssh $jobtrackernode "sudo -su $MAPREDUSER bash -c \"\
+export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock && PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' && $PDSH -w $SLAVELIST \\\"whoami && hostname\\\"\
+\""
 
 # GRIDCI-444 - nm health check for openstack
-fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+fanoutscp "$scripttmp/setup_nm_health_check_script.sh" "/tmp" "$SLAVELIST"
 slavefanout "sh /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
 # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
-fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+fanoutscp "$scripttmp/setup_nm_dockerd_check_script.sh" "/tmp" "$SLAVELIST"
 slavefanout "sh /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
 
 # Install runc on all the nodemanagers that are not RHEL6
@@ -59,7 +62,7 @@ tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
     echo "  done"
     echo "fi"
 ) > $tmpsetupfile
-fanoutcmd "scp $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+fanoutscp "$tmpsetupfile" "/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 set -x
 slavefanout "sh /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
@@ -68,6 +71,7 @@ slavefanout "sh /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 fanout "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
 $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
+
 fanoutGW "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
 $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
@@ -84,8 +88,10 @@ JAVA_HOME="$GSHOME/java/jdk64/current"
     # workaround for one-day with older name for common, expires sept 9
     echo "export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop"
     echo "export YARN_HOME=${yroothome}/share/hadoop"
-	echo "export MAPREDUSER=$MAPREDUSER"
+    echo "export MAPREDUSER=$MAPREDUSER"
+    echo "export USER=$MAPREDUSER"
     echo "export JAVA_HOME=$JAVA_HOME"
+    echo "export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock"
     echo "export HADOOP_CLASSPATH=${yroothome}/share/hadoop/share/hadoop/server/*:${yroothome}/share/hadoop/share/hadoop/server/lib/*"
 ) > $tmpfile
 
@@ -93,7 +99,7 @@ set -x
 (
     cat $tmpfile
     echo '$YARN_HOME/sbin/start-yarn.sh'
-)  | ssh $jobtrackernode su - $MAPREDUSER
+)  | ssh $jobtrackernode sudo -su $MAPREDUSER
 set +x
 
 echo "== starting up yarn JobHistoryServer."
@@ -111,7 +117,7 @@ set -x
         exit 1
     fi
 
-)  | ssh $jobtrackernode su - $MAPREDUSER
+)  | ssh $jobtrackernode sudo -su $MAPREDUSER
 set +x
 
 echo "== starting up yarn TimelineServer."
@@ -127,5 +133,5 @@ set -x
         exit 1
     fi
 
-)   | ssh $jobtrackernode su - $MAPREDUSER
+)   | ssh $jobtrackernode sudo -su $MAPREDUSER
 set +x
