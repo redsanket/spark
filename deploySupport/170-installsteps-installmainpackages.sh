@@ -45,10 +45,14 @@ set -x
 slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
 slownogwfanout "$cmd"
 [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && slownogwfanout "$spark_shuffle_cmd"
+
 fanoutGW "/usr/bin/yum makecache"
 # compat-readline should have come from Config job, removing compat-readline5.x86_64
+
 fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64"
+
 fanoutGW "$cmd"
+
 [[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutGW "$spark_shuffle_cmd"
 
 # GRIDCI-501
@@ -65,7 +69,8 @@ fanoutGW "$cmd"
 #    f=YahooDNSToSwitchMapping-0.2.1111040716.jar
 #    f=YahooDNSToSwitchMapping-0.22.0.1011272126.jar
 
-fanoutcmd "scp /grid/0/tmp/deploy.$cluster.confoptions.sh /grid/0/tmp/processNameNodeEntries.py /grid/0/tmp/namenodes.$cluster.txt /grid/0/tmp/secondarynamenodes.$cluster.txt /grid/0/tmp/processNameNodeEntries.py __HOSTNAME__:/tmp/" "$HOSTLIST"
+fanoutscp "/grid/0/tmp/deploy.$cluster.confoptions.sh /grid/0/tmp/processNameNodeEntries.py /grid/0/tmp/namenodes.$cluster.txt /grid/0/tmp/secondarynamenodes.$cluster.txt /grid/0/tmp/processNameNodeEntries.py" "/tmp/" "$HOSTLIST"
+
 cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh && cp /tmp/deploy.$cluster.confoptions.sh  ${yroothome}/conf/hadoop/ "
 
 #    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
