@@ -7,13 +7,13 @@ fi
 
 echo "Running tests for ${cluster}."
 if [ "$RUNSIMPLETEST" = true ] ; then
-    testfile="$scripttmp/shorttest-rw.sh"
+    testfile="$scriptdir/shorttest-rw.sh"
     testname=shorttest-rw.sh
 elif [ -f "$RUNSIMPLETEST" ] ; then
     testfile=${RUNSIMPLETEST}
     testname=${RUNSIMPLETEST}
-elif [ -f "$scripttmp/$RUNSIMPLETEST" ] ; then
-    testfile="$scripttmp/$RUNSIMPLETEST"
+elif [ -f "$scriptdir/$RUNSIMPLETEST" ] ; then
+    testfile="$scriptdir/$RUNSIMPLETEST"
     testname=${RUNSIMPLETEST}
 fi
 
@@ -48,7 +48,7 @@ RC=$?
 set +x
 
 set -x
-scp ${gateway}:/tmp/$logfile /grid/0/tmp/scripts.deploy.$cluster/$logfile
+scp ${gateway}:/tmp/$logfile $scriptdir/$logfile
 set +x
 
 if [ "$RC" -ne 0 ]; then

@@ -8,7 +8,7 @@ case "$PIGVERSION" in
         echo cluster=$cluster
         echo gateway=$gateway
 
-        cp $ROOT_DIR/test-piginstall.sh  $scripttmp/$cluster.test-piginstall.sh
+        cp $ROOT_DIR/test-piginstall.sh  $scriptdir/$cluster.test-piginstall.sh
         fanoutYRoots "
     rsync -a $scriptaddr/$cluster.test-piginstall.sh /tmp/ && 
     GSHOME=$GSHOME yroothome=$yroothome sh -x /tmp/$cluster.test-piginstall.sh  -c $cluster -w -n $namenode 

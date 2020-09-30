@@ -31,11 +31,11 @@ export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock && PDSH_SSH_ARGS_APPE
 \""
 
 # GRIDCI-444 - nm health check for openstack
-fanoutscp "$scripttmp/setup_nm_health_check_script.sh" "/tmp" "$SLAVELIST"
+fanoutscp "$scriptdir/setup_nm_health_check_script.sh" "/tmp" "$SLAVELIST"
 fanout_workers_root "sh /tmp/setup_nm_health_check_script.sh"
 
 # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
-fanoutscp "$scripttmp/setup_nm_dockerd_check_script.sh" "/tmp" "$SLAVELIST"
+fanoutscp "$scriptdir/setup_nm_dockerd_check_script.sh" "/tmp" "$SLAVELIST"
 fanout_workers_root "sh /tmp/setup_nm_dockerd_check_script.sh"
 
 # Install runc on all the nodemanagers that are not RHEL6

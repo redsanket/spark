@@ -208,7 +208,7 @@ then
 fi
 
 # cp slaves.$cluster.txt  /tmp/slaves.$cluster.txt
-cp slaves.$1.txt  $scripttmp/slaves.$cluster.txt
+cp slaves.$1.txt  $scriptdir/slaves.$cluster.txt
 
 export WCALL=hostlist.$1.txt
 
@@ -234,10 +234,10 @@ echo "===  confpkg='$confpkg'"
 echo "===  HOSTLIST='$HOSTLIST' (all nodes)"
 echo "===  SLAVELIST='$SLAVELIST' (slave nodes)"
 
-scripttmp=/grid/0/tmp/scripts.deploy.$cluster
+scriptdir=/grid/0/tmp/deploy.$cluster
 scriptaddr=$ADMIN_HOST::tmp/scripts.deploy.$cluster
 grossworkaroundaddr=$ADMIN_HOST::tmp/gross-0.22-dev-workaround
-[ -d $scripttmp ] || mkdir -p $scripttmp
+[ -d $scriptdir ] || mkdir -p $scriptdir
 
 #
 #  The following section creates a few shell-scripts to be copied to the target
@@ -264,14 +264,14 @@ done
 # unless someone updates one of the scripts at just the 'right' moment before a second job starts. Still,
 # it could be a slight exposure for concurrency.
 #
-echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scripttmp"
-cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.sh $scripttmp
-cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scripttmp
+echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scriptdir"
+cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.sh $scriptdir
+cp ${YINST_ROOT}/conf/hadoop/hadoopAutomation/*.pl $scriptdir
 
 echo "HIT_DEPLOY: ${HIT_DEPLOY}"
 export EXIT_ON_ERROR=true
 
-timeline="$scripttmp/timeline.log"
+timeline="$scriptdir/timeline.log"
 cat /dev/null > $timeline
 pwd=`pwd`
 hostname=`hostname`

@@ -31,7 +31,7 @@ case "$PIGVERSION" in
     echo "fi"
     echo "exit 0"
 
-) > $scripttmp/$cluster.installpig.sh
+) > $scriptdir/$cluster.installpig.sh
 
         set -x
         fanoutYRoots "rsync -a $scriptaddr/$cluster.installpig.sh  /tmp/ && sh /tmp/$cluster.installpig.sh"

@@ -1,24 +1,11 @@
-t=/grid/0/tmp/deploy.$cluster.hdfsinfo
-[ -e $t ] && rm -rf  $t
-
 set -x
-mkdir -p $t
-
-tmpdir="/grid/0/tmp"
-cp $nn_list                               $tmpdir
-cp $sn_list                               $tmpdir
-cp $nn_haalias_list                       $tmpdir
-cp ${ROOT_DIR}/setup_docker_hdfs.sh       $tmpdir
-cp ${ROOT_DIR}/processNameNodeEntries.py  $tmpdir
+cp $nn_list                               $scriptdir
+cp $sn_list                               $scriptdir
+cp $nn_haalias_list                       $scriptdir
 set +x
 
-filename="$tmpdir/deploy.$cluster.confoptions.sh"
+filename="$scriptdir/deploy.$cluster.confoptions.sh"
 (
-    # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
-    # echo "scp  $ADMIN_HOST:/grid/0/tmp/namenodes.$cluster.txt  /tmp/ "
-    # echo "scp  $ADMIN_HOST:/grid/0/tmp/secondarynamenodes.$cluster.txt  /tmp/ "
-    # echo "scp  $ADMIN_HOST:/tmp/namenodehaalias.$cluster.txt  /tmp/ "
-    # echo "scp  $ADMIN_HOST:/grid/0/tmp/processNameNodeEntries.py  /tmp/ "
     echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
     echo 'then'
     echo '	export  nn=`hostname`'

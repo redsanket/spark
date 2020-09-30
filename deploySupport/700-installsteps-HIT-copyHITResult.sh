@@ -15,10 +15,10 @@ if [ "$RUN_HIT_TESTS" = "true" ]; then
         echo "else"
         echo "  echo Cannot find /tmp/HIT dir for result files..."
         echo "fi"
-    ) > $scripttmp/$cluster.hit.copyresults.sh
+    ) > $scriptdir/$cluster.hit.copyresults.sh
     fanoutYRoots "rsync $scriptaddr/$cluster.hit.copyresults.sh /tmp/ && sh /tmp/$cluster.hit.copyresults.sh "
-    chown -R hadoopqa:users /grid/0/tmp/$dest/HIT
-    cat /grid/0/tmp/$dest/HIT/HIT_installed_pkgs.txt
+    chown -R hadoopqa:users $scriptdir/$dest/HIT
+    cat $scriptdir/$dest/HIT/HIT_installed_pkgs.txt
 else
     echo ========= not install hit at all, skip results copy
 fi

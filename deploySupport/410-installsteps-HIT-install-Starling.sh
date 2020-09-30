@@ -24,7 +24,7 @@ case "$STARLINGVERSION" in
 
     echo "exit 0"
 
-) > $scripttmp/$cluster.installstarling.sh
+) > $scriptdir/$cluster.installstarling.sh
 
         fanoutYRoots "rsync -a $scriptaddr/$cluster.installstarling.sh  /tmp/ && sh /tmp/$cluster.installstarling.sh"
         if [ $? -eq 0 ] ; then

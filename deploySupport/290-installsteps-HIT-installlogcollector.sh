@@ -13,7 +13,7 @@ if [ -n "$LOG_COLLECTORVERSION" -a  "$LOG_COLLECTORVERSION" != none ]; then
         echo 'st=$?'
         echo '[ "$st" -ne 0 ] && echo $st &&echo "*****" log-collector NOT INSTALLED Properly "*****" && exit $st'
         echo "ls -la ${yroothome}/bin/log*"
-    ) > $scripttmp/$cluster.logcollector.20.install.sh
+    ) > $scriptdir/$cluster.logcollector.20.install.sh
 
     fanoutYRoots "rsync $scriptaddr/$cluster.logcollector.20.install.sh /tmp/ && sh /tmp/$cluster.logcollector.20.install.sh"
     st=$?

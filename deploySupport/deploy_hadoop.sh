@@ -408,8 +408,17 @@ banner "Installing grid cluster $cluster"
 index=1
 START_STEP=${START_STEP:="0"}
 
-scripttmp=/grid/0/tmp/scripts.deploy.$CLUSTER
-[ -d $scripttmp ] || mkdir -p $scripttmp
+scriptdir=/grid/0/tmp/deploy.$CLUSTER
+[ -d $scriptdir ] || mkdir -p $scriptdir
+#
+# Review:  All scripts are copied to /grid/0/tmp/deploy.$CLUSTER.  This should be
+# no problem, even if multiple deploys are happening, unless someone updates one
+# of the scripts at just the 'right' moment before a second job starts. Still,
+# it could be a slight exposure for concurrency.
+#
+echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scriptdir"
+cp $ROOT_DIR/*.sh $scriptdir
+cp $ROOT_DIR/*.pl $scriptdir
 
 set -e
 
@@ -424,15 +433,6 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-create-conf-*.sh; do
     banner "Running eval . $script"
     eval ". $script"
 done
-
-#
-# Review:  All scripts are copied to /grid/0/tmp.  This should be no problem, even if multiple deploys are happening,
-# unless someone updates one of the scripts at just the 'right' moment before a second job starts. Still,
-# it could be a slight exposure for concurrency.
-#
-echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scripttmp"
-cp $ROOT_DIR/*.sh $scripttmp
-cp $ROOT_DIR/*.pl $scripttmp
 
 export EXIT_ON_ERROR=true
 

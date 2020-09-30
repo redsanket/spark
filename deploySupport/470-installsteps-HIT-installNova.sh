@@ -23,7 +23,7 @@ case "$NOVAVERSION" in
             echo 'fi'
             echo "/usr/local/bin/yinst stop yjava_tomcat yapache"
             echo "exit 0"
-) > $scripttmp/$cluster.installnova.sh
+) > $scriptdir/$cluster.installnova.sh
         set -x
         fanoutYRoots "rsync -a $scriptaddr/$cluster.installnova.sh  /tmp/ && sh /tmp/$cluster.installnova.sh"
         st=$?

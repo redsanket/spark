@@ -47,7 +47,7 @@ if [[ $HCATIGORTAG != none ]]; then
     echo 'fi'
     echo 'exit $st'
     
-    ) > $scripttmp/$cluster.installhcatclient.sh
+    ) > $scriptdir/$cluster.installhcatclient.sh
     fanoutYRoots "rsync -a $scriptaddr/$cluster.installhcatclient.sh  /tmp/ && sh /tmp/$cluster.installhcatclient.sh"
     st=$?
     if [ "$st" -eq 0 ] ; then

@@ -298,8 +298,8 @@ fanoutNNAndSecondary() {
 fanoutHBASETestClient() {
         echo 'fanoutHBASETestClient: start on ' `date +%H:%M:%S`
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
-        echo $* > $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh
-        execCmd "scp $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+        echo $* > $scriptdir/hbase_test_client.cmds-to-run.$cluster.sh
+        execCmd "scp $scriptdir/hbase_test_client.cmds-to-run.$cluster.sh ${machname}:/tmp/"
         execCmd "ssh $machname \"sudo bash -c \"sh /tmp/hbase_test_client.cmds-to-run.$cluster.sh\"\""
         st=$?
         echo "fanoutHBASETestClient status: st=$st"
@@ -309,8 +309,8 @@ fanoutHBASETestClient() {
 fanoutHBASEMASTER() {
         echo 'fanoutHBASEMASTER: start on ' `date +%H:%M:%S`
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
-        echo $* > $scripttmp/hbase_master.cmds-to-run.$cluster.sh
-        execCmd "scp $scripttmp/hbase_master.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+        echo $* > $scriptdir/hbase_master.cmds-to-run.$cluster.sh
+        execCmd "scp $scriptdir/hbase_master.cmds-to-run.$cluster.sh ${machname}:/tmp/"
         execCmd "ssh $machname \"sudo bash -c \"sh /tmp/hbase_master.cmds-to-run.$cluster.sh\"\""
         st=$?
         echo "fanoutHBASEMASTER status: st=$st"
@@ -448,12 +448,12 @@ fanoutGW() {
 fanoutGW_old() {
    # echo fanoutGW: running "$@" 
 
-   echo $* > $scripttmp/gw.cmds-to-run.$cluster.sh
+   echo $* > $scriptdir/gw.cmds-to-run.$cluster.sh
 
    [ -n "$gateway" ]  && (
        machname=$gateway
        echo fanoutGW: running on ${gateway}:  "$@" 
-       execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+       execCmd "scp $scriptdir/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
        execCmd "ssh $machname \"sudo bash -c \"sh /tmp/gw.cmds-to-run.$cluster.sh\"\""
 
    )
@@ -468,7 +468,7 @@ fanoutGW_old() {
        yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`
        if [ -n "$yroot_output" ]; then
        	   echo fanoutGW: running on ${g}:  "$@" 
-           execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+           execCmd "scp $scriptdir/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            st=$?
            execCmd "ssh ${machname} \"sudo /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/\""
            st=$?
@@ -490,7 +490,7 @@ fanoutGW_old() {
 fanoutYRoots() {
    echo fanoutYRoots: running "$@" 
 
-   echo $* > $scripttmp/gw.cmds-to-run.$cluster.sh
+   echo $* > $scriptdir/gw.cmds-to-run.$cluster.sh
 
    echo fanoutYRoots: gateways = $gateways
    [ -n "$gateways" ]  && for g in $gateways; do
@@ -503,7 +503,7 @@ fanoutYRoots() {
        yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`
        if [ -n "$yroot_output" ]; then
            echo fanoutYRoots: running on ${g}:  "$@" 
-           execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+           execCmd "scp $scriptdir/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            [ $? -ne 0 ] && st=$?
            execCmd "ssh ${machname} \"sudo /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/\""
            [ $? -ne 0 ] && st=$?

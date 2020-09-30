@@ -7,7 +7,7 @@
 #        rsync the file, run it.
 # (3) if each NN has a good exit-status, record the results in a MANIFEST.
 #
-# Inputs: $scripttmp	(for rsync)
+# Inputs: $scriptdir	(for rsync)
 # Inputs: $scriptaddr	(for rsync)
 # Inputs: $REMOVEEXISTINGDATA	(boolean)
 # Inputs: $cluster
@@ -19,7 +19,7 @@ set +x
 debug=
 JAVA_HOME="$GSHOME/java/jdk64/current"
 
-cat > $scripttmp/$cluster.testNNdeploy.sh <<zz
+cat > $scriptdir/$cluster.testNNdeploy.sh <<zz
 cd ${yroothome}
    export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
    export HADOOP_CONF_DIR=${yroothome}/conf/hadoop
@@ -56,7 +56,7 @@ done
 echo \$cnt namenodes up.
 zz
 
-fanoutscp "$scripttmp/$cluster.testNNdeploy.sh" "/tmp/" "$gateway"
+fanoutscp "$scriptdir/$cluster.testNNdeploy.sh" "/tmp/" "$gateway"
 set -x
 fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
 set +x

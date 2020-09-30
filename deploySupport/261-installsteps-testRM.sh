@@ -7,7 +7,7 @@
 #        rsync the file, run it.
 # (3) if each JT has a good exit-status, record the results in a MANIFEST.
 #
-# Inputs: $scripttmp    (for rsync)
+# Inputs: $scriptdir    (for rsync)
 # Inputs: $scriptaddr    (for rsync)
 # Inputs: $REMOVEEXISTINGDATA    (boolean)
 # Inputs: $cluster
@@ -25,7 +25,7 @@ banner "Running Yarn tests: \$PREFERREDJOBPROCESSOR set to yarn."
 JAVA_HOME="$GSHOME/java/jdk64/current"
 debug=
 
-cat > $scripttmp/$cluster.testYarndeploy.sh <<zz
+cat > $scriptdir/$cluster.testYarndeploy.sh <<zz
 set -e
 cd ${yroothome}
    export HADOOP_HDFS_HOME=${yroothome}/share/hadoop
@@ -99,7 +99,7 @@ zz
 
 set -x
 # gridci-2393, use new nfs server, which has updated mapred keytab
-fanoutscp "$scripttmp/$cluster.testYarndeploy.sh" "/tmp/" "$gateway"
+fanoutscp "$scriptdir/$cluster.testYarndeploy.sh" "/tmp/" "$gateway"
 fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
 set +x
 

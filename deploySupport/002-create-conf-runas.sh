@@ -1,4 +1,4 @@
-filename="/grid/0/tmp/deploy.$cluster.createrunAs.sh"
+filename="$scriptdir/deploy.$cluster.createrunAs.sh"
 (
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
     echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "

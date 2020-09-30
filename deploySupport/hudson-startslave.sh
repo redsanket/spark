@@ -460,9 +460,9 @@ function fetch_artifacts() {
     set -x
     $SCP $ADMIN_HOST:$ADMIN_WORKSPACE/manifest.txt $artifacts_dir/manifest.txt
     cat $artifacts_dir/manifest.txt
-    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/timeline.log $artifacts_dir/timeline.log
-    # $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
-    $SCP $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$CLUSTER/*.log $artifacts_dir/
+    # $SCP $ADMIN_HOST:$scriptdir/timeline.log $artifacts_dir/timeline.log
+    # $SCP $ADMIN_HOST:$scriptdir/${CLUSTER}-test.log $artifacts_dir/${CLUSTER}-test.log
+    $SCP $ADMIN_HOST:$scriptdir/*.log $artifacts_dir/
 
     # Add to the build artifact handy references to the NN and RM webui
     webui_file="$artifacts_dir/webui.html"

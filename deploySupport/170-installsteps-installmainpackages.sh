@@ -69,12 +69,16 @@ fanoutGW "$cmd"
 #    f=YahooDNSToSwitchMapping-0.2.1111040716.jar
 #    f=YahooDNSToSwitchMapping-0.22.0.1011272126.jar
 
-fanoutscp "/grid/0/tmp/deploy.$cluster.confoptions.sh /grid/0/tmp/processNameNodeEntries.py /grid/0/tmp/namenodes.$cluster.txt /grid/0/tmp/secondarynamenodes.$cluster.txt /grid/0/tmp/processNameNodeEntries.py" "/tmp/" "$HOSTLIST"
+fanoutscp "$scriptdir/deploy.$cluster.confoptions.sh \
+$scriptdir/processNameNodeEntries.py \
+$scriptdir/namenodes.$cluster.txt \
+$scriptdir/secondarynamenodes.$cluster.txt \
+$scriptdir/processNameNodeEntries.py" "/tmp/" "$HOSTLIST"
 
 cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh && cp /tmp/deploy.$cluster.confoptions.sh  ${yroothome}/conf/hadoop/ "
 
 #    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
-#    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:/grid/0/tmp/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
+#    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:$scriptdir/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
 fanout "$cmd"
 fanoutGW "$cmd"
 

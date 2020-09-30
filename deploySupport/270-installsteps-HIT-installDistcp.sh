@@ -49,7 +49,7 @@ case "$DISTCPVERSION" in
     echo '  rm -f '${yroothome}'/tmp/distcpversions/current'
     echo '  ln -s $t '${yroothome}'/tmp/distcpversions/current'
     echo "fi"
-) > $scripttmp/$cluster.distcp.install.sh
+) > $scriptdir/$cluster.distcp.install.sh
 
         fanoutYRoots "rsync $scriptaddr/$cluster.distcp.install.sh /tmp/ && sh /tmp/$cluster.distcp.install.sh"
         st=$?

@@ -20,7 +20,7 @@ case "$VAIDYAVERSION" in
     echo '[ "$st" -ne 0 ] && echo $st &&echo "*****" VAIDYA NOT INSTALLED "*****" && exit $st'
     echo 'echo `hostname`:  you may need to add gateway-specific things to vaidya install. '
 
-) > $scripttmp/$cluster.installvaidya.sh
+) > $scriptdir/$cluster.installvaidya.sh
 
         set -x
         fanoutYRoots "rsync -a $scriptaddr/$cluster.installvaidya.sh  /tmp/ && sh /tmp/$cluster.installvaidya.sh"

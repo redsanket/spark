@@ -1,4 +1,4 @@
-filename="/grid/0/tmp/deploy.$cluster.processes.to.kill.sh"
+filename="$scriptdir/deploy.$cluster.processes.to.kill.sh"
 (
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
     # echo  yinst self-update -branch yinst7current

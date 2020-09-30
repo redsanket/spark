@@ -7,9 +7,9 @@ fi
 set -x
 # /home/gs/conf/local/slaves
 # /home/gs/gridre/yroot.openphil1blue/conf/hadoop/slaves.localcopy.txt
-cp $WORK_DIR/slaves.$cluster.txt $scripttmp/slaves.$cluster.txt
-fanoutscp "$scripttmp/slaves.$cluster.txt" "${GSHOME}/conf/local/slaves" "$HOSTLIST"
-fanoutscp "$scripttmp/slaves.$cluster.txt" "${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
+cp $WORK_DIR/slaves.$cluster.txt $scriptdir/slaves.$cluster.txt
+fanoutscp "$scriptdir/slaves.$cluster.txt" "${GSHOME}/conf/local/slaves" "$HOSTLIST"
+fanoutscp "$scriptdir/slaves.$cluster.txt" "${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
 set +x
 
 (
@@ -31,9 +31,9 @@ echo '        cp $file ${GSHOME}/conf/local/${file}'
 echo '    fi '
 echo "done"
 echo 'cd /tmp && rm -rf /tmp/$$'
-) > $scripttmp/$cluster.cplocalfiles.sh
+) > $scriptdir/$cluster.cplocalfiles.sh
 
-fanoutscp "$scripttmp/$cluster.cplocalfiles.sh" "/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
+fanoutscp "$scriptdir/$cluster.cplocalfiles.sh" "/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
 cmd="sh -x /tmp/$cluster.cplocalfiles.sh"
 set -x
 fanout "$cmd"

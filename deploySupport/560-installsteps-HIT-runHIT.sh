@@ -14,7 +14,7 @@ case "$HITVERSION" in
 
    
    echo 'if [ "$st" -ne 0 ]; then echo $st; echo "*****" HIT.sh NOT running properly, exits with $st "*****" ; exit $st; fi'
-) > $scripttmp/$cluster.hit.run.sh
+) > $scriptdir/$cluster.hit.run.sh
 
         fanoutYRoots "
 	rsync $scriptaddr/$cluster.hit.run.sh /tmp/ &&

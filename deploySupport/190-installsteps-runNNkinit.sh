@@ -31,10 +31,10 @@ echo else
     echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 echo fi
 echo klist
-) > $scripttmp/$cluster.nninit.sh
+) > $scriptdir/$cluster.nninit.sh
 
     set -x
-    scp $scripttmp/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
+    scp $scriptdir/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
     ssh $node "sudo -su $HDFSUSER bash -c \"sh -x /tmp/$cluster.nninit.sh\""
     set +x
 done

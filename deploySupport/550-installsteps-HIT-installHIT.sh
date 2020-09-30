@@ -18,7 +18,7 @@ case "$HITVERSION" in
         export HADOOP_MAPRED_HOME=$yrootHadoopMapred
         export HADOOP_HDFS_HOME=$yrootHadoopHdfs
         export HADOOP_HOME=${GSHOME}/hadoop/current
-	env > $scripttmp/$cluster.hit.install.env
+	env > $scriptdir/$cluster.hit.install.env
 	echo ========= cluster = $cluster
 (
    echo echo installing HIT on `date` with $HITVERSION
@@ -26,7 +26,7 @@ case "$HITVERSION" in
    echo 'st=$?'
    echo '[ "$st" -ne 0 ] && echo "*****" HIT NOT INSTALLED "*****" && exit $st'
    
-) > $scripttmp/$cluster.hit.install.sh
+) > $scriptdir/$cluster.hit.install.sh
 
         fanoutYRoots "
 	rsync $scriptaddr/$cluster.hit.install.* /tmp/ &&
@@ -39,7 +39,7 @@ case "$HITVERSION" in
             if [ -e $manifest_file ]; then
                 echo "Find manifest file '$manifest' ..., copy inside the GW yroot now.."
                 cp $manifest_file /grid/0/tmp/hit.manifest.txt
-                echo "rsync -av $ADMIN_HOST::tmp/hit.manifest.txt /tmp/" > $scripttmp/$cluster.hit.copymanifest.sh
+                echo "rsync -av $ADMIN_HOST::tmp/hit.manifest.txt /tmp/" > $scriptdir/$cluster.hit.copymanifest.sh
                 fanoutYRoots "rsync $scriptaddr/$cluster.hit.copymanifest.sh /tmp/ && sh /tmp/$cluster.hit.copymanifest.sh "
             fi
         else

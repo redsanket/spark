@@ -56,15 +56,6 @@ kmsnodeshort=`echo $kmsnode | cut -d'.' -f1`
 CONF_KMS="/home/y/conf/kms"
 CONF_ZK="/home/y/conf/zookeeper"
 
-# gridci-3618, workaround for yjava pkgs that don't populate files in /home/y/bin64
-# ref jiras JAVAPLATF-2893, JAVAPLATF-2894
-function cp_files {
-    SRC_FILE=$1
-    DEST_FILE=$2
-    $SSH $kmsnode "cp $SRC_FILE $DEST_FILE"
-}
-
-
 # if kms role is not populated, warn but don't fail to allow for
 # most existing clusters that weren't built with kms support roles,
 # just continue deployment 
@@ -97,13 +88,13 @@ $SSH $kmsnode "sudo bash -c \"systemctl stop cm3-client-sync.service\""
 $SSH $kmsnode "sudo bash -c \"yinst i yjava_jdk-8.0_8u242b08.3733851 -downgrade\""
 
 $SSH $kmsnode "sudo bash -c \"yinst i -br test hadoopqa_headless_keys\""
-
 RC=$?
 set +x
 if [ $RC -ne 0 ]; then
     echo "Error: node $kmsnode failed yinst install of hadoopqa_headless_keys!"
     exit 1
 fi
+
 $SSH $kmsnode "sudo bash -c \"systemctl start cm3-client-sync.service\""
 
 # create and make accessible conf dir for kms
@@ -191,10 +182,10 @@ echo " storeKey=true"
 echo " useTicketCache=false"
 echo " principal=\"zookeeper/$kmsnode@DEV.YGRID.YAHOO.COM\";"
 echo "};"
-) > $scripttmp/$cluster.jaas.conf
+) > $scriptdir/$cluster.jaas.conf
 
 JAASFILE="/home/y/conf/zookeeper/jaas.conf"
-fanoutscp "$scripttmp/$cluster.jaas.conf" "$JAASFILE" "$kmsnode" "root:root"
+fanoutscp "$scriptdir/$cluster.jaas.conf" "$JAASFILE" "$kmsnode" "root:root"
 if [ $? -ne 0 ]; then
     echo "Failed to setup JAAS file for ZooKeeper!"
 else

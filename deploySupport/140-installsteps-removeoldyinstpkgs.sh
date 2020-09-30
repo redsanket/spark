@@ -21,12 +21,12 @@ ln -s /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} current && \
 if [ -d /home/gs/java/jdk64 ]; then cd /home/gs/java/jdk64; rm -f current; fi && \
 ln -s /home/gs/gridre/javahome/share/gridjdk64-${GRIDJDK_VERSION} current "
 
-fanoutscp "/grid/0/tmp/deploy.$cluster.remove.old.packages.sh" "/tmp/deploy.$cluster.remove.old.packages.sh" "$HOSTLISTNOGW"
+fanoutscp "$scriptdir/deploy.$cluster.remove.old.packages.sh" "/tmp/deploy.$cluster.remove.old.packages.sh" "$HOSTLISTNOGW"
 
 fanoutnogw "GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.remove.old.packages.sh && \
 rm /tmp/deploy.$cluster.remove.old.packages.sh"
 
-scp /grid/0/tmp/deploy.$cluster.remove.gateway.old.packages.sh $gateway:/tmp/deploy.$cluster.remove.gateway.old.packages.sh
+scp $scriptdir/deploy.$cluster.remove.gateway.old.packages.sh $gateway:/tmp/deploy.$cluster.remove.gateway.old.packages.sh
 
 fanoutGW "sh /tmp/deploy.$cluster.remove.gateway.old.packages.sh && \
 rm /tmp/deploy.$cluster.remove.gateway.old.packages.sh"
