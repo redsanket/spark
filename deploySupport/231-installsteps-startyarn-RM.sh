@@ -32,14 +32,14 @@ export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock && PDSH_SSH_ARGS_APPE
 
 # GRIDCI-444 - nm health check for openstack
 fanoutscp "$scripttmp/setup_nm_health_check_script.sh" "/tmp" "$SLAVELIST"
-slavefanout "sh /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
+fanout_workers_root "sh /tmp/setup_nm_health_check_script.sh"
 
 # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
 fanoutscp "$scripttmp/setup_nm_dockerd_check_script.sh" "/tmp" "$SLAVELIST"
-slavefanout "sh /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
+fanout_workers_root "sh /tmp/setup_nm_dockerd_check_script.sh"
 
 # Install runc on all the nodemanagers that are not RHEL6
-slavefanout '[[ $(cut -d" " -f7 < /etc/redhat-release) =~ ^6. ]] || yum -y install runc'
+fanout_workers_root '[[ $(cut -d" " -f7 < /etc/redhat-release) =~ ^6. ]] || yum -y install runc'
 
 set +x
 
@@ -64,7 +64,7 @@ tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
 ) > $tmpsetupfile
 fanoutscp "$tmpsetupfile" "/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 set -x
-slavefanout "sh /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+fanout_workers_root "sh /tmp/setup_nm_cgroups.sh"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 # echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
 
