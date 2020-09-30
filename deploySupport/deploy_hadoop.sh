@@ -295,7 +295,15 @@ fi
 #################################################################################
 function error_handler {
     LASTLINE="$1"
-    echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+    # echo "ERROR: Trapped error signal from caller [${BASH_SOURCE} line ${LASTLINE}]"
+    # echo "ERROR: Trapped error signal from caller [${BASH_SOURCE[*]} line ${LASTLINE}]"
+
+    # If BASH_SOURCE array size is greater than 1, show the next to last one
+    if [ "${#BASH_SOURCE[*]}" -gt 1 ]; then
+	echo "ERROR: Trapped error signal from caller [${BASH_SOURCE[-2]} line ${LASTLINE}]"
+    else
+	echo "ERROR: Trapped error signal from caller [${BASH_SOURCE[0]} line ${LASTLINE}]"
+    fi
 }
 trap 'error_handler ${LINENO}' ERR
 
@@ -430,6 +438,7 @@ export EXIT_ON_ERROR=true
 
 index=1
 START_STEP=${START_STEP:="0"}
+RUN_SINGLE_STEP=${RUN_SINGLE_STEP:="0"}
 
 # Install Tez if enabled
 if [[ "${INSTALL_TEZ}" == only ]]; then
@@ -446,8 +455,8 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	script_basename=`basename $script`
 	current_step=`echo $script_basename|cut -d'-' -f1|bc`
 	if [[ $current_step -lt $START_STEP ]];then
-	    echo "SKIP deploy script: ${script_basename}: less than starting step '$START_STEP'"
-	    continue;
+            echo "SKIP deploy script: ${script_basename}: less than starting step '$START_STEP'"
+            continue;
 	fi
 
 	set +x
@@ -456,36 +465,32 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	start=`date +%s`
 	h_start=`date +%Y/%m/%d-%H:%M:%S`
 
+	echo "Running $script"
+
 	# For general shutdown and cleanup scripts, temporarily disable exit on failure.
 	# also skip error on 170 since it returns nonzero on GW ssl cert update for kms
 	# unfortunately +/-e in the step still propogated fail out
 	SKIP_ERROR_ON_STEP="false"
 	if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]] || [[ $script =~ "170-" ]]); then
+            echo "Skip exit on failure for script $script_basename"
             SKIP_ERROR_ON_STEP="true"
             set +e
 	fi
 
-	echo "Running $script"
-
+	max_script_num=500
 	################################################################################
-	# debug
-	# ls -1 [0-9][0-9]*-installsteps-[^HIT]*.sh
-	#
-	# PASSED:
+	# $ ls -1 [0-9][0-9]*-installsteps-[^HIT]*.sh
 	# 000-installsteps-explanation.sh
 	# 100-installsteps-examineiptables.sh
-	#
-	max_script_num=100
-	# TBD:
 	# 101-installsteps-killprocess.sh
-	# 105-installsteps-createnewclusterkeytab.sh
-	# 110-installsteps-checksshconnectivity.sh
+	# 105-installsteps-createnewclusterkeytab.sh # nothing to do
+	# 110-installsteps-checksshconnectivity.sh   # nothing to do
 	# 111-installsteps-check_ssl_certs.sh
 	# 115-installsteps-installhadooputils.sh
-	# 120-installsteps-removerpmpackages.sh
+	# 120-installsteps-removerpmpackages.sh      # nothing to do
 	# 140-installsteps-removeoldyinstpkgs.sh
-	# 145-installsteps-mkyroot-gw.sh
-	# 150-installsteps-yinstselfupdate.sh
+	# 145-installsteps-mkyroot-gw.sh             # nothing to do
+	# 150-installsteps-yinstselfupdate.sh        # nothing to do
 	# 160-installsteps-removeexistingdata.sh
 	# 165-installsteps-creategshome.sh
 	# 167-installsteps-removeexistinglogs.sh
@@ -494,7 +499,7 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	# 189-installsteps-namenodeExplanation.sh
 	# 190-installsteps-runNNkinit.sh
 	# 200-installsteps-configureNN.sh
-	# 205-installsteps-getClusterid.sh
+	# 205-installsteps-getClusterid.sh            # nothing to do
 	# 210-installsteps-startNN.sh
 	# 219-installsteps-jobtrackerExplanation.sh
 	# 220-installsteps-configureJT.sh
@@ -502,7 +507,7 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	# 230-installsteps-update-docker.sh
 	# 231-installsteps-startyarn-RM.sh
 	# 235-installsteps-jdk-gateway.sh
-	# 240-installsteps-hbasesetup.sh
+	# 240-installsteps-hbasesetup.sh               # nothing to do
 	# 250-installsteps-testNN.sh
 	# 255-installsteps-setstickybit.sh
 	# 256-installsteps-KmsAndZookeeper.sh
@@ -510,20 +515,27 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	# 261-installsteps-testRM.sh
 	# 500-installsteps-runsimpletest.sh
 
-
 	script_num=`echo $script_basename|cut -d'-' -f1`
-	echo "script_num=$script_num"
-	echo "max_script_num=$max_script_num"
 
 	# Execute steps that are smaller than or equal to the max script num
 	if (($script_num <= $max_script_num)); then
-	    time . "$script"
+	    time . "$script" 2>&1 |tee "$WORK_DIR/${script_basename}.log"
+	else
+	    echo "Nothing to do: script_num=$script_num is less than max_script_num=$max_script_num"
 	fi
 	st=$?
 	end=`date +%s`
 	h_end=`date +%Y/%m/%d-%H:%M:%S`
 	runtime=$((end-start))
 
+        # exported value of CLUSTERID from 205-installsteps-getClusterid.sh is not sticking
+	if ((($script_num == 205)) && [ -f /tmp/$cluster.clusterid.txt ]); then
+	    export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
+	    rm -rf /tmp/$cluster.clusterid.txt
+	    echo "CLUSTERID=$CLUSTERID"
+	fi
+
+	# Turn exit on failure back on now
 	if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
             set -e
 	fi
@@ -551,6 +563,10 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
             fi
 	fi
 	index=$((index+1))
+
+	if [ "$RUN_SINGLE_STEP" == true ]; then
+	    break
+	fi
     else
 	echo "WARNING!!! deploy script $script not found!!!"
     fi
