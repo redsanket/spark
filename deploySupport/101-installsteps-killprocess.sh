@@ -54,7 +54,7 @@ fi
 echo "Step 1c: Stop data nodes, if running."
 fanoutscp "/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh" "/tmp/datanode-script.sh" "$SLAVELIST"
 set -x
-slavefanout "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh stop $cluster > /dev/null 2>&1"
+fanout_workers_root "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh stop $cluster > /dev/null 2>&1"
 set +x
 
 # kill any running processes.
