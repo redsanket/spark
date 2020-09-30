@@ -79,7 +79,7 @@ remote_exec() {
 	set +x
     else
 	set -x
-	$SSH $remote_host "sudo -su $user \"$cmd\""
+	$SSH $remote_host "sudo -su $user bash -c \"$cmd\""
 	set +x
     fi
 }
