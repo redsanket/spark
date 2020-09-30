@@ -16,7 +16,7 @@ set +x
 if [ "$HBASE_SHORTCIRCUIT" == "true" ]; then
     #Setp proper directory permission for short-circuit enabled
     set -x
-    slavefanout "chgrp -R hbaseqa /grid/*/hadoop/var && chmod -R 750 /grid/*/hadoop/var && chmod g+s /grid/*/hadoop/var "
+    fanout_workers_root "chgrp -R hbaseqa /grid/*/hadoop/var && chmod -R 750 /grid/*/hadoop/var && chmod g+s /grid/*/hadoop/var "
     set +x
 fi
 return 0 ;
