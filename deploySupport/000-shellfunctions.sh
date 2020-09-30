@@ -19,17 +19,148 @@ PDSH="pdsh -S "
 PDSH_FAST="$PDSH -u $FAST_WAIT_SEC -f 25 "
 PDSH_SLOW="$PDSH -u $SLOW_WAIT_SEC -f 25 "
 
+function transport_files_from_admin {
+    local ADM_HOST=$1
+    local ADM_PATH=$2
+    local NODES=$3
+    local NODE_PATH=$4
+    local CHOWN_ATTR=$5
+
+    # rsync files from admin node to the Jenkins worker node
+    NODE_SHORT=`echo $NODE | cut -d'.' -f1`
+    set -x
+    TMP_DIR="/tmp/${NODE_SHORT}.$$"
+    mkdir -p $TMP_DIR
+    ls -l $TMP_DIR
+    rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR
+    RC=$?
+    set +x
+    if [ $RC -ne 0 ]; then
+        echo "Error: rsync of files from admin host $ADM_HOST failed!"
+        exit 1
+    fi
+
+    # Show no log and error status
+    # CSV_NODES=`echo $NODE_LIST|tr '\n' ','`
+    # echo "CSV_NODES=$CSV_NODES"
+    # /usr/bin/pdcp -w $CSV_NODES $SOURCE $TARGET
+
+    # rsync files from the Jenkins worker node to the target node
+    echo "NODES=$NODES"
+    for node in $NODES; do
+        set -x
+        $SSH $node sudo mkdir -p $NODE_PATH
+        rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH
+        RC=$?
+        set +x
+        if [ $RC -ne 0 ]; then
+            echo "Error: rsync of files from Jenkins worker node to node $node failed!"
+            exit 1
+        fi
+        set -x
+        $SSH $node sudo chown -R $CHOWN_ATTR $NODE_PATH
+        RC=$?
+        set +x
+        if [ $RC -ne 0 ]; then
+            echo "Error: chown files on node $NODE failed!"
+            exit 1
+        fi
+    done
+    rm -rf $TMP_DIR
+}
+
+remote_exec() {
+    local remote_host=$1
+    local cmd=$2
+    local user=$3
+    if [ -z $user ]; then
+	set -x
+	$SSH $remote_host "sudo bash -c \"$cmd\""
+	set +x
+    else
+	set -x
+	$SSH $remote_host "sudo -su $user \"$cmd\""
+	set +x
+    fi
+}
+
+exec_nn_hdfsuser() {
+    local cmd=$1
+    remote_exec "$NAMENODE_Primary" "$cmd" "$HDFSUSER"
+}
+
+exec_nn_root() {
+    local cmd=$1
+    remote_exec "$NAMENODE_Primary" "$cmd"
+}
+
+exec_jt_mapreduser() {
+    local cmd=$1
+    remote_exec "$jobtrackernode" "$cmd" "$MAPREDUSER"
+}
+
+# The set of fanout functions used to run from devadm102 as root.
+# Now they will be run from the Jenkins workder node as hadoopqa.
+# Therefore, we need to append them with "sudo bash -c \"$cmd\"".
+# so they run as root on the target nodes.
 
 fanout() {
-	# echo 'fanout: start on ' `date +%H:%M:%S`
-	[ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" $*
-	# echo 'fanout: end on ' `date +%H:%M:%S`
+        # echo 'fanout: start on ' `date +%H:%M:%S`
+        [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$*\""
+        # echo 'fanout: end on ' `date +%H:%M:%S`
 }
 fanoutnogw() {
         # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && $PDSH_FAST -w "$HOSTLISTNOGW" $*
+        [ -n "$HOSTLISTNOGW" ] && $PDSH_FAST -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
         # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
 }
+
+fanoutscp() {
+    local SOURCE=$1
+    local TARGET=$2
+    local NODE_LIST=$3
+    local CHOWN_ATTR=$4
+
+    # host is comma separated list of hosts
+    if [[ -z $NODE_LIST ]]; then
+        echo "ERROR: Required host list argument is missing!!!"
+        return 1
+    else
+        NODES=`echo $NODE_LIST|tr "," " "`
+    fi
+    num_nodes=`echo $NODES|wc -w`
+
+    # /usr/bin/pdcp -w $NODE_LIST $SOURCE $TARGET
+    # if [ -n "$CHOWN_ATTR" ]; then
+    #     pdsh -w $CSV_NODES "sudo bash -c \"chown -R $CHOWN_ATTR $TARGET\""
+    # fi
+
+    # rsync file from the Jenkins worker node to the target node
+    for node in $NODES; do
+        set -x
+        # target is a file though
+        # $SSH $node sudo mkdir -p $TARGET
+        rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
+        RC=$?
+        set +x
+        if [ $RC -ne 0 ]; then
+            echo "Error: rsync of files from Jenkins worker node to node $node failed!"
+            exit 1
+        fi
+
+        if [ -n "$CHOWN_ATTR" ]; then
+            set -x
+            $SSH $node sudo chown -R $CHOWN_ATTR $TARGET
+            RC=$?
+            set +x
+            if [ $RC -ne 0 ]; then
+                echo "Error: chown files on node $NODE failed!"
+                exit 1
+            fi
+        fi
+    done
+}
+
 
 # parameter 1 - command to run
 # parameter 2 - comma separated host names
@@ -53,7 +184,7 @@ fanoutcmd() {
 
     num_hosts=`echo $hosts|wc -w`
 
-    echo "fanout to '$num_hosts' hosts '"$hosts"':"
+    echo "fanout to [$num_hosts] hosts '"$hosts"':"
     echo "base command='$command'"
 
     count=1
@@ -93,45 +224,83 @@ recordpkginstall() {
 	ver=$2
 	[ -n "$ver" ] && recordManifest  "pkgname=$nm" "pkgver=$ver"
 }
-slavefanout() {
+fanout_workers_root() {
 	echo 'slavefanout: start on ' `date +%H:%M:%S`
-	$PDSH_FAST -w "$SLAVELIST" $*
+	$PDSH_FAST -w "$SLAVELIST" "sudo bash -c \"$*\""
 	echo 'slavefanout: end on ' `date +%H:%M:%S`
 }
 slownogwfanout() {
         echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && $PDSH_SLOW -w "$HOSTLISTNOGW" $*
+        [ -n "$HOSTLISTNOGW" ] && $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
 }
 
 slowfanout() {
 	echo 'slowfanout: start on ' `date +%H:%M:%S`
-	$PDSH_SLOW -w "$HOSTLIST" $*
+	$PDSH_SLOW -w "$HOSTLIST" "sudo bash -c \"$*\""
 	echo 'slowfanout: end on ' `date +%H:%M:%S`
 }
 export ALLNAMENODESLIST=`echo $ALLNAMENODES  | tr ' ' ,`
 export ALLNAMENODESAndSecondariesList=`echo $ALLNAMENODESAndSecondaries  | tr ' ' ,`
 fanoutNN() {
-	echo 'fanoutNN: start on ' `date +%H:%M:%S`
-	$PDSH_SLOW -w "$ALLNAMENODESLIST" $*
-	echo 'fanoutNN: end on ' `date +%H:%M:%S`
+    local cmd=$1
+    local user=$2
+    echo 'fanoutNN: start on ' `date +%H:%M:%S`
+    if [ -n "$user" ]; then
+	$PDSH_SLOW -w "$ALLNAMENODESLIST" "sudo -su $user bash -c \"$cmd\""
+    else
+	$PDSH_SLOW -w "$ALLNAMENODESLIST" "sudo bash -c \"$cmd\""
+    fi
+    echo 'fanoutNN: end on ' `date +%H:%M:%S`
 }
+
+fanout_nn_hdfsuser() {
+    local cmd=$1
+    fanoutNN "$cmd" "$HDFSUSER"
+}
+
+fanout_nn_root() {
+    local cmd=$1
+    fanoutNN "$cmd"
+}
+
 fanoutSecondary() {
-	echo 'fanoutSecondary: start on ' `date +%H:%M:%S`
-	$PDSH_SLOW -w "$ALLSECONDARYNAMENODESLIST" $*
-	echo 'fanoutSecondary: end on ' `date +%H:%M:%S`
+    local cmd=$1
+    local user=$2
+    echo 'fanoutSecondary: start on ' `date +%H:%M:%S`
+    if [ -n "$user" ]; then
+	$PDSH_SLOW -w "$ALLSECONDARYNAMENODESLIST" "sudo -su $user bash -c \"$cmd\""
+    else
+	$PDSH_SLOW -w "$ALLSECONDARYNAMENODESLIST" "sudo bash -c \"$cmd\""
+    fi
+    echo 'fanoutSecondary: end on ' `date +%H:%M:%S`
 }
+
+fanoutSecondary_hdfsuser() {
+    fanoutSecondary "$cmd" "$HDFSUSER"
+}
+
+fanoutSecondary_root() {
+    fanoutSecondary "$cmd"
+}
+
 fanoutNNAndSecondary() {
-	echo 'fanoutNNAndSecondary: start on ' `date +%H:%M:%S`
-	$PDSH_SLOW -w "$ALLNAMENODESAndSecondaries" $*
-	echo 'fanoutNNAndSecondary: end on ' `date +%H:%M:%S`
+    local cmd=$1
+    local user=$2
+    echo 'fanoutNNAndSecondary: start on ' `date +%H:%M:%S`
+    if [ -n "$user" ]; then
+	$PDSH_SLOW -w "$ALLNAMENODESAndSecondaries" "sudo -su $user bash -c \"$cmd\""
+    else
+	$PDSH_SLOW -w "$ALLNAMENODESAndSecondaries" "sudo bash -c \"$cmd\""
+    fi
+    echo 'fanoutNNAndSecondary: end on ' `date +%H:%M:%S`
 }
 fanoutHBASETestClient() {
         echo 'fanoutHBASETestClient: start on ' `date +%H:%M:%S`
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
         echo $* > $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh
         execCmd "scp $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-        execCmd "ssh $machname sh /tmp/hbase_test_client.cmds-to-run.$cluster.sh"
+        execCmd "ssh $machname \"sudo bash -c \"sh /tmp/hbase_test_client.cmds-to-run.$cluster.sh\"\""
         st=$?
         echo "fanoutHBASETestClient status: st=$st"
         echo 'fanoutHBASETestClient: end on ' `date +%H:%M:%S`
@@ -142,7 +311,7 @@ fanoutHBASEMASTER() {
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
         echo $* > $scripttmp/hbase_master.cmds-to-run.$cluster.sh
         execCmd "scp $scripttmp/hbase_master.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-        execCmd "ssh $machname sh /tmp/hbase_master.cmds-to-run.$cluster.sh"
+        execCmd "ssh $machname \"sudo bash -c \"sh /tmp/hbase_master.cmds-to-run.$cluster.sh\"\""
         st=$?
         echo "fanoutHBASEMASTER status: st=$st"
         echo 'fanoutHBASEMASTER: end on ' `date +%H:%M:%S`
@@ -151,7 +320,7 @@ fanoutHBASEMASTER() {
 fanoutHBASEZOOKEEPER() {
         echo 'fanoutHBASEZOOKEEPER: start on ' `date +%H:%M:%S`
         HBASEZOOKEEPERNODELIST=`echo $HBASEZOOKEEPERNODE| tr ' ' ,`
-        $PDSH_SLOW -w "$HBASEZOOKEEPERNODELIST" $*
+        $PDSH_SLOW -w "$HBASEZOOKEEPERNODELIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHBASEZOOKEEPER: end on ' `date +%H:%M:%S`
         return $st
@@ -159,7 +328,7 @@ fanoutHBASEZOOKEEPER() {
 fanoutREGIONSERVER() {
         echo 'fanoutREGIONSERVER: start on ' `date +%H:%M:%S`
         REGIONSERVERLIST=`echo $REGIONSERVERNODES| tr ' ' ,`
-        $PDSH_SLOW -w "$REGIONSERVERLIST" $*
+        $PDSH_SLOW -w "$REGIONSERVERLIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutREGIONSERVER: end on ' `date +%H:%M:%S`
         return $st
@@ -169,7 +338,7 @@ fanoutREGIONSERVER() {
 fanoutHiveServer2() {
         echo 'fanoutHiveServer2: start on ' `date +%H:%M:%S`
         HIVE_SERVER2_LIST=`echo $hs2_nodes | tr ' ' ,`
-        $PDSH_SLOW -w "$HIVE_SERVER2_LIST" $*
+        $PDSH_SLOW -w "$HIVE_SERVER2_LIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHiveServer2: end on ' `date +%H:%M:%S`
         return $st
@@ -178,7 +347,7 @@ fanoutHiveServer2() {
 fanoutHiveClient() {
         echo 'fanoutHiveClient: start on ' `date +%H:%M:%S`
         HIVE_CLIENT_LIST=`echo $hive_client | tr ' ' ,`
-        $PDSH_SLOW -w "$HIVE_CLIENT_LIST" $*
+        $PDSH_SLOW -w "$HIVE_CLIENT_LIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHiveClient: end on ' `date +%H:%M:%S`
         return $st
@@ -187,7 +356,7 @@ fanoutHiveClient() {
 fanoutHiveJdbcClient() {
         echo 'fanoutHiveJdbcClient: start on ' `date +%H:%M:%S`
         JDBC_CLIENT_LIST=`echo $jdbc_client | tr ' ' ,`
-        $PDSH_SLOW -w "$JDBC_CLIENT_LIST" $*
+        $PDSH_SLOW -w "$JDBC_CLIENT_LIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHiveJdbcClient: end on ' `date +%H:%M:%S`
         return $st
@@ -196,7 +365,7 @@ fanoutHiveJdbcClient() {
 fanoutHiveMysql() {
         echo 'fanoutHiveMysql: start on ' `date +%H:%M:%S`
         HIVE_MYSQL_LIST=`echo $hive_mysql | tr ' ' ,`
-        $PDSH_SLOW -w "$HIVE_MYSQL_LIST" $*
+        $PDSH_SLOW -w "$HIVE_MYSQL_LIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHiveMysql: end on ' `date +%H:%M:%S`
         return $st
@@ -205,7 +374,7 @@ fanoutHiveMysql() {
 fanoutHcatServer() {
         echo 'fanoutHcatServer: start on ' `date +%H:%M:%S`
         HCAT_SERVER_LIST=`echo $hcat_server | tr ' ' ,`
-        $PDSH_SLOW -w "$HCAT_SERVER_LIST" $*
+        $PDSH_SLOW -w "$HCAT_SERVER_LIST" "sudo bash -c \"$*\""
         st=$?
         echo 'fanoutHcatServer: end on ' `date +%H:%M:%S`
         return $st
@@ -218,7 +387,7 @@ fanoutTez() {
       return 1
    fi
    TEZ_NODE_LIST=`echo $teznode | tr ' ' ,`
-   $PDSH_SLOW -w "$TEZ_NODE_LIST" $*
+   $PDSH_SLOW -w "$TEZ_NODE_LIST" "sudo bash -c \"$*\""
    st=$?
    echo 'fanoutTez: end on ' `date +%H:%M:%S`
    return $st
@@ -227,7 +396,7 @@ fanoutTez() {
 fanoutOneTez() {
    echo 'fanoutOneTez: start on ' `date +%H:%M:%S`
    TEZ_NODE_LIST=`echo $teznode | cut -f1 -d ' '`
-   $PDSH_SLOW -w "$TEZ_NODE_LIST" $*
+   $PDSH_SLOW -w "$TEZ_NODE_LIST" "sudo bash -c \"$*\""
    st=$?
    echo 'fanoutOneTez: end on ' `date +%H:%M:%S`
    return $st
@@ -240,7 +409,7 @@ fanoutTezUI() {
      return 1
   fi 
   TEZ_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
-  $PDSH_SLOW -w "$TEZ_UI_NODE_LIST" $*
+  $PDSH_SLOW -w "$TEZ_UI_NODE_LIST" "sudo bash -c \"$*\""
   st=$?
   echo 'fanoutTez_UI: end on ' `date +%H:%M:%S`
   return $st
@@ -253,7 +422,7 @@ fanoutSpark() {
      return 1
   fi
   SPARK_NODE=`echo $gateway | tr ' ' ,`
-  $PDSH_SLOW -w "$SPARK_NODE" $*
+  $PDSH_SLOW -w "$SPARK_NODE" "sudo bash -c \"$*\""
   st=$?
   echo 'fanoutSpark: end on ' `date +%H:%M:%S`
   return $st
@@ -266,14 +435,17 @@ fanoutSparkUI() {
      return 1
   fi
   SPARK_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
-  $PDSH_SLOW -w "$SPARK_UI_NODE_LIST" $*
+  $PDSH_SLOW -w "$SPARK_UI_NODE_LIST" "sudo bash -c \"$*\""
   st=$?
   echo 'fanoutSpark_UI: end on '`date +%H:%M:%S`
   return $st
 }
 
-
 fanoutGW() {
+  $SSH $gateway "sudo bash -c \"$*\""
+}
+
+fanoutGW_old() {
    # echo fanoutGW: running "$@" 
 
    echo $* > $scripttmp/gw.cmds-to-run.$cluster.sh
@@ -282,12 +454,11 @@ fanoutGW() {
        machname=$gateway
        echo fanoutGW: running on ${gateway}:  "$@" 
        execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-       execCmd "ssh $machname sh /tmp/gw.cmds-to-run.$cluster.sh"
+       execCmd "ssh $machname \"sudo bash -c \"sh /tmp/gw.cmds-to-run.$cluster.sh\"\""
 
    )
 #   st=0
-   [ -n "$gateways" ]  && for g in $gateways
-   do
+   [ -n "$gateways" ]  && for g in $gateways; do
        machname=`echo $g | cut -f1 -d:`
        yrootname=`echo $g | cut -f2 -d:`
        [ -z "$yrootname" ] &&  yrootname=hadoop.${cluster}
@@ -299,9 +470,9 @@ fanoutGW() {
        	   echo fanoutGW: running on ${g}:  "$@" 
            execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            st=$?
-           execCmd "ssh ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
+           execCmd "ssh ${machname} \"sudo /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/\""
            st=$?
-           execCmd "ssh $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh -x  /tmp/gw.cmds-to-run.$cluster.sh \""
+           execCmd "ssh $machname \"sudo /home/y/bin/yroot  ${yrootname} --cmd \\\"sh -x  /tmp/gw.cmds-to-run.$cluster.sh \\\"\""
            st=$?
        else
 	   echo "yroot $yrootname doesn't exist on $machname, skip fanoutGW on yroot..."
@@ -322,8 +493,7 @@ fanoutYRoots() {
    echo $* > $scripttmp/gw.cmds-to-run.$cluster.sh
 
    echo fanoutYRoots: gateways = $gateways
-   [ -n "$gateways" ]  && for g in $gateways
-   do
+   [ -n "$gateways" ]  && for g in $gateways; do
        machname=`echo $g | cut -f1 -d:`
        yrootname=`echo $g | cut -f2 -d:`
        [ -z "$yrootname" ] &&  yrootname=hadoop.${cluster}
@@ -335,9 +505,9 @@ fanoutYRoots() {
            echo fanoutYRoots: running on ${g}:  "$@" 
            execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            [ $? -ne 0 ] && st=$?
-           execCmd "ssh ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
+           execCmd "ssh ${machname} \"sudo /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/\""
            [ $? -ne 0 ] && st=$?
-           execCmd "ssh $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh /tmp/gw.cmds-to-run.$cluster.sh \""
+           execCmd "ssh $machname \"sudo /home/y/bin/yroot  ${yrootname} --cmd \\\"sh /tmp/gw.cmds-to-run.$cluster.sh \\\"\""
            [ $? -ne 0 ] && st=$?
        else
 	   echo "yroot $yrootname doesn't exist on $machname, skip fanoutGW on yroot..."
