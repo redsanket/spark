@@ -530,6 +530,7 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 
         # exported value of CLUSTERID from 205-installsteps-getClusterid.sh is not sticking
 	if ((($script_num == 205)) && [ -f /tmp/$cluster.clusterid.txt ]); then
+	    echo "CLUSTERID=$CLUSTERID"
 	    export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
 	    rm -rf /tmp/$cluster.clusterid.txt
 	    echo "CLUSTERID=$CLUSTERID"

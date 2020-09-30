@@ -45,3 +45,6 @@ if [ $st -eq 0 ]; then
 fi
 
 exec_nn_root "rm -f /tmp/$cluster.clusterid.txt"
+
+export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
+echo "205: CLUSTERID=$CLUSTERID"
