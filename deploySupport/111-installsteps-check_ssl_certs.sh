@@ -9,7 +9,7 @@ set +x
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SSH="ssh $SSH_OPT"
 SCP="scp $SSH_OPT"
-ADM_HOST=${ADM_HOST:="devadm102.blue.ygrid.yahoo.com"}
+ADM_HOST=${ADM_HOST:="devadm101.blue.ygrid.yahoo.com"}
 
 #
 # TODO in future we could deliver these certificates using ykeykey/chef
