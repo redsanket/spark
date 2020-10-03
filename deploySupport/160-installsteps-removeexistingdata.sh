@@ -5,7 +5,9 @@ if [ "$REMOVEEXISTINGDATA" == "true" ]; then
         short_name=`echo $nnode| sed 's/\..*$//g'`
         SHARED_DIR=$HOMEDIR/$HDFSUSER/ha_namedir/${cluster}_${short_name}
         echo "Removing $SHARED_DIR."
+        set +e
         rm -rf $SHARED_DIR
+        set -e
     done
     set -x
     fanoutscp "$scriptdir/cleangrid.sh" "/tmp/cleangrid.sh" "$HOSTLIST"
