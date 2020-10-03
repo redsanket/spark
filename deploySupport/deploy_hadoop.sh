@@ -419,6 +419,7 @@ scriptdir=/grid/0/tmp/deploy.$CLUSTER
 echo "Copying scripts from ${YINST_ROOT}/conf/hadoop/hadoopAutomation/ to $scriptdir"
 cp $ROOT_DIR/*.sh $scriptdir
 cp $ROOT_DIR/*.pl $scriptdir
+cp $ROOT_DIR/*.py $scriptdir
 
 set -e
 
