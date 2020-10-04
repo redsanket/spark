@@ -529,14 +529,14 @@ function execCmd() {
    #[ "$status" -ne 0 ] && echo ">>>> Error! failed to execute cmd '" $1  "' " && exit $status
 }
 
-export PARTITIONHOME=/home
-export GSHOME=$PARTITIONHOME/gs
-export yroothome=$GSHOME/gridre/yroot.$cluster
-export yrootHadoopCurrent=$yroothome/share/hadoop
-export yrootHadoopMapred=$yroothome/share/hadoop
-export yrootHadoopHdfs=$yroothome/share/hadoop
-export yrootHadoopConf=$yroothome/conf/hadoop
-export GRIDJDK_VERSION=$GRIDJDK_VERSION
+# export PARTITIONHOME=/home
+# export GSHOME=$PARTITIONHOME/gs
+# export yroothome=$GSHOME/gridre/yroot.$cluster
+# export yrootHadoopCurrent=$yroothome/share/hadoop
+# export yrootHadoopMapred=$yroothome/share/hadoop
+# export yrootHadoopHdfs=$yroothome/share/hadoop
+# export yrootHadoopConf=$yroothome/conf/hadoop
+# export GRIDJDK_VERSION=$GRIDJDK_VERSION
 
 
 initManifest

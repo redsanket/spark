@@ -1,8 +1,8 @@
-set -x
-cp $nn_list                               $scriptdir
-cp $sn_list                               $scriptdir
-cp $nn_haalias_list                       $scriptdir
-set +x
+# set -x
+# cp $nn_list                               $scriptdir
+# cp $sn_list                               $scriptdir
+# cp $nn_haalias_list                       $scriptdir
+# set +x
 
 filename="$scriptdir/deploy.$cluster.confoptions.sh"
 (

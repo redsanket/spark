@@ -11,3 +11,12 @@ export PDSH_SSH_ARGS_APPEND="$SSH_OPT"
 export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/hadoopqa.sock
 
 export yinst=/usr/local/bin/yinst
+
+export PARTITIONHOME=/home
+export GSHOME=$PARTITIONHOME/gs
+export yroothome=$GSHOME/gridre/yroot.$CLUSTER
+export yrootHadoopCurrent=$yroothome/share/hadoop
+export yrootHadoopMapred=$yroothome/share/hadoop
+export yrootHadoopHdfs=$yroothome/share/hadoop
+export yrootHadoopConf=$yroothome/conf/hadoop
+export GRIDJDK_VERSION=$GRIDJDK_VERSION
