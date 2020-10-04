@@ -36,8 +36,7 @@ if [ -d ${data_dir} ]; then
     rm -rf ${data_dir}
 fi
 
-for i in 0 1 2 3 4 5 6 7 8 9 10 11
-do
+for i in 0 1 2 3 4 5 6 7 8 9 10 11; do
     if [ -d /grid/${i}/hadoop/var/mapred-local ]; then
         # make sure one data file exists
         touch /grid/${i}/hadoop/var/mapred-local/emptyfile
