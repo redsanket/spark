@@ -522,27 +522,24 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 
 	script_num=`echo $script_basename|cut -d'-' -f1`
 
-	# Execute steps that are smaller than or equal to the max script num
-	if (($script_num <= $max_script_num)); then
+        # Execute steps that are smaller than or equal to the max script num
+        if (($script_num <= $max_script_num)); then
             logfile="$WORK_DIR/${script_basename}.log"
-	    # time . "$script" 2>&1 |tee $logfile
-	    time . "$script" > >(tee $logfile)
-	else
-	    echo "Nothing to do: script_num=$script_num is less than max_script_num=$max_script_num"
-	fi
+
+            # Don't use "time . "$script" 2>&1 |tee $logfile" because of the
+            # piping, the script will run in a sub-shell, and a sub-shell cannot
+            # set or export variables in the parent shell.
+            # Instead, use the bash shell process substitution instead of pipes
+            # to force the first command in a pipeline to run in the main shell.
+            # E.g. cmd1 > >(cmd2 | cmd3 | ...).
+            time . "$script" > >(tee $logfile)
+        else
+            echo "Nothing to do: script_num=$script_num is less than max_script_num=$max_script_num"
+        fi
 	st=$?
 	end=`date +%s`
 	h_end=`date +%Y/%m/%d-%H:%M:%S`
 	runtime=$((end-start))
-
-        # exported value of CLUSTERID from 205-installsteps-getClusterid.sh is not sticking
-	echo "main: CLUSTERID=$CLUSTERID"
-	# if ((($script_num == 205)) && [ -f /tmp/$cluster.clusterid.txt ]); then
-	#     echo "CLUSTERID=$CLUSTERID"
-	#     export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-	#     rm -rf /tmp/$cluster.clusterid.txt
-	#     echo "CLUSTERID=$CLUSTERID"
-	# fi
 
 	# Turn exit on failure back on now
 	if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
