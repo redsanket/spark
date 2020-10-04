@@ -57,23 +57,18 @@ if [ $CMD == "start" ]; then
     fi
     nameStartOpt="-upgrade $nameStartOpt"
 
-
     if [[ "$HADOOPVERSION" =~ ^3. ]]; then
-      echo "${HADOOP_HDFS_HOME}/bin/hdfs namenode -upgrade ${nameStartOpt}"
       echo "${HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt"
       ${HADOOP_HDFS_HOME}/bin/hdfs --daemon start namenode $nameStartOpt
 
     elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
-      # $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR start namenode $nameStartOpt
-
-      echo "${HADOOP_HDFS_HOME}/bin/hdfs start namenode -upgrade ${nameStartOpt}"
+      echo "${HADOOP_HDFS_HOME}/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script \"$HADOOP_HDFS_HOME\"  /bin/hdfs start namenode $nameStartOpt"
       $HADOOP_COMMON_HOME/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script "$HADOOP_HDFS_HOME"/bin/hdfs start namenode $nameStartOpt
 
     else
        echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
        exit 1
     fi
-
 
     # transition ha1 to active. wait until it comes up in standby mode.
     # rather than sleep, we could use hadmin to query the namenode state.

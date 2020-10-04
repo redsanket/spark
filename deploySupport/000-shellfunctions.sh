@@ -277,6 +277,7 @@ fanoutSecondary() {
 }
 
 fanoutSecondary_hdfsuser() {
+    local cmd=$1
     fanoutSecondary "$cmd" "$HDFSUSER"
 }
 
