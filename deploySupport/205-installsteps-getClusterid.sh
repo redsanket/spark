@@ -28,21 +28,21 @@ if [ -z "$NAMENODE_Primary" ]; then
     exit 1
 fi
 
+clusterid_file="/tmp/$cluster.clusterid.txt"
+[ -f $local_file ] && rm -rf $local_file
+
 JAVA_HOME="$GSHOME/java/jdk64/current"
 exec_nn_hdfsuser \
 "set -x && cd ${yroothome} && \
 JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop \
-perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
+perl /tmp/getclusterid.pl > $clusterid_file"
 st=$?
-echo "Exit status of ssh for getclusterid was $st"
-
-[ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
 if [ $st -eq 0 ]; then
-    scp $NAMENODE_Primary:/tmp/$cluster.clusterid.txt /tmp/
-    export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
+    scp $NAMENODE_Primary:$clusterid_file $clusterid_file
+    export CLUSTERID=`cat $local_file`
+    echo "CLUSTERID=$CLUSTERID"
+else
+    echo "Run getclusterid failed! Exit code $st"
+    exit $st
 fi
-
-exec_nn_root "rm -f /tmp/$cluster.clusterid.txt"
-
-export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-echo "Step 205: CLUSTERID=$CLUSTERID"
+exec_nn_root "rm -f $clusterid_file"
