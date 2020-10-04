@@ -1,9 +1,3 @@
-# set -x
-# cp $nn_list                               $scriptdir
-# cp $sn_list                               $scriptdir
-# cp $nn_haalias_list                       $scriptdir
-# set +x
-
 filename="$scriptdir/deploy.$cluster.confoptions.sh"
 (
     echo 'if grep -q `hostname`  ' /tmp/namenodes.$cluster.txt 
@@ -65,7 +59,6 @@ filename="$scriptdir/deploy.$cluster.confoptions.sh"
     shortjt=`expr  $jobtrackernode : '(' '\([^\.]*\)\..*$' ')'`
 
     clusternameopts="  -set $confpkg.TODO_HDFSCLUSTER_NAME=$cluster -set $confpkg.TODO_MAPREDCLUSTER_NAME=$cluster"
-
 
     echo "[ -x /usr/local/bin/yinst ] && export yinst=/usr/local/bin/yinst "
     echo "[ -x /usr/y/bin/yinst ] && export yinst=/usr/y/bin/yinst "
