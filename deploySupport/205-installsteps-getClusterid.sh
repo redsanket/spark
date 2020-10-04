@@ -38,13 +38,11 @@ echo "Exit status of ssh for getclusterid was $st"
 
 [ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt
 if [ $st -eq 0 ]; then
-    set -x
     scp $NAMENODE_Primary:/tmp/$cluster.clusterid.txt /tmp/
     export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-    set +x
 fi
 
 exec_nn_root "rm -f /tmp/$cluster.clusterid.txt"
 
 export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-echo "205: CLUSTERID=$CLUSTERID"
+echo "Step 205: CLUSTERID=$CLUSTERID"

@@ -421,6 +421,10 @@ cp $ROOT_DIR/*.sh $scriptdir
 cp $ROOT_DIR/*.pl $scriptdir
 cp $ROOT_DIR/*.py $scriptdir
 
+cp $nn_list         $scriptdir
+cp $sn_list         $scriptdir
+cp $nn_haalias_list $scriptdir
+
 set -e
 
 ######### DEBUG ##############################
@@ -520,7 +524,9 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 
 	# Execute steps that are smaller than or equal to the max script num
 	if (($script_num <= $max_script_num)); then
-	    time . "$script" 2>&1 |tee "$WORK_DIR/${script_basename}.log"
+            logfile="$WORK_DIR/${script_basename}.log"
+	    # time . "$script" 2>&1 |tee $logfile
+	    time . "$script" > >(tee $logfile)
 	else
 	    echo "Nothing to do: script_num=$script_num is less than max_script_num=$max_script_num"
 	fi
@@ -530,12 +536,13 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	runtime=$((end-start))
 
         # exported value of CLUSTERID from 205-installsteps-getClusterid.sh is not sticking
-	if ((($script_num == 205)) && [ -f /tmp/$cluster.clusterid.txt ]); then
-	    echo "CLUSTERID=$CLUSTERID"
-	    export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
-	    rm -rf /tmp/$cluster.clusterid.txt
-	    echo "CLUSTERID=$CLUSTERID"
-	fi
+	echo "main: CLUSTERID=$CLUSTERID"
+	# if ((($script_num == 205)) && [ -f /tmp/$cluster.clusterid.txt ]); then
+	#     echo "CLUSTERID=$CLUSTERID"
+	#     export CLUSTERID=`cat /tmp/$cluster.clusterid.txt`
+	#     rm -rf /tmp/$cluster.clusterid.txt
+	#     echo "CLUSTERID=$CLUSTERID"
+	# fi
 
 	# Turn exit on failure back on now
 	if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
