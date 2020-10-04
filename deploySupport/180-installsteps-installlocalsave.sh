@@ -43,12 +43,13 @@ set +x
 if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"
     set -x
-    for i in $namenode; do
-	ssh $i "sudo bash -c \"$cmd\""
-    done
-    for j in $secondarynamenode; do
-	ssh $j "sudo bash -c \"$cmd\""
-    done
-    ssh $jobtrackernode "sudo bash -c \"$cmd\""
+    ssh $secondarynamenode "sudo bash -c \"$cmd\""
+    # for i in $namenode; do
+    #     ssh $i "sudo bash -c \"$cmd\""
+    # done
+    # for j in $secondarynamenode; do
+    #     ssh $j "sudo bash -c \"$cmd\""
+    # done
+    # ssh $jobtrackernode "sudo bash -c \"$cmd\""
     set +x
 fi
