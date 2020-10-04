@@ -7,11 +7,13 @@ fi
 set -x
 # /home/gs/conf/local/slaves
 # /home/gs/gridre/yroot.openphil1blue/conf/hadoop/slaves.localcopy.txt
-cp $WORK_DIR/slaves.$cluster.txt $scriptdir/slaves.$cluster.txt
-fanoutscp "$scriptdir/slaves.$cluster.txt" "${GSHOME}/conf/local/slaves" "$HOSTLIST"
-fanoutscp "$scriptdir/slaves.$cluster.txt" "${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
+worker_node_filename="slaves.$cluster.txt"
+cp $WORK_DIR/$worker_node_filename $scriptdir/$worker_node_filename
+fanoutscp "$scriptdir/$worker_node_filename" "${GSHOME}/conf/local/slaves" "$HOSTLIST"
+fanoutscp "$scriptdir/$worker_node_filename" "${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
 set +x
 
+cplocalfiles_script="$cluster.cplocalfiles.sh"
 (
 echo "cd /tmp"
 echo "export GSHOME=${GSHOME} "
@@ -31,10 +33,10 @@ echo '        cp $file ${GSHOME}/conf/local/${file}'
 echo '    fi '
 echo "done"
 echo 'cd /tmp && rm -rf /tmp/$$'
-) > $scriptdir/$cluster.cplocalfiles.sh
+) > $scriptdir/$cplocalfiles_script
 
-fanoutscp "$scriptdir/$cluster.cplocalfiles.sh" "/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
-cmd="sh -x /tmp/$cluster.cplocalfiles.sh"
+fanoutscp "$scriptdir/$cplocalfiles_script" "/tmp/$cplocalfiles_script" "$HOSTLIST"
+cmd="sh -x /tmp/$cplocalfiles_script"
 set -x
 fanout "$cmd"
 fanoutGW "$cmd"
@@ -44,12 +46,5 @@ if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"
     set -x
     ssh $secondarynamenode "sudo bash -c \"$cmd\""
-    # for i in $namenode; do
-    #     ssh $i "sudo bash -c \"$cmd\""
-    # done
-    # for j in $secondarynamenode; do
-    #     ssh $j "sudo bash -c \"$cmd\""
-    # done
-    # ssh $jobtrackernode "sudo bash -c \"$cmd\""
     set +x
 fi
