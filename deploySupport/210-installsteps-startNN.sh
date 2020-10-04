@@ -33,6 +33,10 @@ set +e
 fanout_nn_root "rm /tmp/namenode-part-*-script.sh"
 set -e
 
+#################################################################################
+# Run startnn1.sh as HDFS user
+#################################################################################
+
 # USER is used in /home/gs/gridre/yroot.openphil1blue/conf/hadoop/hadoop-env.sh, which is called by
 # /home/gs/gridre/yroot.openphil1blue/share/hadoop/sbin/hadoop-daemon.sh
 JAVA_HOME="$GSHOME/java/jdk64/current"
@@ -64,7 +68,6 @@ fanoutscp \
 "/tmp/" \
 "$ALLNAMENODESLIST"
 
-# Run startnn1.sh as HDFS user
 set -x
 fanout_nn_hdfsuser "sh /tmp/startnn1.sh"
 st=$?
@@ -72,6 +75,9 @@ set +x
 [ "$st" -ne 0 ] && echo "Failed to run namenode-part-1-script.sh" && exit $st
 fanout_nn_root "rm /tmp/namenode-part-1-script.sh"
 
+#################################################################################
+# Run startsecondary.sh as HDFS user if secondary namenode exists
+#################################################################################
 if [ -n "$secondarynamenode" ]; then
     (
     echo "export CLUSTERID=$CLUSTERID"
@@ -100,13 +106,18 @@ if [ -n "$secondarynamenode" ]; then
 "/tmp/" \
 "$ALLSECONDARYNAMENODESLIST"
 
-    # Run startnn1.sh as HDFS user
     set -x
     fanoutSecondary_hdfsuser "sh /tmp/startsecondary.sh"
     st=$?
+    set +x
     [ "$st" -ne 0 ] && echo "Failed to run namenode2-part-1-script.sh" && exit $st
+
+    fanoutSecondary_root "rm /tmp/namenode2-part-1-script.sh"
 fi
 
+#################################################################################
+# Start datanodes
+#################################################################################
 echo "======= short-term workaround Nov 15: start up DN as $HDFSUSER"
 ## $PDSH -w "$SLAVELIST"  \
 #"scp $ADMIN_HOST:$scriptdir/datanode-script.sh  /tmp/datanode-script.sh && \
@@ -115,8 +126,6 @@ echo "======= short-term workaround Nov 15: start up DN as $HDFSUSER"
 #export HDFSUSER=$HDFSUSER && \
 #export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
 #su $HDFSUSER -c 'sh /tmp/datanode-script.sh $arg $cluster' "
-
-fanoutSecondary_root "rm /tmp/namenode2-part-1-script.sh"
 
 fanoutscp \
 "$scriptdir/datanode-script.sh" \
@@ -138,8 +147,13 @@ export HADOOPVERSION=$HADOOPVERSION && \
 sh /tmp/datanode-script.sh $arg $cluster; \
 [[ \$? -eq 0 ]] && rm -f /tmp/datanode-script.sh\
 "
+st=$?
 set +x
+[ "$st" -ne 0 ] && echo "Failed to run datanode-script.sh" && exit $st
 
+#################################################################################
+# Run finishNN.sh as HDFS user
+#################################################################################
 (
 echo "export GSHOME=$GSHOME"
 echo "export yroothome=$yroothome"
@@ -169,8 +183,11 @@ set -x
 fanout_nn_hdfsuser "sh /tmp/finishNN.sh"
 st=$?
 set +x
-[ "$st" -ne 0 ] && echo "Failed to run namenode-part-3-script.sh" && exit $st
+[ "$st" -ne 0 ] && echo "Failed to run finishNN.sh / namenode-part-3-script.sh" && exit $st
 
+#################################################################################
+# Run finishNN2.sh as HDFS user
+#################################################################################
 (
 echo "export GSHOME=$GSHOME"
 echo "export yroothome=$yroothome"
@@ -198,4 +215,6 @@ fanoutscp \
 
 set -x
 fanoutSecondary_hdfsuser "sh /tmp/finishNN2.sh"
+st=$?
 set +x
+[ "$st" -ne 0 ] && echo "Failed to run finishNN2.sh / namenode2-part-3-script.sh" && exit $st
