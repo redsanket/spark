@@ -28,16 +28,15 @@ function transport_files_from_admin {
 
     # rsync files from admin node to the Jenkins worker node
     NODE_SHORT=`echo $NODE | cut -d'.' -f1`
-    set -x
     TMP_DIR="/tmp/${NODE_SHORT}.$$"
     mkdir -p $TMP_DIR
     ls -l $TMP_DIR
+    echo "rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR"
     rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR
     RC=$?
-    set +x
     if [ $RC -ne 0 ]; then
         echo "Error: rsync of files from admin host $ADM_HOST failed!"
-        exit 1
+        exit $RC
     fi
 
     # Show no log and error status
@@ -48,22 +47,20 @@ function transport_files_from_admin {
     # rsync files from the Jenkins worker node to the target node
     echo "NODES=$NODES"
     for node in $NODES; do
-        set -x
         $SSH $node sudo mkdir -p $NODE_PATH
+        echo "rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH"
         rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH
         RC=$?
-        set +x
         if [ $RC -ne 0 ]; then
             echo "Error: rsync of files from Jenkins worker node to node $node failed!"
-            exit 1
+            exit $RC
         fi
-        set -x
+        echo "$SSH $node sudo chown -R $CHOWN_ATTR $NODE_PATH"
         $SSH $node sudo chown -R $CHOWN_ATTR $NODE_PATH
         RC=$?
-        set +x
         if [ $RC -ne 0 ]; then
             echo "Error: chown files on node $NODE failed!"
-            exit 1
+            exit $RC
         fi
     done
     rm -rf $TMP_DIR
@@ -257,11 +254,15 @@ fanout_workers_root() {
     return $RC
 }
 slownogwfanout() {
-        echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && \
-            set -x && $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\"" && RC= $? && set +x
+    echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
+    if [ -n "$HOSTLISTNOGW" ]; then
+        set -x
+        $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
+        RC=$?
+        set +x
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
         return $RC
+    fi
 }
 
 slowfanout() {

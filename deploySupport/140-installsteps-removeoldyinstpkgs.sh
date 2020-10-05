@@ -11,13 +11,13 @@ fanoutGW "if [ ! -d /home/gs/gridre/javahome/share ]; then mkdir -p /home/gs/gri
 if [ ! -d /grid/0/gshome/gridre/javahomedefault ]; then mkdir -p /grid/0/gshome/gridre/javahomedefault; fi && \
 if [ ! -d /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} ]; then \
 yinst inst -yes -root /grid/0/gshome/gridre/javahomedefault gridjdk-1.7.0_17.1303042057 gridjdk64-1.7.0_17.1303042057 && \
-ln -s /grid/0/gshome/gridre/javahomedefault/share/gridjdk-${GRIDJDK_VERSION} /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} && \
-ln -s /grid/0/gshome/gridre/javahomedefault/share/gridjdk64-${GRIDJDK_VERSION} /home/gs/gridre/javahome/share/gridjdk64-${GRIDJDK_VERSION}; \
+ln -sf /grid/0/gshome/gridre/javahomedefault/share/gridjdk-${GRIDJDK_VERSION} /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} && \
+ln -sf /grid/0/gshome/gridre/javahomedefault/share/gridjdk64-${GRIDJDK_VERSION} /home/gs/gridre/javahome/share/gridjdk64-${GRIDJDK_VERSION}; \
 fi && \
 if [ -d /home/gs/java/jdk32 ]; then cd /home/gs/java/jdk32; rm -f current; fi && \
-ln -s /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} current && \
+ln -sf /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} current && \
 if [ -d /home/gs/java/jdk64 ]; then cd /home/gs/java/jdk64; rm -f current; fi && \
-ln -s /home/gs/gridre/javahome/share/gridjdk64-${GRIDJDK_VERSION} current "
+ln -sf /home/gs/gridre/javahome/share/gridjdk64-${GRIDJDK_VERSION} current "
 
 fanoutscp "$scriptdir/deploy.$cluster.remove.old.packages.sh" "/tmp/deploy.$cluster.remove.old.packages.sh" "$HOSTLISTNOGW"
 
