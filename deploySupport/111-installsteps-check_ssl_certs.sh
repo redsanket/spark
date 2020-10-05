@@ -28,7 +28,7 @@ echo "== verify Core SSL certs are in place"
 #         fi"
 
 fanout "if [ ! -d ${CERT_HOME} ] ; then \
-echo "Going to create ${CERT_HOME}"; \
+echo \"Going to create ${CERT_HOME}\"; \
 mkdir -p ${CERT_HOME}; \
 chmod 755 ${CERT_HOME}; \
 fi"
