@@ -4,14 +4,14 @@ if [ "$INSTALLLOCALSAVE" != true ]; then
     return 0
 fi
 
-set -x
 # /home/gs/conf/local/slaves
 # /home/gs/gridre/yroot.openphil1blue/conf/hadoop/slaves.localcopy.txt
+set -x
 worker_node_filename="slaves.$cluster.txt"
 cp $WORK_DIR/$worker_node_filename $scriptdir/$worker_node_filename
+set +x
 fanoutscp "$scriptdir/$worker_node_filename" "${GSHOME}/conf/local/slaves" "$HOSTLIST"
 fanoutscp "$scriptdir/$worker_node_filename" "${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
-set +x
 
 cplocalfiles_script="$cluster.cplocalfiles.sh"
 (
@@ -37,10 +37,8 @@ echo 'cd /tmp && rm -rf /tmp/$$'
 
 fanoutscp "$scriptdir/$cplocalfiles_script" "/tmp/$cplocalfiles_script" "$HOSTLIST"
 cmd="sh -x /tmp/$cplocalfiles_script"
-set -x
 fanout "$cmd"
 fanoutGW "$cmd"
-set +x
 
 if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"

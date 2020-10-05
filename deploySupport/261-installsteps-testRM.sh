@@ -97,11 +97,9 @@ done
 [ "\$written" -gt 0  -a "\$read" = "\$written" ]
 zz
 
-set -x
 # gridci-2393, use new nfs server, which has updated mapred keytab
 fanoutscp "$scriptdir/$cluster.testYarndeploy.sh" "/tmp/" "$gateway"
 fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
-set +x
 
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt

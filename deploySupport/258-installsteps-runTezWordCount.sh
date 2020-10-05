@@ -26,7 +26,4 @@ cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -put $TEZ_CONF_DIR/tez-site.xml /tmp/ ; \
      echo Running hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=$TEZ_QUEUE /tmp/tez-site.xml /tmp/output/ ; \
      /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop jar $TEZ_HOME/tez-examples-$TEZVERSION.jar orderedwordcount -Dtez.queue.name=$TEZ_QUEUE /tmp/tez-site.xml /tmp/output/"
-
-set -x
 fanoutOneTez "$cmd"
-set +x

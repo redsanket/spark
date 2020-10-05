@@ -14,21 +14,15 @@
 set +x
 if [ "$CONFIGURENAMENODE" = true ]  && [ "$ENABLE_HA" = false ]; then
     echo "== Copying namenode-start scripts to namenodes."
-    set -x
     fanoutscp "$scriptdir/nameno*.sh $scriptdir/getclusterid.pl" "/tmp/" "$ALLNAMENODESLIST"
-    set +x
 
     echo "== Running namenode-configure script"
-    set -x
     fanoutNN "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-namenode.sh "
-    set +x
 
     if [ -z "$secondarynamenode" ]; then
         echo "no secondary name node to configure or start"
     else
-        set -x
         fanoutSecondary "sh $yrootHadoopConf/cfg-${cfgscriptnames}-namenode.sh"
-        set +x
     fi
 fi
 
@@ -39,8 +33,8 @@ if [ "$ENABLE_HA" = true ];then
     # time. This block verifies the grid_re.clusters.$cluster.namenode is up and that the
     # grid_re.clusters.$cluster.namenode2 is down.
     echo "Try to ifdown nn2..."
-    set -x
     fanoutSecondary "ifdown eth2:0"
+    set -x
     RESULT_STANDBY=`pdsh -w $ALLSECONDARYNAMENODESLIST "ifconfig | grep eth2:0"`
     set +x
     #echo RESULT_STANDBY is: $RESULT_STANDBY
@@ -51,8 +45,8 @@ if [ "$ENABLE_HA" = true ];then
     fi
 
     echo "Try to ifup nn..."
-    set -x
     fanoutNN "ifup eth2:0"
+    set -x
     RESULT_ACTIVE=`pdsh -w $ALLNAMENODESLIST "ifconfig | grep eth2:0"`
     set +x
     echo "RESULT_ACTIVE is: $RESULT_ACTIVE"

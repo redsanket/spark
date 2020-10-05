@@ -42,16 +42,12 @@ ln -s ${yroothome}/share/tez-ui.war $TEZ_UI ; \
 echo Tez version as I see it ; \
 readlink $TEZ_HOME "
 
-set -x
 fanoutTez "$cmd"
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTez <<<<<<<<<<" && exit $st
 
-set -x
 fanoutTezUI "$cmd"
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running fanoutTezUI <<<<<<<<<<" && exit $st
 
 cmd="export TEZ_CONF_DIR=/home/gs/conf/tez/current ; \
@@ -101,12 +97,8 @@ echo after chmoding -R 755 /sharelib ; \
 /home/gs/gridre/yroot.$CLUSTER/share/hadoop/bin/hadoop fs -ls /sharelib/v1/ytez/ "
 
 echo "Continue with non-tarball deploy..."
-set -x
 fanoutOneTez "$cmd"
-set +x
 
 echo "Continue with tarball deploy..."
-set -x
 fanoutOneTez "$cmd_0_7"
-set +x
 

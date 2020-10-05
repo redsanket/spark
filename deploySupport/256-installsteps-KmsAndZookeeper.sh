@@ -126,10 +126,8 @@ yinst set -root ${yroothome} $confpkg.TODO_KMS_PROVIDER_URIS=\\\"kms:srpc://$kms
 yinst set -root ${yroothome} $confpkg.TODO_KMS_SPN_WHITELIST=\\\"kms/open*.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM\\\";\
 export JAVA_HOME=/home/gs/java/jdk;yinst restart namenode -root ${yroothome}"
 
-set -x
 fanoutNN "$cmd_nnconfig"
 RC=$?
-set +x
 if [ $? -ne 0 ]; then
     echo "Failed to setup NN kms key provider!"
 else

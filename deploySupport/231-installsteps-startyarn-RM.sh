@@ -20,15 +20,15 @@ fi
 
 echo "== starting up yarn servers."
 
-set -x
-
 # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
 # in order to create known_hosts, else RM access fails
 # Load the mapredqa credentials
+set -x
 ssh $jobtrackernode "sudo bash -c \"sshca-creds -u mapredqa load\""
 ssh $jobtrackernode "sudo -su $MAPREDUSER bash -c \"\
 export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock && PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' && $PDSH -w $SLAVELIST \\\"whoami && hostname\\\"\
 \""
+set +x
 
 # GRIDCI-444 - nm health check for openstack
 fanoutscp "$scriptdir/setup_nm_health_check_script.sh" "/tmp" "$SLAVELIST"
@@ -40,8 +40,6 @@ fanout_workers_root "sh /tmp/setup_nm_dockerd_check_script.sh"
 
 # Install runc on all the nodemanagers that are not RHEL6
 fanout_workers_root '[[ $(cut -d" " -f7 < /etc/redhat-release) =~ ^6. ]] || yum -y install runc'
-
-set +x
 
 # Setup cgroups on the worker nodes
 tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
@@ -63,7 +61,7 @@ tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
     echo "fi"
 ) > $tmpsetupfile
 fanoutscp "$tmpsetupfile" "/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
-set -x
+
 fanout_workers_root "sh /tmp/setup_nm_cgroups.sh"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 # echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
@@ -75,9 +73,9 @@ $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name
 fanoutGW "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
 $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
-set +x
 
-tmpfile=/tmp/xx.$$
+
+tmpfile="/tmp/xx.$$"
 JAVA_HOME="$GSHOME/java/jdk64/current"
 (
     echo "set -x"

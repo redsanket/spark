@@ -39,7 +39,6 @@ else
     cmd="$yinst install -br quarantine -yes -root ${yroothome}  $HADOOP_INSTALL_STRING -same -live -downgrade"
 fi
 
-set -x
 # TODO: 32 bit lib packages, i.e. lzo.i686 will cause issues for RHEL-7 in place upgrade
 # compat-readline should have come from Config job, removing compat-readline5.x86_64
 slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
@@ -82,7 +81,6 @@ cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh 
 fanout "$cmd"
 fanoutGW "$cmd"
 
-set +x
 # install addtional QA packages if there is any
 if [ "$QA_PACKAGES" != "none" ]; then
     echo "====Install additional QA packages: $QA_PACKAGES"
@@ -141,8 +139,6 @@ JDK_CACERTS="/home/gs/java/jdk/jre/lib/security/cacerts"
 OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
 ALIAS="selfsigned"
 
-set -x
-
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
 fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
@@ -156,7 +152,6 @@ echo "INFO: HTF uses default JDK on gateway so update it too"
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $HTF_JDK_CACERTS" 
 fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $HTF_JDK_CACERTS" 
-
 
 # gridci-3318, we need to pass the kms truststore to docker tasks since docker image
 # JDK will not have this and we can't add it on the fly (would need to add to base 
@@ -173,5 +168,3 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
 # Below changes was for YHADOOP-3385 where /home/gs bindmount was not available from the container
 fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /opt/yahoo/share/ssl/certs/."
-
-set +x

@@ -7,8 +7,6 @@ fi
 
 echo "=== Removing old yinst packages."
 
-set -x
-
 fanoutGW "if [ ! -d /home/gs/gridre/javahome/share ]; then mkdir -p /home/gs/gridre/javahome/share; fi && \
 if [ ! -d /grid/0/gshome/gridre/javahomedefault ]; then mkdir -p /grid/0/gshome/gridre/javahomedefault; fi && \
 if [ ! -d /home/gs/gridre/javahome/share/gridjdk-${GRIDJDK_VERSION} ]; then \
@@ -30,5 +28,3 @@ scp $scriptdir/deploy.$cluster.remove.gateway.old.packages.sh $gateway:/tmp/depl
 
 fanoutGW "sh /tmp/deploy.$cluster.remove.gateway.old.packages.sh && \
 rm /tmp/deploy.$cluster.remove.gateway.old.packages.sh"
-
-set +x

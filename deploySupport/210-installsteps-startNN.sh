@@ -68,10 +68,8 @@ fanoutscp \
 "/tmp/" \
 "$ALLNAMENODESLIST"
 
-set -x
 fanout_nn_hdfsuser "sh /tmp/startnn1.sh"
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo "Failed to run namenode-part-1-script.sh" && exit $st
 fanout_nn_root "rm /tmp/namenode-part-1-script.sh"
 
@@ -106,10 +104,8 @@ if [ -n "$secondarynamenode" ]; then
 "/tmp/" \
 "$ALLSECONDARYNAMENODESLIST"
 
-    set -x
     fanoutSecondary_hdfsuser "sh /tmp/startsecondary.sh"
     st=$?
-    set +x
     [ "$st" -ne 0 ] && echo "Failed to run namenode2-part-1-script.sh" && exit $st
 
     fanoutSecondary_root "rm /tmp/namenode2-part-1-script.sh"
@@ -132,7 +128,6 @@ fanoutscp \
 "/tmp/datanode-script.sh" \
 "$SLAVELIST"
 
-set -x
 fanout_workers_root "\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
@@ -148,7 +143,6 @@ sh /tmp/datanode-script.sh $arg $cluster; \
 [[ \$? -eq 0 ]] && rm -f /tmp/datanode-script.sh\
 "
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo "Failed to run datanode-script.sh" && exit $st
 
 #################################################################################
@@ -179,10 +173,8 @@ fanoutscp \
 "/tmp/" \
 "$ALLNAMENODESLIST"
 
-set -x
 fanout_nn_hdfsuser "sh /tmp/finishNN.sh"
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo "Failed to run finishNN.sh / namenode-part-3-script.sh" && exit $st
 
 #################################################################################
@@ -213,8 +205,6 @@ fanoutscp \
 "/tmp/" \
 "$ALLSECONDARYNAMENODESLIST"
 
-set -x
 fanoutSecondary_hdfsuser "sh /tmp/finishNN2.sh"
 st=$?
-set +x
 [ "$st" -ne 0 ] && echo "Failed to run finishNN2.sh / namenode2-part-3-script.sh" && exit $st

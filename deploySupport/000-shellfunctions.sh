@@ -105,14 +105,18 @@ exec_jt_mapreduser() {
 # so they run as root on the target nodes.
 
 fanout() {
-        # echo 'fanout: start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$*\""
-        # echo 'fanout: end on ' `date +%H:%M:%S`
+    # echo 'fanout: start on ' `date +%H:%M:%S`
+    [ -n "$HOSTLIST" ] && \
+        set -x && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$*\"" && RC=$? && set +x
+    # echo 'fanout: end on ' `date +%H:%M:%S`
+    return $RC
 }
 fanoutnogw() {
-        # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && $PDSH_FAST -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
-        # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
+    # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
+    [ -n "$HOSTLISTNOGW" ] && \
+        set -x && $PDSH_FAST -w "$HOSTLISTNOGW" "sudo bash -c \"$*\"" && RC=$? && set +x
+    # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
+    return $RC
 }
 
 fanoutscp() {
@@ -132,25 +136,21 @@ fanoutscp() {
 
     # rsync file from the Jenkins worker node to the target node
     for node in $NODES; do
-        set -x
-        # target is a file though
-        # $SSH $node sudo mkdir -p $TARGET
+        echo "rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET"
         rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
         RC=$?
-        set +x
         if [ $RC -ne 0 ]; then
             echo "Error: rsync of files from Jenkins worker node to node $node failed!"
-            exit 1
+            exit $RC
         fi
 
         if [ -n "$CHOWN_ATTR" ]; then
-            set -x
+            echo "$SSH $node sudo chown -R $CHOWN_ATTR $TARGET"
             $SSH $node sudo chown -R $CHOWN_ATTR $TARGET
             RC=$?
-            set +x
             if [ $RC -ne 0 ]; then
                 echo "Error: chown files on node $NODE failed!"
-                exit 1
+                exit $RC
             fi
         fi
     done
@@ -248,14 +248,20 @@ recordpkginstall() {
 	[ -n "$ver" ] && recordManifest  "pkgname=$nm" "pkgver=$ver"
 }
 fanout_workers_root() {
-	echo 'slavefanout: start on ' `date +%H:%M:%S`
-	$PDSH_FAST -w "$SLAVELIST" "sudo bash -c \"$*\""
-	echo 'slavefanout: end on ' `date +%H:%M:%S`
+    echo 'slavefanout: start on ' `date +%H:%M:%S`
+    set -x
+    $PDSH_FAST -w "$SLAVELIST" "sudo bash -c \"$*\""
+    RC=$?
+    set +x
+    echo 'slavefanout: end on ' `date +%H:%M:%S`
+    return $RC
 }
 slownogwfanout() {
         echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
-        [ -n "$HOSTLISTNOGW" ] && $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
+        [ -n "$HOSTLISTNOGW" ] && \
+            set -x && $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\"" && RC= $? && set +x
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
+        return $RC
 }
 
 slowfanout() {
@@ -270,11 +276,18 @@ fanoutNN() {
     local user=$2
     echo 'fanoutNN: start on ' `date +%H:%M:%S`
     if [ -n "$user" ]; then
+        set -x
 	$PDSH_SLOW -w "$ALLNAMENODESLIST" "sudo -su $user bash -c \"$cmd\""
+        RC=$?
+        set +x
     else
+        set -x
 	$PDSH_SLOW -w "$ALLNAMENODESLIST" "sudo bash -c \"$cmd\""
+        RC=$?
+        set +x
     fi
     echo 'fanoutNN: end on ' `date +%H:%M:%S`
+    return $RC
 }
 
 fanout_nn_hdfsuser() {
@@ -292,11 +305,18 @@ fanoutSecondary() {
     local user=$2
     echo 'fanoutSecondary: start on ' `date +%H:%M:%S`
     if [ -n "$user" ]; then
+        set -x
 	$PDSH_SLOW -w "$ALLSECONDARYNAMENODESLIST" "sudo -su $user bash -c \"$cmd\""
+        RC=$?
+        set +x
     else
+        set -x
 	$PDSH_SLOW -w "$ALLSECONDARYNAMENODESLIST" "sudo bash -c \"$cmd\""
+        RC=$?
+        set +x
     fi
     echo 'fanoutSecondary: end on ' `date +%H:%M:%S`
+    return $RC
 }
 
 fanoutSecondary_hdfsuser() {
@@ -411,8 +431,10 @@ fanoutTez() {
       return 1
    fi
    TEZ_NODE_LIST=`echo $teznode | tr ' ' ,`
+   set -x
    $PDSH_SLOW -w "$TEZ_NODE_LIST" "sudo bash -c \"$*\""
    st=$?
+   set +x
    echo 'fanoutTez: end on ' `date +%H:%M:%S`
    return $st
 }
@@ -420,8 +442,10 @@ fanoutTez() {
 fanoutOneTez() {
    echo 'fanoutOneTez: start on ' `date +%H:%M:%S`
    TEZ_NODE_LIST=`echo $teznode | cut -f1 -d ' '`
+   set -x
    $PDSH_SLOW -w "$TEZ_NODE_LIST" "sudo bash -c \"$*\""
    st=$?
+   set +x
    echo 'fanoutOneTez: end on ' `date +%H:%M:%S`
    return $st
 }
@@ -433,8 +457,10 @@ fanoutTezUI() {
      return 1
   fi 
   TEZ_UI_NODE_LIST=`echo $jobtrackernode | tr ' ' ,`
+  set -x
   $PDSH_SLOW -w "$TEZ_UI_NODE_LIST" "sudo bash -c \"$*\""
   st=$?
+  set +x
   echo 'fanoutTez_UI: end on ' `date +%H:%M:%S`
   return $st
 }
@@ -466,7 +492,11 @@ fanoutSparkUI() {
 }
 
 fanoutGW() {
-  $SSH $gateway "sudo bash -c \"$*\""
+    set -x
+    $SSH $gateway "sudo bash -c \"$*\""
+    RC=$?
+    set +x
+    return $RC
 }
 
 fanoutGW_old() {

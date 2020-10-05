@@ -31,21 +31,17 @@ JAVA_HOME="$GSHOME/java/jdk64/current"
 echo "Step 1b: Kill namenode, if running."
 
 if [[ "$HADOOPVERSION" =~ ^3. ]]; then
-    set -x
     fanout_nn_hdfsuser "\
 export JAVA_HOME=$JAVA_HOME && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
 ${yrootHadoopMapred}/bin/hdfs --daemon stop namenode"
-    set +x
 elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
-    set -x
     fanout_nn_hdfsuser "\
 export JAVA_HOME=$JAVA_HOME && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
 ${yrootHadoopCurrent}/sbin/hadoop-daemon.sh stop namenode"
-    set +x
 else
     echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"
     exit 1
@@ -53,13 +49,9 @@ fi
 
 echo "Step 1c: Stop data nodes, if running."
 fanoutscp "$scriptdir/datanode-script.sh" "/tmp/datanode-script.sh" "$SLAVELIST"
-set -x
 fanout_workers_root "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh stop $cluster > /dev/null 2>&1"
-set +x
 
 # kill any running processes.
 fanoutscp "$scriptdir/deploy.$cluster.processes.to.kill.sh" "/tmp/deploy.$cluster.processes.to.kill.sh" "$HOSTLISTNOGW"
-set -x
 fanoutnogw "sh /tmp/deploy.$cluster.processes.to.kill.sh && rm /tmp/deploy.$cluster.processes.to.kill.sh  > /dev/null 2>&1"
 fanoutnogw "rm -rf /tmp/logs"
-set +x

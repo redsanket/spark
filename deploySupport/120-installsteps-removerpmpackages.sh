@@ -6,6 +6,5 @@ if [ "$REMOVERPMPACKAGES" != true ]; then
 fi
 
 echo "REMOVERPMPACKAGES is enabled: removing RPM packages, if appropriate."
-set -x
 fanout "yum -ty remove namenode jobtracker hackhadoop dfshadoop mrhadoop hadoopConfig gridjdk32 gridjdk64 yjava_jdk"
-set +x
+return $?
