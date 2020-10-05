@@ -110,9 +110,11 @@ fanout() {
     #[ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
 
     if [ -n "$HOSTLIST" ]; then
-        echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
+        #echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
+        set -x
         $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
         RC=$?
+        set +x
         return $RC
     fi
     # echo 'fanout: end on ' `date +%H:%M:%S`
