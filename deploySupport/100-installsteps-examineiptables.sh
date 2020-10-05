@@ -7,4 +7,4 @@ if [ "$StopIPtables" != true ]; then
 fi
 
 slownogwfanout 'echo === stopping any fire-wall on `hostname` ; /etc/init.d/iptables stop ; sleep 3 ;/etc/init.d/iptables status'
-return $?
+# return $?
