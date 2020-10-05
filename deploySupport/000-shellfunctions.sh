@@ -130,54 +130,58 @@ fanoutscp() {
     fi
     num_nodes=`echo $NODES|wc -w`
 
-    logfile="/tmp/pdcp.$$.log"
-    set -x
-    /usr/bin/pdcp -w $NODE_LIST $SOURCE $TARGET 2> $logfile
-    set +x
-    # Error if file exists and has a size greater than zero
-    if [[ -s $logfile ]]; then
-        cat "$logfile"
-        rm $logfile
-        echo "ERROR: pdcp failed!!!"
-        exit 1
-    fi
-
-    if [ -n "$CHOWN_ATTR" ]; then
+    # rsync file from the Jenkins worker node to the target node
+    for node in $NODES; do
         set -x
-        pdsh -S -w $$NODE_LIST "sudo bash -c \"chown -R $CHOWN_ATTR $TARGET\""
+        # target is a file though
+        # $SSH $node sudo mkdir -p $TARGET
+        rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
         RC=$?
         set +x
         if [ $RC -ne 0 ]; then
-            echo "ERROR: pdsh failed!!!"
+            echo "Error: rsync of files from Jenkins worker node to node $node failed!"
             exit 1
         fi
-    fi
-    return
 
-    # # rsync file from the Jenkins worker node to the target node
-    # for node in $NODES; do
+        if [ -n "$CHOWN_ATTR" ]; then
+            set -x
+            $SSH $node sudo chown -R $CHOWN_ATTR $TARGET
+            RC=$?
+            set +x
+            if [ $RC -ne 0 ]; then
+                echo "Error: chown files on node $NODE failed!"
+                exit 1
+            fi
+        fi
+    done
+
+    # Unable to use pdcp:
+    # -l root switches user on the soruce host to root which then results in
+    # error when it tries to ssh to the target hosts because of sshca.
+    #
+    # logfile="/tmp/pdcp.$$.log"
+    # set -x
+    # /usr/bin/pdcp -l root -w $NODE_LIST $SOURCE $TARGET 2> $logfile
+    # set +x
+    # # Error if file exists and has a size greater than zero
+    # if [[ -s $logfile ]]; then
+    #     cat "$logfile"
+    #     rm $logfile
+    #     echo "ERROR: pdcp failed!!!"
+    #     exit 1
+    # fi
+    #
+    # if [ -n "$CHOWN_ATTR" ]; then
     #     set -x
-    #     # target is a file though
-    #     # $SSH $node sudo mkdir -p $TARGET
-    #     rsync --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
+    #     pdsh -S -w $$NODE_LIST "sudo bash -c \"chown -R $CHOWN_ATTR $TARGET\""
     #     RC=$?
     #     set +x
     #     if [ $RC -ne 0 ]; then
-    #         echo "Error: rsync of files from Jenkins worker node to node $node failed!"
+    #         echo "ERROR: pdsh failed!!!"
     #         exit 1
     #     fi
-    #
-    #     if [ -n "$CHOWN_ATTR" ]; then
-    #         set -x
-    #         $SSH $node sudo chown -R $CHOWN_ATTR $TARGET
-    #         RC=$?
-    #         set +x
-    #         if [ $RC -ne 0 ]; then
-    #             echo "Error: chown files on node $NODE failed!"
-    #             exit 1
-    #         fi
-    #     fi
-    # done
+    # fi
+    # return
 }
 
 
