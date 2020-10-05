@@ -107,16 +107,17 @@ fanout() {
     local cmd=$*
     # echo 'fanout: start on ' `date +%H:%M:%S`
 
-    #[ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
+    [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
 
-    if [ -n "$HOSTLIST" ]; then
-        #echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
-        set -x
-        $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
-        RC=$?
-        set +x
-        return $RC
-    fi
+    # if [ -n "$HOSTLIST" ]; then
+    #     #echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
+    #     set -x
+    #     $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
+    #     # $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
+    #     RC=$?
+    #     set +x
+    #     return $RC
+    # fi
     # echo 'fanout: end on ' `date +%H:%M:%S`
 }
 fanoutnogw() {
