@@ -261,7 +261,7 @@ slownogwfanout() {
         RC=$?
         set +x
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
-        return $RC
+        # return $RC
     fi
 }
 
