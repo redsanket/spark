@@ -104,14 +104,17 @@ exec_jt_mapreduser() {
 # [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" $*
 
 fanout() {
-    local cmd=$1
+    #local cmd=$1
     # echo 'fanout: start on ' `date +%H:%M:%S`
-    if [ -n "$HOSTLIST" ]; then
-        echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
-        $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
-        RC=$?
-        return $RC
-    fi
+
+    [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$*\""
+
+    # if [ -n "$HOSTLIST" ]; then
+    #     echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
+    #     $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
+    #     RC=$?
+    #     return $RC
+    # fi
     # echo 'fanout: end on ' `date +%H:%M:%S`
 }
 fanoutnogw() {
