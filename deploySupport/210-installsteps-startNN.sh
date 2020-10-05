@@ -208,3 +208,5 @@ fanoutscp \
 fanoutSecondary_hdfsuser "sh /tmp/finishNN2.sh"
 st=$?
 [ "$st" -ne 0 ] && echo "Failed to run finishNN2.sh / namenode2-part-3-script.sh" && exit $st
+
+return 0
