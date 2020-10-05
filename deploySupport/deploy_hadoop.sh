@@ -532,7 +532,7 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
             # Instead, use the bash shell process substitution instead of pipes
             # to force the first command in a pipeline to run in the main shell.
             # E.g. cmd1 > >(cmd2 | cmd3 | ...).
-            time . "$script" > >(tee $logfile)
+            time . "$script" > >(tee $logfile) 2>&1
         else
             echo "Nothing to do: script_num=$script_num is less than max_script_num=$max_script_num"
         fi
