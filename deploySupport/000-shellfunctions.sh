@@ -101,6 +101,8 @@ exec_jt_mapreduser() {
 # Therefore, we need to append them with "sudo bash -c \"$cmd\"".
 # so they run as root on the target nodes.
 
+# [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" $*
+
 fanout() {
     local cmd=$1
     # echo 'fanout: start on ' `date +%H:%M:%S`
