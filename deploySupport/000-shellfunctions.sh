@@ -101,25 +101,19 @@ exec_jt_mapreduser() {
 # Therefore, we need to append them with "sudo bash -c \"$cmd\"".
 # so they run as root on the target nodes.
 
-# [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" $*
-
 fanout() {
     local cmd="$*"
     # echo 'fanout: start on ' `date +%H:%M:%S`
-
-    [ -n "$HOSTLIST" ] && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
-
-    # if [ -n "$HOSTLIST" ]; then
-    #     #echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
-    #     set -x
-    #     $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
-    #     # $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
-    #     RC=$?
-    #     set +x
-    #     return $RC
-    # fi
+    if [ -n "$HOSTLIST" ]; then
+        set -x
+        $PDSH_FAST -w "$HOSTLIST" "sudo bash -c '$cmd'"
+        RC=$?
+        set +x
+        return $RC
+    fi
     # echo 'fanout: end on ' `date +%H:%M:%S`
 }
+
 fanoutnogw() {
     # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
     [ -n "$HOSTLISTNOGW" ] && \
@@ -338,6 +332,7 @@ fanoutSecondary_hdfsuser() {
 }
 
 fanoutSecondary_root() {
+    local cmd=$1
     fanoutSecondary "$cmd"
 }
 
