@@ -24,11 +24,13 @@ echo "cd share/localhadoopconfigs"
 echo "[ -d ${GSHOME}/conf/local ] || mkdir -p ${GSHOME}/conf/local "
 echo "for file in *.xml; do"
 echo '    if [ '!' -f ${GSHOME}/conf/local/${file} ]; then '
+echo '        echo "cp $file ${GSHOME}/conf/local/${file}"'
 echo '        cp $file ${GSHOME}/conf/local/${file}'
 echo '    fi '
 echo "done"
 echo "for file in dfs.*; do"
 echo '    if [ '!' -f ${GSHOME}/conf/local/${file} ]; then '
+echo '        echo "cp $file ${GSHOME}/conf/local/${file}"'
 echo '        cp $file ${GSHOME}/conf/local/${file}'
 echo '    fi '
 echo "done"
@@ -36,7 +38,7 @@ echo 'cd /tmp && rm -rf /tmp/$$'
 ) > $scriptdir/$cplocalfiles_script
 
 fanoutscp "$scriptdir/$cplocalfiles_script" "/tmp/$cplocalfiles_script" "$HOSTLIST"
-cmd="sh -x /tmp/$cplocalfiles_script"
+cmd="sh /tmp/$cplocalfiles_script"
 fanout "$cmd"
 fanoutGW "$cmd"
 

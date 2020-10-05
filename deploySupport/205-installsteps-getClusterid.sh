@@ -29,7 +29,7 @@ if [ -z "$NAMENODE_Primary" ]; then
 fi
 
 clusterid_file="/tmp/$cluster.clusterid.txt"
-[ -f $local_file ] && rm -rf $local_file
+[ -f $clusterid_file ] && rm -rf $clusterid_file
 
 JAVA_HOME="$GSHOME/java/jdk64/current"
 exec_nn_hdfsuser \
@@ -39,7 +39,7 @@ perl /tmp/getclusterid.pl > $clusterid_file"
 st=$?
 if [ $st -eq 0 ]; then
     scp $NAMENODE_Primary:$clusterid_file $clusterid_file
-    export CLUSTERID=`cat $local_file`
+    export CLUSTERID=`cat $clusterid_file`
     echo "CLUSTERID=$CLUSTERID"
 else
     echo "Run getclusterid failed! Exit code $st"

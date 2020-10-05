@@ -26,15 +26,17 @@ for node in $namenode; do
 echo 'export PATH=/usr/kerberos/bin:$PATH'
 echo echo ======= NEED TO RUN kinit to deal with keytab on ${node} as ${HDFSUSER}
 echo "if [  -f $ktabfile ]; then"
-    echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${node}@DEV.YGRID.YAHOO.COM
+echo echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${node}@DEV.YGRID.YAHOO.COM
+echo kinit -k -t /etc/grid-keytabs/${shortname}.dev.service.keytab hdfs/${node}@DEV.YGRID.YAHOO.COM
 echo else
-    echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+echo echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
+echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
 echo fi
 echo klist
 ) > $scriptdir/$cluster.nninit.sh
 
     set -x
     scp $scriptdir/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
-    ssh $node "sudo -su $HDFSUSER bash -c \"sh -x /tmp/$cluster.nninit.sh\""
+    ssh $node "sudo -su $HDFSUSER bash -c \"sh /tmp/$cluster.nninit.sh\""
     set +x
 done

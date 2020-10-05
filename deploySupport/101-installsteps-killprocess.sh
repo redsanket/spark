@@ -35,12 +35,16 @@ if [[ "$HADOOPVERSION" =~ ^3. ]]; then
 export JAVA_HOME=$JAVA_HOME && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
+export HDFSUSER=$HDFSUSER && \
+export USER=$HDFSUSER && \
 ${yrootHadoopMapred}/bin/hdfs --daemon stop namenode"
 elif [[ "$HADOOPVERSION" =~ ^2. ]]; then
     fanout_nn_hdfsuser "\
 export JAVA_HOME=$JAVA_HOME && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
+export HDFSUSER=$HDFSUSER && \
+export USER=$HDFSUSER && \
 ${yrootHadoopCurrent}/sbin/hadoop-daemon.sh stop namenode"
 else
     echo "ERROR: Unknown HADOOPVERSION $HADOOPVERSION"

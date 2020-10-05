@@ -102,11 +102,15 @@ exec_jt_mapreduser() {
 # so they run as root on the target nodes.
 
 fanout() {
+    local cmd=$1
     # echo 'fanout: start on ' `date +%H:%M:%S`
-    [ -n "$HOSTLIST" ] && \
-        set -x && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$*\"" && RC=$? && set +x
+    if [ -n "$HOSTLIST" ]; then
+        echo "$PDSH_FAST -w \"$HOSTLIST\" \"sudo bash -c \\\"$cmd\\\"\""
+        $PDSH_FAST -w "$HOSTLIST" "sudo bash -c \"$cmd\""
+        RC=$?
+        return $RC
+    fi
     # echo 'fanout: end on ' `date +%H:%M:%S`
-    return $RC
 }
 fanoutnogw() {
     # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
@@ -245,11 +249,11 @@ recordpkginstall() {
 	[ -n "$ver" ] && recordManifest  "pkgname=$nm" "pkgver=$ver"
 }
 fanout_workers_root() {
+    local cmd=$1
     echo 'slavefanout: start on ' `date +%H:%M:%S`
-    set -x
-    $PDSH_FAST -w "$SLAVELIST" "sudo bash -c \"$*\""
+    echo "$PDSH_FAST -w \"$SLAVELIST\" \"sudo bash -c \\\"$cmd\\\"\""
+    $PDSH_FAST -w "$SLAVELIST" "sudo bash -c \"$cmd\""
     RC=$?
-    set +x
     echo 'slavefanout: end on ' `date +%H:%M:%S`
     return $RC
 }
@@ -493,10 +497,10 @@ fanoutSparkUI() {
 }
 
 fanoutGW() {
-    set -x
-    $SSH $gateway "sudo bash -c \"$*\""
+    local cmd=$1
+    echo "$SSH $gateway \"sudo bash -c \\\"$cmd\\\"\""
+    $SSH $gateway "sudo bash -c \"$cmd\""
     RC=$?
-    set +x
     return $RC
 }
 
