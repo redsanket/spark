@@ -19,7 +19,7 @@ PDSH="pdsh -S "
 PDSH_FAST="$PDSH -u $FAST_WAIT_SEC -f 25 "
 PDSH_SLOW="$PDSH -u $SLOW_WAIT_SEC -f 25 "
 
-function transport_files_from_admin {
+function transport_files_from_admin() {
     local ADM_HOST=$1
     local ADM_PATH=$2
     local NODES=$3
@@ -102,7 +102,7 @@ exec_jt_mapreduser() {
 # so they run as root on the target nodes.
 
 fanout() {
-    local cmd="$*"
+    local cmd=$1
     # echo 'fanout: start on ' `date +%H:%M:%S`
     if [ -n "$HOSTLIST" ]; then
         set -x
