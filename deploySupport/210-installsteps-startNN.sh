@@ -209,4 +209,6 @@ fanoutSecondary_hdfsuser "sh /tmp/finishNN2.sh"
 st=$?
 [ "$st" -ne 0 ] && echo "Failed to run finishNN2.sh / namenode2-part-3-script.sh" && exit $st
 
+# This is required because the validation checks above <a> && <b> ... return 1
+# on success, which when returned triggers exit on failure because set -x is enabled.
 return 0
