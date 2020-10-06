@@ -85,8 +85,7 @@ fanoutGW "$cmd"
 if [ "$QA_PACKAGES" != "none" ]; then
     echo "====Install additional QA packages: $QA_PACKAGES"
     set -x
-    #phw slowfanout "$yinst install -yes -os rhel-6.x -root ${yroothome}  $QA_PACKAGES -same -live"
-    slowfanout "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
+    fanoutslow "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
     #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
     set +x
 fi

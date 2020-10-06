@@ -466,23 +466,23 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 
 	set +x
 	banner "START INSTALL STEP #$index: $script_basename"
-
+	echo "Running $script"
 	start=`date +%s`
 	h_start=`date +%Y/%m/%d-%H:%M:%S`
-
-	echo "Running $script"
 
 	# For general shutdown and cleanup scripts, temporarily disable exit on failure.
 	# also skip error on 170 since it returns nonzero on GW ssl cert update for kms
 	# unfortunately +/-e in the step still propogated fail out
 	SKIP_ERROR_ON_STEP="false"
-	if ([[ $script =~ "100-" ]] || [[ $script =~ "101-" ]] || [[ $script =~ "140-" ]] || [[ $script =~ "170-" ]]); then
+	if ([[ $script =~ "100-" ]] ||
+            [[ $script =~ "101-" ]] ||
+            [[ $script =~ "140-" ]] ||
+            [[ $script =~ "170-" ]]); then
             echo "Skip exit on failure for script $script_basename"
             SKIP_ERROR_ON_STEP="true"
             set +e
 	fi
 
-	max_script_num=500
 	################################################################################
 	# $ ls -1 [0-9][0-9]*-installsteps-[^HIT]*.sh
 	# 000-installsteps-explanation.sh
@@ -520,9 +520,9 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	# 261-installsteps-testRM.sh
 	# 500-installsteps-runsimpletest.sh
 
-	script_num=`echo $script_basename|cut -d'-' -f1`
-
         # Execute steps that are smaller than or equal to the max script num
+	max_script_num=500
+	script_num=`echo $script_basename|cut -d'-' -f1`
         if (($script_num <= $max_script_num)); then
             logfile="$WORK_DIR/${script_basename}.log"
 
@@ -544,6 +544,7 @@ for script in ${ROOT_DIR}/[0-9][0-9]*-installsteps-[^HIT]*.sh; do
 	# Turn exit on failure back on now
 	if [[ "$SKIP_ERROR_ON_STEP" == "true" ]]; then
             set -e
+            st=0
 	fi
 
 	if [ "$st" -eq 0 ]; then

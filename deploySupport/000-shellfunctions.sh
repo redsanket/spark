@@ -259,7 +259,7 @@ fanout_workers_root() {
     echo 'slavefanout: end on ' `date +%H:%M:%S`
     return $RC
 }
-slownogwfanout() {
+fanoutslownogw() {
     echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
     if [ -n "$HOSTLISTNOGW" ]; then
         set -x
@@ -267,11 +267,11 @@ slownogwfanout() {
         RC=$?
         set +x
         echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
-        # return $RC
+        return $RC
     fi
 }
 
-slowfanout() {
+fanoutslow() {
 	echo 'slowfanout: start on ' `date +%H:%M:%S`
 	$PDSH_SLOW -w "$HOSTLIST" "sudo bash -c \"$*\""
 	echo 'slowfanout: end on ' `date +%H:%M:%S`
