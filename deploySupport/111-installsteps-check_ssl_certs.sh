@@ -31,8 +31,8 @@ set +x
 
 NODES=`yinst range -ir @grid_re.clusters.$CLUSTER,@grid_re.clusters.$CLUSTER.gateway`
 for NODE in $NODES; do
-    echo "$SSH $ADM_HOST \"sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME\""
-    $SSH $ADM_HOST "sudo $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
+    echo "$SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME"
+    $SCP $CERT_REFERENCE_PATH $NODE:$CERT_HOME
     if [ $? -ne 0 ]; then
         echo "Error: node $NODE failed to scp JKS files!"
         exit 1
