@@ -115,13 +115,6 @@ fi
 # Start datanodes
 #################################################################################
 echo "======= short-term workaround Nov 15: start up DN as $HDFSUSER"
-## $PDSH -w "$SLAVELIST"  \
-#"scp $ADMIN_HOST:$scriptdir/datanode-script.sh  /tmp/datanode-script.sh && \
-#export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_HOME=${yroothome}/share/hadoop && \
-#export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && \
-#export HDFSUSER=$HDFSUSER && \
-#export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && \
-#su $HDFSUSER -c 'sh /tmp/datanode-script.sh $arg $cluster' "
 
 fanoutscp \
 "$scriptdir/datanode-script.sh" \

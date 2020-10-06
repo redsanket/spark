@@ -24,7 +24,7 @@ echo "*****"  "change of cluster:"
 echo "*****"  "we are adding users to group 'hadoop'"
 echo "*****"  "we are changing /etc/grid-keytabs so that $MAPREDUSER to read it."
 
-fanoutnogw "/usr/sbin/lgroupdel hadoop; \
+fanoutnogw_root "/usr/sbin/lgroupdel hadoop; \
 /usr/sbin/lgroupadd -g 10787 hadoop; \
 /usr/sbin/lgroupmod -M $HDFSUSER,$MAPREDUSER,hadoopqa hadoop; \
 cd /etc/grid-keytabs; \
@@ -32,13 +32,13 @@ cd /etc/grid-keytabs; \
 RC=$?
 
 echo == "note short-term workaround for capacity scheduler (expires Sept 30)"
-fanout "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
+fanout_root "export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && \
 export HADOOP_PREFIX=${yroothome}/share/hadoop && \
 export HADOOP_MAPRED_HOME=${yroothome}/share/hadoop && \
 export YARN_HOME=${yroothome}/share/hadoop"
 RC=$?
 
-# fanout "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
-# fanout "usermod -G hadoop $MAPREDUSER "
+# fanout_root "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
+# fanout_root "usermod -G hadoop $MAPREDUSER "
 ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-jtnode.sh "
 RC=$?

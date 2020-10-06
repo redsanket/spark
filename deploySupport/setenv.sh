@@ -20,3 +20,5 @@ export yrootHadoopMapred=$yroothome/share/hadoop
 export yrootHadoopHdfs=$yroothome/share/hadoop
 export yrootHadoopConf=$yroothome/conf/hadoop
 export GRIDJDK_VERSION=$GRIDJDK_VERSION
+
+ADM_HOST=${ADM_HOST:="devadm101.blue.ygrid.yahoo.com"}

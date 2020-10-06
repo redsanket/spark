@@ -6,5 +6,5 @@ if [ "$YINSTSELFUPDATE" = false ]; then
 fi
 
 echo "Run yinst self-update"
-fanout "yinst self-update -branch rhel6stable -yes"
-fanoutGW "yinst self-update -branch rhel6stable -yes"
+fanout_root "yinst self-update -branch rhel6stable -yes"
+fanoutGW_root "yinst self-update -branch rhel6stable -yes"

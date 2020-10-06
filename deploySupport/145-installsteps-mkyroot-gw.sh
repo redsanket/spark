@@ -83,4 +83,4 @@ for g in $gateways; do
 done
 
 return 0 ;
-# fanoutGW "hostname"
+# fanoutGW_root "hostname"

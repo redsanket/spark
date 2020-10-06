@@ -39,8 +39,8 @@ echo 'cd /tmp && rm -rf /tmp/$$'
 
 fanoutscp "$scriptdir/$cplocalfiles_script" "/tmp/$cplocalfiles_script" "$HOSTLIST"
 cmd="sh /tmp/$cplocalfiles_script"
-fanout "$cmd"
-fanoutGW "$cmd"
+fanout_root "$cmd"
+fanoutGW_root "$cmd"
 
 if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"

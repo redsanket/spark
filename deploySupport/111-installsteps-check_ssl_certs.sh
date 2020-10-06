@@ -6,11 +6,6 @@ set +x
 # to each  cluster node, needed to support webui https/ssl connections on any server run on
 # said node, includes certs for Core and HBase
 
-SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-SSH="ssh $SSH_OPT"
-SCP="scp $SSH_OPT"
-ADM_HOST=${ADM_HOST:="devadm101.blue.ygrid.yahoo.com"}
-
 #
 # TODO in future we could deliver these certificates using ykeykey/chef
 # reference doc at;
@@ -21,7 +16,7 @@ CERT_HOME="/etc/ssl/certs/prod/_open_ygrid_yahoo_com"
 
 echo "== verify Core SSL certs are in place"
 
-fanout "if [ ! -d ${CERT_HOME} ] ; then \
+fanout_root "if [ ! -d ${CERT_HOME} ] ; then \
 echo \"Going to create ${CERT_HOME}\"; \
 mkdir -p ${CERT_HOME}; \
 chmod 755 ${CERT_HOME}; \

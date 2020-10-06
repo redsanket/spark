@@ -66,11 +66,11 @@ fanout_workers_root "sh /tmp/setup_nm_cgroups.sh"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
 # echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
 
-fanout "/usr/local/bin/yinst set -root ${yroothome} \
+fanout_root "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
 $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
 
-fanoutGW "/usr/local/bin/yinst set -root ${yroothome} \
+fanoutGW_root "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
 $confpkg.TODO_MAPRED_CLIENTFACTORY_CLASS_NAME=mapreduce.clientfactory.class.name"
 

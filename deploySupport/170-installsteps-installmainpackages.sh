@@ -41,26 +41,26 @@ fi
 
 # TODO: 32 bit lib packages, i.e. lzo.i686 will cause issues for RHEL-7 in place upgrade
 # compat-readline should have come from Config job, removing compat-readline5.x86_64
-slownogwfanout "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
-slownogwfanout "$cmd"
-[[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && slownogwfanout "$spark_shuffle_cmd"
+fanoutslownogw "/usr/bin/yum -y install openssl098e.x86_64 lzo lzo.i686 lzo.x86_64"
+fanoutslownogw "$cmd"
+[[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutslownogw "$spark_shuffle_cmd"
 
-fanoutGW "/usr/bin/yum makecache"
+fanoutGW_root "/usr/bin/yum makecache"
 # compat-readline should have come from Config job, removing compat-readline5.x86_64
 
-fanoutGW "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64"
+fanoutGW_root "/usr/bin/yum -y install lzo lzo.i686 lzo.x86_64 openssl098e.x86_64"
 
-fanoutGW "$cmd"
+fanoutGW_root "$cmd"
 
-[[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutGW "$spark_shuffle_cmd"
+[[ "$SPARK_SHUFFLE_VERSION" != "none" ]] && fanoutGW_root "$spark_shuffle_cmd"
 
 # GRIDCI-501
-# fanoutGW "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
-# fanoutGW "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
+# fanoutGW_root "$yinst set yjava_jdk.JAVA_HOME=/home/gs/java/jdk64/current"
+# fanoutGW_root "$yinst set yjava_vmwrapper.JAVACMD=/home/gs/java/jdk64/current/bin/java"
 
 # Because we create gateways from new virtual hosts
-# fanoutGW "$yinst install yhudson_slave"
-# fanoutGW "mkdir -p /home/y/var/builds"
+# fanoutGW_root "$yinst install yhudson_slave"
+# fanoutGW_root "mkdir -p /home/y/var/builds"
 
 #
 # At this point, the packages are installed - except the configs.
@@ -78,15 +78,15 @@ cmd="GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.confoptions.sh 
 
 #    echo ====== install workaround to get $f copied: Dec 22 2010 ;  \
 #    [ -f ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f ] || scp $ADMIN_HOST:$scriptdir/$f  ${yroothome}/share/hadoop/share/hadoop/hdfs/lib/$f  "
-fanout "$cmd"
-fanoutGW "$cmd"
+fanout_root "$cmd"
+fanoutGW_root "$cmd"
 
 # install addtional QA packages if there is any
 if [ "$QA_PACKAGES" != "none" ]; then
     echo "====Install additional QA packages: $QA_PACKAGES"
     set -x
     fanoutslow "$yinst install -br test  -yes  -root ${yroothome}  $QA_PACKAGES -same -live "
-    #fanoutGW "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
+    #fanoutGW_root "$yinst install -yes -root ${yroothome}  $QA_PACKAGES -same -live"
     set +x
 fi
 echo ......
@@ -103,7 +103,7 @@ echo ......
 # For details on the pdsh bug see:
 #  http://sourceforge.net/p/pdsh/mailman/message/290409/
 #
-fanout "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; \
+fanout_root "if [ -d /home/gs/var ]; then chown root:root /home/gs/var; chmod 0755 /home/gs/var; fi; \
 if [ -d /home/gs/var/run ]; then chown root /home/gs/var/run; chmod 0755 /home/gs/var/run; fi "
 
 ##################################################################################
@@ -138,9 +138,9 @@ JDK_CACERTS="/home/gs/java/jdk/jre/lib/security/cacerts"
 OPTS=" -storepass `sudo /home/y/bin/ykeykeygetkey jdk_keystore` -noprompt "
 ALIAS="selfsigned"
 
-fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
-fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
-fanout "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
+fanout_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $JDK_CACERTS" 
+fanout_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $JDK_CACERTS" 
+fanout_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $JDK_CACERTS" 
 
 # HTF uses a different jdk, the default install, so get it too
 HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
@@ -148,9 +148,9 @@ HTF_JDK_CACERTS="/home/y/libexec64/jdk64-1.8.0/jre/lib/security/cacerts"
 # this will return nonzero if cert is already added, so added step 170 to teh
 # installgrid exceptions, using +/1e here still fails the build 
 echo "INFO: HTF uses default JDK on gateway so update it too" 
-fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
-fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $HTF_JDK_CACERTS" 
-fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $HTF_JDK_CACERTS" 
+fanoutGW_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias $ALIAS  -file $CERT_HOME/hadoop_kms.cert -keystore  $HTF_JDK_CACERTS"
+fanoutGW_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias mapredqa  -file $CERT_HOME/mapredqa.cert -keystore  $HTF_JDK_CACERTS" 
+fanoutGW_root "/home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file $CERT_HOME/hdfsqa.cert -keystore  $HTF_JDK_CACERTS" 
 
 # gridci-3318, we need to pass the kms truststore to docker tasks since docker image
 # JDK will not have this and we can't add it on the fly (would need to add to base 
@@ -164,6 +164,6 @@ fanoutGW "sudo  /home/gs/java/jdk/bin/keytool -import $OPTS -alias hdfsqa  -file
 # CANNOT USE: -Djavax.net.ssl.trustStore, hadoop ignores this in its x509
 # handler to create the factory
 # Below change is for YHADOOP-3394 where Tez inherits the correct environment without containers and unable to find certs in /opt/yahoo..
-fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
+fanout_root "cp $CERT_HOME/hadoop_flubber_tls.jks /home/gs/conf/current/."
 # Below changes was for YHADOOP-3385 where /home/gs bindmount was not available from the container
-fanout "sudo cp $CERT_HOME/hadoop_flubber_tls.jks /opt/yahoo/share/ssl/certs/."
+fanout_root "cp $CERT_HOME/hadoop_flubber_tls.jks /opt/yahoo/share/ssl/certs/."

@@ -101,9 +101,9 @@ exec_jt_mapreduser() {
 # Therefore, we need to append them with "sudo bash -c \"$cmd\"".
 # so they run as root on the target nodes.
 
-fanout() {
+fanout_root() {
     local cmd=$1
-    # echo 'fanout: start on ' `date +%H:%M:%S`
+    # echo 'fanout_root: start on ' `date +%H:%M:%S`
     if [ -n "$HOSTLIST" ]; then
         set -x
         $PDSH_FAST -w "$HOSTLIST" "sudo bash -c '$cmd'"
@@ -111,14 +111,14 @@ fanout() {
         set +x
         return $RC
     fi
-    # echo 'fanout: end on ' `date +%H:%M:%S`
+    # echo 'fanout_root: end on ' `date +%H:%M:%S`
 }
 
-fanoutnogw() {
-    # echo 'fanoutnogw: (not to gateway) start on ' `date +%H:%M:%S`
+fanoutnogw_root() {
+    # echo 'fanoutnogw_root: (not to gateway) start on ' `date +%H:%M:%S`
     [ -n "$HOSTLISTNOGW" ] && \
         set -x && $PDSH_FAST -w "$HOSTLISTNOGW" "sudo bash -c \"$*\"" && RC=$? && set +x
-    # echo 'fanoutnogw: (not to gateway) end on ' `date +%H:%M:%S`
+    # echo 'fanoutnogw_root: (not to gateway) end on ' `date +%H:%M:%S`
     return $RC
 }
 
@@ -187,50 +187,6 @@ fanoutscp() {
     # return
 }
 
-
-# parameter 1 - command to run
-# parameter 2 - comma separated host names
-# __HOSTNAME__ in the command arg will be replaced by a single hostname
-# for each execution.
-fanoutcmd() {
-    command=$1
-    if [[ -z $command ]]; then
-        echo "ERROR: Required command argument is missing!!!"
-        return 1
-    fi
-
-    # host is comma separated list of hosts
-    hosts=$2
-    if [[ -z $hosts ]]; then
-        echo "ERROR: Required hosts argument is missing!!!"
-        return 1
-    else
-        hosts=`echo $hosts|tr "," " "`
-    fi
-
-    num_hosts=`echo $hosts|wc -w`
-
-    echo "fanout to [$num_hosts] hosts '"$hosts"':"
-    echo "base command='$command'"
-
-    count=1
-    pids=""
-    local hostname
-    for hostname in $hosts; do
-        cmd=`echo "$command" | sed s/__HOSTNAME__/$hostname/g`
-        echo "Run command [$count/$num_hosts]: '$cmd &'"
-        $cmd &
-        pid=$!
-        pids=$pids$pid" "
-        count=$((count+1))
-    done
-
-    set -x
-    wait $pids
-    set +x
-    return 0
-}
-
 initManifest() {
   [ -n "$MANIFEST" ] && cp /dev/null  $MANIFEST
 }
@@ -260,13 +216,13 @@ fanout_workers_root() {
     return $RC
 }
 fanoutslownogw() {
-    echo 'slownogwfanout: (not to gateway) start on ' `date +%H:%M:%S`
+    echo 'fanoutslownogw: (not to gateway) start on ' `date +%H:%M:%S`
     if [ -n "$HOSTLISTNOGW" ]; then
         set -x
         $PDSH_SLOW -w "$HOSTLISTNOGW" "sudo bash -c \"$*\""
         RC=$?
         set +x
-        echo 'slownogwfanout: (not to gateway) end on ' `date +%H:%M:%S`
+        echo 'fanoutslownogw: (not to gateway) end on ' `date +%H:%M:%S`
         return $RC
     fi
 }
@@ -499,7 +455,7 @@ fanoutSparkUI() {
   return $st
 }
 
-fanoutGW() {
+fanoutGW_root() {
     local cmd=$1
     echo "$SSH $gateway \"sudo bash -c \\\"$cmd\\\"\""
     $SSH $gateway "sudo bash -c \"$cmd\""
@@ -507,7 +463,7 @@ fanoutGW() {
     return $RC
 }
 
-fanoutGW_old() {
+fanoutGW() {
    # echo fanoutGW: running "$@" 
 
    echo $* > $scriptdir/gw.cmds-to-run.$cluster.sh

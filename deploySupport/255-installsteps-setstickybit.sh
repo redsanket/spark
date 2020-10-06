@@ -11,4 +11,4 @@ cmd="export HADOOP_HOME=$GSHOME/hadoop/current ; \
      $GSHOME/hadoop/current/bin/hadoop fs -ls / ; \
      $GSHOME/hadoop/current/bin/hadoop fs -chmod +t /tmp ; \
      $GSHOME/hadoop/current/bin/hadoop fs -ls / "
-fanout "$cmd"
+fanout_root "$cmd"

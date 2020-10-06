@@ -57,7 +57,7 @@ echo \$cnt namenodes up.
 zz
 
 fanoutscp "$scriptdir/$cluster.testNNdeploy.sh" "/tmp/" "$gateway"
-fanoutGW "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
+fanoutGW_root "su hadoopqa -c 'sh  /tmp/$cluster.testNNdeploy.sh' > /dev/null 2>&1"
 
 # TODO: The following is failing with the error message:
 # scp: /home/gs/gridre/yroot.openqe2blue/share/hadoopcommon/handoff.txt: No such file or directory

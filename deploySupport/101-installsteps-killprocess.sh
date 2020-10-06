@@ -57,5 +57,5 @@ fanout_workers_root "export HDFSUSER=$HDFSUSER && sh /tmp/datanode-script.sh sto
 
 # kill any running processes.
 fanoutscp "$scriptdir/deploy.$cluster.processes.to.kill.sh" "/tmp/deploy.$cluster.processes.to.kill.sh" "$HOSTLISTNOGW"
-fanoutnogw "sh /tmp/deploy.$cluster.processes.to.kill.sh && rm /tmp/deploy.$cluster.processes.to.kill.sh  > /dev/null 2>&1"
-fanoutnogw "rm -rf /tmp/logs"
+fanoutnogw_root "sh /tmp/deploy.$cluster.processes.to.kill.sh && rm /tmp/deploy.$cluster.processes.to.kill.sh  > /dev/null 2>&1"
+fanoutnogw_root "rm -rf /tmp/logs"

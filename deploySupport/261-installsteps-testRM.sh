@@ -99,7 +99,7 @@ zz
 
 # gridci-2393, use new nfs server, which has updated mapred keytab
 fanoutscp "$scriptdir/$cluster.testYarndeploy.sh" "/tmp/" "$gateway"
-fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
+fanoutGW_root "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
 
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
