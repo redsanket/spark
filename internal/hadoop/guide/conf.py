@@ -11,6 +11,7 @@
 # serve to show the default.
 
 import sys, os
+sys.path.insert(0, os.path.abspath('_ext'))
 import shlex
 import sphinx_rtd_theme
 
@@ -31,7 +32,10 @@ from docutils.utils import get_source_line
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo', 'sphinxcontrib.bibtex']
+extensions = ['sphinx.ext.extlinks',
+              'sphinx.ext.todo',
+              'sphinx.ext.githubpages',
+              'sphinxcontrib.bibtex']
 
 # enable todo here
 todo_include_todos=True
@@ -53,7 +57,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Hadoop Doc'
+project = u'YHadoop Internal Doc'
 copyright = u'2020, Verizonmedia! Inc., 2020'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -77,7 +81,7 @@ version = 'v.2.10.01'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', '.DS_Store']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -116,7 +120,7 @@ html_theme_path = ['_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'Hadoop User Guide'
+html_title = 'YHadoop User Guide'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -169,14 +173,14 @@ html_context = {
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = False
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_show_sphinx = False
 
 html_theme_options = {
 	'sticky_navigation': True,
-	'logo_only': True
+	'logo_only': True,
 }
 
 edit_on_github_project = 'username/reponame'

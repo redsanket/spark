@@ -1,12 +1,12 @@
 .. _yarn_scheduling_capacity_scheduler:
 
-******************
-Capacity Scheduler
-******************
+***************************************
+Capacity Scheduler |nbsp| |green-badge|
+***************************************
 
 .. contents:: Table of Contents
-  :local:
-  :depth: 2
+   :local:
+   :depth: 2
 
 -----------
 

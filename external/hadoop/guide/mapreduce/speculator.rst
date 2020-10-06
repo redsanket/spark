@@ -1,8 +1,8 @@
 ..  _mapreduce_speculation:
 
-*********************
-Speculative Execution
-*********************
+******************************************
+Speculative Execution |nbsp| |green-badge|
+******************************************
 
 .. contents:: Table of Contents
   :local:

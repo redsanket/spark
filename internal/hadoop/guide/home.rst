@@ -23,8 +23,8 @@ To test the generated code locally, you can simply run the following command fro
 
     # clean the old build
     make clean
-    # to generate only hadoop/docs
-    make hadoop
+    # to generate only internal hadoop docs
+    make hadoop_internal
     # OR, generate the whole repository
     make
 

@@ -1,7 +1,7 @@
 ..  _yarn_scheduling_preemption_inter-queue:
 
-Inter-queue (cross-queue) preemption
-====================================
+Inter-queue (cross-queue) preemption |nbsp| |green-badge|
+=========================================================
 
 The CapacityScheduler supports preemption of container from the queues whose resource usage is more than their guaranteed capacity. The following configuration parameters need to be enabled in yarn-site.xml for supporting preemption of application containers.
 

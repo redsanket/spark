@@ -1,7 +1,7 @@
 ..  _yarn_scheduling_preemption_intra-queue:
 
-Intra-queue (in-queue) Preemption
-=================================
+Intra-queue (in-queue) Preemption |nbsp| |green-badge|
+======================================================
 
 .. admonition:: Reading...
    :class: readingbox

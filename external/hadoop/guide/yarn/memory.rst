@@ -1,8 +1,8 @@
 .. _yarn_memory:
 
-**************************
-Hadoop Memory Optimization
-**************************
+***********************************************
+Hadoop Memory Optimization |nbsp| |green-badge|
+***********************************************
 
 .. contents:: Table of Contents
   :local:

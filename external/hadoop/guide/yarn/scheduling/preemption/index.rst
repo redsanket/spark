@@ -1,8 +1,8 @@
 ..  _yarn_scheduling_preemption:
 
-**********
-Preemption
-**********
+*******************************
+Preemption |nbsp| |green-badge|
+*******************************
 
 .. toctree::
    :caption: Table of Contents
