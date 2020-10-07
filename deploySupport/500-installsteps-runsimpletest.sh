@@ -35,7 +35,7 @@ set +x
 logfile="deploy_${cluster}_test.log"
 set -x
 # echo  GSHOME=$GSHOME yroothome=$yroothome sh /tmp/${cluster}-${testname} -c $cluster -N "'$namenode'" ${writeenabledflag} -P "${yarnProcessor}" -u "${MAPREDUSER}" | ssh $gateway su - hadoopqa
-ssh $gateway "su - hadoopqa -c '\
+$SSH $gateway "su - hadoopqa -c '\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome && \
 export HADOOP_27=$HADOOP_27 && \

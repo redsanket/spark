@@ -34,7 +34,7 @@ JAVA_HOME="$GSHOME/java/jdk64/current"
     set -x
     echo "cd ${yroothome}"
     echo "JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop  perl /tmp/getclusterid.pl > /tmp/$cluster.clusterid.txt"
-) | ssh $nn su - $HDFSUSER
+) | $SSH $nn su - $HDFSUSER
 st=$?
 echo "Exit status of ssh for getclusterid was $st"
 
@@ -46,5 +46,5 @@ if [ $st -eq 0 ]; then
     set +x
 fi
 
-ssh $nn  rm  -f  /tmp/$cluster.clusterid.txt
+$SSH $nn  rm  -f  /tmp/$cluster.clusterid.txt
 [ -f /tmp/$cluster.clusterid.txt ] && rm -rf /tmp/$cluster.clusterid.txt

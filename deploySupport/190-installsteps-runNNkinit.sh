@@ -30,7 +30,7 @@ for n in $namenode; do
         echo kinit -k -t /etc/grid-keytabs/hdfs.dev.service.keytab hdfs/dev.ygrid.yahoo.com@DEV.YGRID.YAHOO.COM
     echo fi 
     #echo klist
-    )| ssh $n su - $HDFSUSER
+    )| $SSH $n su - $HDFSUSER
     set +x
 done
 

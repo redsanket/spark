@@ -25,7 +25,7 @@ set -x
 # GRIDCI-440, from RM node need to ssh to each NM as $MAPREDUSER with StrictHostKeyChecking=no
 # in order to create known_hosts, else RM access fails
 ( echo "PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' $PDSH -w $SLAVELIST hostname" ) |\
-ssh  $jobtrackernode su - $MAPREDUSER
+$SSH  $jobtrackernode su - $MAPREDUSER
 
 # GRIDCI-444 - nm health check for openstack
 fanoutcmd "$SCP $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
@@ -93,7 +93,7 @@ set -x
 (
     cat $tmpfile
     echo '$YARN_HOME/sbin/start-yarn.sh'
-)  | ssh $jobtrackernode su - $MAPREDUSER
+)  | $SSH $jobtrackernode su - $MAPREDUSER
 set +x
 
 echo "== starting up yarn JobHistoryServer."
@@ -111,7 +111,7 @@ set -x
         exit 1
     fi
 
-)  | ssh $jobtrackernode su - $MAPREDUSER
+)  | $SSH $jobtrackernode su - $MAPREDUSER
 set +x
 
 echo "== starting up yarn TimelineServer."
@@ -127,5 +127,5 @@ set -x
         exit 1
     fi
 
-)   | ssh $jobtrackernode su - $MAPREDUSER
+)   | $SSH $jobtrackernode su - $MAPREDUSER
 set +x
