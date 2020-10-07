@@ -19,6 +19,9 @@ PDSH="pdsh -S "
 PDSH_FAST="$PDSH -u $FAST_WAIT_SEC -f 25 "
 PDSH_SLOW="$PDSH -u $SLOW_WAIT_SEC -f 25 "
 
+SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+SSH="ssh $SSH_OPT"
+SCP="scp $SSH_OPT"
 
 fanout() {
 	# echo 'fanout: start on ' `date +%H:%M:%S`
@@ -130,8 +133,8 @@ fanoutHBASETestClient() {
         echo 'fanoutHBASETestClient: start on ' `date +%H:%M:%S`
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
         echo $* > $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh
-        execCmd "scp $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-        execCmd "ssh $machname sh /tmp/hbase_test_client.cmds-to-run.$cluster.sh"
+        execCmd "$SCP $scripttmp/hbase_test_client.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+        execCmd "$SSH $machname sh /tmp/hbase_test_client.cmds-to-run.$cluster.sh"
         st=$?
         echo "fanoutHBASETestClient status: st=$st"
         echo 'fanoutHBASETestClient: end on ' `date +%H:%M:%S`
@@ -141,8 +144,8 @@ fanoutHBASEMASTER() {
         echo 'fanoutHBASEMASTER: start on ' `date +%H:%M:%S`
         machname=`echo $HBASEMASTERNODE | cut -f1 -d:`
         echo $* > $scripttmp/hbase_master.cmds-to-run.$cluster.sh
-        execCmd "scp $scripttmp/hbase_master.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-        execCmd "ssh $machname sh /tmp/hbase_master.cmds-to-run.$cluster.sh"
+        execCmd "$SCP $scripttmp/hbase_master.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+        execCmd "$SSH $machname sh /tmp/hbase_master.cmds-to-run.$cluster.sh"
         st=$?
         echo "fanoutHBASEMASTER status: st=$st"
         echo 'fanoutHBASEMASTER: end on ' `date +%H:%M:%S`
@@ -281,8 +284,8 @@ fanoutGW() {
    [ -n "$gateway" ]  && (
        machname=$gateway
        echo fanoutGW: running on ${gateway}:  "$@" 
-       execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
-       execCmd "ssh $machname sh /tmp/gw.cmds-to-run.$cluster.sh"
+       execCmd "$SCP $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+       execCmd "$SSH $machname sh /tmp/gw.cmds-to-run.$cluster.sh"
 
    )
 #   st=0
@@ -294,14 +297,14 @@ fanoutGW() {
        yrootname=${yrootname}
        
        # Check if yroot already exists or not,
-       yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`
+       yroot_output=`$SSH $machname /home/y/bin/yroot --set $yrootname`
        if [ -n "$yroot_output" ]; then
        	   echo fanoutGW: running on ${g}:  "$@" 
-           execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+           execCmd "$SCP $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            st=$?
-           execCmd "ssh ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
+           execCmd "$SSH ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
            st=$?
-           execCmd "ssh $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh -x  /tmp/gw.cmds-to-run.$cluster.sh \""
+           execCmd "$SSH $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh -x  /tmp/gw.cmds-to-run.$cluster.sh \""
            st=$?
        else
 	   echo "yroot $yrootname doesn't exist on $machname, skip fanoutGW on yroot..."
@@ -330,14 +333,14 @@ fanoutYRoots() {
        yrootname=${yrootname}
 
        # Check if yroot already exists or not,
-       yroot_output=`ssh $machname /home/y/bin/yroot --set $yrootname`
+       yroot_output=`$SSH $machname /home/y/bin/yroot --set $yrootname`
        if [ -n "$yroot_output" ]; then
            echo fanoutYRoots: running on ${g}:  "$@" 
-           execCmd "scp $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
+           execCmd "$SCP $scripttmp/gw.cmds-to-run.$cluster.sh ${machname}:/tmp/"
            [ $? -ne 0 ] && st=$?
-           execCmd "ssh ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
+           execCmd "$SSH ${machname} /home/y/bin/yrootcp  /tmp/gw.cmds-to-run.$cluster.sh  ${yrootname}:/tmp/"
            [ $? -ne 0 ] && st=$?
-           execCmd "ssh $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh /tmp/gw.cmds-to-run.$cluster.sh \""
+           execCmd "$SSH $machname /home/y/bin/yroot  ${yrootname} --cmd \"sh /tmp/gw.cmds-to-run.$cluster.sh \""
            [ $? -ne 0 ] && st=$?
        else
 	   echo "yroot $yrootname doesn't exist on $machname, skip fanoutGW on yroot..."
