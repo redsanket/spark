@@ -36,7 +36,7 @@ echo klist
 ) > $scriptdir/$cluster.nninit.sh
 
     set -x
-    scp $scriptdir/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
-    ssh $node "sudo -su $HDFSUSER bash -c \"sh /tmp/$cluster.nninit.sh\""
+    $SCP $scriptdir/$cluster.nninit.sh $node:/tmp/$cluster.nninit.sh
+    $SSH $node "sudo -su $HDFSUSER bash -c \"sh /tmp/$cluster.nninit.sh\""
     set +x
 done

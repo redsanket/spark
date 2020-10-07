@@ -40,5 +40,5 @@ RC=$?
 
 # fanout_root "chown $MAPREDUSER  /etc/grid-keytabs/tt.*.service.keytab"
 # fanout_root "usermod -G hadoop $MAPREDUSER "
-ssh $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-jtnode.sh "
+$SSH $jobtrackernode "/bin/sh $yrootHadoopConf/cfg-${cfgscriptnames}-jtnode.sh "
 RC=$?

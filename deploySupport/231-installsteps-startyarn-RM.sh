@@ -24,8 +24,8 @@ echo "== starting up yarn servers."
 # in order to create known_hosts, else RM access fails
 # Load the mapredqa credentials
 set -x
-ssh $jobtrackernode "sudo bash -c \"sshca-creds -u mapredqa load\""
-ssh $jobtrackernode "sudo -su $MAPREDUSER bash -c \"\
+$SSH $jobtrackernode "sudo bash -c \"sshca-creds -u mapredqa load\""
+$SSH $jobtrackernode "sudo -su $MAPREDUSER bash -c \"\
 export SSH_AUTH_SOCK=/tmp/.sshca_creds_agent/mapredqa.sock && PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no' && $PDSH -w $SLAVELIST \\\"whoami && hostname\\\"\
 \""
 set +x
@@ -64,7 +64,7 @@ fanoutscp "$tmpsetupfile" "/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 
 fanout_workers_root "sh /tmp/setup_nm_cgroups.sh"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"
-# echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | ssh $jobtrackernode
+# echo "(cd ${yroothome}/share/hadoop ; cp contrib/capacity-scheduler/hadoop-*-capacity-scheduler.jar  .)" | $SSH $jobtrackernode
 
 fanout_root "/usr/local/bin/yinst set -root ${yroothome} \
 $confpkg.TODO_CLIENTFACTORYMETHOD=org.apache.hadoop.mapred.YarnClientFactory \
@@ -97,7 +97,7 @@ set -x
 (
     cat $tmpfile
     echo '$YARN_HOME/sbin/start-yarn.sh'
-)  | ssh $jobtrackernode sudo -su $MAPREDUSER
+)  | $SSH $jobtrackernode sudo -su $MAPREDUSER
 set +x
 
 echo "== starting up yarn JobHistoryServer."
@@ -115,7 +115,7 @@ set -x
         exit 1
     fi
 
-)  | ssh $jobtrackernode sudo -su $MAPREDUSER
+)  | $SSH $jobtrackernode sudo -su $MAPREDUSER
 set +x
 
 echo "== starting up yarn TimelineServer."
@@ -131,5 +131,5 @@ set -x
         exit 1
     fi
 
-)   | ssh $jobtrackernode sudo -su $MAPREDUSER
+)   | $SSH $jobtrackernode sudo -su $MAPREDUSER
 set +x

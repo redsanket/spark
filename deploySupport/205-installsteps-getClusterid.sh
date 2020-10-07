@@ -38,7 +38,7 @@ JAVA_HOME=$JAVA_HOME HADOOP_PREFIX=${yroothome}/share/hadoop \
 perl /tmp/getclusterid.pl > $clusterid_file"
 st=$?
 if [ $st -eq 0 ]; then
-    scp $NAMENODE_Primary:$clusterid_file $clusterid_file
+    $SCP $NAMENODE_Primary:$clusterid_file $clusterid_file
     export CLUSTERID=`cat $clusterid_file`
     echo "CLUSTERID=$CLUSTERID"
 else

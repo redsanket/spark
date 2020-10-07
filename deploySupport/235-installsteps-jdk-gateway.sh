@@ -16,5 +16,5 @@ set -x
           else
               echo No yinst install for
           fi "
-) | ssh $gateway
+) | $SSH $gateway
 set +x

@@ -29,13 +29,12 @@ fi
 # Run $cluster-shorttest-rw.sh from the gateway, passing the primary namenode value.
 echo "=== running a simple test on  gateway=$gateway"
 set -x
-scp "$testfile"  ${gateway}:/tmp/${cluster}-${testname}
+$SCP "$testfile"  ${gateway}:/tmp/${cluster}-${testname}
 set +x
 
 logfile="deploy_${cluster}_test.log"
 set -x
-# echo  GSHOME=$GSHOME yroothome=$yroothome sh /tmp/${cluster}-${testname} -c $cluster -N "'$namenode'" ${writeenabledflag} -P "${yarnProcessor}" -u "${MAPREDUSER}" | ssh $gateway su - hadoopqa
-ssh $gateway "bash -c '\
+$SSH $gateway "bash -c '\
 export GSHOME=$GSHOME && \
 export yroothome=$yroothome && \
 export HOMEDIR=$HOMEDIR && \
@@ -48,7 +47,7 @@ RC=$?
 set +x
 
 set -x
-scp ${gateway}:/tmp/$logfile $scriptdir/$logfile
+$SCP ${gateway}:/tmp/$logfile $scriptdir/$logfile
 set +x
 
 if [ "$RC" -ne 0 ]; then

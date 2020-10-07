@@ -104,7 +104,7 @@ fanoutGW_root "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
 # [ $? -eq 0 ] && (
 #    rm -fr /tmp/$cluster.*.handoff.txt
 #    for c in mapred yarn; do
-#       scp ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
+#       $SCP ${jobtrackernode}:${yroothome}/share/hadoop${c}/handoff.txt /tmp/$cluster.$c.handoff.txt
 #       recordpkginstall  hadoop$c `cat /tmp/$cluster.$c.handoff.txt`
 #       banner SUCCESS: hadoop-$c is correctly installed: ver=`cat /tmp/$cluster.$c.handoff.txt`
 #    done

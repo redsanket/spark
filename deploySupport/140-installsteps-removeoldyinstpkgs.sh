@@ -24,7 +24,7 @@ fanoutscp "$scriptdir/deploy.$cluster.remove.old.packages.sh" "/tmp/deploy.$clus
 fanoutnogw_root "GSHOME=$GSHOME yroothome=$yroothome sh /tmp/deploy.$cluster.remove.old.packages.sh && \
 rm /tmp/deploy.$cluster.remove.old.packages.sh"
 
-scp $scriptdir/deploy.$cluster.remove.gateway.old.packages.sh $gateway:/tmp/deploy.$cluster.remove.gateway.old.packages.sh
+$SCP $scriptdir/deploy.$cluster.remove.gateway.old.packages.sh $gateway:/tmp/deploy.$cluster.remove.gateway.old.packages.sh
 
 fanoutGW_root "sh /tmp/deploy.$cluster.remove.gateway.old.packages.sh && \
 rm /tmp/deploy.$cluster.remove.gateway.old.packages.sh"

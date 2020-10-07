@@ -10,7 +10,7 @@ if [[ $RHEL7_DOCKER_DISABLED == "true" ]]; then
     return 0
 fi
 
-OS_VER=`ssh $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
+OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
 if [[ "$OS_VER" =~ ^6. ]]; then
     echo "SKIP docker setup for cluster with RHEL6 resourcemanager node $jobtrackernode"
     return 0
@@ -25,8 +25,8 @@ DOCKER_TAG_URI="docker-registry.ops.yahoo.com:4443/hadoop-user-images/hadoop/$DO
 setup_docker_hdfs() {
     echo "=========== Setting up Docker images on HDFS"
     set -x
-    scp $scriptdir/setup_docker_hdfs.sh $jobtrackernode:/tmp/
-    ssh $jobtrackernode "sudo bash -c \"sh /tmp/setup_docker_hdfs.sh /mapred/docker/ \"$DOCKER_TAG_URI,hadoop/$DOCKER_IMAGE_TAG_TO_USE:current\"\""
+    $SCP $scriptdir/setup_docker_hdfs.sh $jobtrackernode:/tmp/
+    $SSH $jobtrackernode "sudo bash -c \"sh /tmp/setup_docker_hdfs.sh /mapred/docker/ \"$DOCKER_TAG_URI,hadoop/$DOCKER_IMAGE_TAG_TO_USE:current\"\""
     set +x
 }
 

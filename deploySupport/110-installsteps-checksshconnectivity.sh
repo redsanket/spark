@@ -7,13 +7,13 @@ fi
 echo "CHECKSSHCONNECTIVITY is enabled"
 for h1 in $jobtrackernode; do
     echo == checking that ssh to $h1 works.
-    if [ "`echo date +%Y | ssh $jobtrackernode su - $MAPREDUSER `" != "$yr" ]; then
+    if [ "`echo date +%Y | $SSH $jobtrackernode sudo -su $MAPREDUSER `" != "$yr" ]; then
         echo "Cannot run command on $h1. Is ssh set up for user $USER?"
         errs=`expr $errs + 1`
     fi
     for h2 in $ALLSLAVES; do
         echo "==== testing $h1 -> $h2 for user=$MAPREDUSER."
-        if [ "`echo date +%Y | ssh $jobtrackernode su - $MAPREDUSER ssh $h2 `" != "$yr" ]; then
+        if [ "`echo date +%Y | $SSH $jobtrackernode sudo -su $MAPREDUSER $SSH $h2 `" != "$yr" ]; then
         echo "Cannot run command on $h1 to $h2. Is ssh set up for user $MAPREDUSER?"
         errs=`expr $errs + 1`
         fi

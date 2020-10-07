@@ -45,6 +45,6 @@ fanoutGW_root "$cmd"
 if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"
     set -x
-    ssh $secondarynamenode "sudo bash -c \"$cmd\""
+    $SSH $secondarynamenode "sudo bash -c \"$cmd\""
     set +x
 fi
