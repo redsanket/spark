@@ -10,7 +10,7 @@ if [[ $RHEL7_DOCKER_DISABLED == "true" ]]; then
     return 0
 fi
 
-OS_VER=`ssh $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
+OS_VER=`$SSH $jobtrackernode "cat /etc/redhat-release | cut -d' ' -f7"`
 if [[ "$OS_VER" =~ ^6. ]]; then
     echo "SKIP docker setup for cluster with RHEL6 resourcemanager node $jobtrackernode"
     return 0
