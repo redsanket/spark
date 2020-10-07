@@ -152,7 +152,7 @@ HADOOP_INSTALL_STRING=''
 HADOOP_MVN_INSTALL_STRING_PKG=''
 # JDK_QEDEFAULT=yjava_jdk-1.8.0_102.70
 # need rhel7 compatible flavor of jdk
-JDK_QEDEFAULT=yjava_jdk-8.0_8u232b09.2641196
+JDK_QEDEFAULT=yjava_jdk-8.0_8u262b10.7844803
 
 if [ -n "$HADOOP_RELEASE_TAG" ]; then
     for i in $HADOOP_CORE_PKGS; do
