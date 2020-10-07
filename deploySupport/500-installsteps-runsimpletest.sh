@@ -29,7 +29,7 @@ fi
 # Run $cluster-shorttest-rw.sh from the gateway, passing the primary namenode value.
 echo "=== running a simple test on  gateway=$gateway"
 set -x
-scp "$testfile"  ${gateway}:/tmp/${cluster}-${testname}
+$SCP "$testfile"  ${gateway}:/tmp/${cluster}-${testname}
 set +x
 
 logfile="deploy_${cluster}_test.log"
@@ -49,7 +49,7 @@ RC=$?
 set +x
 
 set -x
-scp ${gateway}:/tmp/$logfile /grid/0/tmp/scripts.deploy.$cluster/$logfile
+$SCP ${gateway}:/tmp/$logfile /grid/0/tmp/scripts.deploy.$cluster/$logfile
 set +x
 
 if [ "$RC" -ne 0 ]; then

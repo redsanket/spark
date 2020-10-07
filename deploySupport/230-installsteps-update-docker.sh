@@ -25,7 +25,7 @@ DOCKER_TAG_URI="docker-registry.ops.yahoo.com:4443/hadoop-user-images/hadoop/$DO
 setup_docker_hdfs() {
     echo "=========== Setting up Docker images on HDFS"
     set -x
-    scp /grid/0/tmp/setup_docker_hdfs.sh $jobtrackernode:/tmp/
+    $SCP /grid/0/tmp/setup_docker_hdfs.sh $jobtrackernode:/tmp/
     ssh $jobtrackernode sh /tmp/setup_docker_hdfs.sh /mapred/docker/ "$DOCKER_TAG_URI,hadoop/$DOCKER_IMAGE_TAG_TO_USE:current"
     set +x
 }

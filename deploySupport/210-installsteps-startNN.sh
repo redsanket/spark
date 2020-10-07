@@ -53,7 +53,7 @@ echo "export HADOOPVERSION=$HADOOPVERSION "
 echo "sh /tmp/namenode-part-1-script.sh $arg "
 ) > /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh
 fanoutcmd \
-"scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh __HOSTNAME__:/tmp/" \
+"$SCP /grid/0/tmp/scripts.deploy.$cluster/namenode-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startnn1.sh __HOSTNAME__:/tmp/" \
 "$ALLNAMENODESLIST"
 
 # Run startnn1.sh as HDFS user
@@ -86,7 +86,7 @@ if [ -n "$secondarynamenode" ]; then
     echo "export HADOOPVERSION=$HADOOPVERSION "
     ) > /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh
     fanoutcmd \
-"scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh __HOSTNAME__:/tmp/" \
+"$SCP /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-1-script.sh /grid/0/tmp/scripts.deploy.$cluster/startsecondary.sh __HOSTNAME__:/tmp/" \
 "$ALLSECONDARYNAMENODESLIST"
 
     # Run startnn1.sh as HDFS user
@@ -101,7 +101,7 @@ echo "======= short-term workaround Nov 15: start up DN as $HDFSUSER"
 ## $PDSH -w "$SLAVELIST"  "scp $ADMIN_HOST:/grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh  /tmp/datanode-script.sh  && export HADOOP_COMMON_HOME=${yroothome}/share/hadoop && export HADOOP_HOME=${yroothome}/share/hadoop   && export HADOOP_HDFS_HOME=${yroothome}/share/hadoop && export HDFSUSER=$HDFSUSER && export HADOOP_CONF_DIR=${yroothome}/conf/hadoop && su $dnstartupuser  -c 'sh /tmp/datanode-script.sh $arg $cluster' "
 fanoutSecondary "rm /tmp/namenode2-part-1-script.sh"
 
-fanoutcmd "scp /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
+fanoutcmd "$SCP /grid/0/tmp/scripts.deploy.$cluster/datanode-script.sh __HOSTNAME__:/tmp/datanode-script.sh" "$SLAVELIST"
 
 set -x
 $PDSH -w "$SLAVELIST" "\
@@ -135,7 +135,7 @@ echo "export HADOOPVERSION=$HADOOPVERSION "
 echo "sh /tmp/namenode-part-3-script.sh $arg "
 ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh
 fanoutcmd \
-"scp /grid/0/tmp/scripts.deploy.$cluster/namenode-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh __HOSTNAME__:/tmp/" \
+"$SCP /grid/0/tmp/scripts.deploy.$cluster/namenode-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN.sh __HOSTNAME__:/tmp/" \
 "$ALLNAMENODESLIST"
 
 set -x
@@ -163,7 +163,7 @@ echo "export HADOOPVERSION=$HADOOPVERSION "
 echo "sh /tmp/namenode2-part-3-script.sh $arg "
 ) > /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh
 fanoutcmd \
-"scp /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh __HOSTNAME__:/tmp/" \
+"$SCP /grid/0/tmp/scripts.deploy.$cluster/namenode2-part-3-script.sh /grid/0/tmp/scripts.deploy.$cluster/finishNN2.sh __HOSTNAME__:/tmp/" \
 "$ALLSECONDARYNAMENODESLIST"
 
 set -x

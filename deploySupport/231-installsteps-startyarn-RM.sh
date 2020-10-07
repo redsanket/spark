@@ -28,11 +28,11 @@ set -x
 ssh  $jobtrackernode su - $MAPREDUSER
 
 # GRIDCI-444 - nm health check for openstack
-fanoutcmd "scp $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+fanoutcmd "$SCP $scripttmp/setup_nm_health_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
 slavefanout "sh /tmp/setup_nm_health_check_script.sh" "$SLAVELIST"
 
 # GRIDCI-2885 - nm dockerd check for rhel7 nodes with docker enabled
-fanoutcmd "scp $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
+fanoutcmd "$SCP $scripttmp/setup_nm_dockerd_check_script.sh __HOSTNAME__:/tmp/" "$SLAVELIST"
 slavefanout "sh /tmp/setup_nm_dockerd_check_script.sh" "$SLAVELIST"
 
 # Install runc on all the nodemanagers that are not RHEL6
@@ -59,7 +59,7 @@ tmpsetupfile=/tmp/setup_nm_cgroups.sh.$$
     echo "  done"
     echo "fi"
 ) > $tmpsetupfile
-fanoutcmd "scp $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
+fanoutcmd "$SCP $tmpsetupfile __HOSTNAME__:/tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 set -x
 slavefanout "sh /tmp/setup_nm_cgroups.sh" "$SLAVELIST"
 # echo == "note short-term workaround for capacity scheduler (expires Sept 9)"

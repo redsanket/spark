@@ -9,8 +9,8 @@ cp slaves.$cluster.txt  /tmp/slaves.$cluster.txt
 [ -d $scripttmp ] || mkdir -p $scripttmp
 cp slaves.$cluster.txt  $scripttmp/slaves.$cluster.txt
 
-fanoutcmd "scp $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/conf/local/slaves" "$HOSTLIST"
-fanoutcmd "scp $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
+fanoutcmd "$SCP $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/conf/local/slaves" "$HOSTLIST"
+fanoutcmd "$SCP $scripttmp/slaves.$cluster.txt __HOSTNAME__:${GSHOME}/gridre/yroot.$cluster/conf/hadoop/slaves.localcopy.txt" "$HOSTLIST"
 set +x
 
 (
@@ -37,7 +37,7 @@ echo "done"
 echo 'cd /tmp && rm -rf /tmp/$$'
 ) > $scripttmp/$cluster.cplocalfiles.sh
 
-fanoutcmd "scp $scripttmp/$cluster.cplocalfiles.sh __HOSTNAME__:/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
+fanoutcmd "$SCP $scripttmp/$cluster.cplocalfiles.sh __HOSTNAME__:/tmp/$cluster.cplocalfiles.sh" "$HOSTLIST"
 cmd="GSHOME=${GSHOME} sh -x /tmp/$cluster.cplocalfiles.sh"
 
 set -x
@@ -48,8 +48,8 @@ set +x
 if [ -n "$secondarynamenode" ]; then
     cmd="echo \"$secondarynamenode\" > ${GSHOME}/conf/local/masters"
     set -x
-    for i in $namenode; do ssh $i "$cmd"; done
-    for j in $secondarynamenode; do ssh $j "$cmd"; done
-    ssh $jobtrackernode "$cmd"
+    for i in $namenode; do $SSH $i "$cmd"; done
+    for j in $secondarynamenode; do $SSH $j "$cmd"; done
+    $SSH $jobtrackernode "$cmd"
     set +x
 fi

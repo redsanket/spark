@@ -99,7 +99,7 @@ zz
 
 set -x
 # gridci-2393, use new nfs server, which has updated mapred keytab
-fanoutcmd "scp $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
+fanoutcmd "$SCP $scripttmp/$cluster.testYarndeploy.sh __HOSTNAME__:/tmp/" "$gateway"
 fanoutGW "su mapredqa -c 'sh /tmp/$cluster.testYarndeploy.sh' "
 set +x
 
