@@ -12,6 +12,7 @@
 # Inputs: $cluster
 #
 set +x
+
 if [ "$CONFIGURENAMENODE" = true ]  && [ "$ENABLE_HA" = false ]; then
     echo "== Copying namenode-start scripts to namenodes."
     fanoutscp "$scriptdir/nameno*.sh $scriptdir/getclusterid.pl" "/tmp/" "$ALLNAMENODESLIST"
