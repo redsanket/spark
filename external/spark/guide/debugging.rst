@@ -142,7 +142,7 @@ Go to the Spark history server. This is the same URI as the Resourcemanager with
 .. _dbg_finished_app_logs:
 
 Logs
-++++
+~~~~
 
 You can use yarn logs to get all the logs for your application. Yarn logs can also get specific container logs but you have to know the container id and the host name. You should be able to get those by first looking at the application master log.
   - ``yarn logs -applicationId < your application id> | less``
@@ -151,6 +151,31 @@ You can also still go to the ResourceManager web UI to view the logs as describe
 
 You can also see just the application master logs by doing something like:
   - ``yarn logs -applicationId < your app id> -appOwner < app Owner> -am 1 -logFiles <stderr/stdout>``
+
+.. _dbg_finished_app_load_locally:
+
+Loading event logs locally
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grid's spark history server rejects loading oversized event logs due to memory concerns. However, you can download the event logs from the grid's history server and load it in your own spark history server. Here are the steps:
+- Download open source spark from https://spark.apache.org/downloads.html. Leave the spark release and package type options as default.
+
+- Extract the downloaded tar file. E.g., run ``tar -xvzf spark-3.0.1-bin-hadoop2.7.tgz`` in Mac or Linux, and you will get a "spark-3.0.1-bin-hadoop2.7" folder. (Spark history server is backward-compatible, spark3 history server can load spark2 app’s event logs.)
+
+- Run ``mkdir /tmp/spark-events`` to create a log directory, spark history server loads application event logs from this directory by default.
+
+- Go to the cluster's spark history server https://<RM_HOST>:50509/cluster, search your app in the search bar and download the event log of your app by clicking the blue download button on the right side, then unzip it.
+
+- Move unzipped application event log to /tmp/spark-event. E.g, ``mv ~/Downloads/application_1598235191095_15820591_1 /tmp/spark-events/``.
+
+- Set environment variable "SPARK_DAEMON_MEMORY" based on the size of the event log. E.g., Run ``export SPARK_DAEMON_MEMORY=4g`` to set it to 4g (default is 1g).
+
+- Under spark’s home directory (e.g., "spark-3.0.1-bin-hadoop2.7"), run ``./sbin/start-history-server.sh`` to launch spark history server in localhost:18080.
+
+- Visit localhost:18080 in your browser, and now you can open your event log in your own spark history server.
+
+- Finally, run ``./sbin/stop-history-server.sh`` to stop spark history server.
+
+More details can be found on https://spark.apache.org/docs/latest/monitoring.html.
 
 .. _dbg_faq_hints:
 
