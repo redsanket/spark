@@ -5,7 +5,8 @@ HiveServer2
    :maxdepth: 2
    :hidden:
 
-   tableau
+   ygrid_tableau
+   vgrid_tableau
    looker
    beeline
    jdbc
