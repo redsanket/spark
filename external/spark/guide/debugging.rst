@@ -209,7 +209,7 @@ In order to allocate a Yamas namespace for your project, please onboard your nam
 
   *.sink.yamas.class=org.apache.spark.metrics.sink.YamasSink
   *.sink.yamas.namespace=My-Yamas-Namespace
-  *.sink.yamas.applicationDimensions="cluster=BassniumTan,colo=Tan"
+  *.sink.yamas.applicationDimensions=cluster=BassniumTan,colo=Tan
 
 The configuration above is the minimum required, but there are other important configs you should pay attention to:
 
