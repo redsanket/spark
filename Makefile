@@ -62,7 +62,7 @@ prebuild:
 	@echo "Creating virtualenv..."
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
-	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme
+	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme sphinx-rtd-theme-ext-color-contrast
 	@echo "Installing sphinxcontrib-bibtex..."
 	. $(ACTIVATE) && $(PIP) install sphinxcontrib-bibtex
 	@echo '****** End Prebuilding Steps ******'

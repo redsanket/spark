@@ -11,6 +11,7 @@
 # serve to show the default.
 
 import sys, os
+sys.path.insert(0, os.path.abspath('_ext'))
 import shlex
 import sphinx_rtd_theme
 
@@ -31,7 +32,11 @@ from docutils.utils import get_source_line
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.extlinks', 'sphinx.ext.todo', 'sphinxcontrib.bibtex']
+extensions = ['sphinx.ext.extlinks',
+              'sphinx.ext.todo',
+              'sphinxcontrib.bibtex',
+              'sphinx_rtd_theme',
+              'sphinx_rtd_theme_ext_color_contrast']
 
 # enable todo here
 todo_include_todos=True
@@ -78,7 +83,7 @@ version = 'v.2.10.01'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', '.DS_Store']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -138,8 +143,15 @@ html_title = 'Hadoop User Guide'
 html_static_path = ['_static']
 
 html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
+    "display_github": True,
+    "github_host": "git.vzbuilders.com",
+    "github_user": "ahussein",
+    "github_repo": 'docs',
+    "github_version": "master",
+    "conf_py_path": "/external/hadoop/guide/",
+    "source_suffix": source_suffix,
+    "css_files": [
+        "_static/theme_overrides.css",  # override wide tables in RTD theme
         ],
      }
 
@@ -180,10 +192,7 @@ html_theme_options = {
 	'logo_only': True
 }
 
-edit_on_github_project = 'username/reponame'
 
-
-edit_on_github_branch = 'master'
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
 

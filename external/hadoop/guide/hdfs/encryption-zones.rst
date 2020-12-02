@@ -48,8 +48,6 @@ The followiing functionalities are *not supported*:
 Best Practices
 ==============
 
-.. rubric:: If your data is replicated to one or more clusters
-
 .. _fig-hdfs-ez-dependency:
 
 .. figure:: /images/hdfs/hdfs-ez-dependency-tree.png
@@ -57,6 +55,7 @@ Best Practices
   :width: 100%
   :align: center
 
+  EZ dependency tree
 
 * If your data is replicated to one or more clusters
 
@@ -87,8 +86,11 @@ Best Practices
   a key that is older than this limit. Failing to do so could result in un-readable
   data.
 
+
+
 .. important:: Data is never allowed to be copied from an encryption zone to a
                non encrypted area, hence the ordering requirement.
+
 
 
 On Boarding

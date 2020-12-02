@@ -34,8 +34,9 @@ from docutils.utils import get_source_line
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.extlinks',
               'sphinx.ext.todo',
-              'sphinx.ext.githubpages',
-              'sphinxcontrib.bibtex']
+              'sphinxcontrib.bibtex',
+              'sphinx_rtd_theme',
+              'sphinx_rtd_theme_ext_color_contrast']
 
 # enable todo here
 todo_include_todos=True
@@ -120,7 +121,7 @@ html_theme_path = ['_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'YHadoop User Guide'
+html_title = 'YHadoop Internal Doc'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -141,8 +142,15 @@ html_title = 'YHadoop User Guide'
 html_static_path = ['_static']
 
 html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
+    "display_github": True,
+    "github_host": "git.vzbuilders.com",
+    "github_user": "ahussein",
+    "github_repo": 'docs',
+    "github_version": "master",
+    "conf_py_path": "/internal/hadoop/guide/",
+    "source_suffix": source_suffix,
+    "css_files": [
+        "_static/theme_overrides.css",  # override wide tables in RTD theme
         ],
      }
 
@@ -173,7 +181,7 @@ html_context = {
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_show_sphinx = False
@@ -183,10 +191,6 @@ html_theme_options = {
 	'logo_only': True,
 }
 
-edit_on_github_project = 'username/reponame'
-
-
-edit_on_github_branch = 'master'
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
 
@@ -246,4 +250,4 @@ extlinks = {'hadoop_rel_doc': ('https://hadoop.apache.org/docs/r2.10.0/%s',
             'hadoop_github_url': ('https://github.com/apache/hadoop/blob/branch-2.10/%s', 'hadoop_github_url ')}
             
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'HadoopUserGuide'
+htmlhelp_basename = 'InternalHadoopUserGuide'

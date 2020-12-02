@@ -76,6 +76,8 @@ Concepts
   :width: 100%
   :align: center
 
+  Athenz Data Model
+
 .. sidebar:: Reading...
 
   Having a firm grasp on some fundamental concepts will help you understand the
