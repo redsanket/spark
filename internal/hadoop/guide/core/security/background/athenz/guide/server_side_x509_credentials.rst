@@ -11,13 +11,13 @@ TLS client certificate authentication.
 
 If you are looking for an instruction for a specific container such as
 undertow or jetty, please see
-`mtls container support <https://git.vzbuilders.com/pages/athens/athenz-guide/mtls/#container-support>`_
+:yahoo_github:`mtls container support <pages/athens/athenz-guide/mtls/#container-support>`
 
 Get Athenz CA Certificates
 --------------------------
 
 First, download Athenz CA certificates following
-`Athenz CA Certificate Details <https://git.vzbuilders.com/pages/athens/athenz-guide/athenz_ca_certs/>`_ section. The preferred
+:yahoo_github:`Athenz CA Certificate Details <pages/athens/athenz-guide/athenz_ca_certs/>` section. The preferred
 option is to choose the ``yahoo_certificate_bundle`` rpm or dist package
 since that already includes a couple of truststores in PEM, PKCS12 and
 JKS formats - one including only the Athenz CA certificates and another
@@ -83,7 +83,7 @@ setNeedClientAuth to true. For example:
    sslserversocket.setNeedClientAuth(true);
 
 If you need a specific container support, please checkout out
-`mtls container-support <https://git.vzbuilders.com/pages/athens/athenz-guide/mtls/#container-support>`_
+:yahoo_github:`mtls container-support <pages/athens/athenz-guide/mtls/#container-support>`
 
 All other containers, please follow specific documentations provided by
 your container vendor on how to require client side TLS authentication.
@@ -121,14 +121,14 @@ Here is how you can get access to the TLS certificate:
 
 Then, validate the certificate issuers against a pre-configured set of
 Athenz CA issuers - the list of Athenz CA issuers is documented in the
-`Athenz CA Certificate Details <https://git.vzbuilders.com/pages/athens/athenz-guide/athenz_ca_certs/>`_
+:yahoo_github:`Athenz CA Certificate Details <pages/athens/athenz-guide/athenz_ca_certs/>`
 section:
 
 You may use the following Servlet Filter to validate the issuers. See
-`oath_mtls_filter <https://git.vzbuilders.com/JavaPlatform/oath_mtls_filter>`_
+:yahoo_github:`oath_mtls_filter <JavaPlatform/oath_mtls_filter>`
 
-Below is an `example code <https://git.vzbuilders.com/JavaPlatform/oath_mtls_filter/blob/master/src/main/java/com/oath/filter/mtls TLSFilter.java>`_ from the
-`oath_mtls_filter <https://git.vzbuilders.com/JavaPlatform/oath_mtls_filter>`_ that demonstrates how
+Below is an :yahoo_github:`example code <JavaPlatform/oath_mtls_filter/blob/master/src/main/java/com/oath/filter/mtls TLSFilter.java>` from the
+:yahoo_github:`oath_mtls_filter <JavaPlatform/oath_mtls_filter>` that demonstrates how
 this done.
 
 

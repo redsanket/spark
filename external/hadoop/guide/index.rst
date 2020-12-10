@@ -29,6 +29,14 @@ Hadoop User Guide
    yarn/faq/index
 
 .. toctree::
+   :caption: TEZ
+   :numbered:
+   :maxdepth: 4
+
+   tez/home
+   tez/encryption
+
+.. toctree::
    :caption: Mapreduce
    :numbered:
    :maxdepth: 4
@@ -37,6 +45,7 @@ Hadoop User Guide
    mapreduce/compression
    mapreduce/speculator
    mapreduce/streaming
+   mapreduce/encryption
    mapreduce/faq/index
 
 .. toctree::
@@ -55,5 +64,7 @@ Hadoop User Guide
 
    security/home
    security/faq/index
+
+
    
    

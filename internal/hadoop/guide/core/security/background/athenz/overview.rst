@@ -84,7 +84,7 @@ Concepts
   Athenz architecture, service authentication support, the flow for both
   centralized and decentralized authorization, and how to set up role-based
   authorization. Full details are in internal Athenz -
-  vzbuilders Github - `Athenz Guide: Concepts <https://git.vzbuilders.com/pages/athens/athenz-guide/concepts/>`_ 
+  vzbuilders Github - :yahoo_github:`Athenz Guide: Concepts <pages/athens/athenz-guide/concepts/>`
   
 .. _security_background_athenz_concepts_domains:
 
@@ -219,7 +219,7 @@ A :term:`role` can also delegate the determination of membership to another
 trusted domain. For example, a `siteops` role managed outside a
 product domain. This is how we can model tenant relations between a
 provider domain and tenant domains
-(see `Role Delegation <https://git.vzbuilders.com/pages/athens/athenz-guide/role_delegation/>`_).
+(see :yahoo_github:`Role Delegation <pages/athens/athenz-guide/role_delegation/>`).
 
 Because roles are defined in domains, they can be partitioned by domain,
 unlike users, which are global. This allows the distributed operation to
@@ -485,14 +485,13 @@ Only system administrators can create and destroy top level domains.
 Athenz top level domains are only created for registered products in
 `Verizon Media Product Master <https://productmaster.vzbuilders.com/engineering/product>`_. To
 create and manage subdomains the domain administrator may use
-`zms-cli utility <https://git.vzbuilders.com/pages/athens/athenz-guide/zms_client/>`_ or
+:yahoo_github:`zms-cli utility <pages/athens/athenz-guide/zms_client/>` or
 `Athenz UI <https://ui.athenz.ouroath.com/athenz/domain/create/domain>`_ . To
 create a new subdomain domain in Athenz UI, click on ``Create`` link
 present in the top right corner next to ``My Domain`` heading. Users
 also have the option to
-`search <https://git.vzbuilders.com/pages/athens/athenz-guide/web_ui/#search-domains>`_
-for any
-registered domains.
+:yahoo_github:`search <pages/athens/athenz-guide/web_ui/#search-domains>`
+for any registered domains.
 
 Top Level Product Domains
 -------------------------

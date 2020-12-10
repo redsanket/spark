@@ -39,7 +39,7 @@ If you just want to archive a single directory `/foo/bar` then you can just use:
 .. sidebar:: Reading....
 
   * Apache Docs - :hadoop_rel_doc:`Archives Guide <hadoop-archives/HadoopArchives.html>`
-  * Bdml-guide - `Creating Archives <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#creating-archives>`_
+  * Bdml-guide - :yahoo_github:`Creating Archives <pages/developer/Bdml-guide/grid_cline/#creating-archives>`
 
 If you specify source files that are in an encryption zone, they will be
 decrypted and written into the archive. If the har file is not located in an

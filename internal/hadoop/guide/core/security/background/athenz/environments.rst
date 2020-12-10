@@ -9,7 +9,7 @@ Athenz has three different environments:
 
 .. sidebar:: Content is pulled from..
 
-  * vzbuilders Github - `Athenz Guide: Athenz Environments <https://git.vzbuilders.com/pages/athens/athenz-guide/environments/index.html>`_
+  * vzbuilders Github - :yahoo_github:`Athenz Guide: Athenz Environments <pages/athens/athenz-guide/environments/index.html>`
 
 
 When validating tokens and signed policy documents, the utilities (e.g.

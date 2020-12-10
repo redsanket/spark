@@ -35,9 +35,10 @@ Hadoop Documentation
    :caption: Core
    :maxdepth: 4
 
-   core/mapreduce/index
-   core/yarn/index
    core/hdfs/index
+   core/mapreduce/index
+   core/tez/index
+   core/yarn/index
    core/security/index
 
 

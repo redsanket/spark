@@ -130,7 +130,7 @@ Tez Speculation
 
 Tez allows users to have more fine grained control of the data plan by
 modeling computation into a structure of a data processing workflow
-(Directed-Acyclic-Graph, or simply *DAG*) :cite:`Saha:2015`. Each
+(Directed-Acyclic-Graph, or simply *DAG*) :cite:`Bikas:2015`. Each
 *vertex* represents a logical step of transforming and processing the
 data. In distributed processing, the work represented by a single vertex
 is physically executed as a set of *tasks* running on potentially

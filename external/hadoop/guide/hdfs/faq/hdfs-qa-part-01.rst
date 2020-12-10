@@ -90,7 +90,7 @@ How To Get Data Onto/Out-of The Grid
 ------------------------------------
 
 There are a number of ways.
-Visit Bdml-guide - `GDM Cookbook <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`_
+Visit Bdml-guide - :yahoo_github:`GDM Cookbook <pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`
 
 Copying files Within Same HDFS Cluster
 ---------------------------------------
@@ -155,22 +155,22 @@ Copying Files Between HDFS and Object Stores
 * The relevant object store access credentials must be available in the cluster
   configuration, or be otherwise available in all cluster hosts.
 
-See Bdml-guide - `On Prem vs. Public Cloud <https://git.vzbuilders.com/pages/developer/Bdml-guide/#moving-data-to-and-from-public-cloud-and-on-prem>`_
+See Bdml-guide - :yahoo_github:`On Prem vs. Public Cloud <pages/developer/Bdml-guide/#moving-data-to-and-from-public-cloud-and-on-prem>`
 
 Copying Between HDFS and User Machine Without Temp
 --------------------------------------------------
 
 HDFS Proxy is the most common way of bringing data onto the grid or out of the
 grid.
-See `Bdml-guide - GDM Cookbook: When to Use HDFS Proxy <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#when-to-use-hdfs-proxy>`_
+See :yahoo_github:`Bdml-guide - GDM Cookbook: When to Use HDFS Proxy <pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#when-to-use-hdfs-proxy>`
 
 Loading data between HDFS and other products?
 ---------------------------------------------
 
 Check the following resources:
 
-* Bdml-guide - `Pig script output to HDFS <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#pig-script-output-to-hdfs>`_
-* Bdml-guide - `Run HDFS via Hue <https://git.vzbuilders.com/pages/developer/Bdml-guide/quickstart/#run-hdfs-via-hue>`_
+* Bdml-guide - :yahoo_github:`Pig script output to HDFS <pages/developer/Bdml-guide/quickstart/#pig-script-output-to-hdfs>`
+* Bdml-guide - :yahoo_github:`Run HDFS via Hue <pages/developer/Bdml-guide/quickstart/#run-hdfs-via-hue>`
   
 
 What is the right way to ftp a file on hadoop?
@@ -405,7 +405,7 @@ If files are not purged regularly, HDFS fills up and stops functioning.
 `GDM <https://doppler.cloud.corp.yahoo.com:4443/doppler/gdm>`_
   Tools like `Doppler-GDM <https://doppler.cloud.corp.yahoo.com:4443/doppler/gdm>`_
   can apply retention to your datasets to remove them after a period of time.
-`data_disposal <https://git.vzbuilders.com/vzn/data_disposal>`_
+:yahoo_github:`data_disposal <vzn/data_disposal>`
   The Java based Data Disposal tool takes in a simple `yaml` configuration
   specifying HDFS directories and Hive tables with customizable retention
   windows and date parsing from a partition or file path. |br|

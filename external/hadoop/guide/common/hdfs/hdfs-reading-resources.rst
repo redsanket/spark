@@ -5,4 +5,4 @@ HDFS Resources
   * Apache Docs - :hadoop_rel_doc:`HDFS Command Options <hadoop-project-dist/hadoop-common/FileSystemShell.html>`
   * Apache Docs - :hadoop_rel_doc:`Archives Guide <hadoop-archives/HadoopArchives.html>`
   * Apache Docs - :hadoop_rel_doc:`Permissions Guide <hadoop-project-dist/hadoop-hdfs/HdfsPermissionsGuide.html>`
-  * Bdml-guide - `GDM Cookbook <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`_
+  * Bdml-guide - :yahoo_github:`GDM Cookbook <pages/developer/Bdml-guide/migrated-pages/GDM_Cookbook/#io>`

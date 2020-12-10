@@ -4,9 +4,7 @@
 Internal Docs
 #############
 
-
-
-.. admonition:: Ubrella Jira...
+.. admonition:: Umbrella Jira...
    :class: readingbox
 
-    `YHADOOP-3409 | yhadoop-internal-dev documentation <https://jira.vzbuilders.com/browse/YHADOOP-3409>`_
+    :yahoo_jira:`YHADOOP-3409 | yhadoop-internal-dev documentation <YHADOOP-3409>`

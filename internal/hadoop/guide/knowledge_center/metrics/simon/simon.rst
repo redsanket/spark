@@ -406,7 +406,7 @@ like this, if you have one with the key nodeName and one with no key.
 
 
 Example Hadoop DFS metrics in
-`hadoop-dfs-simon-metrics.xml#L182 - namenode operations <https://git.vzbuilders.com/hadoop/hadoop_configs/blob/y-branch-2.10/confSupport/templates/hadoop-dfs-simon-metrics.xml#L182>`_:
+:yahoo_github:`hadoop-dfs-simon-metrics.xml#L182 - namenode operations <hadoop/hadoop_configs/blob/y-branch-2.10/confSupport/templates/hadoop-dfs-simon-metrics.xml#L182>`:
 
   .. code-block:: xml
 

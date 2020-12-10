@@ -21,7 +21,7 @@ to help users and hadoop clients achieving the following:
 * Overviews and tutorials
 
 The working branch for hadoop-team is
-`yhadoop-dev <https://git.vzbuilders.com/ahussein/docs/tree/yhadoop-dev>`_.
+:yahoo_github:`yhadoop-dev <ahussein/docs/tree/yhadoop-dev>`.
 Once, the content is ready, it will be merged into the master branch.
 
 To track the progress of each section in the documentation, we use a
@@ -40,7 +40,7 @@ The categories tab defines the categories of the component:
 .. admonition:: Ubrella Jira...
    :class: readingbox
 
-    `YHADOOP-3388 | yhadoop-dev user-guide external documentation <https://jira.vzbuilders.com/browse/YHADOOP-3388>`_
+   :yahoo_jira:`YHADOOP-3388 | yhadoop-dev user-guide external documentation <YHADOOP-3388>`
 
 -----------
 
@@ -109,7 +109,7 @@ Option-1.Contributing to the doc from GUI
 * Go to ahussein's doc repository `https://git.vzbuilders.com/ahussein/docs.git`
 * Github has limited support to Restructured-text. 
 * Make sure that you are on
-  `yhadoop-dev branch <https://git.vzbuilders.com/ahussein/docs/tree/yhadoop-dev>`_.
+  :yahoo_github:`yhadoop-dev branch <ahussein/docs/tree/yhadoop-dev>`.
 * Edit the raw Directly
 * once you are done, Create a PR
 
@@ -126,8 +126,8 @@ Option-2.Contributing to the doc offline on Development machine
 
 For a quick start, you can follow the steps and resources in the following links:
 
-* `Installation and prerequisite <https://git.vzbuilders.com/pages/hadoop/docs/hadoop/home.html>`_
-* `reStructuredText Resources <https://git.vzbuilders.com/pages/hadoop/docs/hadoop/home.html#contributing-to-the-doc>`_
+* :yahoo_github:`Installation and prerequisite <pages/hadoop/docs/hadoop/home.html>`
+* :yahoo_github:`reStructuredText Resources <pages/hadoop/docs/hadoop/home.html#contributing-to-the-doc>`
 
 Option-3.Send a GDoc or a resource link
 ---------------------------------------

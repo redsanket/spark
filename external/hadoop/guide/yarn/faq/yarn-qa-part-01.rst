@@ -6,11 +6,11 @@ Running mapred jobs on the gateways, is now an expert option. (This decision was
 Here is how you can test your jobs (on a much smaller dataset, please) on the gateway machine itself you need to ssh into  cluster gateway, pkinit, and finally run your hadoop program.
 Please, refer to Bdml-guide instructions:
 
-* `Onboarding ... Gateways and Launchers <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/Onboarding_..._Gateways_and_Launchers/>`_
-* `Accessing Gateways <https://git.vzbuilders.com/pages/developer/Bdml-guide/migrated-pages/Grid_Components_(formerly_Overview_of_Yahoo_Grid)/#accessing-gateways>`_ and `SSH to a Gateway <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#ssh-to-a-gateway>`_
-* `Enable Authentication Using PKINIT <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#enable-authentication-using-pkinit>`_
-* `Copy files to HDFS <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#explore-hdfs>`_
-* Finally, run your hadoop program. See the example in "`Run MapReduce Jobs <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#run-mapreduce-jobs>`_".
+* :yahoo_github:`Onboarding ... Gateways and Launchers <pages/developer/Bdml-guide/migrated-pages/Onboarding_..._Gateways_and_Launchers/>`
+* :yahoo_github:`Accessing Gateways <pages/developer/Bdml-guide/migrated-pages/Grid_Components_(formerly_Overview_of_Yahoo_Grid)/#accessing-gateways>` and :yahoo_github:`SSH to a Gateway <pages/developer/Bdml-guide/grid_cline/#ssh-to-a-gateway>`
+* :yahoo_github:`Enable Authentication Using PKINIT <pages/developer/Bdml-guide/grid_cline/#enable-authentication-using-pkinit>`
+* :yahoo_github:`Copy files to HDFS <pages/developer/Bdml-guide/grid_cline/#explore-hdfs>`
+* Finally, run your hadoop program. See the example in ":yahoo_github:`Run MapReduce Jobs <pages/developer/Bdml-guide/grid_cline/#run-mapreduce-jobs>`".
 
 How to Compute Hadoop Job Cost?
 ===============================

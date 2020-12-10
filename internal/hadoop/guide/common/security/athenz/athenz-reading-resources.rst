@@ -1,8 +1,8 @@
 Athenz
    * vzbuilders - Github: 
      
-     - `Athenz Concepts <https://git.vzbuilders.com/pages/athens/athenz-guide/concepts/>`_ 
-     - `Role Delegation <https://git.vzbuilders.com/pages/athens/athenz-guide/role_delegation/>`_
+     - :yahoo_github:`Athenz Concepts <pages/athens/athenz-guide/concepts/>` 
+     - :yahoo_github:`Role Delegation <pages/athens/athenz-guide/role_delegation/>`
    
    * Yahoo Athenz Github Pages:
 

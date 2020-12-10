@@ -8,24 +8,6 @@ address	= {San Francisco, CA},
 url 	= "https://static.googleusercontent.com/media/research.google.com/en//archive/mapreduce-osdi04.pdf"
 }
 
-@inproceedings{Saha:2015,
- author = {Saha, Bikas and Shah, Hitesh and Seth, Siddharth and Vijayaraghavan, Gopal and Murthy, Arun and Curino, Carlo},
- title = {Apache Tez: A Unifying Framework for Modeling and Building Data Processing Applications},
- booktitle = {Proceedings of the 2015 ACM SIGMOD International Conference on Management of Data},
- series = {SIGMOD '15},
- year = {2015},
- isbn = {978-1-4503-2758-9},
- location = {Melbourne, Victoria, Australia},
- pages = {1357--1369},
- numpages = {13},
- url = {http://doi.acm.org/10.1145/2723372.2742790},
- doi = {10.1145/2723372.2742790},
- acmid = {2742790},
- publisher = {ACM},
- address = {New York, NY, USA},
- keywords = {apache hadoop, big data, distributed data processing, open source},
-}
-
 @inproceedings {Ananthanarayanan:2013,
 author = {Ganesh Ananthanarayanan and Ali Ghodsi and Scott Shenker and Ion Stoica},
 title = {Effective Straggler Mitigation: Attack of the Clones},
@@ -71,4 +53,23 @@ title = {A Comprehensive Review of Speculation for Hadoop Ecosystem},
 year = {2019},
 location = {Sunny Vale, California},
 journal = {TechPulse}
+}
+
+
+@inproceedings{Bikas:2015,
+  author = {Saha, Bikas and Shah, Hitesh and Seth, Siddharth and Vijayaraghavan, Gopal and Murthy, Arun and Curino, Carlo},
+  title = {Apache Tez: A Unifying Framework for Modeling and Building Data Processing Applications},
+  year = {2015},
+  isbn = {9781450327589},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2723372.2742790},
+  doi = {10.1145/2723372.2742790},
+  abstract = {The broad success of Hadoop has led to a fast-evolving and diverse ecosystem of application engines that are building upon the YARN resource management layer. The open-source implementation of MapReduce is being slowly replaced by a collection of engines dedicated to specific verticals. This has led to growing fragmentation and repeated efforts with each new vertical engine re-implementing fundamental features (e.g. fault-tolerance, security, stragglers mitigation, etc.) from scratch.In this paper, we introduce Apache Tez, an open-source framework designed to build data-flow driven processing runtimes. Tez provides a scaffolding and library components that can be used to quickly build scalable and efficient data-flow centric engines. Central to our design is fostering component re-use, without hindering customizability of the performance-critical data plane. This is in fact the key differentiator with respect to the previous generation of systems (e.g. Dryad, MapReduce) and even emerging ones (e.g. Spark), that provided and mandated a fixed data plane implementation. Furthermore, Tez provides native support to build runtime optimizations, such as dynamic partition pruning for Hive.Tez is deployed at Yahoo!, Microsoft Azure, LinkedIn and numerous Hortonworks customer sites, and a growing number of engines are being integrated with it. This confirms our intuition that most of the popular vertical engines can leverage a core set of building blocks. We complement qualitative accounts of real-world adoption with quantitative experimental evidence that Tez-based implementations of Hive, Pig, Spark, and Cascading on YARN outperform their original YARN implementation on popular benchmarks (TPC-DS, TPC-H) and production workloads.},
+  booktitle = {Proceedings of the 2015 ACM SIGMOD International Conference on Management of Data},
+  pages = {1357–1369},
+  numpages = {13},
+  keywords = {apache hadoop, distributed data processing, open source, big data},
+  location = {Melbourne, Victoria, Australia},
+  series = {SIGMOD'15}
 }

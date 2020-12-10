@@ -76,7 +76,7 @@ from the apache commons configuration library.
 
 
 Sinks are specified in a configuration file with following syntax in properties
-files (e.g., "`hadoop_configs - hadoop-metrics2.properties <https://git.vzbuilders.com/hadoop/hadoop_configs/blob/y-branch-2.10/confSupport/templates/hadoop-metrics2.properties>`_") as:
+files (e.g., ":yahoo_github:`hadoop_configs - hadoop-metrics2.properties <hadoop/hadoop_configs/blob/y-branch-2.10/confSupport/templates/hadoop-metrics2.properties>`") as:
 
 
   .. code-block:: bash

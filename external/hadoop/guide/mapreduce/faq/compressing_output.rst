@@ -61,8 +61,8 @@ How to Read the Compressed Data into Map/Reduce Job
 
 Check user guides for other Hadoop Product Family:
   
-  * `Bdml-guide: setting-pig-properties <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#setting-pig-properties>`_
-  * `Bdml-guide: Run Hive <https://git.vzbuilders.com/pages/developer/Bdml-guide/grid_cline/#run-hive>`_
+  * :yahoo_github:`Bdml-guide: setting-pig-properties <pages/developer/Bdml-guide/grid_cline/#setting-pig-properties>`
+  * :yahoo_github:`Bdml-guide: Run Hive <pages/developer/Bdml-guide/grid_cline/#run-hive>`
 
 
 How do I use bzip2 compression scheme on the Grid?
