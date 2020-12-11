@@ -37,7 +37,7 @@ sort-by-key-int \
 --value-length=100 \
 --random-seed=1 \
 --persistent-type=hdfs \
---storage-location="hdfs:///tmp/stresstest/0552" \
+--storage-location="hdfs:///tmp/stresstest/data" \
 ```
 
 With the above options, the spark will generate around 130 GB shuffle intermediate data.
