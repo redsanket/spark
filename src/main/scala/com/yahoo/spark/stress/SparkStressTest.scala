@@ -3,7 +3,6 @@ package com.yahoo.spark.stress
 import org.apache.spark._
 import org.apache.spark.sql.SparkSession
 
-// Simple example of accessing Json/Avro data from Spark
 object SparkStressTest {
   def main(args: Array[String]) {
 
