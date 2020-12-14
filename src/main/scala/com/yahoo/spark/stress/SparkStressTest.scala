@@ -12,6 +12,7 @@ object SparkStressTest {
     val spark = SparkSession
       .builder
       .appName(s"Spark Stress Test - $testName")
+      .config("spark.hadoop.validateOutputSpecs", "false")
       .getOrCreate()
 
     println(s"Running test $testName")

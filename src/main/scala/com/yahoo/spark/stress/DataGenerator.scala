@@ -92,6 +92,12 @@ object DataGenerator {
         }
         sc.textFile(storageLocation).map(_.split("\t")).map(x => (x(0).toInt, x(1).toInt))
       }
+      case "s3a" => {
+        val storagePath = new Path(storageLocation)
+        inputRDD.map{case (k, v) => "%s\t%s".format(k, v)}
+                .saveAsTextFile(storageLocation, classOf[DefaultCodec])
+        sc.textFile(storageLocation).map(_.split("\t")).map(x => (x(0).toInt, x(1).toInt))
+      }
       case unknown => {
         throw new Exception(s"Unrecognized persistence option: $unknown")
       }
