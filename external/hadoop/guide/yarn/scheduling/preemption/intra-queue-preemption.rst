@@ -8,7 +8,7 @@ Intra-queue (in-queue) Preemption |nbsp| |green-badge|
 
    * Section :ref:`yarn_scheduling_preemption_inter-queue`
    * Section :ref:`yarn_scheduling_capacity_scheduler`.
-   * Queue Properties at Apache Hadoop Doc - :hadoop_rel_doc:`Capacity Scheduler <hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html#Queue_Properties>`
+   * Queue Properties in Apache Hadoop Doc - :hadoop_rel_doc:`Capacity Scheduler <hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html#Queue_Properties>`
 
 .. topic:: Definitions
    :class: definitionbox
@@ -16,12 +16,12 @@ Intra-queue (in-queue) Preemption |nbsp| |green-badge|
    .. glossary::
 
       userLimit
-        Each user is given at least this percentage of a queue's resources. It is calculated using the configuration ``yarn.scheduler.capacity.<queue-path>.minimum-user-limit-percent``. The dfault value is `100`, which means `no-limits`. Note that ff this value is `25` and there are `4` or more users with submitted jobs, each user will be given at least `25%`` of the resources when their jobs run. This also means that if users always use their max allotment, only 4 users (in this example) can have running jobs at a time. There could be more if each user doesn't need the full `25%`.
+        Each user is given at least this percentage of a queue's resources. It is calculated using the configuration ``yarn.scheduler.capacity.<queue-path>.minimum-user-limit-percent``. The dfault value is `100`, which means the first user to submit an app to the queue can consume all of the queue's resources and other active users must wait. For example, if this value is `25` and there are `4` or more users with submitted jobs, each user will be given at least `25%`` of the resources when their jobs run. This also means that if users always use their max allotment, only 4 users (in this example) can have running jobs at a time. There could be more if each user doesn't need the full `25%`.
 
 Configuration Properties
 ------------------------
 
-*Note:* All the configurations are prefixed by ``yarn.resourcemanager.monitor.capacity.preemption.intra-queue-preemption.``.
+*Note:* All the configurations are prefixed by ``yarn.resourcemanager.monitor.capacity.preemption.intra-queue-preemption.`` and are set in ``capacity-scheduler.xml``.
 
 
 .. table:: `Properties for Intra-Queue preemption`
@@ -182,7 +182,7 @@ When the preemption monitor detects a user-limit inversion with a queue:
 * In order to fill user limit requirements for under-served users, the in-queue preemption monitor will preempt containers from users that are over their user limit.
 * Containers from the most over-served users will be preempted first.
 * If a user is at or under their user limit, their containers will not be preempted.
-* Priority preemption will not preempt AM containers.
+* User-limit preemption will not preempt AM containers.
 
 Use Cases
 ^^^^^^^^^
