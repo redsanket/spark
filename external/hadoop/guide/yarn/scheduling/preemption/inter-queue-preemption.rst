@@ -3,9 +3,6 @@
 Inter-queue (cross-queue) preemption |nbsp| |green-badge|
 =========================================================
 
-The CapacityScheduler supports preemption of container from the queues whose resource usage is more than their guaranteed capacity. The following configuration parameters need to be enabled in yarn-site.xml for supporting preemption of application containers.
-
-
 Hadoop preemption is a feature within the Hadoop capacity scheduler. This feature allows under-served queues to preempt tasks from queues that are operating over-capacity. The preemption feature will `NEVER` steal resources from a queue that is operating under its capacity setting.
 
 Overview
@@ -18,9 +15,12 @@ Overview
      is one that is consuming less than its allotted capacity and is requesting additional resources from the cluster.
 
    Over-capacity queue
-     is a queue that is using more resources than its allotted capacity.
+     is a queue that is using more resources than its allotted capacity. It does this by "borrowing" resources from other queues that are not currently using those resources.
 
-Whether or not resources can be preempted from a queue is configurable on a queue-by-queue basis. Initially, we are configuring clusters so that only the "default" queue is preemptable. All other queues will be marked as non-preemptable.
+The ability to preempt resources from a queue is configurable on a queue-by-queue basis.
+
+In VMG clusters, only the "default" queue is preemptable. All other queues are marked as non-preemptable.
+In VCG clusters, all queues are preemptable except the GPU queues.
 
 .. tip:: Queue owners can request their queue be marked preemptable. Since the system can take resources from a preemptable queue in order to meet demand, preemptable queues can have much higher :term:`Configured Max-Capacity` settings. In other words, when a queue is configured to be preemptable, its max-capacity setting will often increase at the same time giving those queues more resources to work with when the cluster has available resources.
 
@@ -36,10 +36,11 @@ Whether or not resources can be preempted from a queue is configurable on a queu
 +-------+--------------------------+--------------------+-------------------------------+--------------+
 | C     | 10                       | `150`              | 0                             | Yes          |
 +-------+--------------------------+--------------------+-------------------------------+--------------+
+| D     | 0                        | 0                  | 0                             | Yes          |
++-------+--------------------------+--------------------+-------------------------------+--------------+
 
 
-In this example, queues A and C are operating over-capacity and B is under-served. C is more over-served than A so in this case, 50 resources  will be preempted from queue C in order to satisfy B's requests. The result after the preemption process has completed will be (preemption does not happen all at once. It is iterative until it reaches its desired goal):
-
+In this example, queues A and C are operating over-capacity and B is under-served. C is more over-served than A so in this case, 50 resources  will be preempted from queue C in order to satisfy B's requests. The result after the preemption process has completed will be as follows:
 
 :token:`Result:`
 
@@ -52,9 +53,11 @@ In this example, queues A and C are operating over-capacity and B is under-serve
 +-------+--------------------------+---------------------+-------------------------------+--------------+
 | C     | 10                       | |ss| 150 |se| `100` | |ss| 0 |se| 50                | Yes          |
 +-------+--------------------------+---------------------+-------------------------------+--------------+
+| D     | 0                        | 0                   | 0                             | Yes          |
++-------+--------------------------+---------------------+-------------------------------+--------------+
 
 
-.. note:: When a task is preempted, any work it has performed will be lost.
+.. note:: When a task is preempted, any work it has performed will be lost. Preemption does not happen all at once. It is iterative until it reaches its desired goal)
 
 By design, the map-reduce and tez frameworks are fine with individual tasks failing and getting restarted (it is happening on our clusters all the time due to faulty nodes, slow nodes, overly busy nodes, etc.) However, the framework can't control the user-code which runs as part of the application and as a result we do occasionally run across applications that don't properly deal  with tasks being re-run (e.g. they hit an external REST service that is not idempotent).
 
@@ -83,9 +86,9 @@ Configuration Properties:
 
 *Note:* All the configurations are prefixed by ``yarn.resourcemanager``.
 
-The CapacityScheduler supports preemption of container from the queues whose resource usage is more than their guaranteed capacity. The following configuration parameters need to be enabled in ``yarn-site.xml`` for supporting preemption of application containers.
+The CapacityScheduler supports preemption of containers from the queues whose resource usage is more than their guaranteed capacity. The following configuration parameters need to be enabled in ``yarn-site.xml`` for supporting preemption of application containers.
 
-.. table:: `All configuration are prefixed by yarn.resourcemanager.scheduler.monitor`
+.. table:: `All configurations are prefixed by yarn.resourcemanager.scheduler.monitor`
   :widths: auto
 
   +--------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -97,7 +100,7 @@ The CapacityScheduler supports preemption of container from the queues whose res
   +--------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 
-The following configuration parameters can be configured in ``yarn-site.xml`` to control the preemption of containers when ``ProportionalCapacityPreemptionPolicy`` class is configured for ``yarn.resourcemanager.scheduler.monitor.policies``
+The following configurations parameters can be configured in ``yarn-site.xml`` to control the preemption of containers when ``ProportionalCapacityPreemptionPolicy`` class is configured for ``yarn.resourcemanager.scheduler.monitor.policies``
 
 .. table:: `All configuration are prefixed by yarn.resourcemanager.monitor.capacity.preemption`
   :widths: auto
@@ -105,7 +108,7 @@ The following configuration parameters can be configured in ``yarn-site.xml`` to
   +--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
   |            Property            |                                                                                                                                                                                                  Description                                                                                                                                                                                                 |
   +================================+==============================================================================================================================================================================================================================================================================================================================================================================================================+
-  | ``observe_only``               | If true, run the policy but do not affect the cluster with preemption and kill events. Default value is false                                                                                                                                                                                                                                                                                                |
+  | ``observe_only``               | If true, run the policy but do not affect the cluster with preemption or kill events. Default value is false                                                                                                                                                                                                                                                                                                |
   +--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
   | ``monitoring_interval``        | Time in milliseconds between invocations of this ``ProportionalCapacityPreemptionPolicy`` policy. Default value is 3000                                                                                                                                                                                                                                                                                      |
   +--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
