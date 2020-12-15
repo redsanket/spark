@@ -7,6 +7,19 @@ Dashboards
 
 .. include:: /common/aura-dashboards-table.rst
 
+
+.. _monitoring_charts:
+
+Simon & Yamas metric Charts
+===========================
+
+
+To show the mtrics graphs of a specific node, go to `yo/opsdb <yo/opsdb>`_.
+In Entities/Nodes/Nodefinder - Search for that host name. |br|
+Once in the result page, click "`View Dashboard`" in the Yamas Dashboard section.
+
+
+
 *******
 Logging
 *******

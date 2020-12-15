@@ -206,6 +206,6 @@ YARN + MR Community Sync Up
 
 -----------
 
-.. bibliography:: /../../../external/hadoop/guide/resources/refs.bib
+.. bibliography::
    :cited:
    :all:

@@ -38,6 +38,8 @@ extensions = ['sphinx.ext.extlinks',
               'sphinx_rtd_theme',
               'sphinx_rtd_theme_ext_color_contrast']
 
+# bib file of the citations
+bibtex_bibfiles = ['resources/refs.bib']
 # enable todo here
 todo_include_todos=True
 

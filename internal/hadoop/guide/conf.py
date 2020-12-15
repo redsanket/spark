@@ -37,7 +37,8 @@ extensions = ['sphinx.ext.extlinks',
               'sphinxcontrib.bibtex',
               'sphinx_rtd_theme',
               'sphinx_rtd_theme_ext_color_contrast']
-
+# bib file of the citations
+bibtex_bibfiles = ['/../../../external/hadoop/guide/resources/refs.bib']
 # enable todo here
 todo_include_todos=True
 # Add any paths that contain templates here, relative to this directory.

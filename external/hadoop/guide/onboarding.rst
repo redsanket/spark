@@ -68,6 +68,6 @@ HDFS
 
 -----------
 
-.. bibliography:: resources/refs.bib
+.. bibliography::
    :cited:
    :all:
