@@ -209,6 +209,13 @@ Install Prerequisites
     export PATH=$HOME/bin:/usr/share/maven/bin:$PATH
     source ~/.bash_profile
 
+- Install Docker (`optional`)
+  
+    .. code-block:: bash
+
+    sudo yum install --enablerepo=y* --enablerepo=latest* docker
+  
+
 Optional Steps for VM
 ^^^^^^^^^^^^^^^^^^^^^
 

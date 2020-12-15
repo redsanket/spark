@@ -9,6 +9,25 @@ FAQ
   :depth: 3
 
 
+
+.. admonition:: Readings...
+   :class: readingbox
+
+    Regarding grid-ops runbooks,
+    `yo/gridopsrunbook <https://yo/gridopsrunbooks>`_ is a big library of docs.
+    One of the interesting ones is
+    `Run Book / Operations Manual - Hadoop (YARN) <https://docs.google.com/document/d/1Db1Vz3pdv562Iei7w2l14GmWxv48yBYxi81uGu-eJR4/edit>`_
+    and `Run Book / Operations Manual - Hadoop (HDFS) <https://docs.google.com/document/d/1-AHk-ePioUb2tXRedQSozLoDKYSgsHoYIo6B7daU9_M/edit>`_.
+    |br|
+    In the YARN runbook:
+    
+    * section "6 Operational Tasks," subsection "Troubleshooting",
+      there is a lot of good stuff about tracking down bad/slow nodes and bad disks.
+    * subsection "How to see which jobs are shuffling on a node", there are
+      scripts to run for each framework (Tez, MapRed, Spark) that will grep
+      through the NodeManager logs and provide counts of the busiest jobs.
+
+
 How to verify Busy Machines
 ===========================
 

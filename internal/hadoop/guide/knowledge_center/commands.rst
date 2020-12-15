@@ -147,6 +147,20 @@ The ysar comand has the following format
   +---------------+--------------------------------------------------------------------------+
 
 
+.. _cmds_tools_heatmap:
+
+Heatmaps
+--------
+
+Jim created scripts to generate heatmaps. Files are in the ``adm-scripts`` and
+``trace2heatmap.pl`` in
+`Google Drive <https://drive.google.com/drive/folders/1hCkzKhHIakMAF37lf84hFjH0itZw8qBz?usp=sharing>`_.
 
 
+On an adm node, you need both of those in the current directory, and run,
+for example:
+
+  .. code-block:: bash
+
+    ./generate-heatmaps.sh jet
 
