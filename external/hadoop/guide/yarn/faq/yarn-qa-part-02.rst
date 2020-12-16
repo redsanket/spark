@@ -76,10 +76,10 @@ Hyperthreads are counted as physical cores. It's true that 2 hyperthreads is not
 Is there a way for me to test my application at its allotted vcore usage so as to make sure I’ll still meet ``SLA`` even when system is busy?
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-As describe above, the system can give my application more than it's allotted vcores if there are free CPU resources available. This makes it deterkine if the number of vcores I've allocated is sufficient to meet SLAs even when the system is under load.
+As describe above, the system can give my application more than it's allotted vcores if there are free CPU resources available. This makes it determine if the number of vcores I've allocated is sufficient to meet SLAs even when the system is under load.
 This capability is coming. See Jira: `YARN-810 <https://issues.apache.org/jira/browse/YARN-810>`_
 
 Is there a limit to the number of vcores an application can request?
 --------------------------------------------------------------------
 
-*Yes*. This setting is cluster-specific. To see the value for the cluster you are interested in, go to the Resource Manager front page (example: `AxoniteRed <http://axonitered-jt1.red.ygrid.yahoo.com:8088/cluster/scheduler>`_), under ``Tools`` select ``Configuration``, then search for ``yarn.scheduler.maximum-allocation-vcores``.
+*Yes*. This setting is cluster-specific. To see the value for the cluster you are interested in, go to the Resource Manager front page (example: `AxoniteRed <http://axonitered-jt1.red.ygrid.yahoo.com:50505/cluster/scheduler>`_), under ``Tools`` select ``Configuration``, then search for ``yarn.scheduler.maximum-allocation-vcores``.
