@@ -3,24 +3,24 @@
 Memory Running on Yarn
 ======================
 
-There are times when a MapReduce job exceeds its memory limits. You can see the following error
+There are times when a job exceeds its memory limits. You can see the following error:
 
   .. parsed-literal::
 
     Application application_1409135750325_48141 failed 2 times due to AM Container for
     appattempt_1409135750325_48141_000002 exited with exitCode: 143 due to: Container
     [pid=4733,containerID=container_1409135750325_48141_02_000001] is running beyond physical memory limits.
-    Current usage: 2.0 GB of 2 GB physical memory used; 6.0 GB of 4.2 GB virtual memory used. Killing containe
+    Current usage: 2.0 GB of 2 GB physical memory used; 6.0 GB of 4.2 GB virtual memory used. Killing container
 
-This means that your job has exceeded its memory limits.
+This means that your job is using more memory than YARN has allocated for it. YARN will kill containers that exceed the amount of memory specified for the container by yarn.nodemanager.resource.memory-mb values. Note that this value is different than than the amount of memory given to the JVM inside of a container (e.g. the -Xmx value in mapreduce.{map,reduce}.java.opts)
 
-.. rubric:: Make Sure Your Job Has to Cache Data
+.. rubric:: Before Blindly Increasing Memory, Make Sure Your Job Has to Cache Data
 
-It possible thatr your task running out of memory usually means that data is being cached in your map or reduce tasks.
+It is possible that your task running out of memory means that data is being cached in your map or reduce tasks.
 
 Data can be cached for a number of reasons:
 
-* Your job is writing out Parquet data, and Parquet buffers data in memory prior to writing it out to disk
+* Your job is writing out Parquet data, and Parquet buffers data in memory prior to writing it out to disk.
 * Your code (including library you’re using) is caching data. An example here is joining two datasets together where one dataset is being cached prior to joining it with the other.
 
 
