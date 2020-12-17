@@ -26,6 +26,25 @@ Data can be cached for a number of reasons:
 
 If your job does not really need to cache data, then it is possible to reduce memory utilization by avoiding cached data.
 
+.. rubric:: GC Overhead Limit Exceeded
+
+Another possible memory issue is the JVM inside of the container running out of memory. These errors will give a GC Overhead Limit Exceeded error.
+
+  .. parsed-literal::
+
+    2017-11-12 03:02:37,340 [PigTezLauncher-0] INFO org.apache.pig.backend.hadoop.executionengine.tez.TezJob - DAG Status:       status=FAILED, progress=TotalTasks: 14439 Succeeded: 477 Runn
+    ing: 0 Failed: 1 Killed: 13961 FailedTaskAttempts: 781 KilledTaskAttempts: 35, diagnostics=Vertex failed, vertexName=scope-493, vertexId=vertex_1509095573435_2608817_1_06, diagnosti
+    cs=[Task failed, taskId=task_1509095573435_2608817_1_06_000921, diagnostics=[TaskAttempt 0 failed, info=[Error: Encountered an Error while executing task: attempt_1509095573435_2608
+    817_1_06_000921_0:java.lang.OutOfMemoryError: GC overhead limit exceeded
+    at java.lang.StringCoding.decode(StringCoding.java:187)
+    at java.lang.String.<init>(String.java:426)
+    at java.lang.String.<init>(String.java:491)
+    at org.apache.pig.data.utils.SedesHelper.readChararray(SedesHelper.java:85)
+    at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:419)
+    at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:318)
+
+This means that your job is using more heap memory in the JVM than it was allocated. The heap value is determined by the -Xmx value of the JVM, which usually comes from the mapreduce.{map,reduce}.java.opts job config (or a similarly mapped config).
+
 Monitoring the Memory of Your Container
 ---------------------------------------
 
