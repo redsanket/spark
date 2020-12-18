@@ -1,8 +1,8 @@
 ..  _mapreduce_encryption:
 
-******************************************
-Encryptionn 
-******************************************
+**********
+Encryption
+**********
 
 .. contents:: Table of Contents
   :local:
