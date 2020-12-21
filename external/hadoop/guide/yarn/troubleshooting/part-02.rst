@@ -8,7 +8,29 @@ Memory Running on Yarn
 
     Make sure you check :ref:`yarn_memory_important_configurations_tasks`
 
-There are times when a job exceeds its memory limits. You can see the following error:
+Memory Settings on YARN
+--------------------------------------
+
+There are two memory properties that you need to be concerned with on YARN containers. 
+
+.. rubric:: 1) JVM Heap Size (mapreduce.{map,reduce}.java.opts)
+
+This value controls how much memory the JVM will be given inside of the container.
+The default value is 1 GB and the max value is cluster-dependent.
+The JVM will never exceed this amount of memory.
+If the JVM runs out of memory, it will die. 
+
+.. rubric:: 2) YARN Container Size (yarn.nodemanager.resource.memory-mb)
+
+This value controls how much memory YARN will allocate for the container. |br|
+This value should be at least 0.5 GB larger than the JVM Heap Size to allow for
+native memory to be allocated. The default vlaue is 1.5 GB. If a container
+exceeds this memory allocation, it will be immediately killed by YARN.
+
+Container Killed by YARN
+--------------------------------------
+
+There are times when a JVM exceeds its memory limits. You can see the following error:
 
   .. parsed-literal::
 
@@ -17,14 +39,14 @@ There are times when a job exceeds its memory limits. You can see the following 
     [pid=4733,containerID=container_1409135750325_48141_02_000001] is running beyond physical memory limits.
     Current usage: 2.0 GB of 2 GB physical memory used; 6.0 GB of 4.2 GB virtual memory used. Killing container
 
-This means that your job is using more memory than YARN has allocated for it.
+This means that your container is using more memory than YARN has allocated for it.
 YARN will kill containers that exceed the amount of memory specified for the
 container by ``yarn.nodemanager.resource.memory-mb`` values. |br|
 Note that this value is different than than the amount of memory given to the
 JVM inside of a container (e.g. the -Xmx value in
-``mapreduce.{map,reduce}.java.opts``)
+``mapreduce.{map,reduce}.java.opts``). Note also that this error does not mean that your JVM ran out of heap space, so increasing the JVM Heap Size will not help here.
 
-.. rubric:: Before Blindly Increasing Memory, Make Sure Your Job Has to Cache Data
+.. rubric:: Data Caching
 
 It is possible that your task running out of memory means that data is being
 cached in your map or reduce tasks.
@@ -41,7 +63,24 @@ Data can be cached for a number of reasons:
 If your job does not really need to cache data, then it is possible to reduce
 memory utilization by avoiding cached data.
 
-.. rubric:: GC Overhead Limit Exceeded
+.. rubric:: Non-JVM Heap Memory
+
+Your container may be using more native memory than YARN has allocated for your
+container. This could be due to invoking a python ML library, creating a ton of
+threads in the JVM, or something else.
+
+In both cases, the amount of non-JVM heap memory that your container can use is
+equal to the difference between your heap value and the size of the YARN
+allocation. |br|
+This boils down to: non-JVM memory space = YARN Container Size - JVM Heap Size. |br|
+By default, the difference is 0.5 GB.
+
+If your container uses a lot of non-JVM heap memory, you may need to increase the
+YARN Container Size without increasing the JVM Heap Size to increase the
+difference between these two values.
+
+JVM Memory Exception (GC Overhead Limit Exceeded)
+-------------------------------------------------
 
 Another possible memory issue is the JVM inside of the container running out of
 memory. These errors will give a GC Overhead Limit Exceeded error.
@@ -59,11 +98,11 @@ memory. These errors will give a GC Overhead Limit Exceeded error.
     at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:419)
     at org.apache.pig.data.BinInterSedes.readDatum(BinInterSedes.java:318)
 
-This means that your job is using more heap memory in the JVM than it was
+This means that your container is using more heap memory in the JVM than it was
 allocated. The heap value is determined by the -Xmx value of the JVM, which
 usually comes from the ``mapreduce.{map,reduce}.java.opts`` job config
-(or a similarly mapped config).
-
+(or a similarly mapped config). When increasing your JVM Heap Size, you will want
+to also increase your YARN Container Size by the same amount.
 
 
 Increasing the Memory Available to Your MapReduce Job
