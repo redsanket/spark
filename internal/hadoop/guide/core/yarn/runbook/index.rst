@@ -12,5 +12,6 @@ need to carry-out. A good resource for the How-Tos.
 .. toctree::
   :maxdepth: 2
   
+  memory
   rm-failover
   queue-operations

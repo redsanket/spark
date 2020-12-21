@@ -61,7 +61,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Hadoop External Doc'
+project = u'Hadoop Grid User Guide'
 copyright = u'2020, Verizonmedia! Inc., 2020'
 
 # The version info for the project you're documenting, acts as replacement for

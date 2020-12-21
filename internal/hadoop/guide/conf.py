@@ -59,7 +59,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'YHadoop Internal Doc'
+project = u'YHadoop Developer Doc'
 copyright = u'2020, Verizonmedia! Inc., 2020'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -246,6 +246,7 @@ rst_prolog = """
 extlinks = {'hadoop_rel_doc': ('https://hadoop.apache.org/docs/r2.10.0/%s',
                       'hadoop_rel_doc '),
             'yahoo_github': ('https://git.vzbuilders.com/%s', 'yahoo_github '),
+            'yahoo_grid_guide': ('https://git.vzbuilders.com/pages/hadoop/docs/hadoop/%s', 'yahoo_grid_guide '),
             'yahoo_jira': ('https://jira.vzbuilders.com/browse/%s', 'yahoo_jira '),
             'slack': ('https://vzbuilders.slack.com/archives/%s', 'slack Channel %s '),
             'hadoop_github_url': ('https://github.com/apache/hadoop/blob/branch-2.10/%s', 'hadoop_github_url ')}
