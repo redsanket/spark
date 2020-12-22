@@ -170,7 +170,7 @@ I want to get job stats like number of map input records, reduce output records 
 
   	# find the status of a job
   	mapred job -status [jobId]
-  	mapred job -history [jobId]
+  	mapred job -history [jobId] // Does not work due to history files being in hadoop group.
 
 
 How to access log files

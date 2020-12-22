@@ -57,7 +57,7 @@ The key and the value classes should be in serialized manner by the framework an
       Reducer
         It reduces a set of intermediate values which share a key to a smaller set of values.
       
-      Suffle
+      Shuffle
         Input to the Reducer is the sorted output of the mappers. In this phase the framework fetches the relevant partition of the output of all the mappers, via HTTP. Reducer has 3 primary phases: `shuffle`, `sort` and `reduce`.
       
       Sort

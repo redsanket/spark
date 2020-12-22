@@ -18,7 +18,7 @@ Although the Hadoop framework is implemented in Java, MapReduce applications nee
      It is a utility which allows users to create and run jobs with any executables (e.g. shell utilities) as the mapper and/or the reducer.
    
    Hadoop Pipes (:hadoop_rel_doc:`api package <api/org/apache/hadoop/mapred/pipes/package-summary.html>`)
-     is a SWIG-compatible C++ API to implement MapReduce applications (non JNI based).
+     is a SWIG-compatible C++ API to implement MapReduce applications (non JNI based). Due to incompatibilities that typically follow native librarties, use of Hadoop pipes is discouraged.
 
 
 

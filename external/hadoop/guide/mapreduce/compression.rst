@@ -54,6 +54,10 @@ There are many different compression formats available in Hadoop framework. Para
 
      LZ4
        (`.lz4`). It has fast compression and decompression speed but compression ratio is less. LZ4 is not splittable.
+     
+     ZStandard
+       (`.zstd`). High compression rates and high speed. ZStandard is not splittable.
+    
 
 Typically you should use either `gzip` or `bzip2` compression scheme to compress your job output files.
 From the grid or Map/Reduce processing standpoint, the following is an important difference:
@@ -94,6 +98,7 @@ The codec classes in Hadoop are as follows:
 * Bzip2 – ``org.apache.hadoop.io.compress.Bzip2Codec``
 * Snappy – ``org.apache.hadoop.io.compress.SnappyCodec``
 * LZ4– ``org.apache.hadoop.io.compress.Lz4Codec``
+* ZStandard– ``org.apache.hadoop.io.compress.ZStandardCodec``
 
 
 Applications can control compression of intermediate map-outputs through ``CompressionCodec`` which is used via the ``Configuration.set(MRJobConfig.MAP_OUTPUT_COMPRESS_CODEC, Class)`` api. Finally, ``FileOutputFormat.setOutputCompressorClass(Job, Class)`` api specifies the ``CompressionCodec`` for job-outputs.
