@@ -113,8 +113,15 @@ To avoid these issues the MapReduce framework, when the ``OutputCommitter`` is `
 The application-writer can take advantage of this feature by creating any side-files required in ``${mapreduce.task.output.dir}`` during execution of a task via :hadoop_rel_doc:`FileOutputFormat.getWorkOutputPath(Conext) <api/org/apache/hadoop/mapreduce/lib/output/FileOutputFormat.html>`, and the framework will promote them similarly for succesful task-attempts, thus eliminating the need to pick unique paths per task-attempt.
 
 
-.. note:: The value of ``${mapreduce.task.output.dir}`` during execution of a particular task-attempt is actually ``${mapreduce.output.fileoutputformat.outputdir}/_temporary/_{$taskid}``, and this value is set by the MapReduce framework. So, just create any side-files in the path returned by ``FileOutputFormat.getWorkOutputPath(Conext)`` from MapReduce task to take advantage of this feature.
-          The entire discussion holds true for maps of jobs with reducer=NONE (i.e. 0 reduces) since output of the map, in that case, goes directly to HDFS.
+.. note:: The value of ``${mapreduce.task.output.dir}`` during execution of a
+   particular task-attempt is actually
+   ``${mapreduce.output.fileoutputformat.outputdir}/_temporary/_{$taskid}``,
+   and this value is set by the MapReduce framework. |br|
+   So, just create any side-files in the path returned by
+   ``FileOutputFormat.getWorkOutputPath(Conext)`` from MapReduce task to take
+   advantage of this feature. |br|
+   The entire discussion holds true for maps of jobs with ``reducer=NONE``
+   (i.e. 0 reduces) since output of the map, in that case, goes directly to HDFS.
 
 
 Some tasks fail but job succeeds?
@@ -142,11 +149,21 @@ If you want your job to continue running even though some tasks fail (e.g. inval
 When does the reducer phase start?
 ==================================
 
-The documentation states that when all mappers are done the reducers start. However, when I run the program, the status on the console shows a few mappers then reducer then some lines for mappers.
+The documentation states that when all mappers are done the reducers start.
+However, when I run the program, the status on the console shows a few mappers
+then reducer then some lines for mappers.
 
-**Ans**: Reducers begin copying the data as soon as maps dump it to disk. A map may dump partial results before it completes, and some maps finish before others. So in that sense reducers begin before the map phase completes. But since reducers first do a merge on all the data, they cannot truly start processing (that is, your reduce function is not envoked) until all map processes have finished and their data has been sorted and copied to the reducer.
+**Ans**: Reducers begin copying the data as soon as maps dump it to disk.
+A map may dump partial results before it completes, and some maps finish before
+others. So in that sense reducers begin before the map phase completes.
+But since reducers first do a merge on all the data, they cannot truly start
+processing (that is, your reduce function is not envoked) until all map processes
+have finished and their data has been sorted and copied to the reducer.
 
-To configure the reduce tasks to start after a percentage of map tasks are complete using the command line, add the following option `slowStart` option to your job submission command. For example to start reducers after 50% of the map jobs are completed:
+To configure the reduce tasks to start after a percentage of map tasks are
+complete using the command line, add the following option `slowStart` option to
+your job submission command. For example to start reducers after 50% of the map
+jobs are completed:
 
   .. code-block:: bash
 
@@ -154,28 +171,27 @@ To configure the reduce tasks to start after a percentage of map tasks are compl
      mapreduce.job.reduce.slowstart.completedmaps=0.5
     
 
+.. note:: It is not recommended to change this value from the default of 1.0
+   except in the most performance-critical applications. |br|
+   The reason is that any value less than 1.0 will result in reducers waiting
+   idle for the last of the map tasks to complete, and in some cases this can
+   be many minutes or even hours. Having idle tasks on the cluster is a waste
+   of queue resources.
+
+
 
 How to Handle Very Long Lines of Text
 =====================================
 
-If you are using text imput formats, you can set a config knob for the ``TextInputFormat`` that allows you to limit the length of lines returned.
-This is recommended as a safeguard against corrupted files. Corruption in a file can manifest itself as a very long line, which can cause out-ofmemory errors and then task failure. By setting ``mapreduce.input.linerecordreader.line.maxlength`` to a value in bytes that fits in memory (and is comfortably greater than the length of lines in your input data), you ensure that the record reader will skip the (long) corrupt lines without the task failing. This can help protect you from an occasional missing newline without the complexities of bad record.
+If you are using text imput formats, you can set a config knob for the
+``TextInputFormat`` that allows you to limit the length of lines returned.
+This is recommended as a safeguard against corrupted files. |br|
+Corruption in a file can manifest itself as a very long line, which can
+cause out-of-memory errors and then task failure. |br|
+By setting ``mapreduce.input.linerecordreader.line.maxlength`` to a value in
+bytes that fits in memory (and is comfortably greater than the length of lines
+in your input data), you ensure that the record reader will skip the (long)
+corrupt lines without the task failing. This can help protect you from an
+occasional missing newline without the complexities of bad record.
 
 See :hadoop_rel_doc:`quick instructions to skip bad records <hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html#Reducer>`.
-
-
-Performance tuning guidelines for Map/Reduce jobs
-==================================================
-
-.. todo:: find page MapRedPerfTuningReferenceDocument
-
-Document for performance analysis of Map/Reduce job : `MapRedPerfTuningReferenceDocument <https://twiki.corp.yahoo.com/view/Grid/MapRedPerfTuningReferenceDocument>`_. Another `document available from AMD <https://developer.amd.com/wordpress/media/2012/10/Hadoop_Tuning_Guide-Version5.pdf>`_.
-
-Data Join Using Map/Reduce
-==========================
-
-.. todo:: find page DataJoinUsingMapReduce
-
-Is the join program described in `DataJoinUsingMapReduce <https://twiki.corp.yahoo.com/view/Grid/DataJoinUsingMapReduce>`_ generic for joining any two text files, or is it ULT specific? If it's generic, could the description of it be made generic?
-
-See hadoop datajoin utility. ``$HADOOP_HOME/src/contrib/data_join``
