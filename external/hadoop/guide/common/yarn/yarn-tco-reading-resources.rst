@@ -1,4 +1,4 @@
-**Optrimizations and TCO**
+**Optimizations and TCO**
 
   * Bdml-guide - :yahoo_github:`Calculate Hadoop TCO <pages/developer/Bdml-guide/migrated-pages/Calculate_Hadoop_Total_Cost_of_Ownership_%28TCO%29/>`
     is a good introduction to calculate cost for `Project-level` and higher.
