@@ -14,6 +14,7 @@ Spark User Guide
    debugging
    spark_sql
    spark_r
+   developer_wiki
 
 This document is **Yahoo Proprietary/Confidential**. Do not release the contents of this document outside the company.
 
