@@ -132,7 +132,7 @@ function deploy_spark () {
 # Tez deployment
 #################################################################################
 function deploy_spark () {
-    file=${base}/229-installsteps-installTez.sh
+    file=${ROOT_DIR}/229-installsteps-installTez.sh
     banner running $file
     . "$file"
     st=$?
@@ -143,7 +143,7 @@ function deploy_spark () {
        [ "$st" -ne 0 ] && echo ">>>>>>>> Error in running '" $file "' <<<<<<<<<<"
     fi
     ## After successful Tez installation, run wordcount for sanity test
-    f=${base}/258-installsteps-runTezWordCount.sh
+    f=${ROOT_DIR}/258-installsteps-runTezWordCount.sh
     banner running $file
     . "$file"
     st=$?
