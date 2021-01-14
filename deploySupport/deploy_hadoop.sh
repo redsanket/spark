@@ -447,7 +447,7 @@ RUN_SINGLE_STEP=${RUN_SINGLE_STEP:="0"}
 
 # Install Tez if enabled
 if [[ "${INSTALL_TEZ}" == only ]]; then
-    deploy_spark
+    deploy_tez
     exit $?
 fi
 
