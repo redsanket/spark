@@ -1,6 +1,11 @@
 #################################################################################
 # Functions used for deploying hadoop
 #################################################################################
+artifacts_dir="${ROOT_DIR}/artifacts"
+if [[ -d $artifacts_dir ]]; then
+    rm -rf $artifacts_dir
+fi
+mkdir -p $artifacts_dir
 
 banner() {
     echo "#################################################################################"
@@ -131,7 +136,7 @@ function deploy_spark () {
 #################################################################################
 # Tez deployment
 #################################################################################
-function deploy_spark () {
+function deploy_tez () {
     file=${ROOT_DIR}/229-installsteps-installTez.sh
     banner running $file
     . "$file"
