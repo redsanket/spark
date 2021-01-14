@@ -200,10 +200,10 @@ do
     st=$?
     [[ $st -ne 0 ]] && echo ">>>>>>>> ERROR: Failed to install yspark_yarn-$version jars to sharelib <<<<<<<<<<" && exit $st
 
-    echo "INFO: Copying yspark_yarn-$version conf to hdfs://sharelib/v1/spark_conf/"
-    cmd="echo Creating hdfs://sharelib/v1/spark_conf/yspark_yarn_conf-$version/ ; \
-    $HADOOP fs -mkdir -p /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/ ; \
-    $HADOOP fs -put -f /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/spark_conf/yspark_yarn_conf-$version/conf/spark/"
+    echo "INFO: Copying yspark_yarn_conf-$version conf to hdfs://sharelib/v1/spark_conf/"
+    cmd="echo Creating hdfs://sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/ ; \
+    $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/ ; \
+    $HADOOP fs -put -f /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/"
 
     echo "$cmd"
     eval "$cmd"
