@@ -203,7 +203,8 @@ do
     echo "INFO: Copying yspark_yarn_conf-$version conf to hdfs://sharelib/v1/yspark_yarn_conf/"
     cmd="echo Creating hdfs://sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/ ; \
     $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/ ; \
-    $HADOOP fs -put -f /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/"
+    $HADOOP fs -put -f /home/gs/conf/spark/$label/spark-defaults.conf /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/; \
+    $HADOOP fs -put -f /home/gs/conf/spark/$label/getGpusResources.sh /sharelib/v1/yspark_yarn_conf/yspark_yarn_conf-$version/conf/spark/"
 
     echo "$cmd"
     eval "$cmd"
