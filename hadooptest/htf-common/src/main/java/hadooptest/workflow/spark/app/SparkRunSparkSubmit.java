@@ -96,6 +96,9 @@ public class SparkRunSparkSubmit extends App {
     /** some examples do funky thing and we must tell it to use yarn mode */
     private String sparkYarnMode = "-DSPARK_YARN_MODE=true";
 
+    /** Trustore config **/
+    private final String TRUSTSTORE_CONFIG="-Djavax.net.ssl.trustStore=/opt/yahoo/share/ssl/certs/hadoop_flubber_tls.jks"
+
     /** driver options */
     private String driverJavaOptions = "";
     private String driverLibraryPath = "";
@@ -462,9 +465,9 @@ public class SparkRunSparkSubmit extends App {
 
         cmd.add("--driver-java-options");
         if (!this.driverJavaOptions.isEmpty()) {
-            cmd.add(this.driverJavaOptions + " " + sparkYarnMode);
+            cmd.add(this.driverJavaOptions + " " + sparkYarnMode + " " + TRUSTSTORE_CONFIG);
         } else {
-            cmd.add(sparkYarnMode);
+            cmd.add(sparkYarnMode + " " + TRUSTSTORE_CONFIG);
         }
 
         if (!this.driverLibraryPath.isEmpty()) {
@@ -474,8 +477,11 @@ public class SparkRunSparkSubmit extends App {
 
         if (!this.executorJavaOptions.isEmpty()) {
             cmd.add("--conf");
-            cmd.add("spark.executor.extraJavaOptions=" + this.executorJavaOptions);
-        }
+            cmd.add("spark.executor.extraJavaOptions=" + this.executorJavaOptions + " " + TRUSTSTORE_CONFIG);
+        } else {
+            cmd.add("--conf");
+            cmd.add("spark.executor.extraJavaOptions=" + TRUSTSTORE_CONFIG);
+	}
 
         if (!this.executorLibraryPath.isEmpty()) {
             cmd.add("--conf");
