@@ -97,7 +97,7 @@ public class SparkRunSparkSubmit extends App {
     private String sparkYarnMode = "-DSPARK_YARN_MODE=true";
 
     /** Trustore config **/
-    private final String TRUSTSTORE_CONFIG="-Djavax.net.ssl.trustStore=/opt/yahoo/share/ssl/certs/hadoop_flubber_tls.jks"
+    private final String TRUSTSTORE_CONFIG="-Djavax.net.ssl.trustStore=/opt/yahoo/share/ssl/certs/hadoop_flubber_tls.jks";
 
     /** driver options */
     private String driverJavaOptions = "";
