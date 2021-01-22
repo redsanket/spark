@@ -157,6 +157,7 @@ You can also see just the application master logs by doing something like:
 Loading event logs locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Grid's spark history server rejects loading oversized event logs due to memory concerns. However, you can download the event logs from the grid's history server and load it in your own spark history server. Here are the steps:
+
 - Download open source spark from https://spark.apache.org/downloads.html. Leave the spark release and package type options as default.
 
 - Extract the downloaded tar file. E.g., run ``tar -xvzf spark-3.0.1-bin-hadoop2.7.tgz`` in Mac or Linux, and you will get a "spark-3.0.1-bin-hadoop2.7" folder. (Spark history server is backward-compatible, spark3 history server can load spark2 app’s event logs.)
@@ -182,7 +183,7 @@ More details can be found on https://spark.apache.org/docs/latest/monitoring.htm
 Yamas Metrics
 -------------
 
-The Verizon Media version of Spark (`yspark`) contains an additional metrics sink (`YamasSink`) to send Spark metrics (https://spark.apache.org/docs/latest/monitoring.html#metrics) to Yamas (http://http://yo/yamas-guide).
+The Verizon Media version of Spark (`yspark`) contains an additional metrics sink (`YamasSink`) to send Spark metrics (https://spark.apache.org/docs/latest/monitoring.html#metrics) to Yamas (http://yo/yamas-guide).
 
 Configuration
 ~~~~~~~~~~~~~

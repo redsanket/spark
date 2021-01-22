@@ -971,6 +971,12 @@ Debugging Information
 ---------------------
 - `SparkDebugging` :ref:`dbg`
 
+.. _soy_downsizer:
+
+Spark Downsizer
+---------------
+- `Spark Downsizer` :ref:`spark_downsizer`
+
 .. _soy_faq:
 
 FAQ
