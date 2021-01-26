@@ -483,6 +483,11 @@ public class SparkRunSparkSubmit extends App {
             cmd.add("spark.executor.extraJavaOptions=" + TRUSTSTORE_CONFIG);
 	}
 
+	if (this.master == AppMaster.YARN_CLIENT) {
+            cmd.add("--conf");
+            cmd.add("spark.yarn.am.extraJavaOptions=" + TRUSTSTORE_CONFIG);
+	}
+
         if (!this.executorLibraryPath.isEmpty()) {
             cmd.add("--conf");
             cmd.add("spark.executor.extraLibraryPath=" + this.executorLibraryPath);
