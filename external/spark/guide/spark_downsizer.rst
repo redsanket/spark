@@ -5,6 +5,8 @@ Spark Downsizer
 
 Spark Downsizer is an app resource usage monitoring tool, aiming to help spark users increase resource utilization.
 
+.. note:: Spark Downsizer relies on the data of the Starling database. Starling will skip parsing apps whose event log size exceeds 500 MB. Hence, apps with large event logs won't show up in Spark Downsizer.
+
 Usage
 -----
 
