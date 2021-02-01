@@ -63,8 +63,9 @@ prebuild:
 	$(VIRTUALENV) $(TMP_ENV)
 	@echo "Installing Sphinx..."
 	. $(ACTIVATE) && $(PIP) install Sphinx sphinx-rtd-theme sphinx-rtd-theme-ext-color-contrast
-	@echo "Installing sphinxcontrib-bibtex..."
-	. $(ACTIVATE) && $(PIP) install sphinxcontrib-bibtex
+	## freeze sphinxcontrib on version 2.0.0 to avoid unstability of the package.
+	@echo "Installing sphinxcontrib-bibtex...Freezing version 2.0.0"
+	. $(ACTIVATE) && $(PIP) install sphinxcontrib-bibtex==2.0.0
 	@echo '****** End Prebuilding Steps ******'
 
 # Screwdriver uses this to change to the 'gh-pages' branch and remove old documentation.

@@ -45,13 +45,25 @@ Install `findbugs`: Download `tarball <http://findbugs.sourceforge.net/downloads
 
   .. code-block:: bash
 
+     # to include specific commits
      git diff commit_1 commit_2 --no-prefix > path_to_patch_file
+     # to include uncommitted changes
+     git diff --staged --patch --no-prefix trunk > path_to_patch_file
 
 * If you are making chamges to a different branch, say branch-2.10
 
   .. code-block:: bash
 
      git diff commit_1 commit_2 --no-prefix branch-2.10 > path_to_patch_file
+     # to include uncommitted changes
+     git diff --staged --patch --no-prefix branch-2.10 > path_to_patch_file
+
+* To apply a patch to your local repo
+
+  .. code-block:: bash
+
+      git apply -p0 --verbose cool_patch.patch
+
  
 :guilabel:`&Step2.Run test-patch`
 

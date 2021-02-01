@@ -52,9 +52,13 @@ Mac Environment Setup
 
   .. code-block:: bash
 
-    brew install gcc autoconf automake libtool \
-               cmake snappy gzip bzip2 zlib openssl maven
+    brew install \
+        gcc autoconf automake libtool \
+        cmake snappy gzip bzip2 zlib \
+        zlib-devel openssl maven \
+        bats
 
+  P.S: installing ``bats`` is optional.
 
 - To install protobuf v2.5.0 (no longer available on brew), first get the
   `tarball <https://github.com/protocolbuffers/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.bz2>`_
@@ -183,11 +187,27 @@ Install Prerequisites
 
 -  Install Packages:
 
+   Note that the ``*-devel`` is used for building native libraries.
+  
   .. code-block:: bash
 
     sudo yum install --enablerepo=y* --enablerepo=latest* git gcc-c++
-    sudo yum --enablerepo=y* --enablerepo=latest* --enablerepo=epel install protobuf \
-         protobuf-compiler protobuf-devel
+    sudo yum --enablerepo=y* --enablerepo=latest* --enablerepo=epel install \
+         protobuf \
+         protobuf-compiler \
+         protobuf-devel \
+         zlib zlib-devel
+
+
+-  Install Maven:
+
+   you can try to install maven using the ``yum`` tool, but this may not build
+   hadoop trunk if yum uses an old version. To install the most recent version
+   of maven, you can jump to
+   :ref:`getting_started_on_boarding_set_opehouse_extras_for_vm` for more detailed instructions.
+
+  .. code-block:: bash
+    
     sudo yum install maven
 
 
@@ -210,11 +230,13 @@ Install Prerequisites
     source ~/.bash_profile
 
 - Install Docker (`optional`)
-  
-    .. code-block:: bash
 
-    sudo yum install --enablerepo=y* --enablerepo=latest* docker
+  .. code-block:: bash
+
+     sudo yum install --enablerepo=y* --enablerepo=latest* docker
   
+
+..  _getting_started_on_boarding_set_opehouse_extras_for_vm:
 
 Optional Steps for VM
 ^^^^^^^^^^^^^^^^^^^^^
@@ -420,7 +442,7 @@ Pushing Changes and Pull Requests (PRs)
 
 - Remember to test your changes before creating a PR.
   See :numref:`knowledge_testing` for a full guide on running
-  Unit tests andtesting patches.
+  Unit tests and testing patches.
 
 - After you make your changes, it is recommended that you ``rebase`` (see below).
 
@@ -487,7 +509,18 @@ Making Changes on local Machine
 Importing Project into IDE
 --------------------------
 
-In order for the IDE to find all required dependency, it is recommended you build hadoop without ``-DskipShade``.
+In order for the IDE to find all required dependency, it is recommended you
+build hadoop without ``-DskipShade``.
+
+If you want to skip the readings, just run the command below from the repository
+root, then import the project into Intellij-IDea.
+
+  .. code-block:: bash
+
+    cd hadoop-maven-plugins; mvn install; \
+    cd .. ; mvn eclipse:eclipse -DskipTests; \
+    mvn install -Pdist -Dtar -DskipTests -Dmaven.javadoc.skip
+
 
 :guilabel:`Eclipse`
 
@@ -579,8 +612,18 @@ The easiest way to do that is the following:
 #. Select ``import schema`` and point to ``intellij-java-google-style.xml``.
 #. :menuselection:`Tabs and Indents` in the same window. Then set ``Tab size``, ``indent`` and ``continuation`` to 2, 2, and 4 respectively.
 #. :menuselection:`Wrapping and Braces --> Hard Wrap at`. Set it to 80
-#. Apply your changes.
+#. Make sure that that you set the import order to the following:
+    
+    .. code-block:: bash
+      
+      # import Order
+      import ordering/splilts
+      java.*
+      non-apache
+      org.apache
+      static *
 
+#. Apply your changes.
 
 .. seealso:: 	**CheckStyle-Idea**, a plugin that provides both real-time and on-demand scanning of Java files with CheckStyle from within IDEA.
             Usage of this plugin is limited as it does not check Unit test coding style.
@@ -777,14 +820,14 @@ Ask Nathan Roberts to assign a QE cluster to you from `yo/flubber <https://yo/fl
 **Step2:**
 
 -  Make sure that you already have access to Oath grid
--  Ask Raj to add your userID to get access to `yo/hadoop-deploy`_.
+-  Ask Raj to add your userID to get access to `yo/hadoop-deploy <https://yo/hadoop-deploy>`_.
 -  Ask Raj to add you to the group ``ygrid_netgroup_griddev``
 -  Request membership of ``hadoopqa`` grid unix group by visiting `yo/doppler  <https://yo/doppler>`_. 
 
 
 **Step3:**
 
--  Go to the `yo/hadoop-deploy`_
+-  Go to the `yo/hadoop-deploy <https://yo/hadoop-deploy>`_
 -  Click on ``build with parameters``
 -  Fill in the ``CLUSTER`` field with teh name of the cluster you just
    picked (i.e., openqe99blue)
@@ -806,8 +849,8 @@ This step assumes that the build is successful.
 
 -  you can access hadoop through the browser using url such as
 
-   -  `https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster`_
-   -  `https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes`_
+   -  ``https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster``
+   -  ``https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes``
 
 
 -  Go to terminal and login to the cluster.
@@ -824,7 +867,7 @@ This step assumes that the build is successful.
 
    -  use ``scp`` to replace the jar files you have modified, on all the
       nodes listed in the hadoop cluster web page (i.e.,
-      `https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes`_)
+      ``https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes``)
 
       .. code-block:: bash
 
@@ -863,10 +906,6 @@ Initialize user for Kerberos database
 
      kinit jdoe@Y.CORP.YAHOO.COM
 
-
-.. _`yo/hadoop-deploy`: https://re100.ygrid.corp.gq1.yahoo.com:4443/jenkins/job/Hadoop-Cluster-Deploy-Grid-VM/
-.. _`https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster`: https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster
-.. _`https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes`: https://openqe99blue-n1.blue.ygrid.yahoo.com:50505/cluster/nodes
 
 If you forget to run ``kinit``, you may see an error like that:
 
