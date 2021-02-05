@@ -194,6 +194,7 @@ do
         echo installing yspark_yarn to hdfs ; \
         $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/lib/ ; \
         $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/python/lib/ ; \
+        $HADOOP fs -mkdir -p /sharelib/v1/yspark_yarn/yspark_yarn-$version/lib/yspark_yarn-$version/share/spark/ ; \
         $spark_install_jars_cmds"
 
     echo "$cmd"
