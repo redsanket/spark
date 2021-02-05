@@ -172,7 +172,7 @@ do
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
       $HADOOP fs -put -f /home/gs/spark/$label/lib/ /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/ ; \
       $HADOOP fs -put -f /home/gs/spark/$label/yspark-jars-*.tgz /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/; \
-      $HADOOP fs -put -f /home/gs/spark/$label/bin/getGpusResources.sh  /sharelib/v1/yspark_yarn/yspark_yarn-$version/share/spark/;"
+      $HADOOP fs -put -f /home/gs/spark/$label/bin/getGpusResources.sh  /sharelib/v1/yspark_yarn/yspark_yarn-$version/lib/yspark_yarn-$version/share/spark/getGpusResources.sh;"
     else
       spark_install_jars_cmds=$spark_install_jars_cmds" ; \
       $HADOOP fs -put /home/gs/spark/$label/lib/spark-assembly.jar /sharelib/v1/spark/yspark_yarn/yspark_yarn-$version/share/spark/lib/ ; \
