@@ -498,7 +498,108 @@ the Hive metastore with the following:
 
     MSCK REPAIR TABLE table_name;
 
+Multiple Hive Clusters
+######################
 
+Hive supports accessing data from same colo clusters. You can run queries to join tables from same colo multiple clusters or run commands to get metadata information for different clusters.
+Remote Metastore can be accessed by prefixing cluster name to database or table name.
+The supported format to acess remote Metastore cluster for database is <cluster-name>.<database-name> and for table is <cluster-name>.<database-name>.<table-name>.
+
+Currently, Hive CLI, Beeline, Hue, and Pig CLI supports accessing data from multiple clusters. Oozie support will be available in the next release. Spark is not supported.
+
+Note:
+ - The remote access is only supported within the same colo.
+ - The Tez job will be submitted to the current cluster.
+
+
+How to find supported clusters
+******************************
+
+::
+
+   hive>  set hive.metastore.uris.mapping;
+   hive.metastore.uris.mapping="
+   kryptonitered=thrift://kryptonitered-hcat.red.ygrid.yahoo.com:50513,
+   axonitered=thrift://axonitered-hcat.red.ygrid.yahoo.com:50513,
+   mithrilred=thrift://mithrilred-hcat.red.ygrid.yahoo.com:50513,
+   dilithiumred=thrift://dilithiumred-hcat.red.ygrid.yahoo.com:50513,
+   bassniumred=thrift://bassniumred-hcat.red.ygrid.yahoo.com:50513,
+   phazonred=thrift://phazonred-hcat.red.ygrid.yahoo.com:50513"
+   hive>
+
+Show remote tables
+******************
+
+::
+
+    hive (default)> use  bassniumred.benzene;
+    OK
+    Time taken: 1.095 seconds
+    hive (bassniumred.benzene)> show tables;
+    OK
+    daily_data
+    hourly_data
+    Time taken: 0.319 seconds, Fetched: 2 row(s)
+    hive (bassniumred.benzene)>
+
+Show remote partitions
+**********************
+
+::
+
+    hive (default)> use  bassniumred.benzene;
+    OK
+    Time taken: 1.091 seconds
+    hive (bassniumred.benzene)> show partitions daily_data;
+    OK
+    dt=20180522/network=off/pty_family=authors/pty_device=desktop/pty_experience=web/event_family=unregistered
+    dt=20180522/network=off/pty_family=buzz/pty_device=mobile/pty_experience=web/event_family=unregistered
+    dt=20180522/network=off/pty_family=buzz/pty_device=mobile/pty_experience=web/event_family=view
+    dt=20180522/network=off/pty_family=entertainment/pty_device=desktop/pty_experience=web/event_family=unregistered
+    dt=20180522/network=off/pty_family=entertainment/pty_device=mobile/pty_experience=web/event_family=unregistered
+    dt=20180522/network=off/pty_family=finance/pty_device=desktop/pty_experience=web/event_family=unregistered
+
+Join local and remote tables
+****************************
+
+::
+
+    select distinct t1.yuid
+    from
+    (
+        select a.yuid as yuid
+        from bassniumred.commsaide.udb_major_ids_dump a
+    ..............
+    ) t1
+    inner join
+    (
+        select distinct eyuidtoyuid(cookie_info["eyuid"]) as yuid
+        from benzene.daily_data
+        where dt between 20180215 and 20180225
+    .......
+    ) t2
+    on t1.yuid = t2.yuid
+    ;
+
+Accessing remote Metastore using Pig
+*************************************
+Pig can access remote Metastore by prefixing cluster name to database name. This is only supported for HCatStorer and HCatLoader.
+The format to acess remote Metastore cluster is <cluster-name>.<database-name>.<table-name>
+
+Remote Metastore read using HCatLoader
+
+::
+
+    kms = load 'bassniumred.hiveqa_kmstest_ez1_db.datatype_orcfile' using org.apache.hive.hcatalog.pig.HCatLoader();
+    kms_filter = filter kms by (t == 124);
+
+Remote Metastore write using HCatStorer
+
+::
+
+    A = LOAD '/tmp/hive_test_data/hive-systest/seed_data/simple_data/key_value.txt' USING PigStorage() AS (key:chararray, value:chararray);
+    B = filter A by key >= '294';
+    STORE B INTO 'bassniumred.hiveqa_kmstest_ez1_db.datatype_orcfile' USING org.apache.hive.hcatalog.pig.HCatStorer('dt=20200806, hr=10');
 
 Integrating Hive with Oozie
 ===========================
