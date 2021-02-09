@@ -143,7 +143,7 @@ UI
     SSLTrustStorePath=/Users/<username>/.athenz/yahoo_certificate_bundle.pem
     SessionProperties=query_max_execution_time=15m
 
-  You can set the ``SessionProperties`` to ``query_max_execution_time=15m;distributed_join=false`` for better
+  You can set the ``SessionProperties`` to ``query_max_execution_time=15m,distributed_join=false`` for better
   performance if all your join queries join with small dimension tables (<100MB) with the smaller table on the right side.
   If you have join between two large tables, do not use that option as it will cause high memory overload
   and can even take out the workers.

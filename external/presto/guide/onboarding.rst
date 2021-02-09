@@ -1,13 +1,5 @@
 Onboarding
 ##########
-
-::
-
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        * DISCLAIMER: We are currently not onboarding new users/projects onto Presto except in VCG. *
-        * Onboarding will be available for YGRID starting sometimes in Mar 2020.                    *
-        * This information is for planning purposes only.                                           * 
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
         
 Deployment Model
 ****************
