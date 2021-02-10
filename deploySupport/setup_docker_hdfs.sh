@@ -2,8 +2,9 @@
 set -o pipefail
 set -o errexit
 
-HADOOP_PREFIX=${HADOOP_PREFIX:-/home/gs/hadoop/current}
-HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/home/gs/conf/current}
+# If these are not set we need to export the variables so subshell in python can read them
+export HADOOP_PREFIX=${HADOOP_PREFIX:-/home/gs/hadoop/current}
+export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/home/gs/conf/current}
 DOCKER_SQUASH_SCRIPT="$HADOOP_PREFIX/sbin/docker-to-squash.py"
 DOCKER_HDFS_ROOT=$1
 DOCKER_IMAGE_URI_AND_TAG=$2
