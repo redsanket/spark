@@ -11,13 +11,13 @@ Encryption
 -----------
 
 
-.. important::
+.. warning::
    * Encrypting intermediate data (shuffle/spill) will incur in a
      significant performance impact. |br|
      Users should profile this and potentially reserve 1 or more cores for
      encrypted shuffle.
-   * Enabling encryption for intermediate data spills will restrict the number
-     of attempts for a job to 1.
+   * Enabling encryption for intermediate data spills automatically restricts
+     the number of job attempts to 1.
 
 .. _mapreduce_shuffle_encryption:
 
@@ -37,13 +37,13 @@ bi-directional HTTPS, or HTTPS with client certificates). It comprises:
 
 
 To enable encrypted shuffle, set ``mapreduce.shuffle.ssl.enabled`` to true
-in ``mapred-site.xml`` of all nodes in the cluster. The default is false.
+in `mapred-site.xml` of all nodes in the cluster. The default is false.
 
 
-To configure encrypted shuffle, set the following properties ``in core-site.xml``
+To configure encrypted shuffle, set the following properties in `core-site.xml`
 of all nodes in the cluster:
 
-.. table:: `core-site.xml Properties for shuffle encryption. Prefix hadoop.ssl`
+.. table:: `core-site.xml Properties for shuffle encryption. Prefix 'hadoop.ssl'`
   :widths: auto
   :name: table-mr-shuffle-configs
 
@@ -58,11 +58,11 @@ of all nodes in the cluster:
   +-----------------------------+-------------------------------+-----------------------------------------------------------------------------------------+
   | ``keystores.factory.class`` | ``FileBasedKeyStoresFactory`` | The KeyStoresFactory implementation to use                                              |
   +-----------------------------+-------------------------------+-----------------------------------------------------------------------------------------+
-  | ``server.conf``             | ``ssl-server.xml``            | Resource file from which ssl server keystore information will be extracted. |br|        |
-  |                             |                               | This file is looked up in the classpath, it should be in Hadoop ``conf/`` directory     |
+  | ``server.conf``             | `ssl-server.xml`              | Resource file from which ssl server keystore information will be extracted. |br|        |
+  |                             |                               | This file is looked up in the classpath, it should be in Hadoop `conf`    directory     |
   +-----------------------------+-------------------------------+-----------------------------------------------------------------------------------------+
-  | ``client.conf``             | ``ssl-client.xml``            | Resource file from which ssl server keystore information will be extracted. |br|        |
-  |                             |                               | This file is looked up in the classpath, it should be in Hadoop ``conf/`` directory     |
+  | ``client.conf``             | `ssl-client.xml`              | Resource file from which ssl server keystore information will be extracted. |br|        |
+  |                             |                               | This file is looked up in the classpath, it should be in Hadoop `conf/`   directory     |
   +-----------------------------+-------------------------------+-----------------------------------------------------------------------------------------+
   | ``enabled.protocols``       | TLSv1.2                       | The supported SSL protocols. The parameter will only be used from `DatanodeHttpServer`. |
   +-----------------------------+-------------------------------+-----------------------------------------------------------------------------------------+
@@ -73,9 +73,9 @@ of all nodes in the cluster:
     * The Linux container executor should be set to prevent job tasks from
       reading the server keystore information and gaining access to the shuffle
       server certificates.
-    * Currently requiring client certificates should be set to false.
+    * Currently requiring client certificates should be set to `false`.
     * Refer to
-      :ref:`the Client Certificates section <mapreduce_shuffle_client_certificates>`
+      :ref:`Client Certificates section <mapreduce_shuffle_client_certificates>`
       for details
 
 
@@ -88,15 +88,15 @@ Keystore and Truststore Settings
 Currently ``FileBasedKeyStoresFactory`` is the only ``KeyStoresFactory``
 implementation. The ``FileBasedKeyStoresFactory`` implementation uses the
 following properties (:numref:`table-mr-shuffle-ssl-server`)
-in the ``ssl-server.xml`` and ``ssl-client.xml`` files,
+in the `ssl-server.xml` and `ssl-client.xml` files,
 to configure the keystores and truststores.
 
 
-The mapred user should own the ``ssl-server.xml`` file and have exclusive read
+The mapred user should own the `ssl-server.xml` file and have exclusive read
 access to it.
 
 
-.. table:: `ssl-server.xml. Prefix ssl.server`
+.. table:: `ssl-server.xml. Prefix 'ssl.server'`
   :widths: auto
   :name: table-mr-shuffle-ssl-server
 
@@ -119,7 +119,7 @@ access to it.
   +--------------------------------+---------+------------------------------------------------------------------------------------------------------+  
 
 
-The mapred user should own the ``ssl-client.xml`` file and it should have default
+The mapred user should own the `ssl-client.xml` file and it should have default
 permissions. The values in that file are the same as descrived in
 :numref:`table-mr-shuffle-ssl-server`.
 
@@ -151,7 +151,7 @@ daemons.
 .. _mapreduce_spill_encryption:
 
 Encrypted Spill
-=================
+===============
 
 A `spill` is when a mapper's output exceeds the amount of memory which was
 allocated for the MapReduce task. **Spilling** happens when there is not enough
@@ -160,23 +160,23 @@ memory to fit all the mapper output.
 MapReduce v2 allows to encrypt intermediate files generated during encrypted
 shuffle and in case of data spills during the map and reduce stages.
 
-This can be enabled by setting the following properties in ``mapred-site.xml``.
+This can be enabled by setting the following properties in `mapred-site.xml`.
 
-.. table:: `Intermediate Data Spill configuration in MR. Prefixed mapreduce.job`
+.. table:: `Intermediate Data Spill configuration in MR. Prefixed 'mapreduce.job'`
   :widths: auto
   :name: table-mr-spill-configs
 
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | Configuration                                 | Type    | Description                                                                                                                    | Default |
-  +===============================================+=========+================================================================================================================================+=========+
-  | ``encrypted-intermediate-data``               | boolean | Enable or disable encrypt intermediate mapreduce spill files.                                                                  | False   |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``spill-encryption-keyprovider.class``        | string  | The class used as a spill key provider. This defines the encryption algorithm and key provider to get the client certificates. | ""      |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``encrypted-intermediate-data-key-size-bits`` | int     | The key length used to encrypt data spilled to disk.                                                                           | 128     |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``encrypted-intermediate-data.buffer.kb``     | int     | The buffer size in kb for stream written to disk after encryption                                                              | 128     |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | Configuration                                           | Type    | Description                                                                                                                    | Default                   |
+  +=========================================================+=========+================================================================================================================================+===========================+
+  | ``encrypted-intermediate`` |br| ``-data``               | boolean | Enable or disable encrypt intermediate mapreduce spill files.                                                                  | False                     |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``spill-encryption`` |br| ``-keyprovider.class``        | string  | The class used as a spill key provider. This defines the encryption algorithm and key provider to get the client certificates. | `DefaultSpillKeyProvider` |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``encrypted-intermediate`` |br| ``-data-key-size-bits`` | int     | The key length used to encrypt data spilled to disk.                                                                           | 128                       |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``encrypted-intermediate`` |br| ``-data.buffer.kb``     | int     | The buffer size in kb for stream written to disk after encryption                                                              | 128                       |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
 
 Available implementation for ``spill-encryption-keyprovider.class``:
 
@@ -189,15 +189,94 @@ Available implementation for ``spill-encryption-keyprovider.class``:
   ``mapreduce.job.kms-encryption-key-name`` provides the kms-key.
 
 
+How to use encrypted spill on a job
+-----------------------------------
+
+The following two examples show command line to submit `TeraSort` job on AR.
+
+Generate 6GB input folder:
+
+  .. code-block:: bash
+
+    ## login to the AR gateway
+    ssh -A axonite-gw.red.ygrid.yahoo.com
+    
+    ## kinit as the user
+    pkinit-user
+
+    ## generate 6 GB of data
+    hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar \
+               teragen  \
+               600000000 /tmp/terasort-input \
+               -Dmapreduce.job.maps=16
+
+
+Default Spill Encryption
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+To run the job with default encryption key provider ``DefaultSpillKeyProvider``,
+set ``encrypted-intermediate-data`` to true.
+
+  .. code-block:: bash
+
+    hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar \
+                terasort \
+                -Dmapreduce.job.maps=16 \
+                -Dmapreduce.job.reduces=16 \
+                -Dmapreduce.map.speculative=true \
+                -Dmapreduce.reduce.speculative=true \
+                -Dmapreduce.map.sort.spill.percent=0.8 \
+                -Dmapreduce.reduce.shuffle.merge.percent=0.96 \
+                -Dmapreduce.reduce.shuffle.input.buffer.percent=0.7 \
+                -Dmapreduce.reduce.input.buffer.percent=0.96 \
+                -Dmapreduce.job.reduce.slowstart.completedmaps=1.0 \
+                -Dmapreduce.job.running.map.limit=32 \
+                -Dmapreduce.job.encrypted-intermediate-data=true \
+                /tmp/terasort-input /tmp/terasort-output
+
+KMS Spill Encryption
+^^^^^^^^^^^^^^^^^^^^^
+
+To run the job with KMS key provider, we need to set the following parameters:
+
+* ``encrypted-intermediate-data``: true
+* ``spill-encryption-keyprovider.class``: ``KMSSpillKeyProvider``
+* ``kms-encryption-key-name``: `grid_us.EZ.spill_key`.
+
+The `grid_us.EZ.spill_key <https://ui.ckms.ouroath.com/prod/view-keygroup/grid_us.EZ/view-key/grid_us.EZ.spill_key>`_
+is created by gridops to serve as the key used to encrypt/decrypt spilled data
+to disk.
+
+  .. code-block:: bash
+
+    hadoop jar $HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar \
+                terasort \
+                -Dmapreduce.job.maps=16 \
+                -Dmapreduce.job.reduces=16 \
+                -Dmapreduce.map.speculative=true \
+                -Dmapreduce.reduce.speculative=true \
+                -Dmapreduce.map.sort.spill.percent=0.8 \
+                -Dmapreduce.reduce.shuffle.merge.percent=0.96 \
+                -Dmapreduce.reduce.shuffle.input.buffer.percent=0.7 \
+                -Dmapreduce.reduce.input.buffer.percent=0.96 \
+                -Dmapreduce.job.reduce.slowstart.completedmaps=1.0 \
+                -Dmapreduce.job.running.map.limit=32 \
+                -Dmapreduce.job.encrypted-intermediate-data=true \
+                -Dmapreduce.job.kms-encryption-key-name=grid_us.EZ.spill_key \
+                /tmp/terasort-input /tmp/terasort-output
+
 .. _mapreduce_encryption_evaluation:
 
 Performance Evaluation
 ======================
 
+Benchmarking Encryption on the grid
+-----------------------------------
+
 A `performance evaluation dated May 22nd 2019 <https://docs.google.com/spreadsheets/d/1dFdW3KrZD55rZo69oPaaZqcr1sr74SAsiNu5tSojCxk/edit#gid=2038478652>`_ of ``TeraSort``
 
 
-Characterestics:
+Characteristics:
   * 11 GB and 20 GB shuffle 
   * To get the worst case scenario, the sort buffer size and factors were lowered
 
@@ -208,6 +287,71 @@ Results (the ones measured with smaller buffers):
   * Total deterioration in shuffle and merge phase is ~ 4% in the worst case;
   * CPU times increases by 2.97%-10% (AVG: 4.43%)
   * CPU time degrades in the range of 0.7-2.26% (AVG: 1.55%).
+
+
+How to optimize shuffling/sorting phase in MR job
+-------------------------------------------------
+
+To achieve Shuffle and Sort efficiency:
+  Combiner
+     Using combiner will reduce the amount of data transferred to each of the
+     reducers, since combiner merges the output on the mapper side.
+
+  Number of reducers
+     Choose optimal number of reducers. For further readings on how to pick the
+     number of reducers, see:
+
+     * `Hadoop wiki: HowManyMapsAndReduces <https://cwiki.apache.org/confluence/display/HADOOP2/HowManyMapsAndReduces>`_
+     * `github.paulhoule/infovore: Choosing the number of reducers <https://github.com/paulhoule/infovore/wiki/Choosing-the-number-of-reducers>`_.
+
+  Tuning ``mapreduce.task.io.sort.mb``
+     Increase the buffer size used by the mappers during the sorting. This will
+     reduce the number of spills to the disk.
+
+  Tuning ``mapreduce.reduce.input.buffer.percent``
+     If the reduce task has minimal memory requirements, then this value can be
+     set to a high percentage. This means, higher amount of heap is used for
+     retaining the map outputs during the reduce phase (after the shuffle phase),
+     thus reducing the number of spills to disk.
+
+  Tuning ``mapreduce.reduce.shuffle.parallelcopies``
+     Number of threads used to copy map outputs to reducers.
+
+  Compress Mapper Output
+     compressing the mapper outputs, which is determined by
+     ``mapreduce.map.output.compress`` (see :ref:`mapreduce_compression`).
+     When compressed, less data gets written to disk and gets transferred to
+     reducers.
+
+Below are configuration parameters to consider to improve the performance:
+  ``mapreduce.map.sort.spill.percent``
+     This value determines the number of spills to disk.
+     Default is 80%.
+     It determines the threshold for the in memory buffer used by the mapper.
+     When this threshold is reached, the contents of the buffer are spilled
+     to disk. . It is not recommended to set it below 50%.
+
+  ``mapreduce.task.io.sort.factor``
+     Minimum number of streams to be merged at once, during sorting. Defaut is 10.
+     On the reducer side, if there are 50 mapper outputs and this value is set to
+     10, then there will be 5 rounds of merging
+     (on an average 10 files for merge round).
+
+  ``mapreduce.shuffle.max.threads``
+     Number of worker threads for copying the map outputs to reducers.
+
+  ``mapreduce.reduce.shuffle.input.buffer.percent``
+     How much of heap should be used for storing the map output, during the
+     shuffle phase in the reducer. This setting determines the amount of mapper
+     output that can be held in memory, before it is spilled to disk.
+
+  ``mapreduce.reduce.shuffle.merge.percent``
+     Threshold for starting the process of merge and spilling to disk.
+
+  ``mapreduce.reduce.merge.inmem.threshold``
+     Number of map outputs needed for starting the merge process.
+     When either ``shuffle.merge.percent`` or ``inmem.threshold`` is reached,
+     then the map outputs are merged and spilled to disk.
 
 
 Resources

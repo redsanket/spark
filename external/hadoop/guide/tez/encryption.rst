@@ -1,8 +1,8 @@
 ..  _tez_encryption:
 
-******************************************
+**********
 Encryption
-******************************************
+**********
 
 .. contents:: Table of Contents
   :local:
@@ -10,50 +10,66 @@ Encryption
 
 -----------
 
-Similar to `Mapreduce data encryption <mapreduce_encryption>`,  this capability
+
+Similar to :ref:`Mapreduce Encryption <mapreduce_encryption>`,  this capability
 allows encryption of the intermediate files generated during the shuffle/spill.
 
-.. important::
+.. warning::
    * Encrypting intermediate data (shuffle/spill) will incur in a
      significant performance impact. |br|
      Users should profile this and potentially reserve 1 or more cores for
      encrypted spill.
+   * Enabling encryption for intermediate data spills automatically restricts
+     the number of attempts for a job to 1
+     (a.k.a, ``TezConfiguration.TEZ_AM_MAX_APP_ATTEMPTS``).
 
+
+Tez Shuffle
+===========
+
+Tez uses org.apache.hadoop.mapred.ShuffleHandler provided by MapReduce version
+2.0 (MRv2) as an auxiliary service, which you can choose to configure via the
+`hadoop/mapred-site.xml` file.
+
+On a secured cluster, Tez shuffle, SSL encryption configuration is enabled in
+`conf/tez-site.xml` by setting ``tez.runtime.shuffle.ssl.enable`` to true. 
+Also, Tez shuffle for YARN must be configured by setting
+``mapreduce.shuffle.ssl.enabled`` in `mapred-site.xml` file
+(see :numref:`mapreduce_shuffle_encryption`).
+
+
+Tez Spill
+=========
 
 It can be enabled by setting the `tez.am.encrypted-intermediate-data` job property
 to true.
-
-.. todo::
-   * is there a restriction on the number of the number of attempts for a job to
-     1.
-   * are those configs work for both spill and shuffle?
 
 
 .. _tez_spill_encryption_config:
 
 Configuration
-=============
+-------------
 
-Intermediate encryption of a Tez job can be configued using the list of values
+Intermediate encryption of a Tez job can be configured using the list of values
 listed in :numref:`table-tez-spill-configs`.
 
 .. _tez_spill_encryption:
 
-.. table:: `TEZ Configuration AM level for Intermediate Data Encryption prefix tez.am`
+.. table:: `TEZ Configuration AM level for Intermediate Data Encryption prefix 'tez.am'`
   :widths: auto
   :name: table-tez-spill-configs
 
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | Configuration                                 | Type    | Description                                                                                                                    | Default |
-  +===============================================+=========+================================================================================================================================+=========+
-  | ``encrypted-intermediate-data``               | boolean | Enable/Disable intermediate data encryption.                                                                                   | False   |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``encrypted-intermediate-data.class``         | string  | The class used as a spill key provider. This defines the encryption algorithm and key provider to get the client certificates. | ""      |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``encrypted-intermediate-data-key-size-bits`` | int     | The key length used to encrypt data spilled to disk.                                                                           | 128     |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
-  | ``encrypted-intermediate-data.buffer.kb``     | int     | The buffer size in kb for stream written to disk after encryption                                                              | 128     |
-  +-----------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------+
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | Configuration                                           | Type    | Description                                                                                                                    | Default                   |
+  +=========================================================+=========+================================================================================================================================+===========================+
+  | ``encrypted-intermediate`` |br| ``-data``               | boolean | Enable/Disable intermediate data encryption.                                                                                   | False                     |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``encrypted-intermediate`` |br| ``-data.class``         | string  | The class used as a spill key provider. This defines the encryption algorithm and key provider to get the client certificates. | `DefaultSpillKeyProvider` |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``encrypted-intermediate`` |br| ``-data-key-size-bits`` | int     | The key length used to encrypt data spilled to disk.                                                                           | 128                       |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
+  | ``encrypted-intermediate`` |br| ``-data.buffer.kb``     | int     | The buffer size in kb for stream written to disk after encryption                                                              | 128                       |
+  +---------------------------------------------------------+---------+--------------------------------------------------------------------------------------------------------------------------------+---------------------------+
 
 Available implementation for ``encrypted-intermediate-data.class``:
 
@@ -73,6 +89,51 @@ Available implementation for ``encrypted-intermediate-data.class``:
 
 
 
+.. _tez_spill_encryption_examples:
+
+Examples Using Encrypted Spill
+------------------------------
+
+The following two examples show command line to submit `orderedwordcount` job on AR.
+
+Default Spill Encryption
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+To run the job with default encryption key provider ``DefaultSpillKeyProvider``,
+set ``encrypted-intermediate-data`` to true.
+
+  .. code-block:: bash
+
+     export HADOOP_CLASSPATH="$TEZ_HOME/*:$TEZ_HOME/lib/*:$TEZ_CONF_DIR"
+     hadoop jar $TEZ_HOME/tez-examples-*.jar \
+            orderedwordcount \
+            -Dtez.am.encrypted-intermediate-data=true \
+            /tmp/wordcount-folder-input \
+            /tmp/wordcount-folder-output
+
+KMS Spill Encryption
+^^^^^^^^^^^^^^^^^^^^
+
+To run the job with KMS key provider, set the following parameters:
+
+  * ``encrypted-intermediate-data``: true
+  * ``spill-encryption-keyprovider.class``: ``KMSSpillKeyProvider``
+  * ``kms-encryption-key-name``: `grid_us.EZ.spill_key`.
+
+  The `grid_us.EZ.spill_key <https://ui.ckms.ouroath.com/prod/view-keygroup/grid_us.EZ/view-key/grid_us.EZ.spill_key>`_
+  is created by gridops to serve as the key used to encrypt/decrypt spilled data to disk.
+
+  .. code-block:: bash
+
+     export HADOOP_CLASSPATH="$TEZ_HOME/*:$TEZ_HOME/lib/*:$TEZ_CONF_DIR"
+     hadoop jar $TEZ_HOME/tez-examples-*.jar \
+            orderedwordcount \
+            -Dtez.am.encrypted-intermediate-data=true \
+            -Dtez.am.encrypted-intermediate-data.class=org.apache.tez.client.KMSSpillKeyProvider \
+            -Dtez.am.kms-encryption-key-name=grid_us.EZ.spill_key \
+            /tmp/wordcount-folder-input \
+            /tmp/wordcount-folder-output
+
 .. _tez_spill_evaluation:
 
 Performance Evaluation
@@ -81,7 +142,7 @@ Performance Evaluation
 A `performance evaluation dated May 22nd 2019 <https://docs.google.com/spreadsheets/d/1dFdW3KrZD55rZo69oPaaZqcr1sr74SAsiNu5tSojCxk/edit#gid=2038478652>`_ of ``OrderedWordCount``.
 
 
-Characterestics:
+Characteristics:
   * `20` GB shuffle.
   * Configs:
     
