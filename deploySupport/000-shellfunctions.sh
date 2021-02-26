@@ -20,7 +20,7 @@ PDSH_FAST="$PDSH -u $FAST_WAIT_SEC -f 25 "
 PDSH_SLOW="$PDSH -u $SLOW_WAIT_SEC -f 25 "
 
 # specify the remote shell to use
-rsync_opt="-e \"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\""
+rsync_opt="-e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
 
 function transport_files_from_admin() {
     local ADM_HOST=$1
