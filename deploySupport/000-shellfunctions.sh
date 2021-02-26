@@ -16,8 +16,8 @@ SLOW_WAIT_MIN=15
 FAST_WAIT_SEC=$((FAST_WAIT_MIN*60))
 SLOW_WAIT_SEC=$((SLOW_WAIT_MIN*60))
 PDSH="pdsh -S "
-PDSH_FAST="export PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $FAST_WAIT_SEC -f 25 "
-PDSH_SLOW="export PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $SLOW_WAIT_SEC -f 25 "
+PDSH_FAST="$PDSH -u $FAST_WAIT_SEC -f 25 "
+PDSH_SLOW="$PDSH -u $SLOW_WAIT_SEC -f 25 "
 
 function transport_files_from_admin() {
     local ADM_HOST=$1
@@ -106,7 +106,7 @@ fanout_root() {
     # echo 'fanout_root: start on ' `date +%H:%M:%S`
     if [ -n "$HOSTLIST" ]; then
         set -x
-        $PDSH_FAST -w "$HOSTLIST" "sudo bash -c '$cmd'"
+        export PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH_FAST -w "$HOSTLIST" "sudo bash -c '$cmd'"
         RC=$?
         set +x
         return $RC
