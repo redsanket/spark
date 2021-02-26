@@ -16,8 +16,8 @@ SLOW_WAIT_MIN=15
 FAST_WAIT_SEC=$((FAST_WAIT_MIN*60))
 SLOW_WAIT_SEC=$((SLOW_WAIT_MIN*60))
 PDSH="pdsh -S "
-PDSH_FAST="PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $FAST_WAIT_SEC -f 25 "
-PDSH_SLOW="PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $SLOW_WAIT_SEC -f 25 "
+PDSH_FAST="export PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $FAST_WAIT_SEC -f 25 "
+PDSH_SLOW="export PDSH_SSH_ARGS_APPEND='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' && $PDSH -u $SLOW_WAIT_SEC -f 25 "
 
 function transport_files_from_admin() {
     local ADM_HOST=$1
