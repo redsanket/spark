@@ -35,7 +35,7 @@ function transport_files_from_admin() {
     mkdir -p $TMP_DIR
     ls -l $TMP_DIR
     echo "rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR"
-    rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR
+    rsync -e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' --rsync-path 'sudo rsync' -avzq --timeout=300 --delete hadoopqa@${ADM_HOST}:${ADM_PATH} $TMP_DIR
     RC=$?
     if [ $RC -ne 0 ]; then
         echo "Error: rsync of files from admin host $ADM_HOST failed!"
@@ -52,7 +52,7 @@ function transport_files_from_admin() {
     for node in $NODES; do
         $SSH $node sudo mkdir -p $NODE_PATH
         echo "rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH"
-        rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH
+        rsync -e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $TMP_DIR/* $node:$NODE_PATH
         RC=$?
         if [ $RC -ne 0 ]; then
             echo "Error: rsync of files from Jenkins worker node to node $node failed!"
@@ -143,7 +143,7 @@ fanoutscp() {
     # rsync file from the Jenkins worker node to the target node
     for node in $NODES; do
         echo "rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET"
-        rsync $rsync_opt --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
+        rsync -e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' --rsync-path 'sudo rsync' -avzq --timeout=300 --delete $SOURCE $node:$TARGET
         RC=$?
         if [ $RC -ne 0 ]; then
             echo "Error: rsync of files from Jenkins worker node to node $node failed!"
