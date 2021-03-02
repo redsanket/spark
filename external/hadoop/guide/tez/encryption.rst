@@ -10,12 +10,9 @@ Encryption
 
 -----------
 
-
-Similar to :ref:`Mapreduce Encryption <mapreduce_encryption>`,  this capability
-allows encryption of the intermediate files generated during the shuffle/spill.
-
 .. warning::
-   * Encrypting intermediate data (shuffle/spill) will incur in a
+   * Using ``DefaultSpillKeyProvider`` is **ONLY** meant for testing purposes.
+   * Encrypting intermediate data (shuffle/spill) will incur a
      significant performance impact. |br|
      Users should profile this and potentially reserve 1 or more cores for
      encrypted spill.
@@ -24,10 +21,19 @@ allows encryption of the intermediate files generated during the shuffle/spill.
      (a.k.a, ``TezConfiguration.TEZ_AM_MAX_APP_ATTEMPTS``).
 
 
+Similar to :ref:`Mapreduce Encryption <mapreduce_encryption>`,  this capability
+allows encryption of the intermediate files generated during the shuffle/spill.
+
+
 Tez Shuffle
 ===========
 
-Tez uses org.apache.hadoop.mapred.ShuffleHandler provided by MapReduce version
+.. sidebar:: More Details ...
+
+   * :ref:`Mapreduce Encryption <mapreduce_shuffle_encryption>`
+   * :ref:`What is Shuffling <mapreduce_encryption_definitions>`
+
+Tez uses ``org.apache.hadoop.mapred.ShuffleHandler`` provided by MapReduce version
 2.0 (MRv2) as an auxiliary service, which you can choose to configure via the
 `hadoop/mapred-site.xml` file.
 
@@ -44,6 +50,11 @@ Tez Spill
 It can be enabled by setting the `tez.am.encrypted-intermediate-data` job property
 to true.
 
+.. sidebar:: More Details ...
+
+   * :ref:`What is Spilling <mapreduce_spill_encryption>`
+   * :ref:`Shuffling Vs. Spilling <mapreduce_encryption_definitions>`
+   * :ref:`What to expect with Encrypted Spilling <mapreduce_spill_encryption_expectations>`
 
 .. _tez_spill_encryption_config:
 
@@ -138,6 +149,10 @@ To run the job with KMS key provider, set the following parameters:
 
 Performance Evaluation
 ======================
+
+.. sidebar:: Tuning Spill Encryption ...
+
+   See :ref:`mapreduce_encryption_evaluation_optimization`
 
 A `performance evaluation dated May 22nd 2019 <https://docs.google.com/spreadsheets/d/1dFdW3KrZD55rZo69oPaaZqcr1sr74SAsiNu5tSojCxk/edit#gid=2038478652>`_ of ``OrderedWordCount``.
 
