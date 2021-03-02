@@ -212,7 +212,7 @@ HDFS has rserves some paths and names (e.g. "`/.reserved`" and "`.snapshot`").
 Features such as
 :hadoop_rel_doc:`transparent encryption <hadoop-project-dist/hadoop-hdfs/TransparentEncryption.html>`
 and :hadoop_rel_doc:`snapshot <hadoop-project-dist/hadoop-hdfs/HdfsSnapshots.html>`
-use reserved paths.
+use reserved paths. (Note: The snapshot feature is not enabled within Verizonmedia)
 
 The :term:`NameNode` maintains the file system namespace. Any change to the
 file system namespace or its properties is recorded by the NameNode. |br|
@@ -254,51 +254,6 @@ functioning properly. A Blockreport contains a list of all blocks on a DataNode.
 
   HDFS DataNode and Block Replication.
   `Source from Apache Hadoop Docs -` :hadoop_rel_doc:`HDFS Architecture <hadoop-project-dist/hadoop-hdfs/HdfsDesign.html#Data_Replication>`.
-
-Replica Placement
------------------
-
-The current implementation for the replica placement policy is a rack-aware
-replica placement policy is to improve data reliability, availability, and
-network bandwidth utilization. The :term:`NameNode` determines the `rack-id`
-each DataNode belongs to via the process outlined in 
-:hadoop_rel_doc:`Hadoop Rack Awareness <hadoop-project-dist/hadoop-common/RackAwareness.html>`.
-This policy evenly distributes replicas in the cluster which makes it easy to
-balance load on component failure. However, this policy increases the cost of
-writes because a write needs to transfer blocks to multiple racks.
-
-
-For the common case, when the replication factor is three, HDFS’s placement
-policy is to put one replica on the local machine if the writer is on a
-datanode, otherwise on a random datanode, another replica on a node in a
-different (remote) rack, and the last on a different node in the same remote
-rack. This policy cuts the inter-rack write traffic which generally improves
-write performance.
-
-The chance of rack failure is far less than that of node
-failure; this policy does not impact data reliability and availability
-guarantees. However, it does reduce the aggregate network bandwidth used when
-reading data since a block is placed in only two unique racks rather than three.
-With this policy, the replicas of a file do not evenly distribute across the
-racks.
-
-One third of replicas are on one node, two thirds of replicas are on one
-rack, and the other third are evenly distributed across the remaining racks.
-This policy improves write performance without compromising data reliability or
-read performance.
-
-.. note:: If the replication factor is greater than `3`, the placement of the
-   4:sup:`th` and following replicas are determined randomly while keeping the number
-   of replicas per rack below the upper limit, which is basically
-   :math:`\left(\dfrac{\textit{replicas} - 1}{racks} + 2\right)`.
-
-The :term:`NameNode` chooses nodes based on rack awareness at first, then checks
-that the candidate node have storage required by the policy associated with the
-file. If the candidate node does not have the storage type, the NameNode looks
-for another node. If enough nodes to place replicas can not be found in the
-first path, the :term:`NameNode` looks for nodes having fallback storage types
-in the second path.
-(See Apache Hadoop Docs - :hadoop_rel_doc:`Support for Storage Types and Policies <hadoop-project-dist/hadoop-hdfs/ArchivalStorage.html>`)
 
 
 Replica Selection
