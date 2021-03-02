@@ -170,7 +170,7 @@ do
 
     if [[ $version == "3."* ]]; then
 	spark_install_jars_cmds=$spark_install_jars_cmds" ; \
-	$HADOOP fs -put -f /home/gs/spark/$label/bin/getGpusResources.sh  /sharelib/v1/yspark_yarn/yspark_yarn-$version/lib/yspark_yarn-$version/share/spark/getGpusResources.sh;"
+	$HADOOP fs -put -f /home/gs/spark/$label/bin/getGpusResources.sh  /sharelib/v1/yspark_yarn/yspark_yarn-$version/lib/yspark_yarn-$version/share/spark/getGpusResources.sh"
     fi
 
     if [[ $version == "2."* || $version == "3."* ]]; then
