@@ -12,13 +12,15 @@ Encryption
 
 .. warning::
    * Using ``DefaultSpillKeyProvider`` is **ONLY** meant for testing purposes.
-   * Encrypting intermediate data (shuffle/spill) will incur a
-     significant performance impact. |br|
-     Users should profile this and potentially reserve 1 or more cores for
-     encrypted spill.
    * Enabling encryption for intermediate data spills automatically restricts
      the number of attempts for a job to 1
      (a.k.a, ``TezConfiguration.TEZ_AM_MAX_APP_ATTEMPTS``).
+   * Encrypting intermediate data (shuffle/spill) will incur
+     performance impact proportional to the amount of spill data due to cpu
+     overhead of encrypting spill data.
+   * Users should profile this and potentially reserve 1 or more cores for
+     encrypted shuffle.
+
 
 
 Similar to :ref:`Mapreduce Encryption <mapreduce_encryption>`,  this capability

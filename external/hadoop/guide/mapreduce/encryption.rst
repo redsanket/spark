@@ -15,9 +15,10 @@ Encryption
    * Using ``DefaultSpillKeyProvider`` is **ONLY** meant for testing purposes.
    * Enabling encryption for intermediate data spills automatically restricts
      the number of job attempts to 1.
-   * Encrypting intermediate data (shuffle/spill) will incur a
-     significant performance impact. |br|
-     Users should profile this and potentially reserve 1 or more cores for
+   * Encrypting intermediate data (shuffle/spill) will incur
+     performance impact proportional to the amount of spill data due to cpu
+     overhead of encrypting spill data.
+   * Users should profile this and potentially reserve 1 or more cores for
      encrypted shuffle.
 
 ..  _mapreduce_encryption_definitions:
@@ -211,7 +212,8 @@ shuffle and in case of data spills during the map and reduce stages.
    :class: readingbox
 
    * As mentioned, spilled files are writen to server's disc (not HDFS).
-     This implies that the :term:`Mapper` outputs could be read easily.
+     :term:`Mapper` outputs are protected by norm unix file permissions,
+     but someone with physical access to the disc could read the data easily.
      Encryption keeps the spilled temporary files secure.
    * Slow down in the throughput of the tasks due to the overhead of
      encrypting/decrypting the intermediate files.
@@ -334,6 +336,7 @@ to disk.
                 -Dmapreduce.job.running.map.limit=32 \
                 -Dmapreduce.job.encrypted-intermediate-data=true \
                 -Dmapreduce.job.kms-encryption-key-name=grid_us.EZ.spill_key \
+                -Dmapreduce.job.spill-encryption-keyprovider.class=org.apache.hadoop.mapreduce.KMSSpillKeyProvider \
                 -Dmapreduce.terasort.output.replication=3 \
                 /tmp/terasort-input /tmp/terasort-output
 
