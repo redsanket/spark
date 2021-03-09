@@ -168,7 +168,7 @@ if [ -n "$HADOOP_RELEASE_TAG" ]; then
       # use arbitrary jdk version sent in from jenkins
       echo "Using yjava_jdk $YJAVA_JDK_VERSION"
       # note: can't use '^', jenkins is inserting some chars in front of the choice list item
-      if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-8" || $YJAVA_JDK_VERSION =~ "yjava_jdk-11" ]]; then
+      if [[ $YJAVA_JDK_VERSION =~ "yjava_jdk-11" || $YJAVA_JDK_VERSION =~ "yjava_jdk-8" ]]; then
         HADOOP_INSTALL_STRING+=" $YJAVA_JDK_VERSION"
       else
         echo "Error: invalid YJAVA_JDK_VERSION value, expected starts-with yjava_jdk-8, got: $YJAVA_JDK_VERSION"
